@@ -12,7 +12,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 # production domain(s)
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'yourdomain.com').split(',')
+ALLOWED_HOSTS = os.environ.get('django-connexa-social-platform-bucosa-production.up.railway.app').split(',')
 
 # Security settings 
 SECURE_SSL_REDIRECT = True
