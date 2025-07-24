@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
+  <h2 class="text-2xl font-bold mb-4">New Event in {{ fellowship.name }}</h2>
+  <form method="post" enctype="multipart/form-data" class="flex flex-col gap-4">
+    {% csrf_token %}
+    <input type="text" name="title" required placeholder="Event Title" class="w-full border rounded-lg px-4 py-2" />
+    <textarea name="description" rows="3" required placeholder="Event Description" class="w-full border rounded-lg px-4 py-2"></textarea>
+    <input type="text" name="location" required placeholder="Location" class="w-full border rounded-lg px-4 py-2" />
+    <input type="datetime-local" name="start_time" required class="w-full border rounded-lg px-4 py-2" />
+    <input type="datetime-local" name="end_time" required class="w-full border rounded-lg px-4 py-2" />
+    <input type="file" name="cover_image" accept="image/*" class="border rounded-lg px-4 py-2" />
+    <div class="flex gap-2">
+      <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold">Create Event</button>
+      <a href="{% url 'fellowship_detail' fellowship.id %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-semibold">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

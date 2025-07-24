@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>All Groups</h2>
+<ul>
+    {% for group in groups %}
+        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            {% if group.profile and group.profile.profile_image %}
+                <img src="{{ group.profile.profile_image.url }}" alt="{{ group.name }} Profile Image" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;" />
+            {% else %}
+                <div style="width: 40px; height: 40px; background: #eee; border-radius: 6px; border: 1px solid #ccc;"></div>
+            {% endif %}
+            <div>
+                <a href="{% url 'users:group_profile' group.id %}">{{ group.name }}</a>
+                {% if group.profile and group.profile.creator %}
+                    <span style="font-size: 0.95em; color: #555;">by <a href="{% url 'users:profile' group.profile.creator.id %}">{{ group.profile.creator.username }}</a></span>
+                {% endif %}
+                {% if group.profile and group.profile.description %}
+                    <div style="font-size: 0.9em; color: #888;">{{ group.profile.description|truncatewords:10 }}</div>
+                {% endif %}
+                <ul>
+                    {% for user in group.user_set.all %}
+                        <li style="display: inline; margin-right: 8px;"><a href="{% url 'users:profile' user.id %}">{{ user.username }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+    {% empty %}
+        <li>No groups found.</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'users:create_group' %}">Create a new group</a>
+{% endblock %}

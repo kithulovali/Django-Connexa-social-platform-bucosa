@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+</head>
+<body>
+    {% extends 'base.html' %}
+    {% block content %}
+    <div class="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-gray-900 via-sky-950 to-indigo-900">
+      <!-- Left: Hero -->
+      <div class="hidden md:flex flex-col justify-center items-center flex-1 px-10 py-20">
+        <span class="material-icons text-sky-400 text-[7rem] mb-8 drop-shadow-xl">public</span>
+        <h1 class="text-6xl font-extrabold text-white mb-6 tracking-tight leading-tight drop-shadow-xl">Happening now</h1>
+        <h2 class="text-3xl font-bold text-sky-300 mb-2 drop-shadow">Join the conversation on Bucosa</h2>
+      </div>
+      <!-- Right: Auth Card -->
+      <div class="flex flex-col justify-center items-center flex-1 px-4 py-20">
+        <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-10 max-w-md w-full flex flex-col items-center border-2 border-sky-200">
+          <h2 class="text-3xl font-extrabold mb-6 text-gray-900 tracking-tight text-center">Join Bucosa today</h2>
+          <div class="flex flex-col gap-4 w-full">
+            <a href="{% url 'users:register' %}" class="w-full text-center px-4 py-3 rounded-full bg-sky-500 text-white font-bold text-lg shadow hover:bg-sky-600 transition">Sign up</a>
+            <a href="{% url 'users:login' %}" class="w-full text-center px-4 py-3 rounded-full bg-gray-900 text-white font-bold text-lg shadow hover:bg-gray-800 transition">Log in</a>
+            <div class="relative flex items-center my-2">
+              <div class="flex-grow border-t border-gray-200"></div>
+              <span class="mx-3 text-gray-400 text-sm">or</span>
+              <div class="flex-grow border-t border-gray-200"></div>
+            </div>
+            <a href="{% url 'users:login' %}" class="w-full text-center px-4 py-3 rounded-full bg-white border border-sky-400 text-sky-600 font-bold text-lg shadow hover:bg-sky-50 transition flex items-center justify-center gap-2">
+              <span class="material-icons text-sky-500">mail</span>
+              Continue with Email
+            </a>
+          </div>
+          <div class="mt-8 text-center text-gray-400 text-xs">
+            By signing up, you agree to our <a href="#" class="underline hover:text-sky-600">Terms</a> and <a href="#" class="underline hover:text-sky-600">Privacy Policy</a>.
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

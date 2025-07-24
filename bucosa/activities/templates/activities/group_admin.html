@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="group-admin-container">
+    <h2>Admin Panel for {{ group.name }}</h2>
+    <div style="margin-bottom: 24px;">
+        <strong>Group Description:</strong> {{ group_profile.description }}<br>
+        <strong>Members:</strong> {{ members|length }}
+    </div>
+    <h3>Admins</h3>
+    <ul>
+        {% for admin in group_profile.admins.all %}
+            <li>
+                <a href="{% url 'profile' admin.id %}">{{ admin.username }}</a>
+                {% if admin != group_profile.creator and request.user == group_profile.creator %}
+                    <form action="" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ admin.id }}">
+                        <input type="hidden" name="action" value="demote">
+                        <button type="submit" style="color:red;background:none;border:none;">Remove Admin</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <h3>Manage Group Members</h3>
+    <ul>
+        {% for user in members %}
+            <li>
+                <a href="{% url 'profile' user.id %}">{{ user.username }}</a>
+                {% if user != group_profile.creator %}
+                    <a href="{% url 'remove_user_from_group' group.id user.id %}" style="color:red;">Remove</a>
+                {% endif %}
+                {% if user not in group_profile.admins.all and request.user == group_profile.creator %}
+                    <form action="" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <input type="hidden" name="action" value="promote">
+                        <button type="submit" style="color:green;background:none;border:1px solid #2a7;padding:2px 8px;border-radius:4px;">Create Admin</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'add_user_to_group' group.id %}" class="btn btn-secondary">Add User</a>
+    <a href="{% url 'analytics_dashboard' %}" class="btn btn-info" style="margin-top:12px;">View Analytics Dashboard</a>
+    <a href="{% url 'create_event_in_group' group.id %}" class="btn btn-primary" style="margin-bottom:16px;">Create Event for This Group</a>
+    <hr>
+    <h3>All Group Posts</h3>
+    <ul>
+        {% for post in group_posts %}
+            <li style="margin-bottom: 16px;">
+                <div style="font-weight:bold;">{{ post.title }}</div>
+                <div>{{ post.content|linebreaks }}</div>
+                {% if post.image %}
+                    <div><img src="{{ post.image.url }}" alt="Post Image" style="max-width:200px;max-height:200px;margin:8px 0;" /></div>
+                {% endif %}
+                {% if post.video %}
+                    <div>
+                        <video controls style="max-width:300px;max-height:200px;margin:8px 0;">
+                            <source src="{{ post.video.url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                {% endif %}
+                <div style="color:#888;font-size:0.95em;">By <a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a> on {{ post.created_at|timesince }} ago</div>
+                <a href="{% url 'edit_post' post.id %}">Edit</a>
+                <a href="{% url 'delete_post' post.id %}" style="color:red;">Delete</a>
+            </li>
+        {% empty %}
+            <li>No posts yet.</li>
+        {% endfor %}
+    </ul>
+    <hr>
+    <h3>All Group Events</h3>
+    <ul>
+        {% for event in group_events %}
+            <li style="margin-bottom: 16px;">
+                <div style="font-weight:bold;">{{ event.title }}</div>
+                <div>{{ event.description|linebreaks }}</div>
+                <div style="color: #888;">Start: {{ event.start_time|date:'M d, Y H:i' }}<br>End: {{ event.end_time|date:'M d, Y H:i' }}</div>
+                <div style="color: #555; margin-bottom: 4px;"><strong>Location:</strong> {{ event.location }}</div>
+                {% if event.cover_image and event.cover_image.url %}
+                    <img src="{{ event.cover_image.url }}" alt="Event Image" style="max-width:180px;max-height:120px;border-radius:8px;">
+                {% else %}
+                    <img src="{% static 'images/default.jpg' %}" alt="Default Event Image" style="max-width:180px;max-height:120px;border-radius:8px;">
+                {% endif %}
+                <div>By <a href="{% url 'profile' event.creator.id %}">{{ event.creator.username }}</a></div>
+                <div style="margin: 8px 0;">
+                    <form action="{% url 'attend_event' event.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success" style="padding:2px 10px;">Attend</button>
+                    </form>
+                </div>
+                {% if event.attendees.all %}
+                    <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0;">
+                        {% for attendee in event.attendees.all %}
+                            <a href="{% url 'profile' attendee.id %}" title="{{ attendee.username }}">
+                                {% if attendee.profile and attendee.profile.profile_image %}
+                                    <img src="{{ attendee.profile.profile_image.url }}" alt="{{ attendee.username }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid #ccc;" />
+                                {% else %}
+                                    <img src="{% static 'images/default.jpg' %}" alt="Default" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid #ccc;" />
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <a href="{% url 'edit_event' event.id %}">Edit</a>
+                <a href="{% url 'delete_event' event.id %}" style="color:red;">Delete</a>
+            </li>
+        {% empty %}
+            <li>No events yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

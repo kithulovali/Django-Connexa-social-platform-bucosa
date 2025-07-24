@@ -1,0 +1,21 @@
+{
+  "name": "Bucosa",
+  "short_name": "Bucosa",
+  "description": "Connexa",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "icons": [
+    {
+      "src": "/static/img/pwa-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/pwa-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

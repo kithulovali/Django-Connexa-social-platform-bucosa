@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-sky-950 to-indigo-900 py-10">
+  <div class="bg-white/90 rounded-3xl shadow-2xl p-10 max-w-lg w-full flex flex-col items-center border-2 border-sky-200">
+    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+      <span class="material-icons">person_add</span> Create Your Profile
+    </h2>
+    {% if messages %}
+      <ul class="mb-4 w-full">
+        {% for message in messages %}
+          <li class="text-red-600">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data" class="w-full flex flex-col gap-4 items-center">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="w-full flex flex-col gap-2">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {{ form.username.errors }}
+      </div>
+      <div class="w-full flex flex-col gap-2">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+      <div class="w-full flex flex-col gap-2">
+        {{ form.profile_image.label_tag }}
+        {{ form.profile_image }}
+        {{ form.profile_image.errors }}
+      </div>
+      <div class="w-full flex flex-col gap-2">
+        {{ form.cover_image.label_tag }}
+        {{ form.cover_image }}
+        {{ form.cover_image.errors }}
+      </div>
+      <div class="w-full flex flex-col gap-2">
+        {{ form.bio.label_tag }}
+        {{ form.bio }}
+        {{ form.bio.errors }}
+      </div>
+      <div class="w-full flex flex-col gap-2">
+        {{ form.website.label_tag }}
+        {{ form.website }}
+        {{ form.website.errors }}
+      </div>
+      <div class="w-full flex flex-col gap-2">
+        {{ form.location.label_tag }}
+        {{ form.location }}
+        {{ form.location.errors }}
+      </div>
+      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition mt-4">Create Profile</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

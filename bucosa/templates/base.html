@@ -1,0 +1,137 @@
+<!-- filepath: c:\Users\danbash\Desktop\Github\Django-Connexa-social-platform-bucosa\bucosa\templates\base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tailwind CSS CDN (no dark mode config) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,400,0,0&icon_names=church" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#22223b">
+   
+    {% block extra_head %}{% endblock %}
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('{% static 'service-worker.js' %}');
+        });
+      }
+    </script>
+</head>
+<body class="bg-white min-h-screen transition-colors duration-300">
+    <!-- PWA Install Button -->
+    <button id="pwa-install-btn" style="display:none;position:fixed;bottom:24px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">Install Bucosa App</button>
+    <script>
+      let deferredPrompt;
+      const installBtn = document.getElementById('pwa-install-btn');
+      // Hide the install button if the app is already installed
+      function hideInstallBtnIfInstalled() {
+        // For most browsers
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+          installBtn.style.display = 'none';
+        } else {
+          installBtn.style.display = 'block';
+        }
+      }
+      hideInstallBtnIfInstalled();
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        hideInstallBtnIfInstalled();
+      });
+      window.addEventListener('appinstalled', () => {
+        installBtn.style.display = 'none';
+      });
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            installBtn.style.display = 'none';
+          }
+          deferredPrompt = null;
+        } else {
+          alert('PWA install prompt is not available in this browser or context.');
+        }
+      });
+    </script>
+    <div class="flex min-h-screen">
+        <nav class="bg-black w-20 md:w-56 flex flex-col py-8 px-2 md:px-4 items-center md:items-start">
+            <ul class="space-y-6 w-full">
+                <!-- ...navigation links... -->
+                <li>
+                  <a href="{% url 'activities:home'  %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'home' %}bg-gray-900{% endif %}">
+                    <span class="material-icons">home</span>
+                    <span class="hidden md:inline">Home</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'users:search_users' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'search_users' %}bg-gray-900{% endif %}">
+                    <span class="material-icons">explore</span>
+                    <span class="hidden md:inline">Explore</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'users:private_messages' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'private_messages' %}bg-gray-900{% endif %}">
+                    <span class="material-icons">mail</span>
+                    <span class="hidden md:inline">Messages</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'users:profile' user.id %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'profile' %}bg-gray-900{% endif %}">
+                    <span class="material-icons">person</span>
+                    <span class="hidden md:inline">Profile</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'fellowship_detail' 1 %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-gray-900{% endif %}">
+                    <span class="material-symbols-outlined">church</span>
+                    <span class="hidden md:inline">Fellowship</span>
+                  </a>
+                </li>
+                 <li>
+                  <a href="{% url 'bucosa_main' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-gray-900{% endif %}">
+                    <span class="material-icons">groups</span>
+                    <span class="hidden md:inline">Bucosa</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'users:logout' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full">
+                    <span class="material-icons">logout</span>
+                    <span class="hidden md:inline">Logout</span>
+                  </a>
+                </li>
+                <li id="notification-bell-sidebar" style="position:relative;">
+                  <div class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full cursor-pointer">
+                    <span class="material-icons">notifications</span>
+                    <span class="hidden md:inline">Notifications</span>
+                    <span id="notification-badge" style="display:none;position:absolute;top:10px;right:10px;background:red;color:white;border-radius:50%;padding:2px 6px;font-size:12px;">0</span>
+                  </div>
+                  <div id="notification-dropdown" style="display:none;position:absolute;left:60px;top:0;background:#fff;border:1px solid #ccc;width:300px;max-height:400px;overflow-y:auto;z-index:1000;"></div>
+                </li>
+            </ul>
+        </nav>
+        <main class="flex-1 container mx-auto px-4">
+            <div class="rounded-xl p-6 transition-colors duration-300 shadow">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    {% block extra_js %}{% endblock %}
+    <!-- Register Service Worker for PWA (django-pwa) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('{% url 'serviceworker' %}');
+        });
+      }
+    </script>
+    <!-- ...rest of your scripts (like dark mode, notifications, etc.)... -->
+</body>
+</html>

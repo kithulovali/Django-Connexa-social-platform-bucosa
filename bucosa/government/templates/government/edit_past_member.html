@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mx-auto py-8">
+    <h2 class="text-2xl font-bold mb-4">Edit Past Government Member</h2>
+    <form method="post" class="bg-white p-6 rounded shadow max-w-xl mx-auto">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Ministry</label>
+            <input type="text" name="ministry" value="{{ member.ministry }}" class="w-full border rounded px-3 py-2" required>
+        </div>
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Contact</label>
+            <input type="text" name="contact" value="{{ member.contact }}" class="w-full border rounded px-3 py-2" required>
+        </div>
+        <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">Save Changes</button>
+        <a href="{% url 'past_government_detail' member.government.id %}" class="ml-4 text-gray-700 underline">Cancel</a>
+    </form>
+</div>
+{% endblock %}

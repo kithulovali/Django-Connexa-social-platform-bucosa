@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load user_extras %}
+{% block content %}
+<div class="flex flex-col md:flex-row gap-8 p-8 bg-gray-100 min-h-screen">
+  <!-- Users Sidebar -->
+  <aside class="bg-white rounded-2xl shadow-lg p-6 w-full md:w-1/4 mb-6 md:mb-0">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800">Users</h2>
+    <ul class="space-y-3">
+      {% for u in users %}
+        <li>
+          <a href="{% url 'users:private_messages' u.id %}" class="block px-4 py-2 rounded-lg hover:bg-blue-100 text-blue-700 font-semibold transition">{{ u.username }}</a>
+          {% if unread_counts %}
+            {% with count=unread_counts|get_item:u.id %}
+              {% if count %}<span class="text-red-600 font-bold">({{ count }})</span>{% endif %}
+            {% endwith %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </aside>
+  <!-- Conversation Area -->
+  <main class="flex-1 bg-white rounded-2xl shadow-lg p-8 flex flex-col">
+    {% if other_user %}
+    <div class="flex items-center gap-4 mb-6">
+      <div class="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center text-2xl font-bold text-blue-700 uppercase">
+        {{ other_user.username|first }}
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800">Conversation with <span class="text-blue-700">{{ other_user.username }}</span></h2>
+    </div>
+    <div class="flex-1 overflow-y-auto mb-6">
+      {% if messages %}
+        <ul class="space-y-4">
+          {% for msg in messages %}
+            <li class="{% if msg.sender == user %}text-right{% endif %}">
+              <div class="inline-block px-5 py-3 rounded-xl shadow
+                {% if msg.sender == user %}
+                  bg-blue-500 text-white
+                {% else %}
+                  bg-gray-200 text-gray-800
+                {% endif %}">
+                {{ msg.content|linebreaksbr }}
+                {% if msg.image %}<img src="{{ msg.image.url }}" class="max-w-[120px] max-h-[120px] rounded mb-1 mt-2" /><br>{% endif %}
+                {% if msg.video %}<video controls class="max-w-[180px] max-h-[120px] rounded mb-1 mt-2"><source src="{{ msg.video.url }}"></video><br>{% endif %}
+                {% if msg.file %}<a href="{{ msg.file.url }}" class="text-blue-500 underline">Download file</a><br>{% endif %}
+                <div class="text-xs text-gray-400 mt-1">{{ msg.created_at|date:'M d, H:i' }}</div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="flex justify-center items-center h-32">
+          <div class="bg-gray-200 text-gray-500 px-6 py-3 rounded-xl shadow">No messages yet.</div>
+        </div>
+      {% endif %}
+    </div>
+    <form method="post" enctype="multipart/form-data" class="flex flex-col gap-4">
+      {% csrf_token %}
+      <textarea name="content" rows="2" required placeholder="Type your message..." class="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800"></textarea>
+      <div class="flex flex-wrap gap-4 items-center">
+        <label class="flex items-center gap-2 cursor-pointer bg-blue-50 text-blue-700 px-3 py-2 rounded-lg border border-blue-200 hover:bg-blue-100 transition">
+          <span class="material-icons">image</span>
+          <span class="text-sm">Image</span>
+          <input type="file" name="image" accept="image/*" class="hidden">
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer bg-purple-50 text-purple-700 px-3 py-2 rounded-lg border border-purple-200 hover:bg-purple-100 transition">
+          <span class="material-icons">videocam</span>
+          <span class="text-sm">Video</span>
+          <input type="file" name="video" accept="video/*" class="hidden">
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer bg-green-50 text-green-700 px-3 py-2 rounded-lg border border-green-200 hover:bg-green-100 transition">
+          <span class="material-icons">attach_file</span>
+          <span class="text-sm">File</span>
+          <input type="file" name="file" class="hidden">
+        </label>
+        <button type="submit" class="ml-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-2 rounded-full text-lg shadow transition">Send</button>
+      </div>
+    </form>
+    {% else %}
+      <p class="text-gray-500">Select a user to start messaging.</p>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var userId = {{ user.id }};
+    var ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    var socket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/messages/private/');
+    var notificationSocket = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/notifications/');
+
+    {% if other_user %}
+        var otherUserId = {{ other_user.id }};
+    {% else %}
+        var otherUserId = null;
+    {% endif %}
+
+    socket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        var otherUserId = {{ other_user.id }};
+        if (otherUserId && data.sender === '{{ other_user }}') {
+            var msgList = document.querySelector('main ul.space-y-4');
+            if (msgList) {
+                var li = document.createElement('li');
+                li.className = 'text-right';
+                li.innerHTML = `<div class="inline-block px-5 py-3 rounded-xl shadow bg-blue-500 text-white">${data.content}<div class="text-xs text-gray-200 mt-1">now</div></div>`;
+                msgList.appendChild(li);
+                // Scroll into view
+                li.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+        }
+    };
+
+    // Listen for notifications and show a toast for new messages
+    notificationSocket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        if (data.notification_type === 'message') {
+            showToast('New message: ' + data.message);
+            // Optionally, auto-mark as read (AJAX call)
+            markMessagesAsRead();
+        }
+    };
+
+    function showToast(msg) {
+        var toast = document.createElement('div');
+        toast.textContent = msg;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '30px';
+        toast.style.right = '30px';
+        toast.style.background = '#2563eb';
+        toast.style.color = 'white';
+        toast.style.padding = '16px 24px';
+        toast.style.borderRadius = '8px';
+        toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        toast.style.zIndex = 9999;
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.remove(); }, 3500);
+    }
+
+    function markMessagesAsRead() {
+        var otherUserId = {{ other_user.id }};
+        if (otherUserId) {
+            fetch(`/users/mark_messages_read/${otherUserId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

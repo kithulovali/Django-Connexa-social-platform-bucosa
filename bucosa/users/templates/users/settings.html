@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-sky-950 to-indigo-900 py-10">
+  <div class="bg-white/90 rounded-3xl shadow-2xl p-10 max-w-lg w-full flex flex-col items-center border-2 border-sky-200">
+    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+        <span class="material-icons">settings</span> Account Settings
+    </h2>
+    <div class="space-y-4 w-full">
+        {% if not user.profile %}
+        <a href="{% url 'users:create_user_profile' user.id %}" class="block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition shadow flex items-center gap-2">
+            <span class="material-icons">person_add</span> Create Profile
+        </a>
+        {% endif %}
+        <a href="{% url 'activities:create_post' %}" class="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition shadow flex items-center gap-2">
+            <span class="material-icons">post_add</span> Create Post
+        </a>
+        <a href="{% url 'activities:create_event' %}" class="block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition shadow flex items-center gap-2">
+            <span class="material-icons">event</span> Create Event
+        </a>
+        <a href="{% url 'users:create_group' %}" class="block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition shadow flex items-center gap-2">
+            <span class="material-icons">group_add</span> Create Group
+        </a>
+        <a href="{% url 'activities:saved_posts' %}" class="block bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700 transition shadow flex items-center gap-2">
+            <span class="material-icons">bookmark</span> My Saved Posts
+        </a>
+        <a href="{% url 'activities:my_reposts' %}" class="block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition shadow flex items-center gap-2">
+            <span class="material-icons">repeat</span> My Reposts
+        </a>
+        <a href="{% url 'users:analytics_dashboard' %}?user_id={{ user.id }}" class="block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition shadow flex items-center gap-2">
+            <span class="material-icons">analytics</span> View User Analytics
+        </a>
+        <a href="{% url 'users:edit_user' user.id %}" class="block bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition shadow flex items-center gap-2">
+            <span class="material-icons">edit</span> Edit Profile
+        </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

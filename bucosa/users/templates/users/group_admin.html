@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-6 rounded shadow mt-8">
+    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+        <span class="material-icons text-yellow-500">admin_panel_settings</span> Group Admin Panel
+    </h2>
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-2">Group: <span class="text-blue-700">{{ group.name }}</span></h3>
+        <p class="text-gray-600 mb-1">{{ group_profile.description }}</p>
+        <div class="flex flex-wrap gap-2 mt-2">
+            <a href="{% url 'users:edit_group' group.id %}" class="inline-flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition shadow">
+                <span class="material-icons">edit</span> <span>Edit Group</span>
+            </a>
+            <a href="{% url 'users:group_profile' group.id %}" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition shadow">
+                <span class="material-icons">group</span> <span>View Group</span>
+            </a>
+            <a href="{% url 'users:group_chat' group.id %}" class="inline-flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition shadow">
+                <span class="material-icons">chat</span> <span>Group Chat</span>
+            </a>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-gray-50 p-4 rounded shadow">
+            <h4 class="font-semibold mb-2 flex items-center gap-1"><span class="material-icons text-green-600">supervisor_account</span> Admins</h4>
+            <ul class="space-y-1">
+                {% for admin in group_profile.admins.all %}
+                    <li class="flex items-center gap-2 text-gray-800">
+                        <span class="material-icons text-gray-500">person</span> <span class="font-medium">{{ admin.username }}</span>
+                    </li>
+                {% empty %}
+                    <li class="text-gray-400">No admins assigned.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="bg-gray-50 p-4 rounded shadow">
+            <h4 class="font-semibold mb-2 flex items-center gap-1"><span class="material-icons text-blue-600">people</span> Members</h4>
+            <ul class="space-y-1 max-h-40 overflow-y-auto">
+                {% for member in members %}
+                    <li class="flex items-center gap-2 text-gray-800">
+                        <span class="material-icons text-gray-500">person</span> <span class="font-medium">{{ member.username }}</span>
+                    </li>
+                {% empty %}
+                    <li class="text-gray-400">No members yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="mt-8">
+        <h4 class="font-semibold mb-2 flex items-center gap-1"><span class="material-icons text-orange-500">post_add</span> Recent Group Posts</h4>
+        <ul class="space-y-2">
+            {% for post in group_posts|slice:':5' %}
+                <li class="border rounded p-2 flex flex-col md:flex-row md:items-center md:gap-4">
+                    <span class="font-semibold text-blue-700">{{ post.title }}</span>
+                    <span class="text-gray-500 text-xs md:ml-auto">{{ post.created_at|timesince }} ago</span>
+                </li>
+            {% empty %}
+                <li class="text-gray-400">No posts yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

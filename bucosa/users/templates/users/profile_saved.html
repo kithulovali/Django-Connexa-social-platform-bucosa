@@ -1,0 +1,7 @@
+{% if saved_posts %}
+  {% for post in saved_posts %}
+    <div class="post-card">{{ post.content }}</div>
+  {% endfor %}
+{% else %}
+  <div class="text-center text-gray-500 py-10">No saved posts yet.</div>
+{% endif %}

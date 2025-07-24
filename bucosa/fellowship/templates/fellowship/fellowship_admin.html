@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
+  <h2 class="text-2xl font-bold mb-6 text-center">Fellowship Admin: {{ fellowship.name }}</h2>
+  <div class="flex flex-wrap gap-4 mb-8 justify-center md:justify-start">
+    <a href="{% url 'edit_fellowship' fellowship.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[180px] text-center">Edit Fellowship</a>
+    <a href="{% url 'edit_fellowship_model' fellowship.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[220px] text-center">Edit Fellowship Model</a>
+    <a href="{% url 'create_fellowship_post' fellowship.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[140px] text-center">Create Post</a>
+    <a href="{% url 'create_fellowship_event' fellowship.id %}" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[160px] text-center">Create Event</a>
+    <a href="{% url 'admin_my_posts_events' fellowship.id %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[200px] text-center">My Posts & Events</a>
+    <a href="{% url 'donation_list' %}" class="bg-pink-700 hover:bg-pink-800 text-white px-4 py-2 rounded-lg font-semibold min-w-[220px] text-center">View Donation Requests</a>
+  </div>
+  <div class="mb-8">
+    <h3 class="text-xl font-bold mb-2">Members ({{ members.count }})</h3>
+    <div class="flex flex-wrap gap-2">
+      {% for m in members %}
+        <span class="bg-gray-200 px-3 py-1 rounded-full text-gray-700">{{ m.user.username }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="mb-8">
+    <h3 class="text-xl font-bold mb-2">Posts</h3>
+    {% for post in posts %}
+      <div class="border-b py-4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-semibold">{{ post.author.username }}</span>
+          <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
+        </div>
+        <div class="mb-2">{{ post.content|linebreaksbr }}</div>
+        {% if post.image %}<img src="{{ post.image.url }}" class="max-w-xs rounded mb-2" />{% endif %}
+        {% if post.video %}<video controls class="max-w-xs rounded mb-2"><source src="{{ post.video.url }}"></video>{% endif %}
+      </div>
+    {% empty %}
+      <div class="text-gray-400">No posts yet.</div>
+    {% endfor %}
+  </div>
+  <div>
+    <h3 class="text-xl font-bold mb-2">Events</h3>
+    {% for event in events %}
+      <div class="border-b py-4">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-semibold">{{ event.creator.username }}</span>
+          <span class="text-xs text-gray-400">{{ event.start_time|date:'M d, H:i' }}</span>
+        </div>
+        <div class="mb-1 font-bold">{{ event.title }}</div>
+        <div class="mb-2 text-gray-700">{{ event.description|linebreaksbr }}</div>
+        {% if event.cover_image %}<img src="{{ event.cover_image.url }}" class="max-w-xs rounded mb-2" />{% endif %}
+        <div class="text-sm text-gray-500">Location: {{ event.location }}</div>
+      </div>
+    {% empty %}
+      <div class="text-gray-400">No events yet.</div>
+    {% endfor %}
+  </div>
+  <div class="mb-8">
+    <a href="{% url 'donation_list' %}" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-semibold">View Donation Requests</a>
+  </div>
+</div>
+{% endblock %}

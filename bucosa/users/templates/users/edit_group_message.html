@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Edit Message</h2>
+<form method="post">
+    {% csrf_token %}
+    <textarea name="content" rows="3" style="width:100%;">{{ msg.content }}</textarea>
+    <button type="submit" style="margin-top:8px; background:#2a7; color:#fff; border:none; border-radius:4px; padding:6px 18px;">Save</button>
+    <a href="{% url 'users:group_chat' msg.group.id %}" style="margin-left:12px;">Cancel</a>
+</form>
+{% endblock %}

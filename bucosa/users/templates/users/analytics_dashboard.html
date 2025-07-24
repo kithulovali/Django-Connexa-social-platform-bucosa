@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Analytics Dashboard{% if profile_user %} for {{ profile_user.username }}{% endif %}</h2>
+<div style="display: flex; gap: 40px; flex-wrap: wrap;">
+  <div>
+    <h3>User Stats</h3>
+    <canvas id="userPie" width="300" height="300"></canvas>
+  </div>
+  <div>
+    <h3>User Groups</h3>
+    <div id="groupCharts"></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+let url = window.location.href;
+if (!url.includes('user_id') && params.get('user_id')) {
+  url += '?user_id=' + params.get('user_id');
+}
+fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+  .then(r => r.json())
+  .then(data => {
+    // User Pie
+    const userData = data.user;
+    const screentimeLabel = 'Screentime (' + userData.screentime + ')';
+    const userPie = new Chart(document.getElementById('userPie'), {
+      type: 'pie',
+      data: {
+        labels: ['Posts', 'Events', 'Followers', 'Following', screentimeLabel],
+        datasets: [{
+          data: [userData.posts, userData.events, userData.followers, userData.following, 1],
+          backgroundColor: ['#36a2eb', '#ffcd56', '#4bc0c0', '#ff6384', '#9966ff']
+        }]
+      },
+      options: {responsive: false}
+    });
+    // Group Charts
+    const groupDiv = document.getElementById('groupCharts');
+    data.groups.forEach((g, i) => {
+      const c = document.createElement('canvas');
+      c.width = 250; c.height = 250;
+      groupDiv.appendChild(document.createElement('h4')).innerText = g.name;
+      groupDiv.appendChild(c);
+      new Chart(c, {
+        type: 'pie',
+        data: {
+          labels: ['Posts', 'Events', 'Members'],
+          datasets: [{
+            data: [g.posts, g.events, g.members],
+            backgroundColor: ['#36a2eb', '#ffcd56', '#4bc0c0']
+          }]
+        },
+        options: {responsive: false}
+      });
+    });
+  });
+</script>
+{% endblock %}

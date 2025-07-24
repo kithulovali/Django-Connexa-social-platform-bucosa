@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
+  <h2 class="text-2xl font-bold mb-6">Confirm Delete</h2>
+  <p>Are you sure you want to delete this {{ type }}?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold mt-4">Yes, Delete</button>
+    <a href="javascript:history.back()" class="ml-4 text-gray-600 hover:underline">Cancel</a>
+  </form>
+</div>
+{% endblock %}

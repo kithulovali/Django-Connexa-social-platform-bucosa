@@ -1,0 +1,60 @@
+from django.urls import path 
+from . import views
+from django.conf.urls.static import static
+from django.conf import settings
+from .views import analytics_dashboard, private_messages, create_user_profile
+
+app_name = 'users'
+
+urlpatterns = [
+    path('login/' , views.login_user , name = 'login'),
+    path('logout/' ,views.logout_user , name = 'logout'),
+    path('register/', views.register_user , name ='register'),
+    path('profile/<str:pk>/' , views.profile_user , name ='profile'),
+    path('user_edit/<str:pk>/' , views.edit_user , name ='edit_user'),
+    path('' , views.welcome_user , name= "welcome"),
+    path('search/', views.search_users, name='search_users'),
+    path('follow/<str:pk>/', views.follow_user, name='follow_user'),
+    path('unfollow/<str:pk>/', views.unfollow_user, name='unfollow_user'),
+    path('groups/', views.group_list, name='group_list'),
+    path('groups/create/', views.create_group, name='create_group'),
+    path('groups/<int:pk>/', views.group_profile_view, name='group_profile'),
+    path('groups/<int:pk>/edit/', views.edit_group, name='edit_group'),
+    path('groups/<int:pk>/join/', views.join_group, name='join_group'),
+    path('groups/<int:pk>/leave/', views.leave_group, name='leave_group'),
+    path('groups/<int:pk>/chat/', views.group_chat, name='group_chat'),
+    path('groups/message/<int:msg_id>/edit/', views.edit_group_message, name='edit_group_message'),
+    path('groups/message/<int:msg_id>/delete/', views.delete_group_message, name='delete_group_message'),
+    path('groups/message/<int:msg_id>/react/<str:emoji>/', views.react_to_message, name='react_to_message'),
+    path('groups/message/<int:msg_id>/pin/', views.pin_message, name='pin_message'),
+    path('groups/message/<int:msg_id>/unpin/', views.unpin_message, name='unpin_message'),
+    path('dashboard/', analytics_dashboard, name='analytics_dashboard'),
+    path('messages/', private_messages, name='private_messages'),
+    path('messages/<int:user_id>/', private_messages, name='private_messages'),
+    path('settings/', views.user_settings, name='user_settings'),
+    path('groups/<int:pk>/admin/', views.group_admin, name='group_admin'),
+    path('create_profile/<str:pk>/', create_user_profile, name='create_user_profile'),
+    path('mark_messages_read/<int:user_id>/', views.mark_messages_read, name='mark_messages_read'),
+    path('mark_group_messages_read/<int:group_id>/', views.mark_group_messages_read, name='mark_group_messages_read'),
+    path('save_fcm_token/', views.save_fcm_token, name='save_fcm_token'),
+    path('password_reset/',
+         views.PasswordResetView.as_view(template_name='users/password_reset_form.html'),
+         name='password_reset'),
+    path('password_reset/done/',
+         views.PasswordResetDoneView.as_view(template_name='users/password_reset_done.html'),
+         name='password_reset_done'),
+    path('reset/<uidb64>/<token>/',
+         views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'),
+         name='password_reset_confirm'),
+    path('reset/done/',
+         views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
+         name='password_reset_complete'),
+    path('block/<str:pk>/', views.block_user, name='block_user'),
+    path('report/<str:pk>/', views.report_user, name='report_user'),
+    path('edit_privacy/', views.edit_privacy, name='edit_privacy'),
+    path('suggestions/', views.friend_suggestions, name='friend_suggestions'),
+    path('advanced_search/', views.advanced_search, name='advanced_search'),
+]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

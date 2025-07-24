@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Reposted Posts{% if profile_user %} by {{ profile_user.username }}{% endif %}</h2>
+{% if posts %}
+    <ul>
+    {% for post in posts %}
+        <li class="mb-6 p-4 border rounded bg-white flex gap-4">
+            <div>
+                {% if post.author.profile and post.author.profile.profile_image %}
+                    <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="profile-image">
+                {% else %}
+                    <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="profile-image">
+                {% endif %}
+            </div>
+            <div class="flex-1">
+                <div class="font-bold">By <a href="{% url 'users:profile' post.author.id %}">{{ post.author.username }}</a></div>
+                {% if post.repost_of %}
+                  <div class="text-xs text-gray-500 mb-1">Reposted from <a href="{% url 'users:profile' post.repost_of.author.id %}" class="underline">@{{ post.repost_of.author.username }}</a></div>
+                {% endif %}
+                <div class="my-2">{{ post.content }}</div>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post Image" class="rounded mb-2" style="max-width:220px; max-height:180px;">
+                {% endif %}
+                {% if post.video %}
+                    <video controls class="rounded mb-2" style="max-width:220px; max-height:180px;">
+                        <source src="{{ post.video.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                {% endif %}
+                <div class="text-gray-500 text-sm">{{ post.created_at|timesince }} ago</div>
+                <div class="flex gap-4 mt-2">
+                    <form action="{% if post.repost_of %}{% url 'activities:like_post' post.repost_of.id %}{% else %}{% url 'activities:like_post' post.id %}{% endif %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-red-600 hover:text-red-800 font-semibold flex items-center gap-1">
+                            <span class="material-icons">favorite</span>
+                            Like ({% if post.repost_of %}{{ post.repost_of.likes.count }}{% else %}{{ post.likes.count }}{% endif %})
+                        </button>
+                    </form>
+                    <form action="{% if post.repost_of %}{% url 'activities:save_post' post.repost_of.id %}{% else %}{% url 'activities:save_post' post.id %}{% endif %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-green-600 hover:text-green-800 font-semibold flex items-center gap-1">
+                            <span class="material-icons">bookmark</span>
+                            Save ({% if post.repost_of %}{{ post.repost_of.saves.count }}{% else %}{{ post.saves.count }}{% endif %})
+                        </button>
+                    </form>
+                    <form action="{% if post.repost_of %}{% url 'activities:share_post' post.repost_of.id %}{% else %}{% url 'activities:share_post' post.id %}{% endif %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1">
+                            <span class="material-icons">share</span>
+                            Share ({% if post.repost_of %}{{ post.repost_of.shares.count }}{% else %}{{ post.shares.count }}{% endif %})
+                        </button>
+                    </form>
+                    {% if not post.repost_of or post.repost_of.author != user %}
+                    <form action="{% if post.repost_of %}{% url 'activities:repost_post' post.repost_of.id %}{% else %}{% url 'activities:repost_post' post.id %}{% endif %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-orange-600 hover:text-orange-800 font-semibold flex items-center gap-1">
+                            <span class="material-icons">repeat</span>
+                            Repost ({% if post.repost_of %}{{ post.repost_of.reposts.count }}{% else %}{{ post.reposts.count }}{% endif %})
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <div class="text-gray-500">No reposted posts yet.</div>
+{% endif %}
+{% endblock %}

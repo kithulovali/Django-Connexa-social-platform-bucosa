@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mx-auto py-8">
+    <h2 class="text-2xl font-bold mb-4">Create Current Government</h2>
+    <form method="post" enctype="multipart/form-data" class="bg-white p-6 rounded shadow max-w-xl mx-auto">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Name</label>
+            <input type="text" name="name" class="w-full border rounded px-3 py-2" required>
+        </div>
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Mission</label>
+            <textarea name="mission" class="w-full border rounded px-3 py-2" required></textarea>
+        </div>
+        <div class="mb-4">
+            <label class="block font-semibold mb-1">Image</label>
+            <input type="file" name="image" class="w-full">
+        </div>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Create</button>
+    </form>
+</div>
+{% endblock %}

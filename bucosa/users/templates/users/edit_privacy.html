@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-sky-950 to-indigo-900">
+  <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-10 max-w-md w-full flex flex-col items-center border-2 border-sky-200">
+    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight text-center mb-6">Edit Privacy Settings</h2>
+    <form method="post">
+      {% csrf_token %}
+      <label for="privacy" class="block text-gray-700 font-semibold mb-2">Profile Privacy:</label>
+      <select name="privacy" id="privacy" class="w-full border rounded px-3 py-2 mb-4">
+        {% for value, label in profile.PRIVACY_CHOICES %}
+          <option value="{{ value }}" {% if profile.privacy == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="w-full bg-sky-500 text-white px-4 py-3 rounded-full font-bold text-lg shadow hover:bg-sky-600 transition">Save</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

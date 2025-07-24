@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Edit Post</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if post.image %}
+        <div>
+            <img src="{{ post.image.url }}" alt="Current Image" style="max-width:200px;max-height:200px;" />
+            <label><input type="checkbox" name="remove_image"> Remove image</label>
+        </div>
+    {% endif %}
+    {% if post.video %}
+        <div>
+            <video controls style="max-width:300px;max-height:200px;">
+                <source src="{{ post.video.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <label><input type="checkbox" name="remove_video"> Remove video</label>
+        </div>
+    {% endif %}
+    <button type="submit" class="btn btn-warning">Save Changes</button>
+</form>
+{% endblock %}

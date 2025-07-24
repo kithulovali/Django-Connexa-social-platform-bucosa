@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-sky-950 to-indigo-900">
+  <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-10 max-w-2xl w-full flex flex-col items-center border-2 border-sky-200">
+    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight text-center mb-6">Advanced User Search</h2>
+    <form method="get" class="w-full flex flex-col md:flex-row gap-4 mb-6">
+      <input type="text" name="q" value="{{ query }}" placeholder="Username" class="border rounded px-3 py-2 w-full">
+      <input type="text" name="location" value="{{ location }}" placeholder="Location" class="border rounded px-3 py-2 w-full">
+      <input type="text" name="group" value="{{ group }}" placeholder="Group" class="border rounded px-3 py-2 w-full">
+      <button type="submit" class="bg-sky-500 text-white px-4 py-2 rounded-full font-bold shadow hover:bg-sky-600 transition">Search</button>
+    </form>
+    <ul class="w-full">
+      {% for user in users %}
+        <li class="flex items-center justify-between py-2 border-b">
+          <span class="font-semibold">{{ user.username }}</span>
+          <span class="text-xs text-gray-500">{{ user.profile.location }}</span>
+          <a href="{% url 'users:profile' user.id %}" class="text-sky-600 underline font-semibold">View Profile</a>
+        </li>
+      {% empty %}
+        <li class="text-gray-500">No users found.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

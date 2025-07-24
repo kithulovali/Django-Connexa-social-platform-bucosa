@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen w-full flex bg-black text-white">
+  <!-- Left Sidebar (reuse home sidebar for consistency) -->
+  <aside class="hidden md:flex flex-col items-end justify-between py-4 px-2 bg-black min-h-screen sticky top-0" style="width: 260px;">
+    <nav class="flex flex-col gap-2 w-full">
+      <a href="{% url 'activities:home' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
+        <span class="material-icons">home</span> Home
+      </a>
+      <a href="{% url 'users:search_users' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
+        <span class="material-icons">search</span> Explore
+      </a>
+      <a href="{% url 'users:private_messages' user.id %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
+        <span class="material-icons">mail</span> Messages
+      </a>
+      <a href="{% url 'users:profile' user.pk %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
+        <span class="material-icons">person</span> Profile
+      </a>
+      <a href="{% url 'users:logout' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
+        <span class="material-icons">logout</span> Logout
+      </a>
+    </nav>
+  </aside>
+  <!-- Center: Group Profile -->
+  <main class="flex flex-col items-center flex-1 min-h-screen bg-black px-0 py-1 border-x border-gray-800">
+    <div class="w-full max-w-2xl mx-auto">
+      <!-- Group Info Card -->
+      <div class="bg-[#181c24] rounded-3xl shadow-2xl px-10 pt-14 pb-10 mb-8 relative border border-gray-800">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <h2 class="text-4xl font-extrabold text-white flex items-center gap-2 tracking-tight mb-1">{{ group.name }}
+              {% if group_profile.verified %}
+                <span class="material-icons text-blue-400 align-middle">verified</span>
+              {% endif %}
+            </h2>
+            <div class="text-gray-400 text-xl font-mono mb-2">@{{ group_profile.handle|default:group.name|slugify }}</div>
+            <div class="mt-2 text-gray-200 text-lg leading-relaxed">{{ group_profile.description }}</div>
+            <div class="flex flex-wrap gap-8 mt-6 text-gray-400 text-base">
+              <div><span class="material-icons text-base align-middle">calendar_today</span> Joined {{ group_profile.created_at|date:'F Y' }}</div>
+              <div><span class="font-bold text-white">{{ members|length }}</span> Members</div>
+              <div><span class="font-bold text-white">{{ group_posts|length }}</span> Posts</div>
+            </div>
+            <div class="flex gap-4 mt-8 flex-wrap">
+              {% if request.user not in group_profile.admins.all %}
+                {% if request.user in members %}
+                  <form action="{% url 'users:leave_group' group.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-gray-700 transition font-bold shadow-lg">Leave</button>
+                  </form>
+                {% else %}
+                  <form action="{% url 'users:join_group' group.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full transition font-bold shadow-lg">Join</button>
+                  </form>
+                {% endif %}
+              {% endif %}
+              {% if request.user in group_profile.admins.all %}
+                <a href="{% url 'users:edit_group' group.id %}" class="inline-flex items-center gap-2 bg-yellow-500 text-white px-8 py-3 rounded-full hover:bg-yellow-600 transition font-bold shadow-lg">
+                  <span class="material-icons">settings</span> Group Settings
+                </a>
+                <a href="{% url 'users:group_admin' group.id %}" class="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition font-bold shadow-lg">Admin Panel</a>
+                <a href="{% url 'activities:create_event' %}?group_id={{ group.id }}" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full transition font-bold shadow-lg">Create Event</a>
+              {% endif %}
+              <a href="{% url 'users:group_chat' group.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full transition font-bold shadow-lg">Group Chat</a>
+            </div>
+          </div>
+        </div>
+        <!-- Admins & Members -->
+        <div class="flex flex-wrap gap-10 mt-10">
+          <div>
+            <div class="font-bold text-white mb-2">Admins</div>
+            <div class="flex flex-wrap gap-2">
+              {% for admin in group_profile.admins.all %}
+                <a href="{% url 'users:profile' admin.id %}" class="bg-gray-800 text-white px-4 py-1 rounded-full hover:bg-gray-700 transition">{{ admin.username }}</a>
+              {% endfor %}
+            </div>
+          </div>
+          <div>
+            <div class="font-bold text-white mb-2">Members ({{ members|length }})</div>
+            <div class="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+              {% for user in members %}
+                <a href="{% url 'users:profile' user.id %}" class="bg-gray-800 text-white px-4 py-1 rounded-full hover:bg-gray-700 transition">{{ user.username }}</a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Communities/Info Section (optional) -->
+      {% if group_profile.community_info %}
+      <div class="bg-[#16181c] rounded-2xl shadow-xl px-8 py-6 mb-6">
+        <div class="font-bold text-white mb-2">Community Info</div>
+        <div class="text-gray-300">{{ group_profile.community_info }}</div>
+      </div>
+      {% endif %}
+      <!-- Group Posts Feed -->
+      <div class="bg-[#16181c] rounded-2xl shadow-xl px-8 py-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-white">Posts ({{ group_posts|length }})</h3>
+          {% if request.user in members %}
+            <a href="{% url 'activities:create_post' %}?group_id={{ group.id }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-2 rounded-full transition">Create Post</a>
+          {% endif %}
+        </div>
+        {% if group_posts %}
+        <ul class="flex flex-col gap-6">
+          {% for post in group_posts %}
+          <li class="bg-black rounded-xl p-6 border border-gray-800">
+            <div class="flex items-center gap-3 mb-2">
+              {% if post.author.profile and post.author.profile.profile_image %}
+                <a href="{% url 'users:profile' post.author.id %}">
+                  <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-10 h-10 rounded-full object-cover">
+                </a>
+              {% else %}
+                <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-10 h-10 rounded-full object-cover">
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <a href="{% url 'users:profile' post.author.id %}" class="font-bold text-white hover:underline">{{ post.author.username }}</a>
+                <span class="text-xs text-gray-400">· {{ post.created_at|timesince }} ago</span>
+              </div>
+              {% if request.user in group_profile.admins.all or request.user == post.author %}
+                <a href="{% url 'activities:edit_post' post.id %}" class="text-yellow-400 hover:underline mr-2">Edit</a>
+                <a href="{% url 'activities:delete_post' post.id %}" class="text-red-400 hover:underline">Delete</a>
+              {% endif %}
+            </div>
+            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ post.content }}</div>
+            {% if post.image %}
+              <div class="my-3">
+                <img src="{{ post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
+              </div>
+            {% endif %}
+            {% if post.video %}
+              <div class="my-3">
+                <video controls class="rounded-xl w-full max-h-96 object-cover shadow border border-gray-800" style="width:100%;">
+                  <source src="{{ post.video.url }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-gray-500 text-lg py-10">No posts in this group yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+  <!-- Right Sidebar -->
+  <aside class="hidden xl:flex flex-col flex-[1.1] px-4 py-6 bg-black min-h-screen sticky top-0 w-[350px] border-l border-gray-800">
+    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
+      <form method="get" action="{% url 'users:search_users' %}">
+        <input type="search" name="q" placeholder="Search" class="w-full px-4 py-2 rounded-full bg-black text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+      </form>
+    </div>
+    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
+      <h3 class="text-xl font-bold text-white mb-4">What's happening</h3>
+      <ul class="space-y-3">
+        {% for event in group_events %}
+        {% ifchanged event.id %}
+        <li class="relative group flex items-center gap-3 hover:bg-gray-800 rounded transition">
+          <a href="{% url 'activities:event_detail' event.id %}" class="flex items-center gap-3 flex-1 py-2 px-1 min-w-0">
+            {% if event.cover_image %}
+              <img src="{{ event.cover_image.url }}" class="w-10 h-10 rounded object-cover" alt="{{ event.title }}">
+            {% else %}
+              <div class="w-10 h-10 bg-sky-900 rounded"></div>
+            {% endif %}
+            <div>
+              <div class="font-bold text-white group-hover:underline truncate">{{ event.title }}</div>
+              <div class="text-gray-400 text-xs truncate">{{ event.start_time|date:'M d, Y H:i' }}{% if event.location %} · {{ event.location }}{% endif %}</div>
+            </div>
+          </a>
+          {% if request.user == event.creator %}
+            <form action="{% url 'activities:delete_event' event.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="ml-2 text-red-500 hover:text-red-700" title="Delete Event">
+                <span class="material-icons" style="font-size:20px;">delete</span>
+              </button>
+            </form>
+          {% endif %}
+        </li>
+        {% endifchanged %}
+        {% empty %}
+        <li class="text-gray-400">No events at this time.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock content %}

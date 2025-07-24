@@ -1,0 +1,7 @@
+{% if events %}
+  {% for event in events %}
+    <div class="event-card">{{ event.title }} - {{ event.date }}</div>
+  {% endfor %}
+{% else %}
+  <div class="text-center text-gray-500 py-10">No events yet.</div>
+{% endif %}

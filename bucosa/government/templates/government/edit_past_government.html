@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto py-8">
+    <h2 class="text-2xl font-bold mb-4">Edit Past Government</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">Name</label>
+            <input type="text" name="name" value="{{ gov.name }}" class="w-full border rounded px-3 py-2" required>
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">Mission</label>
+            <textarea name="mission" class="w-full border rounded px-3 py-2" required>{{ gov.mission }}</textarea>
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">Start Date</label>
+            <input type="date" name="started_at" value="{{ gov.started_at|date:'Y-m-d' }}" class="w-full border rounded px-3 py-2" required>
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">End Date</label>
+            <input type="date" name="ended_at" value="{{ gov.ended_at|date:'Y-m-d' }}" class="w-full border rounded px-3 py-2" required>
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">Image</label>
+            {% if gov.image %}
+            <img src="{{ gov.image.url }}" alt="Current Image" class="w-32 h-32 object-cover rounded mb-2">
+            {% endif %}
+            <input type="file" name="image" class="w-full border rounded px-3 py-2">
+        </div>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">Save Changes</button>
+        <a href="{% url 'bucosa_main' %}" class="ml-4 text-gray-600 hover:underline">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% load static %}
+{% if reposts %}
+  <ul class="flex flex-col gap-8">
+    {% for repost in reposts %}
+    <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
+      <div class="flex items-center gap-4 mb-2">
+        {% if repost.post.author.profile and repost.post.author.profile.profile_image %}
+          <a href="{% url 'users:profile' repost.post.author.id %}">
+            <img src="{{ repost.post.author.profile.profile_image.url }}" alt="{{ repost.post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
+          </a>
+        {% else %}
+          <a href="{% url 'users:profile' repost.post.author.id %}">
+            <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
+          </a>
+        {% endif %}
+        <div class="flex-1 min-w-0">
+          <a href="{% url 'users:profile' repost.post.author.id %}" class="font-bold text-white hover:underline">{{ repost.post.author.username }}</a>
+          <span class="text-xs text-gray-400">· {{ repost.created_at|timesince }} ago</span>
+          <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">Repost</span>
+        </div>
+      </div>
+      <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ repost.post.content }}</div>
+      {% if repost.post.image %}
+        <div class="my-3">
+          <img src="{{ repost.post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
+        </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="text-center text-gray-500 py-10">No reposts yet.</div>
+{% endif %}

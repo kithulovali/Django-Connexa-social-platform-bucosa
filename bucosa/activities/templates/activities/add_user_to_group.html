@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Add User to {{ group.name }}</h2>
+<form method="get" style="margin-bottom: 16px;">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search users by username..." />
+    <button type="submit">Search</button>
+</form>
+{% if users %}
+    <ul>
+        {% for user in users %}
+            <li>
+                {{ user.username }}
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id" value="{{ user.id }}" />
+                    <button type="submit">Add</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% elif query %}
+    <p>No users found.</p>
+{% endif %}
+<a href="{% url 'group_admin' group.id %}">Back to Admin Panel</a>
+{% endblock %}

@@ -1,0 +1,9 @@
+about.html
+contact.html
+detail.html
+history.html
+index.html
+main.html
+manage_join_requests.html
+registration.html
+request_join.html

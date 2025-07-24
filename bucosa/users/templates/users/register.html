@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    {% extends 'base.html' %}
+    {% block content %}
+    <div class="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-gray-900 via-sky-950 to-indigo-900">
+      <!-- Left: Hero -->
+      <div class="hidden md:flex flex-col justify-center items-center flex-1 px-10 py-20">
+        <span class="material-icons text-sky-400 text-[7rem] mb-8 drop-shadow-xl">person_add</span>
+        <h1 class="text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight drop-shadow-xl">Create your account</h1>
+        <h2 class="text-2xl font-bold text-sky-300 mb-2 drop-shadow">Join the conversation on Bucosa</h2>
+      </div>
+      <!-- Right: Registration Card -->
+      <div class="flex flex-col justify-center items-center flex-1 px-4 py-20">
+        <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-10 max-w-md w-full flex flex-col items-center border-2 border-sky-200">
+          <h2 class="text-3xl font-extrabold mb-6 text-gray-900 tracking-tight text-center">Sign up</h2>
+          <form action="" method="POST" class="mb-4 w-full flex flex-col gap-4">
+            {% csrf_token %}
+            {% for field in form %}
+              <div class="flex flex-col gap-1">
+                <label for="{{ field.id_for_label }}" class="font-semibold text-gray-700">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <span class="text-red-500 text-xs">{{ field.errors|striptags }}</span>
+                {% endif %}
+              </div>
+            {% endfor %}
+            <input type="submit" value="Register" class="w-full bg-sky-500 text-white px-4 py-3 rounded-full font-bold text-lg shadow hover:bg-sky-600 transition cursor-pointer mt-2">
+          </form>
+          <div class="text-xs text-gray-500 mb-2">* For best appearance, add widget tweaks or set widget attrs in your Django form.</div>
+          {% if messages %}
+            <ul class="messages w-full mb-2">
+              {% for message in messages %}
+              <li class="text-red-500">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <div class="mt-4 text-center">
+            <span class="text-gray-600">Already have an account?</span>
+            <a href="{% url 'users:login' %}" class="text-sky-600 underline hover:text-sky-800 font-semibold transition ml-1">Login</a>
+          </div>
+          <div class="w-full mt-4">
+            <!-- Google Register Button -->
+            {% load socialaccount %}
+            <a href="{% provider_login_url 'google' %}" class="w-full bg-red-500 text-white px-4 py-3 rounded-full font-bold text-lg shadow hover:bg-red-600 transition cursor-pointer flex items-center justify-center gap-2">
+              <span class="material-icons">google</span> Register with Google
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock content %}
+    <script>
+    // Ensure this script runs after the DOM and Django template rendering
+    (function() {
+      function showPwdOnFocus(e) {
+        if (e.target.type === 'password') e.target.type = 'text';
+      }
+      function hidePwdOnBlur(e) {
+        // Only revert if the field is a password field (by name or id)
+        if (
+          e.target.type === 'text' &&
+          (e.target.name.toLowerCase().includes('password') || e.target.id.toLowerCase().includes('password'))
+        ) {
+          e.target.type = 'password';
+        }
+      }
+      // Attach directly to all password fields (covers most Django forms)
+      document.querySelectorAll('input[type="password"]').forEach(function(pwd) {
+        pwd.addEventListener('focus', showPwdOnFocus);
+        pwd.addEventListener('blur', hidePwdOnBlur);
+      });
+      // Also use event delegation for any dynamically added fields
+      document.body.addEventListener('focusin', function(e) {
+        if (e.target.matches('input[type="password"]')) showPwdOnFocus(e);
+      });
+      document.body.addEventListener('focusout', function(e) {
+        if (
+          e.target.matches('input[type="text"]') &&
+          (e.target.name.toLowerCase().includes('password') || e.target.id.toLowerCase().includes('password'))
+        ) hidePwdOnBlur(e);
+      });
+    })();
+    </script>
+</body>
+</html>

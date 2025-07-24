@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Saved Posts</h2>
+{% if posts %}
+    <ul>
+    {% for post in posts %}
+        <li class="mb-6 p-4 border rounded bg-white flex gap-4">
+            <div>
+                {% if post.author.profile and post.author.profile.profile_image %}
+                    <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="profile-image">
+                {% else %}
+                    <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="profile-image">
+                {% endif %}
+            </div>
+            <div class="flex-1">
+                <div class="font-bold">By <a href="{% url 'users:profile' post.author.id %}">{{ post.author.username }}</a></div>
+                <div class="my-2">{{ post.content }}</div>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post Image" class="rounded mb-2" style="max-width:220px; max-height:180px;">
+                {% endif %}
+                {% if post.video %}
+                    <video controls class="rounded mb-2" style="max-width:220px; max-height:180px;">
+                        <source src="{{ post.video.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                {% endif %}
+                <div class="text-gray-500 text-sm">{{ post.created_at|timesince }} ago</div>
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <div class="text-gray-500">You have no saved posts yet.</div>
+{% endif %}
+{% endblock %}

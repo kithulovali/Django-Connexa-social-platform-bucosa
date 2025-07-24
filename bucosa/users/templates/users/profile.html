@@ -1,0 +1,306 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Profile</title>
+</head>
+<body class="bg-gradient-to-br from-white via-sky-50 to-indigo-50 min-h-screen">
+{% block content %}
+<div class="min-h-screen w-full flex bg-black text-white">
+  <!-- Left Sidebar (reuse home sidebar for consistency) -->
+  <aside class="hidden md:flex flex-col items-start justify-between py-4 px-2 bg-black min-h-screen sticky top-0" style="width: 260px;">
+    <nav class="flex flex-col gap-2 w-full">
+      <a href="{% url 'activities:home' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
+        <span class="material-icons">home</span>
+      </a>
+      <a href="{% url 'users:search_users' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
+        <span>Explore</span>
+      </a>
+      <a href="{% url 'users:private_messages' user.id %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
+        <span>Messages</span>
+      </a>
+      <a href="{% url 'users:profile' user.pk %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
+        <span>Profile</span>
+      </a>
+      <a href="{% url 'users:logout' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
+        <span>Logout</span>
+      </a>
+    </nav>
+  </aside>
+  <!-- Center: User Profile -->
+  <main class="flex flex-col items-center flex-1 min-h-screen bg-black px-0 py-1 border-x border-gray-800">
+    <div class="w-full max-w-2xl mx-auto">
+      <!-- User Info Card -->
+      <div class="bg-[#181c24] rounded-2xl shadow-2xl px-10 pt-10 pb-10 mb-8 relative border border-gray-800">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h2 class="text-4xl font-extrabold text-white flex items-center gap-2 tracking-tight">{{ user.username }}
+              {% if profile.0.verified %}
+                <span class="material-icons text-blue-400 align-middle">verified</span>
+              {% endif %}
+            </h2>
+            <div class="text-gray-400 text-xl font-mono">@{{ user.username }}</div>
+            <div class="mt-3 text-gray-200 text-lg leading-relaxed">{{ profile.0.bio }}</div>
+            {% if profile.0.website %}
+              <div class="mt-1"><a href="{{ profile.0.website }}" class="text-blue-400 hover:underline" target="_blank">{{ profile.0.website }}</a></div>
+            {% endif %}
+            {% if profile.0.location %}
+              <div class="text-gray-400 text-sm mt-1">{{ profile.0.location }}</div>
+            {% endif %}
+            <div class="flex flex-wrap gap-6 mt-6 text-gray-400 text-base">
+              <div><span class="font-bold text-white">{{ followers_count }}</span> Followers</div>
+              <div><span class="font-bold text-white">{{ following_count }}</span> Following</div>
+            </div>
+            <div class="flex gap-3 mt-6">
+              {% if request.user.is_authenticated %}
+                <a href="{% url 'users:private_messages' user.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full transition font-bold shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400" tabindex="0" aria-label="Private Chat">Private Chat</a>
+                {% if request.user == user %}
+                  <a href="{% url 'users:user_settings' %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-full transition font-bold shadow-lg flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-yellow-400" tabindex="0" aria-label="Settings">
+                    <span class="material-icons">settings</span> Settings
+                  </a>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Tabs (Posts, Reposts, Saved, Events) -->
+      <div class="flex gap-10 border-b border-gray-800 mb-8 px-10 profile-tabs">
+        <button id="tab-posts" class="py-3 font-bold text-white border-b-4 border-blue-500 transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('posts');window.location.hash='posts';" type="button">Posts</button>
+        <button id="tab-reposts" class="py-3 font-bold text-gray-400 hover:text-white transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('reposts');window.location.hash='reposts';" type="button">Reposts</button>
+        <button id="tab-saved" class="py-3 font-bold text-gray-400 hover:text-white transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('saved');window.location.hash='saved';" type="button">Saved</button>
+        <button id="tab-events" class="py-3 font-bold text-gray-400 hover:text-white transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('events');window.location.hash='events';" type="button">Events</button>
+      </div>
+      <!-- Post Composer UI Enhancement -->
+      {% if request.user == user %}
+      <div class="bg-[#181c24] rounded-2xl shadow-2xl px-6 py-6 mt-4 mb-8 border border-gray-800 flex gap-4 items-start">
+        {% if user.profile and user.profile.profile_image %}
+          <a href="{% url 'users:profile' user.id %}">
+            <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}'s Profile" class="w-12 h-12 rounded-full object-cover mt-1 border-2 border-blue-400 shadow">
+          </a>
+        {% else %}
+          <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover mt-1 border-2 border-gray-700 shadow">
+        {% endif %}
+        <form action="{% url 'activities:create_post' %}" method="post" enctype="multipart/form-data" class="flex-1 flex flex-col gap-3">
+          {% csrf_token %}
+          <textarea name="content" rows="3" placeholder="What's happening?" class="w-full bg-[#23272f] text-white rounded-xl border border-gray-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-lg placeholder-gray-400" required></textarea>
+          <div class="flex flex-wrap gap-4 items-center">
+            <label class="flex items-center gap-2 cursor-pointer bg-[#23272f] text-gray-300 px-3 py-2 rounded-lg border border-gray-700 hover:bg-[#2d323c] transition">
+              <span class="material-icons text-blue-400">image</span>
+              <span class="text-sm">Add Image</span>
+              <input type="file" name="image" accept="image/*" class="hidden">
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer bg-[#23272f] text-gray-300 px-3 py-2 rounded-lg border border-gray-700 hover:bg-[#2d323c] transition">
+              <span class="material-icons text-purple-400">videocam</span>
+              <span class="text-sm">Add Video</span>
+              <input type="file" name="video" accept="video/*" class="hidden">
+            </label>
+            <button type="submit" class="ml-auto bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-2 rounded-full text-lg shadow transition">Post</button>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+      <!-- End Post Composer -->
+      <!-- Tabbed Content Sections -->
+      <div id="posts-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8">
+        {% if posts %}
+        <ul class="flex flex-col gap-8">
+          {% for post in posts %}
+          <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
+            <div class="flex items-center gap-4 mb-2">
+              {% if post.author.profile and post.author.profile.profile_image %}
+                <a href="{% url 'users:profile' post.author.id %}">
+                  <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
+                </a>
+              {% else %}
+                <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <a href="{% url 'users:profile' post.author.id %}" class="font-bold text-white hover:underline">{{ post.author.username }}</a>
+                <span class="text-xs text-gray-400">· {{ post.created_at|timesince }} ago</span>
+              </div>
+            </div>
+            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ post.content }}</div>
+            {% if post.image %}
+              <div class="my-3">
+                <img src="{{ post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
+              </div>
+            {% endif %}
+            {% if post.video %}
+              <div class="my-3">
+                <video controls class="rounded-xl w-full max-h-96 object-cover shadow border border-gray-800" style="width:100%;">
+                  <source src="{{ post.video.url }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-gray-500 text-lg py-10">No posts yet.</div>
+        {% endif %}
+      </div>
+      <div id="reposts-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8 hidden">
+        {% if reposts %}
+        <ul class="flex flex-col gap-8">
+          {% for repost in reposts %}
+          <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
+            <div class="flex items-center gap-4 mb-2">
+              {% if repost.post.author.profile and repost.post.author.profile_image %}
+                <img src="{{ repost.post.author.profile.profile_image.url }}" alt="{{ repost.post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
+              {% else %}
+                <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <a href="{% url 'users:profile' repost.post.author.id %}" class="font-bold text-white hover:underline">{{ repost.post.author.username }}</a>
+                <span class="text-xs text-gray-400">· {{ repost.created_at|timesince }} ago</span>
+                <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">Repost</span>
+              </div>
+            </div>
+            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ repost.post.content }}</div>
+            {% if repost.post.image %}
+              <div class="my-3">
+                <img src="{{ repost.post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
+              </div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-gray-500 text-lg py-10">No reposts yet.</div>
+        {% endif %}
+      </div>
+      <div id="saved-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8 hidden">
+        {% if saved %}
+        <ul class="flex flex-col gap-8">
+          {% for post in saved %}
+          <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
+            <div class="flex items-center gap-4 mb-2">
+              {% if post.author.profile and post.author.profile.profile_image %}
+                <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
+              {% else %}
+                <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <a href="{% url 'users:profile' post.author.id %}" class="font-bold text-white hover:underline">{{ post.author.username }}</a>
+                <span class="text-xs text-gray-400">· {{ post.created_at|timesince }} ago</span>
+                <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">Saved</span>
+              </div>
+            </div>
+            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ post.content }}</div>
+            {% if post.image %}
+              <div class="my-3">
+                <img src="{{ post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
+              </div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-gray-500 text-lg py-10">No saved posts yet.</div>
+        {% endif %}
+      </div>
+      <div id="events-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8 hidden">
+        {% if events %}
+        <ul class="flex flex-col gap-8">
+          {% for event in events %}
+          <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
+            <div class="flex items-center gap-4 mb-2">
+              {% if event.cover_image %}
+                <img src="{{ event.cover_image.url }}" alt="{{ event.title }}" class="w-12 h-12 rounded object-cover rounded-xl">
+              {% else %}
+                <div class="w-12 h-12 bg-sky-900 rounded-xl"></div>
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <span class="font-bold text-white">{{ event.title }}</span>
+                <span class="text-xs text-gray-400">· {{ event.start_time|date:'M d, Y H:i' }}</span>
+              </div>
+            </div>
+            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ event.description }}</div>
+            {% if event.location %}
+              <div class="text-gray-400 text-sm mt-2">Location: {{ event.location }}</div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center text-gray-500 text-lg py-10">No events yet.</div>
+        {% endif %}
+      </div>
+      <script>
+      function showTab(tab) {
+        const tabIds = ['posts', 'reposts', 'saved', 'events'];
+        tabIds.forEach(function(t) {
+          document.getElementById(t+'-section').classList.toggle('hidden', t !== tab);
+          document.getElementById('tab-'+t).classList.toggle('text-white', t === tab);
+          document.getElementById('tab-'+t).classList.toggle('text-gray-400', t !== tab);
+          document.getElementById('tab-'+t).classList.toggle('border-b-4', t === tab);
+          document.getElementById('tab-'+t).classList.toggle('border-blue-500', t === tab);
+        });
+      }
+      document.addEventListener('DOMContentLoaded', function() {
+        const hash = window.location.hash.replace('#', '');
+        if(['posts','reposts','saved','events'].includes(hash)) {
+          showTab(hash);
+        } else {
+          showTab('posts');
+        }
+      });
+      </script>
+    </div>
+  </main>
+  <!-- Right Sidebar -->
+  <aside class="hidden xl:flex flex-col flex-[1.1] px-4 py-6 bg-black min-h-screen sticky top-0 w-[350px] border-l border-gray-800">
+    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
+      <form method="get" action="{% url 'users:search_users' %}">
+        <input type="search" name="q" placeholder="Search" class="w-full px-4 py-2 rounded-full bg-black text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+      </form>
+    </div>
+    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
+      <h3 class="text-xl font-bold text-white mb-4">You might like</h3>
+      <ul class="space-y-3">
+        {% for u in suggestions %}
+        <li class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            {% if u.profile and u.profile.profile_image %}
+              <a href="{% url 'users:profile' u.id %}">
+                <img src="{{ u.profile.profile_image.url }}" class="w-8 h-8 rounded-full" alt="{{ u.username }}">
+              </a>
+            {% else %}
+              <img src="{% static 'images/default.jpg' %}" class="w-8 h-8 rounded-full" alt="{{ u.username }}">
+            {% endif %}
+            <div>
+              <div class="font-bold text-white">{{ u.username }}</div>
+              <div class="text-gray-400 text-xs">@{{ u.username }}</div>
+            </div>
+          </div>
+          <form action="{% url 'users:follow_user' u.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="bg-white text-black font-bold px-4 py-1 rounded-full">Follow</button>
+          </form>
+        </li>
+        {% empty %}
+        <li class="text-gray-400">No suggestions at this time.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+</div>
+<style>
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 8s ease-in-out infinite;
+}
+</style>
+{% endblock content %}
+</body>
+</html>

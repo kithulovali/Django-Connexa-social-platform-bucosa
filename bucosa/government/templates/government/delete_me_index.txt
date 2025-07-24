@@ -1,0 +1,2 @@
+# index.html is now deprecated and replaced by main.html (which extends bucosa.html).
+# You can safely delete index.html from this directory.

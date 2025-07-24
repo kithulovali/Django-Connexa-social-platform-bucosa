@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_head %}
+<title>{{ group.name }} - Group Details</title>
+{% endblock %}
+{% block content %}
+<div class="group-detail-container">
+    <h2>{{ group.name }}</h2>
+    <div class="group-meta" style="display: flex; align-items: center; gap: 16px;">
+        <span><strong>Members:</strong> {{ group.user_set.count }}</span>
+        {% if request.user == group.profile.creator %}
+            <a href="{% url 'users:group_admin' group.id %}" class="btn btn-warning">Admin Panel</a>
+        {% endif %}
+    </div>
+    <hr>
+    <h3>Group Events</h3>
+    {% if request.user.is_authenticated and group.profile.creator == request.user %}
+        <a href="{% url 'activities:create_event' %}?group_id={{ group.id }}" class="btn btn-primary" style="margin-bottom: 16px;">Create Event</a>
+    {% endif %}
+    <ul>
+        {% for event in group.events.all %}
+            <li style="margin-bottom: 24px; padding: 12px; border: 1px solid #eee; border-radius: 8px; background: #fafbfc; display: flex; align-items: flex-start; gap: 16px;">
+                <div>
+                    <a href="{% url 'users:profile' event.creator.id %}" class="profile-link">
+                        {% if event.creator.profile and event.creator.profile.profile_image %}
+                            <img src="{{ event.creator.profile.profile_image.url }}" alt="{{ event.creator.username }}'s Profile" class="profile-image">
+                        {% else %}
+                            <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="profile-image">
+                        {% endif %}
+                    </a>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:bold; font-size:1.05em;"><a href="{% url 'users:profile' event.creator.id %}" class="profile-link">{{ event.creator.username }}</a></div>
+                    <div style="color: #888;">Start: {{ event.start_time|date:'M d, Y H:i' }}<br>End: {{ event.end_time|date:'M d, Y H:i' }}</div>
+                    <div style="color: #555; margin-bottom: 4px;"><strong>Location:</strong> {{ event.location }}</div>
+                    <div style="margin-bottom: 6px;">{{ event.description|linebreaks }}</div>
+                    {% if event.cover_image and event.cover_image.url %}
+                        <div style="margin: 10px 0;">
+                            <img src="{{ event.cover_image.url }}" alt="Event Media" style="max-width:180px; max-height:120px; border-radius:8px;">
+                        </div>
+                    {% endif %}
+                    {% if event.can_edit %}
+                        <a href="{% url 'activities:edit_event' event.id %}">Edit</a>
+                        <a href="{% url 'activities:delete_event' event.id %}">Delete</a>
+                    {% endif %}
+                    {% if event.attendees.all %}
+                        <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0;">
+                            <span style="font-size:0.98em; color:#555; margin-right:8px;">Attending: {{ event.attendees.count }}</span>
+                            {% for attendee in event.attendees.all %}
+                                <a href="{% url 'users:profile' attendee.id %}" title="{{ attendee.username }}">
+                                    {% if attendee.profile and attendee.profile.profile_image %}
+                                        <img src="{{ attendee.profile.profile_image.url }}" alt="{{ attendee.username }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid #ccc;" />
+                                    {% else %}
+                                        <img src="{% static 'images/default.jpg' %}" alt="Default" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid #ccc;" />
+                                    {% endif %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user not in event.attendees.all %}
+                        <form action="{% url 'activities:attend_event' event.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success" style="padding:2px 10px;">Attend</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    <hr>
+    <h3>Group Posts</h3>
+    {% if request.user.is_authenticated and group.profile.creator == request.user %}
+        <a href="{% url 'activities:create_post' %}?group_id={{ group.id }}" class="btn btn-primary" style="margin-bottom: 16px;">Create Post</a>
+    {% endif %}
+    <ul>
+        {% for post in group.posts.all %}
+            <li style="margin-bottom: 24px; padding: 12px; border: 1px solid #eee; border-radius: 8px; background: #fafbfc; display: flex; align-items: flex-start; gap: 16px;">
+                <div>
+                    <a href="{% url 'users:profile' post.author.id %}" class="profile-link">
+                        {% if post.author.profile and post.author.profile.profile_image %}
+                            <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="profile-image">
+                        {% else %}
+                            <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="profile-image">
+                        {% endif %}
+                    </a>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:bold; font-size:1.05em;"><a href="{% url 'users:profile' post.author.id %}" class="profile-link">{{ post.author.username }}</a></div>
+                    <div>{{ post.content }}</div>
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="Post Image" class="rounded mb-2" style="max-width:220px; max-height:180px;">
+                    {% endif %}
+                    {% if post.video %}
+                        <video controls class="rounded mb-2" style="max-width:220px; max-height:180px;">
+                            <source src="{{ post.video.url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    {% endif %}
+                    <div style="color:#888;font-size:0.95em;">By <a href="{% url 'users:profile' post.author.id %}">{{ post.author.username }}</a> on {{ post.created_at|timesince }} ago</div>
+                    {% if post.can_edit %}
+                        <a href="{% url 'activities:edit_post' post.id %}">Edit</a>
+                        <a href="{% url 'activities:delete_post' post.id %}">Delete</a>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

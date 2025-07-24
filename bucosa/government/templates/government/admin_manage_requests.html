@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto py-8">
+    <h2 class="text-2xl font-bold mb-4">Pending Join Requests</h2>
+    <table class="min-w-full bg-white text-black rounded shadow mb-8">
+        <thead>
+            <tr>
+                <th class="py-2 px-4 border-b">User</th>
+                <th class="py-2 px-4 border-b">Requested At</th>
+                <th class="py-2 px-4 border-b">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in join_requests %}
+            <tr>
+                <td class="py-2 px-4 border-b">{{ req.user.get_full_name }} ({{ req.user.username }})</td>
+                <td class="py-2 px-4 border-b">{{ req.requested_at }}</td>
+                <td class="py-2 px-4 border-b">
+                    <form method="post" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="request_id" value="{{ req.id }}">
+                        <button type="submit" name="action" value="approve" class="bg-green-600 text-white px-3 py-1 rounded">Approve</button>
+                        <button type="submit" name="action" value="reject" class="bg-red-600 text-white px-3 py-1 rounded ml-2">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="py-2 px-4">No pending requests.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
