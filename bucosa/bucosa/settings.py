@@ -94,6 +94,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware', 
     'middleware.LoginRequiredMiddleware',  
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'bucosa.urls'
@@ -129,6 +130,9 @@ DATABASES = {
         'PASSWORD': os.getenv('PGPASSWORD'),
         'HOST': os.getenv('PGHOST'),
         'PORT': os.getenv('PGPORT'),
+         'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
 
