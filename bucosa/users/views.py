@@ -1,6 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required 
+from django.views.decorators.http import require_POST
 from .models import user_profile
 from django.shortcuts import render , redirect , get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
@@ -30,23 +31,25 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView
 )
+from notifications.utils import send_push_notification_v1
 from .models_block_report import UserBlock, UserReport
 from .models import user_following
 
 # Create your views here.
 @csrf_exempt
+@require_POST
 @login_required
 def save_fcm_token(request):
-    if request.method == 'POST':
-        token = request.POST.get('token')
-        if not token:
-            return JsonResponse({'status': 'error', 'message': 'No token provided'}, status=400)
+    token = request.POST.get('token')
+    if not token:
+        return JsonResponse({'status': 'error', 'message': 'No token provided'}, status=400)
+    try:
         profile = user_profile.objects.get(user=request.user)
         profile.fcm_token = token
         profile.save()
         return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
-
+    except user_profile.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'User profile not found'}, status=404)
 #=============login view
 def login_user(request):
     if request.user.is_authenticated:
@@ -264,6 +267,18 @@ def follow_user(request, pk):
             notification_type='follow',
             message=f'{request.user} started following you.'
         )
+                # Push notification
+        try:
+            profile = user_profile.objects.get(user=target_user)
+            if profile.fcm_token:
+                send_push_notification_v1(
+                    profile.fcm_token,
+                    title="New Follower",
+                    body=f"{request.user.username} started following you."
+                )
+        except user_profile.DoesNotExist:
+            pass
+    return redirect('users:profile', pk=pk)
 
 @login_required
 def unfollow_user(request, pk):
@@ -433,6 +448,19 @@ def group_chat(request, pk):
                     message=f'New group message in {group.name}: {content[:50]}',
                     related_object=msg
                 )
+            # push notifications for group
+            members = group.user_set.exclude(id=request.user.id)
+            for member in members:
+                try:
+                    profile = user_profile.objects.get(user=member)
+                    if profile.fcm_token:
+                        send_push_notification_v1(
+                            profile.fcm_token,
+                            title="New Group Message",
+                            body=f"{request.user.username} in {group.name}: {content[:50]}"
+                        )
+                except user_profile.DoesNotExist:
+                    pass
     return render(request, 'users/group_chat.html', {'group': group, 'messages': messages_qs, 'emojis': emojis})
 
 @login_required
@@ -637,6 +665,19 @@ def private_messages(request, user_id=None):
                 message=content or 'You have a new message',
                 related_object=msg
             )
+            try:
+                profile = user_profile.objects.get(user=other_user)
+                print("DEBUG: FCM token for", other_user.username, "=", profile.fcm_token)
+                if profile.fcm_token:
+                    send_push_notification_v1(
+                        profile.fcm_token,
+                        title="New Message",
+                        body=f"{request.user.username}: {content[:50]}"
+                    )
+                    print("DEBUG: Sent push notification to", other_user.username)
+            except user_profile.DoesNotExist:
+                print("DEBUG: No user_profile for", other_user.username)
+            
     return render(request, 'users/private_messages.html', {
         'other_user': other_user,
         'messages': messages_qs,

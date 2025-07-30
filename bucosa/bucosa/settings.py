@@ -8,26 +8,31 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# SECURITY - Development Configuration
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-here')
+DEBUG = False
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '']
 
-# Production security settings
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
+# Development security settings
+#SESSION_COOKIE_SECURE = False
+#CSRF_COOKIE_SECURE = False
+#SECURE_SSL_REDIRECT = False
+#SECURE_HSTS_SECONDS = 0
+#SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+#SECURE_HSTS_PRELOAD = False
+#SECURE_BROWSER_XSS_FILTER = True
+##SECURE_CONTENT_TYPE_NOSNIFF = True
+#X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# production security settings
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'SAMEORIGIN'
-
 # APPLICATIONS
 INSTALLED_APPS = [
-    # Django default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -55,7 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files compression and caching
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,7 +68,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    'middleware.LoginRequiredMiddleware',  # Your custom middleware, adjust path if needed
+    'middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'bucosa.urls'
@@ -76,7 +81,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # required by allauth
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -85,18 +90,32 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'bucosa.wsgi.application'
-ASGI_APPLICATION = 'bucosa.asgi.application'  # For channels/async
+ASGI_APPLICATION = 'bucosa.routing.application'
 
-# DATABASE - uses DATABASE_URL from env, default fallback if needed
+# DATABASE - Development SQLite Configuration
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#        'OPTIONS': {
+#            'timeout': 20,
+#            'init_command': """
+#                PRAGMA journal_mode=WAL;
+#                PRAGMA synchronous=NORMAL;
+#                PRAGMA cache_size=1000;
+#                PRAGMA temp_store=memory;
+#            """
+#        }
+#    }
+#}
+
+#production db
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True  # Enforce SSL in production DB connection
-    )
+    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
 
-# PASSWORD VALIDATION
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -104,13 +123,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# INTERNATIONALIZATION
+# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# STATIC & MEDIA FILES
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -118,7 +137,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# AUTHENTICATION
+# Authentication
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -136,7 +155,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_ADAPTER = 'users.adapter.CustomAccountAdapter'  # Your custom adapter
+ACCOUNT_ADAPTER = 'users.adapter.CustomAccountAdapter'
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
@@ -159,16 +178,10 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# EMAIL
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# Email configuration for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# PWA SETTINGS
+# PWA Settings
 PWA_APP_NAME = 'Connexa'
 PWA_APP_DESCRIPTION = "Connexa Social Platform"
 PWA_APP_THEME_COLOR = '#22223b'
@@ -186,5 +199,52 @@ PWA_APP_ICONS_APPLE = PWA_APP_ICONS
 PWA_APP_DIR = 'ltr'
 PWA_APP_LANG = 'en-US'
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
+
+#CHANNEL_LAYERS = {
+#    'default': {
+#        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#    },
+#}
+
+# production redis reltime config
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [os.environ.get("REDIS_URL")],  
+        },
+    },
+}
+
+# caches for redis server 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# firebase config
+import json
+FIREBASE_CREDENTIALS = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))

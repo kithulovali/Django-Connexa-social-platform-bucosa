@@ -13,6 +13,8 @@ from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from notifications.utils import create_notification
 from django.utils import timezone
+from notifications.utils import send_push_notification_v1
+from utils.mentions import extract_mentions
 
 # Create your views here.
 def home_activities(request):
@@ -41,7 +43,6 @@ def home_activities(request):
     # Search logic
     if query:
         posts = posts.filter(Q(content__icontains=query) | Q(author__username__icontains=query))
-        # Show all fields of Post in the template, even if filtered
         posts = posts.select_related('author', 'group').prefetch_related('comments', 'group__profile')
         events = events.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(creator__username__icontains=query))
     followers = []
@@ -49,13 +50,11 @@ def home_activities(request):
     if request.user.is_authenticated:
         following = list(User.objects.filter(followers__user=request.user))
         followers = list(User.objects.filter(following__following_user=request.user))
-    # Add absolute URL for each post for sharing
     for post in posts:
         if hasattr(post, 'get_absolute_url'):
             post.post_url = request.build_absolute_uri(post.get_absolute_url())
         else:
             post.post_url = ''
-    # Only highlight in template, not in backend
     if request.user.is_authenticated:
         following_ids = request.user.following.values_list('following_user', flat=True)
         suggestions = list(User.objects.exclude(id__in=following_ids).exclude(id=request.user.id))
@@ -74,7 +73,6 @@ def home_activities(request):
         'filter_by': filter_by,
         'followers': followers,
         'following': following,
-        
     })
 
 def post_activity(request):
@@ -91,6 +89,9 @@ def group_activities(request):
     return render(request ,'activities/group_detail.html')
 
 @login_required
+
+
+@login_required
 def create_post(request, group_id=None):
     group = None
     if group_id is not None:
@@ -102,11 +103,53 @@ def create_post(request, group_id=None):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            # If group is disabled, set it explicitly
             if group:
                 post.group = group
             post.save()
-            # Push notification for new post
+
+            # --- MENTION HANDLING START ---
+            mentioned_usernames = extract_mentions(post.content)
+            if mentioned_usernames:
+                UserModel = get_user_model()
+                mentioned_users = UserModel.objects.filter(username__in=mentioned_usernames).exclude(id=request.user.id)
+                for mentioned_user in mentioned_users:
+                    # In-app notification
+                    create_notification(
+                        sender=request.user,
+                        recipient=mentioned_user,
+                        notification_type='mention',
+                        message=f'You were mentioned in a post by @{request.user.username}.',
+                        related_object=post
+                    )
+                    # Push notification
+                    try:
+                        from users.models import user_profile
+                        profile = user_profile.objects.get(user=mentioned_user)
+                        if profile.fcm_token:
+                            send_push_notification_v1(
+                                profile.fcm_token,
+                                title="Mention",
+                                body=f"You were mentioned in a post by @{request.user.username}."
+                            )
+                    except Exception:
+                        pass
+            # --- MENTION HANDLING END ---
+
+            # Push notification for new post (only for non-group posts)
+            if not group:
+                followers = request.user.followers.all()
+                for follower in followers:
+                    try:
+                        from users.models import user_profile
+                        profile = user_profile.objects.get(user=follower)
+                        if profile.fcm_token:
+                            send_push_notification_v1(
+                                profile.fcm_token,
+                                title="New Post",
+                                body=f"{request.user.username} posted: {post.content[:50]}"
+                            )
+                    except Exception:
+                        pass
             if group:
                 return redirect('group_profile', pk=group.id)
             else:
@@ -118,7 +161,6 @@ def create_post(request, group_id=None):
 @login_required
 def create_event(request, group_id=None):
     group = None
-    # Accept group_id from GET if not provided as argument
     if group_id is None:
         group_id = request.GET.get('group_id')
     if group_id:
@@ -133,6 +175,50 @@ def create_event(request, group_id=None):
             if group:
                 event.group = group
             event.save()
+
+            # --- MENTION HANDLING START ---
+            mentioned_usernames = extract_mentions(event.description)
+            if mentioned_usernames:
+                UserModel = get_user_model()
+                mentioned_users = UserModel.objects.filter(username__in=mentioned_usernames).exclude(id=request.user.id)
+                for mentioned_user in mentioned_users:
+                    # In-app notification
+                    create_notification(
+                        sender=request.user,
+                        recipient=mentioned_user,
+                        notification_type='mention',
+                        message=f'You were mentioned in an event by @{request.user.username}.',
+                        related_object=event
+                    )
+                    # Push notification
+                    try:
+                        from users.models import user_profile
+                        profile = user_profile.objects.get(user=mentioned_user)
+                        if profile.fcm_token:
+                            send_push_notification_v1(
+                                profile.fcm_token,
+                                title="Mention",
+                                body=f"You were mentioned in an event by @{request.user.username}."
+                            )
+                    except Exception:
+                        pass
+            # --- MENTION HANDLING END ---
+
+            # Push notification for new event (only for non-group events)
+            if not group:
+                followers = request.user.followers.all()
+                for follower in followers:
+                    try:
+                        from users.models import user_profile
+                        profile = user_profile.objects.get(user=follower)
+                        if profile.fcm_token:
+                            send_push_notification_v1(
+                                profile.fcm_token,
+                                title="New Event",
+                                body=f"{request.user.username} created an event: {event.title}"
+                            )
+                    except Exception:
+                        pass
             if group:
                 return redirect('users:group_profile', pk=group.id)
             else:
@@ -337,6 +423,33 @@ def add_comment(request, post_id):
                     message=f'{request.user} commented: {comment.content[:50]}',
                     related_object=comment
                 )
+            # --- MENTION HANDLING START ---
+            mentioned_usernames = extract_mentions(comment.content)
+            if mentioned_usernames:
+                UserModel = get_user_model()
+                mentioned_users = UserModel.objects.filter(username__in=mentioned_usernames).exclude(id=request.user.id)
+                for mentioned_user in mentioned_users:
+                    # In-app notification
+                    create_notification(
+                        sender=request.user,
+                        recipient=mentioned_user,
+                        notification_type='mention',
+                        message=f'You were mentioned in a comment by @{request.user.username}.',
+                        related_object=comment
+                    )
+                    # Push notification
+                    try:
+                        from users.models import user_profile
+                        profile = user_profile.objects.get(user=mentioned_user)
+                        if profile.fcm_token:
+                            send_push_notification_v1(
+                                profile.fcm_token,
+                                title="Mention",
+                                body=f"You were mentioned in a comment by @{request.user.username}."
+                            )
+                    except Exception:
+                        pass
+            # --- MENTION HANDLING END ---
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required

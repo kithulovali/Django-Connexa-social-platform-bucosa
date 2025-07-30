@@ -1,24 +1,21 @@
-importScripts('https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.6.11/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey: "AIzaSyC78OjRcO9fAzkF2dvgieozf-6WcVWp_1Y",
-  authDomain: "bucosa-f357e.firebaseapp.com",
-  projectId: "bucosa-f357e",
-  storageBucket: "bucosa-f357e.appspot.com",
-  messagingSenderId: "33291395764",
-  appId: "1:33291395764:web:4515b88070fd1920672de1",
-  measurementId: "G-22RMKQ89N1"
+  apiKey: "AIzaSyAsXHxxto0D-0nZ2I7sIhHFDjCAgurUoZM",
+  authDomain: "bucosa-5ccde.firebaseapp.com",
+  projectId: "bucosa-5ccde",
+  storageBucket: "bucosa-5ccde.appspot.com",
+  messagingSenderId: "981676237571",
+  appId: "1:981676237571:web:1a7445524217e5ae917f36",
+  measurementId: "G-XNJBM8KB53"
 });
 
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
+  self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
-    icon: payload.notification.icon
-  };
-  self.registration.showNotification(notificationTitle, notificationOptions);
+    icon: '/static/img/pwa-icon.png'
+  });
 });

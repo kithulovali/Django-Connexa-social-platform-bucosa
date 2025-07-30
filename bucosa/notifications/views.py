@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from .models import Notification
 from .tasks import send_notification_task
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 
 def send_notification_view(request):
     if request.method == 'POST':
@@ -23,3 +25,11 @@ def send_notification_view(request):
         except User.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Recipient not found'}, status=404)
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@login_required
+def mark_notifications_read(request):
+    if request.method == 'POST':
+        request.user.notifications.filter(is_read=False).update(is_read=True)
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'error'}, status=400)

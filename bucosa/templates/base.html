@@ -1,38 +1,38 @@
-<!-- filepath: c:\Users\danbash\Desktop\Github\Django-Connexa-social-platform-bucosa\bucosa\templates\base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Tailwind CSS CDN (no dark mode config) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,400,0,0&icon_names=church" />
+    <!-- Use compat versions for Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <!-- PWA Manifest -->
     <link rel="manifest" href="{% static 'manifest.json' %}">
     <meta name="theme-color" content="#22223b">
-   
     {% block extra_head %}{% endblock %}
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-          navigator.serviceWorker.register('{% static 'service-worker.js' %}');
+          navigator.serviceWorker.register('{% static "service-worker.js" %}');
+          navigator.serviceWorker.register('{% static "firebase-messaging-sw.js" %}');
         });
       }
     </script>
 </head>
-<body class="bg-white min-h-screen transition-colors duration-300">
+<body class="bg-white min-h-screen transition-colors duration-300 text-black" id="body-root">
+    <!-- Dark/Light mode toggle button (icon only, top right corner) -->
+    <button id="theme-toggle" style="position:fixed;top:24px;right:24px;z-index:1000;background:transparent;border:none;outline:none;cursor:pointer;">
+      <span class="material-icons" id="theme-icon" style="font-size:32px;color:#22223b;">dark_mode</span>
+    </button>
     <!-- PWA Install Button -->
     <button id="pwa-install-btn" style="display:none;position:fixed;bottom:24px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">Install Bucosa App</button>
     <script>
       let deferredPrompt;
       const installBtn = document.getElementById('pwa-install-btn');
-      // Hide the install button if the app is already installed
       function hideInstallBtnIfInstalled() {
-        // For most browsers
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
           installBtn.style.display = 'none';
         } else {
@@ -64,7 +64,6 @@
     <div class="flex min-h-screen">
         <nav class="bg-black w-20 md:w-56 flex flex-col py-8 px-2 md:px-4 items-center md:items-start">
             <ul class="space-y-6 w-full">
-                <!-- ...navigation links... -->
                 <li>
                   <a href="{% url 'activities:home'  %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'home' %}bg-gray-900{% endif %}">
                     <span class="material-icons">home</span>
@@ -108,7 +107,7 @@
                   </a>
                 </li>
                 <li id="notification-bell-sidebar" style="position:relative;">
-                  <div class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full cursor-pointer">
+                  <div class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full cursor-pointer" id="notificationDropdown">
                     <span class="material-icons">notifications</span>
                     <span class="hidden md:inline">Notifications</span>
                     <span id="notification-badge" style="display:none;position:absolute;top:10px;right:10px;background:red;color:white;border-radius:50%;padding:2px 6px;font-size:12px;">0</span>
@@ -122,16 +121,189 @@
                 {% block content %}{% endblock %}
             </div>
         </main>
-    </div>
+    </div>   
     {% block extra_js %}{% endblock %}
-    <!-- Register Service Worker for PWA (django-pwa) -->
+    <!-- Notifications WebSocket  -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('{% url 'serviceworker' %}');
+      // Toast function
+      function showToast(msg, type = 'info') {
+        const toast = document.createElement('div');
+        toast.textContent = msg;
+        toast.className = `bucosa-toast${type === 'error' ? ' bucosa-toast-error' : ''}`;
+        Object.assign(toast.style, {
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          background: type === 'info' ? '#2563eb' : '#e53e3e',
+          color: 'white',
+          padding: '16px 24px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          zIndex: 9999,
+          fontSize: '16px',
+          transition: 'opacity 0.3s'
+        });
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = 0; }, 3000);
+        setTimeout(() => { toast.remove(); }, 3500);
+      }
+
+      // Play notification sound
+      function playNotificationSound() {
+        const audio = new Audio('/static/sounds/notify.mp3');
+        audio.play();
+      }
+
+      // Badge and dropdown update
+      function updateNotificationBadge() {
+        const badge = document.getElementById('notification-badge');
+        if (badge) {
+          let count = parseInt(badge.textContent) || 0;
+          badge.textContent = count + 1;
+          badge.style.display = 'inline-block';
+        }
+      }
+
+      function prependNotificationDropdown(data) {
+        const dropdown = document.getElementById('notification-dropdown');
+        if (dropdown) {
+          const item = document.createElement('a');
+          item.className = 'dropdown-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100';
+          item.href = data.url || '#';
+          item.textContent = data.message || 'New notification';
+          dropdown.prepend(item);
+        }
+      }
+
+      // CSRF utility
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      // WebSocket reconnect logic
+      function setupNotificationSocket() {
+        let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+        let ws_path = ws_scheme + '://' + window.location.host + "/ws/notifications/";
+        let notificationSocket = new WebSocket(ws_path);
+
+        notificationSocket.onmessage = function(e) {
+          const data = JSON.parse(e.data);
+          showToast(data.message || "New notification", 'info');
+          playNotificationSound();
+          updateNotificationBadge();
+          prependNotificationDropdown(data);
+        };
+
+        notificationSocket.onclose = function(e) {
+          console.error('Notification socket closed unexpectedly, reconnecting...');
+          setTimeout(setupNotificationSocket, 2000);
+        };
+      }
+      setupNotificationSocket();
+
+      // Dropdown show/hide and mark as read
+      const bell = document.getElementById('notificationDropdown');
+      const dropdown = document.getElementById('notification-dropdown');
+      bell.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+          dropdown.style.display = 'block';
+          // Mark as read
+          fetch('/notifications/mark_read/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')}
+          });
+          const badge = document.getElementById('notification-badge');
+          if (badge) {
+            badge.textContent = '0';
+            badge.style.display = 'none';
+          }
+        } else {
+          dropdown.style.display = 'none';
+        }
+      });
+      // Hide dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.style.display = 'none';
+        }
+      });
+    </script>
+    <!-- Firebase Push Notification -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAsXHxxto0D-0nZ2I7sIhHFDjCAgurUoZM",
+        authDomain: "bucosa-5ccde.firebaseapp.com",
+        projectId: "bucosa-5ccde",
+        storageBucket: "bucosa-5ccde.appspot.com",
+        messagingSenderId: "981676237571",
+        appId: "1:981676237571:web:1a7445524217e5ae917f36",
+        measurementId: "G-XNJBM8KB53"
+      };
+      firebase.initializeApp(firebaseConfig);
+
+      const messaging = firebase.messaging();
+
+      function sendTokenToBackend(token) {
+        if (localStorage.getItem('fcm_token') !== token) {
+          fetch('/save_fcm_token/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'token=' + encodeURIComponent(token)
+          }).then(() => {
+            localStorage.setItem('fcm_token', token);
+          });
+        }
+      }
+
+      function getAndSendToken() {
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted') {
+            messaging.getToken({ vapidKey: 'BIrGRQ1nsd0Cf7Fpmd-qMKhkqLMUaXXXpBUpkPc908eBgSN3ApVrSkQuLvS6Phz8UVLT3QlYSZ0RyIQBjbAuhFc' })
+              .then((token) => {
+                if (token) {
+                  sendTokenToBackend(token);
+                } else {
+                  console.log('No registration token available.');
+                }
+              })
+              .catch((err) => {
+                console.log('Unable to get token.', err);
+              });
+          } else {
+            console.log('Notification permission not granted.');
+          }
         });
       }
+
+      window.addEventListener('load', getAndSendToken);
+
+      messaging.onTokenRefresh(() => {
+        messaging.getToken({ vapidKey: 'BIrGRQ1nsd0Cf7Fpmd-qMKhkqLMUaXXXpBUpkPc908eBgSN3ApVrSkQuLvS6Phz8UVLT3QlYSZ0RyIQBjbAuhFc' })
+          .then((refreshedToken) => {
+            sendTokenToBackend(refreshedToken);
+          })
+          .catch((err) => {
+            console.log('Unable to retrieve refreshed token ', err);
+          });
+      });
+
+      messaging.onMessage((payload) => {
+        alert('Push notification: ' + payload.notification.title + ' - ' + payload.notification.body);
+      });
     </script>
-    <!-- ...rest of your scripts (like dark mode, notifications, etc.)... -->
 </body>
 </html>
