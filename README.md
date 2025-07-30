@@ -122,8 +122,6 @@ python manage.py runserver
 
 <p align="center">
   <sub>
-    Neon: Cloud PostgreSQL for Developers &nbsp;|&nbsp;
-    Upstash: Serverless Redis and Kafka &nbsp;|&nbsp;
     Railway: Cloud Infrastructure Made Easy
   </sub>
 </p>
