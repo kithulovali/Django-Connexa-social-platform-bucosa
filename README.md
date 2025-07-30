@@ -109,12 +109,6 @@ python manage.py runserver
 ## 🤝 Sponsor
 
 <p align="center">
-  <a href="https://www.neon.tech/" target="_blank" title="Neon">
-    <img src="https://neon.tech/_next/static/media/neon-logo.3c8b6b8e.svg" alt="Neon Logo" width="120" style="margin-right: 40px;"/>
-  </a>
-  <a href="https://upstash.com/" target="_blank" title="Upstash">
-    <img src="https://upstash.com/_next/static/media/logo.7b6b6e3d.svg" alt="Upstash Logo" width="120" style="margin-right: 40px;"/>
-  </a>
   <a href="https://railway.app/" target="_blank" title="Railway">
     <img src="https://railway.app/brand/logo-light.png" alt="Railway Logo" width="120"/>
   </a>
@@ -122,8 +116,6 @@ python manage.py runserver
 
 <p align="center">
   <b>
-    <a href="https://www.neon.tech/" target="_blank">Neon</a> &nbsp;|&nbsp;
-    <a href="https://upstash.com/" target="_blank">Upstash</a> &nbsp;|&nbsp;
     <a href="https://railway.app/" target="_blank">Railway</a>
   </b>
 </p>
