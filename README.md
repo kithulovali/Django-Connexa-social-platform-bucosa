@@ -108,37 +108,35 @@ python manage.py runserver
 
 ## 🤝 Sponsor
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://www.neon.tech/" target="_blank">
-        <img src="https://neon.tech/_next/static/media/neon-logo.3c8b6b8e.svg" alt="Neon Logo" width="120"/>
-        <br/>
-        <b>Neon</b>
-      </a>
-      <br/>
-      <sub>Cloud PostgreSQL for Developers</sub>
-    </td>
-    <td align="center">
-      <a href="https://upstash.com/" target="_blank">
-        <img src="https://upstash.com/_next/static/media/logo.7b6b6e3d.svg" alt="Upstash Logo" width="120"/>
-        <br/>
-        <b>Upstash</b>
-      </a>
-      <br/>
-      <sub>Serverless Redis and Kafka</sub>
-    </td>
-    <td align="center">
-      <a href="https://railway.app/" target="_blank">
-        <img src="https://railway.app/brand/logo-light.png" alt="Railway Logo" width="120"/>
-        <br/>
-        <b>Railway</b>
-      </a>
-      <br/>
-      <sub>Cloud Infrastructure Made Easy</sub>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="https://www.neon.tech/" target="_blank" title="Neon">
+    <img src="https://neon.tech/_next/static/media/neon-logo.3c8b6b8e.svg" alt="Neon Logo" width="120" style="margin-right: 40px;"/>
+  </a>
+  <a href="https://upstash.com/" target="_blank" title="Upstash">
+    <img src="https://upstash.com/_next/static/media/logo.7b6b6e3d.svg" alt="Upstash Logo" width="120" style="margin-right: 40px;"/>
+  </a>
+  <a href="https://railway.app/" target="_blank" title="Railway">
+    <img src="https://railway.app/brand/logo-light.png" alt="Railway Logo" width="120"/>
+  </a>
+</p>
+
+<p align="center">
+  <b>
+    <a href="https://www.neon.tech/" target="_blank">Neon</a> &nbsp;|&nbsp;
+    <a href="https://upstash.com/" target="_blank">Upstash</a> &nbsp;|&nbsp;
+    <a href="https://railway.app/" target="_blank">Railway</a>
+  </b>
+</p>
+
+<p align="center">
+  <sub>
+    Neon: Cloud PostgreSQL for Developers &nbsp;|&nbsp;
+    Upstash: Serverless Redis and Kafka &nbsp;|&nbsp;
+    Railway: Cloud Infrastructure Made Easy
+  </sub>
+</p>
+
+---
 
 ---
 
