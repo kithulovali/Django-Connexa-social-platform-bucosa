@@ -2,36 +2,31 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+import json
 
-# Load environment variables from .env file
+# Load environment variables from .env file (for local dev)
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY - Development Configuration
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-here')
 DEBUG = False
-ALLOWED_HOSTS = ['connexa-bucosa.up.railway.app','127.0.0.1','localhost']
 
-# Development security settings
-#SESSION_COOKIE_SECURE = False
-#CSRF_COOKIE_SECURE = False
-#SECURE_SSL_REDIRECT = False
-#SECURE_HSTS_SECONDS = 0
-#SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-#SECURE_HSTS_PRELOAD = False
-#SECURE_BROWSER_XSS_FILTER = True
-##SECURE_CONTENT_TYPE_NOSNIFF = True
-#X_FRAME_OPTIONS = 'SAMEORIGIN'
+ALLOWED_HOSTS = [
+    'connexa-bucosa.up.railway.app',
+    '127.0.0.1',
+    'localhost'
+]
 
-# production security settings
+# Security settings for production
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
-# APPLICATIONS
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.humanize',
-
     # Third-party apps
     'allauth',
     'allauth.account',
@@ -49,7 +43,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'channels',
     'pwa',
-
     # Your local apps
     'users.apps.UsersConfig',
     'activities.apps.ActivitiesConfig',
@@ -92,30 +85,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bucosa.wsgi.application'
 ASGI_APPLICATION = 'bucosa.routing.application'
 
-# DATABASE - Development SQLite Configuration
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#        'OPTIONS': {
-#            'timeout': 20,
-#            'init_command': """
-#                PRAGMA journal_mode=WAL;
-#                PRAGMA synchronous=NORMAL;
-#                PRAGMA cache_size=1000;
-#                PRAGMA temp_store=memory;
-#            """
-#        }
-#    }
-#}
-
-#production db
-
+# Production database
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': dj_database_url.config(conn_max_age=600)
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -123,13 +97,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -137,7 +109,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Authentication
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -178,8 +149,10 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# Email configuration for development
+# Email configuration for production (update if using SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 # PWA Settings
 PWA_APP_NAME = 'Connexa'
@@ -201,9 +174,6 @@ PWA_APP_LANG = 'en-US'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
-# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -218,23 +188,16 @@ LOGGING = {
     },
 }
 
-#CHANNEL_LAYERS = {
-#    'default': {
-#        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#    },
-#}
-
-# production redis reltime config
+# Redis/Channels config
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [os.environ.get("REDIS_URL")],  
+            "hosts": [os.environ.get("REDIS_URL")],
         },
     },
 }
 
-# caches for redis server 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -245,6 +208,5 @@ CACHES = {
     }
 }
 
-# firebase config
-import json
+# Firebase config
 FIREBASE_CREDENTIALS = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
