@@ -10,8 +10,6 @@ from .models import Notification
 from google.oauth2 import service_account
 import google.auth.transport.requests
 
-SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), 'service-account.json')
-
 def create_notification(sender, recipient, notification_type, message='', related_object=None):
     content_type = None
     object_id = None
@@ -56,10 +54,12 @@ def create_notification(sender, recipient, notification_type, message='', relate
         )
 
 def send_push_notification_v1(token, title, body, data=None):
-    PROJECT_ID = 'bucosa-5ccde'  # Your Firebase project ID
-
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
+    firebase_creds_json = os.environ.get("FIREBASE_CREDENTIALS")
+    if not firebase_creds_json:
+        raise ValueError("FIREBASE_CREDENTIALS environment variable not set")
+    firebase_creds_dict = json.loads(firebase_creds_json)
+    credentials = service_account.Credentials.from_service_account_info(
+        firebase_creds_dict,
         scopes=['https://www.googleapis.com/auth/firebase.messaging']
     )
     auth_req = google.auth.transport.requests.Request()
@@ -80,6 +80,8 @@ def send_push_notification_v1(token, title, body, data=None):
             "data": data or {},
         }
     }
-    url = f"https://fcm.googleapis.com/v1/projects/{PROJECT_ID}/messages:send"
+    project_id = firebase_creds_dict.get("project_id")
+    url = f"https://fcm.googleapis.com/v1/projects/{project_id}/messages:send"
     response = requests.post(url, headers=headers, data=json.dumps(message))
+    response.raise_for_status()
     return response.json()
