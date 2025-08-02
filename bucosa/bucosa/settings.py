@@ -111,12 +111,14 @@ STATIC_URL = '/static/'
 #STATIC_ROOT = BASE_DIR / 'staticfiles'
 #cloudinary storage
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
-    'API_KEY': os.getenv('API_KEY_CLOUD'),
-    'API_SECRET': os.getenv('API_SECRET_CLOUD')
-}
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
+#DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+#CLOUDINARY_STORAGE = {
+#    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
+#    'API_KEY': os.getenv('API_KEY_CLOUD'),
+#    'API_SECRET': os.getenv('API_SECRET_CLOUD')
+#}
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

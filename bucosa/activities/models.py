@@ -4,6 +4,7 @@ from django.utils import timezone
 from uuid import uuid4
 from django.utils.text import slugify
 from django_resized import ResizedImageField
+from cloudinary.models import CloudinaryField
 # Create your models here.
 
 class Event(models.Model):
@@ -14,7 +15,7 @@ class Event(models.Model):
     end_time = models.DateTimeField()
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     attendees = models.ManyToManyField(User, related_name='attended_events', blank=True)
-    cover_image = ResizedImageField(size={600,600}, quality=85 ,upload_to='event_covers/', blank=True, null=True)
+    cover_image =  CloudinaryField('event_covers', blank=True, null=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True, related_name='events')
     registered_users = models.ManyToManyField(User, related_name='registered_events', blank=True)
     
@@ -49,7 +50,7 @@ class Post(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    image = ResizedImageField(size={600,600}, quality=85 ,upload_to='post_images/', blank=True, null=True)
+    image =  CloudinaryField('post_images', blank=True, null=True)
     video = models.FileField(upload_to='post_videos/', blank=True, null=True)
 
     PRIVACY_CHOICES = [
