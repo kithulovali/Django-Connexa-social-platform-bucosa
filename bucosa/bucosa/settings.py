@@ -34,6 +34,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # online media cloud storage
+    'cloudinary_storage',
+    'cloudinary',
+    # Default Django apps
     'django.contrib.sites',
     'django.contrib.humanize',
     # Third-party apps
@@ -43,6 +47,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'channels',
     'pwa',
+    
     # Your local apps
     'users.apps.UsersConfig',
     'activities.apps.ActivitiesConfig',
@@ -103,7 +108,14 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+#STATIC_ROOT = BASE_DIR / 'staticfiles'
+#cloudinary storage
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
+    'API_KEY': os.getenv('API_KEY_CLOUD'),
+    'API_SECRET': os.getenv('API_SECRET_CLOUD')
+}
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'

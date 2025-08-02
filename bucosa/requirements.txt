@@ -20,6 +20,7 @@ click==8.1.7
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
+cloudinary==1.44.1
 colorama==0.4.6
 constantly==23.10.4
 cryptography==45.0.5
@@ -27,9 +28,12 @@ daphne==4.2.1
 dj-database-url==3.0.1
 Django==5.2.4
 django-allauth==65.10.0
+django-cloudinary-storage==0.3.0
 django-debug-toolbar==6.0.0
 django-environ==0.12.0
 django-pwa==2.0.1
+django-redis==6.0.0
+django-resized==1.0.3
 firebase_admin==7.0.0
 frozenlist==1.7.0
 google-api-core==2.25.1

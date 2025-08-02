@@ -7,7 +7,7 @@ from .models_block_report import UserBlock, UserReport
 from .models_push_subscription import PushSubscription
 from django.apps import AppConfig
 from django.utils.encoding import force_str
-
+from django_resized import ResizedImageField
 # Create your models here.
 
 class user_profile(models.Model):
@@ -15,7 +15,7 @@ class user_profile(models.Model):
     email = models.EmailField('email address', unique=True)
     bio = models.TextField(max_length=500, blank=True)
     profile_image = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    cover_image = models.ImageField(upload_to='profile_covers/', blank=True, null=True)
+    cover_image = ResizedImageField( size={600,600}, quality=85 ,upload_to='profile_covers/', blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     location = models.CharField(max_length=100, blank=True)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -63,7 +63,7 @@ class GroupProfile(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_groups')
     admins = models.ManyToManyField(User, related_name='admin_groups', blank=True)
     description = models.TextField(blank=True)
-    profile_image = models.ImageField(upload_to='group_pics/', blank=True, null=True)
+    profile_image = ResizedImageField(size={600,600}, quality=85 ,upload_to='group_pics/', blank=True, null=True)
 
 
     def save(self, *args, **kwargs):
