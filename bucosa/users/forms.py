@@ -3,6 +3,13 @@ from django.forms import ModelForm
 from django import forms
 from django.contrib.auth.models import Group
 
+MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+
+def validate_image_size(image):
+    if image and image.size > MAX_IMAGE_SIZE:
+        raise forms.ValidationError("Image file too large (max 10MB).")
+    return image
+
 class profileForm(ModelForm):
     class Meta:
         model = user_profile
@@ -18,6 +25,10 @@ class GroupProfileForm(forms.ModelForm):
     class Meta:
         model = GroupProfile
         fields = ['profile_image']
+        
+    def clean_profile_image(self):
+        image = self.cleaned_data.get('profile_image')
+        return validate_image_size(image)
 
 class ProfileUpdateForm(ModelForm):
     username = forms.CharField(max_length=150, required=True, help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.")
@@ -32,6 +43,15 @@ class ProfileUpdateForm(ModelForm):
             self.fields['username'].initial = self.instance.user.username
             self.fields['first_name'].initial = self.instance.user.first_name
             self.fields['last_name'].initial = self.instance.user.last_name
+            
+    def clean_profile_image(self):
+        image = self.cleaned_data.get('profile_image')
+        return validate_image_size(image)
+
+    def clean_cover_image(self):
+        image = self.cleaned_data.get('cover_image')
+        return validate_image_size(image)
+    
     def save(self, commit=True):
         profile = super().save(commit=False)
         user = profile.user

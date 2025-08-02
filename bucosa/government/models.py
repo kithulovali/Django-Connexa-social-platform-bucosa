@@ -1,9 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from cloudinary.models import CloudinaryField
 class CurrentGovernment(models.Model):
     name = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='government_images/')
+    image = CloudinaryField('government_images/')
     mission = models.TextField()
     created_at = models.DateField(auto_now_add=True)
 
@@ -24,7 +24,7 @@ class PastGovernment(models.Model):
     mission = models.TextField()
     started_at = models.DateField()
     ended_at = models.DateField()
-    image = models.ImageField(upload_to='government_images/', null=True, blank=True)
+    image = CloudinaryField('government_images/', null=True, blank=True)
 
     def __str__(self):
         return self.name

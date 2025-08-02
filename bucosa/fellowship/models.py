@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from cloudinary.models import CloudinaryField
 # Create your models here.
 
 class fellowship_edit(models.Model):
     name = models.CharField(max_length=150)
     email = models.EmailField(max_length=254)
-    profile = models.ImageField(upload_to='fellowship/', null=True, blank=True)
-    back_image = models.ImageField(upload_to='back_images', null=True, blank=True)
+    profile = CloudinaryField('fellowship', null=True, blank=True)
+    back_image = CloudinaryField('back_images', null=True, blank=True)
     admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_fellowships')
     
     def __str__(self):
@@ -26,7 +26,7 @@ class FellowshipPost(models.Model):
     fellowship = models.ForeignKey(fellowship_edit, on_delete=models.CASCADE, related_name='posts')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
-    image = models.ImageField(upload_to='fellowship_post_images/', blank=True, null=True)
+    image = CloudinaryField('fellowship_post_images/', blank=True, null=True)
     video = models.FileField(upload_to='fellowship_post_videos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -41,7 +41,7 @@ class FellowshipEvent(models.Model):
     location = models.CharField(max_length=200)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    cover_image = models.ImageField(upload_to='fellowship_event_covers/', blank=True, null=True)
+    cover_image = CloudinaryField('fellowship_event_covers', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.title} in {self.fellowship.name}"
