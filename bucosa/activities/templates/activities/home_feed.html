@@ -36,8 +36,12 @@
               </div>
             </div>
           </div>
-{% block extra_js %}
-{% endblock %}
+          <div class="text-gray-300 mb-4">
+            {% if post.content %}
+              <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ post.content }}</div>
+            {% else %}
+              <p class="text-gray-500 italic">No content provided.</p>
+            {% endif %}
           {% if post.image %}
           <div class="my-3">
             <img src="{{ post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
