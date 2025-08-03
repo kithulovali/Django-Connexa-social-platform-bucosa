@@ -6,32 +6,6 @@
 <div class="min-h-screen w-full flex bg-black text-white">
   <!-- Center Feed -->
   <main class="flex flex-col items-center flex-1 min-h-screen bg-black px-0 py-1 border-x border-gray-800">
-    <div class="w-full max-w-2xl mx-auto">
-      <!-- Enhanced Post Composer -->
-      <form method="post" action="{% url 'activities:create_post' %}" enctype="multipart/form-data" class="flex gap-4 items-start bg-[#181c24] border border-gray-800 rounded-2xl shadow-2xl px-6 py-6 mt-4 mb-8">
-        {% csrf_token %}
-        {% if user.profile and user.profile.profile_image %}
-          <img src="{{ user.profile.profile_image.url }}" alt="Your Profile" class="w-12 h-12 rounded-full object-cover mt-1 border-2 border-blue-400 shadow">
-        {% else %}
-          <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover mt-1 border-2 border-gray-700 shadow">
-        {% endif %}
-        <div class="flex-1 flex flex-col gap-3">
-          <textarea name="content" rows="3" required placeholder="What's happening?" class="w-full bg-[#23272f] text-white rounded-xl border border-gray-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-lg placeholder-gray-400"></textarea>
-          <div class="flex flex-wrap gap-4 items-center">
-            <label class="flex items-center gap-2 cursor-pointer bg-[#23272f] text-gray-300 px-3 py-2 rounded-lg border border-gray-700 hover:bg-[#2d323c] transition">
-              <span class="material-icons text-blue-400">image</span>
-              <span class="text-sm">Add Image</span>
-              <input type="file" name="image" accept="image/*" class="hidden">
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer bg-[#23272f] text-gray-300 px-3 py-2 rounded-lg border border-gray-700 hover:bg-[#2d323c] transition">
-              <span class="material-icons text-purple-400">videocam</span>
-              <span class="text-sm">Add Video</span>
-              <input type="file" name="video" accept="video/*" class="hidden">
-            </label>
-            <button type="submit" class="ml-auto bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-2 rounded-full text-lg shadow transition">Post</button>
-          </div>
-        </div>
-      </form>
       <!-- End Enhanced Post Composer -->
       <!-- Posts Feed -->
       {% if posts %}
