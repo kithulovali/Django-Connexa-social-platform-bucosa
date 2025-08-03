@@ -1,3 +1,4 @@
+{% extends 'base.html' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -11,27 +12,6 @@
 <body class="bg-gradient-to-br from-white via-sky-50 to-indigo-50 min-h-screen">
 {% block content %}
 <div class="min-h-screen w-full flex bg-black text-white">
-  <!-- Left Sidebar (reuse home sidebar for consistency) -->
-  <aside class="hidden md:flex flex-col items-start justify-between py-4 px-2 bg-black min-h-screen sticky top-0" style="width: 260px;">
-    <nav class="flex flex-col gap-2 w-full">
-      <a href="{% url 'activities:home' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
-        <span class="material-icons">home</span>
-      </a>
-      <a href="{% url 'users:search_users' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
-        <span>Explore</span>
-      </a>
-      <a href="{% url 'users:private_messages' user.id %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
-        <span>Messages</span>
-      </a>
-      <a href="{% url 'users:profile' user.pk %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
-        <span>Profile</span>
-      </a>
-      <a href="{% url 'users:logout' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg w-full">
-        <span>Logout</span>
-      </a>
-    </nav>
-  </aside>
-  <!-- Center: User Profile -->
   <main class="flex flex-col items-center flex-1 min-h-screen bg-black px-0 py-1 border-x border-gray-800">
     <div class="w-full max-w-2xl mx-auto">
       <!-- User Info Card -->
@@ -76,7 +56,6 @@
         <button id="tab-events" class="py-3 font-bold text-gray-400 hover:text-white transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('events');window.location.hash='events';" type="button">Events</button>
       </div>
 
-      <!-- End Post Composer -->
       <!-- Tabbed Content Sections -->
       <div id="posts-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8">
         {% if posts %}
