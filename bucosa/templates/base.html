@@ -4,8 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script src="{% static 'theme-toggle.js' %}"></script>
+    <script src="{% static 'pwa-install.js' %}"></script>
+    <script src="{% static 'notifications.js' %}"></script>
+    <script src="{% static 'firebase-push.js' %}"></script>
+     <script src="{% static 'script-custom.js' %}"></script>
+    <!-- Bootstrap JS (bundle includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Use compat versions for Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
@@ -23,287 +30,45 @@
     </script>
 </head>
 <body class="bg-white min-h-screen transition-colors duration-300 text-black" id="body-root">
-    <!-- Dark/Light mode toggle button (icon only, top right corner) -->
-    <button id="theme-toggle" style="position:fixed;top:24px;right:24px;z-index:1000;background:transparent;border:none;outline:none;cursor:pointer;">
-      <span class="material-icons" id="theme-icon" style="font-size:32px;color:#22223b;">dark_mode</span>
-    </button>
     <!-- PWA Install Button -->
     <button id="pwa-install-btn" style="display:none;position:fixed;bottom:24px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">Install Bucosa App</button>
-    <script>
-      let deferredPrompt;
-      const installBtn = document.getElementById('pwa-install-btn');
-      function hideInstallBtnIfInstalled() {
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-          installBtn.style.display = 'none';
-        } else {
-          installBtn.style.display = 'block';
-        }
-      }
-      hideInstallBtnIfInstalled();
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        hideInstallBtnIfInstalled();
-      });
-      window.addEventListener('appinstalled', () => {
-        installBtn.style.display = 'none';
-      });
-      installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
-          if (outcome === 'accepted') {
-            installBtn.style.display = 'none';
-          }
-          deferredPrompt = null;
-        } else {
-          alert('PWA install prompt is not available in this browser or context.');
-        }
-      });
-    </script>
-    <div class="flex min-h-screen">
-        <nav class="bg-black w-20 md:w-56 flex flex-col py-8 px-2 md:px-4 items-center md:items-start">
-            <ul class="space-y-6 w-full">
-                <li>
-                  <a href="{% url 'activities:home'  %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'home' %}bg-gray-900{% endif %}">
-                    <span class="material-icons">home</span>
-                    <span class="hidden md:inline">Home</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'users:search_users' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'search_users' %}bg-gray-900{% endif %}">
-                    <span class="material-icons">explore</span>
-                    <span class="hidden md:inline">Explore</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'users:private_messages' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'private_messages' %}bg-gray-900{% endif %}">
-                    <span class="material-icons">mail</span>
-                    <span class="hidden md:inline">Messages</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'users:profile' user.id %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'profile' %}bg-gray-900{% endif %}">
-                    <span class="material-icons">person</span>
-                    <span class="hidden md:inline">Profile</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'fellowship_detail' 1 %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-gray-900{% endif %}">
-                    <span class="material-symbols-outlined">church</span>
-                    <span class="hidden md:inline">Fellowship</span>
-                  </a>
-                </li>
-                 <li>
-                  <a href="{% url 'bucosa_main' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-gray-900{% endif %}">
-                    <span class="material-icons">groups</span>
-                    <span class="hidden md:inline">Bucosa</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'users:logout' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full">
-                    <span class="material-icons">logout</span>
-                    <span class="hidden md:inline">Logout</span>
-                  </a>
-                </li>
-                <li id="notification-bell-sidebar" style="position:relative;">
+      <nav id="mainNav">
+        <ul class="nav nav-pills nav-links-container">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'activities:home'  %}"  data-link-id="list"><i class="fas fa-list-alt"></i></a>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:search_users' %}"  data-link-id="seedling"><i class="fas fa-seedling"></i></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link toggle-button" href="#" id="toggleLeaf"><i class="fas fa-leaf"></i></a> <!-- This is the toggle button -->
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:profile' user.id %}" data-link-id="bookmark"><i class="fas fa-bookmark"></i></a>
+            </li>
+            <li id="notification-bell-sidebar" style="position:relative;">
                   <div class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full cursor-pointer" id="notificationDropdown">
                     <span class="material-icons">notifications</span>
                     <span class="hidden md:inline">Notifications</span>
                     <span id="notification-badge" style="display:none;position:absolute;top:10px;right:10px;background:red;color:white;border-radius:50%;padding:2px 6px;font-size:12px;">0</span>
                   </div>
                   <div id="notification-dropdown" style="display:none;position:absolute;left:60px;top:0;background:#fff;border:1px solid #ccc;width:300px;max-height:400px;overflow-y:auto;z-index:1000;"></div>
-                </li>
-            </ul>
-        </nav>
-        <main class="flex-1 container mx-auto px-4">
-            <div class="rounded-xl p-6 transition-colors duration-300 shadow">
-                {% block content %}{% endblock %}
-            </div>
-        </main>
-    </div>   
-    {% block extra_js %}{% endblock %}
-    <!-- Notifications WebSocket  -->
-    <script>
-      // Toast function
-      function showToast(msg, type = 'info') {
-        const toast = document.createElement('div');
-        toast.textContent = msg;
-        toast.className = `bucosa-toast${type === 'error' ? ' bucosa-toast-error' : ''}`;
-        Object.assign(toast.style, {
-          position: 'fixed',
-          bottom: '30px',
-          right: '30px',
-          background: type === 'info' ? '#2563eb' : '#e53e3e',
-          color: 'white',
-          padding: '16px 24px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          zIndex: 9999,
-          fontSize: '16px',
-          transition: 'opacity 0.3s'
-        });
-        document.body.appendChild(toast);
-        setTimeout(() => { toast.style.opacity = 0; }, 3000);
-        setTimeout(() => { toast.remove(); }, 3500);
-      }
+            </li>
+            <!-- Hidden links - these will appear when the leaf icon is clicked on mobile -->
+            <li class="nav-item hidden-mobile-link">
+                <a class="nav-link" href="{% url 'users:private_messages' %}" data-link-id="home"><i class="fas fa-home"></i></a>
+            </li>
+            <li class="nav-item hidden-mobile-link">
+                <a class="nav-link" href="{% url 'bucosa_main' %}" data-link-id="user"><i class="fas fa-user"></i></a>
+            </li>
+            <li class="nav-item hidden-mobile-link">
+                <a class="nav-link" href="{% url 'fellowship_detail' 1 %}" data-link-id="info"><i class="fas fa-info-circle"></i></a>
+            </li>
 
-      // Play notification sound
-      function playNotificationSound() {
-        const audio = new Audio('/static/sounds/notify.mp3');
-        audio.play();
-      }
-
-      // Badge and dropdown update
-      function updateNotificationBadge() {
-        const badge = document.getElementById('notification-badge');
-        if (badge) {
-          let count = parseInt(badge.textContent) || 0;
-          badge.textContent = count + 1;
-          badge.style.display = 'inline-block';
-        }
-      }
-
-      function prependNotificationDropdown(data) {
-        const dropdown = document.getElementById('notification-dropdown');
-        if (dropdown) {
-          const item = document.createElement('a');
-          item.className = 'dropdown-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100';
-          item.href = data.url || '#';
-          item.textContent = data.message || 'New notification';
-          dropdown.prepend(item);
-        }
-      }
-
-      // CSRF utility
-      function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-            }
-          }
-        }
-        return cookieValue;
-      }
-
-      // WebSocket reconnect logic
-      function setupNotificationSocket() {
-        let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-        let ws_path = ws_scheme + '://' + window.location.host + "/ws/notifications/";
-        let notificationSocket = new WebSocket(ws_path);
-
-        notificationSocket.onmessage = function(e) {
-          const data = JSON.parse(e.data);
-          showToast(data.message || "New notification", 'info');
-          playNotificationSound();
-          updateNotificationBadge();
-          prependNotificationDropdown(data);
-        };
-
-        notificationSocket.onclose = function(e) {
-          console.error('Notification socket closed unexpectedly, reconnecting...');
-          setTimeout(setupNotificationSocket, 2000);
-        };
-      }
-      setupNotificationSocket();
-
-      // Dropdown show/hide and mark as read
-      const bell = document.getElementById('notificationDropdown');
-      const dropdown = document.getElementById('notification-dropdown');
-      bell.addEventListener('click', function(e) {
-        e.stopPropagation();
-        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-          dropdown.style.display = 'block';
-          // Mark as read
-          fetch('/notifications/mark_read/', {
-            method: 'POST',
-            headers: {'X-CSRFToken': getCookie('csrftoken')}
-          });
-          const badge = document.getElementById('notification-badge');
-          if (badge) {
-            badge.textContent = '0';
-            badge.style.display = 'none';
-          }
-        } else {
-          dropdown.style.display = 'none';
-        }
-      });
-      // Hide dropdown when clicking outside
-      document.addEventListener('click', function(e) {
-        if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
-          dropdown.style.display = 'none';
-        }
-      });
-    </script>
-    <!-- Firebase Push Notification -->
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyAsXHxxto0D-0nZ2I7sIhHFDjCAgurUoZM",
-        authDomain: "bucosa-5ccde.firebaseapp.com",
-        projectId: "bucosa-5ccde",
-        storageBucket: "bucosa-5ccde.appspot.com",
-        messagingSenderId: "981676237571",
-        appId: "1:981676237571:web:1a7445524217e5ae917f36",
-        measurementId: "G-XNJBM8KB53"
-      };
-      firebase.initializeApp(firebaseConfig);
-
-      const messaging = firebase.messaging();
-
-      function sendTokenToBackend(token) {
-        if (localStorage.getItem('fcm_token') !== token) {
-          fetch('/save_fcm_token/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'token=' + encodeURIComponent(token)
-          }).then(() => {
-            localStorage.setItem('fcm_token', token);
-          });
-        }
-      }
-
-      function getAndSendToken() {
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-            messaging.getToken({ vapidKey: 'BIrGRQ1nsd0Cf7Fpmd-qMKhkqLMUaXXXpBUpkPc908eBgSN3ApVrSkQuLvS6Phz8UVLT3QlYSZ0RyIQBjbAuhFc' })
-              .then((token) => {
-                if (token) {
-                  sendTokenToBackend(token);
-                } else {
-                  console.log('No registration token available.');
-                }
-              })
-              .catch((err) => {
-                console.log('Unable to get token.', err);
-              });
-          } else {
-            console.log('Notification permission not granted.');
-          }
-        });
-      }
-
-      window.addEventListener('load', getAndSendToken);
-
-      messaging.onTokenRefresh(() => {
-        messaging.getToken({ vapidKey: 'BIrGRQ1nsd0Cf7Fpmd-qMKhkqLMUaXXXpBUpkPc908eBgSN3ApVrSkQuLvS6Phz8UVLT3QlYSZ0RyIQBjbAuhFc' })
-          .then((refreshedToken) => {
-            sendTokenToBackend(refreshedToken);
-          })
-          .catch((err) => {
-            console.log('Unable to retrieve refreshed token ', err);
-          });
-      });
-
-      messaging.onMessage((payload) => {
-        alert('Push notification: ' + payload.notification.title + ' - ' + payload.notification.body);
-      });
-    </script>
+             <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:logout' %}" data-link-id="cog"><i class="fas fa-cog"></i></a>
+            </li>
+        </ul>
+    </nav>
 </body>
 </html>
