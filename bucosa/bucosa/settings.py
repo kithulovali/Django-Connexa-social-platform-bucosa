@@ -4,12 +4,12 @@ from dotenv import load_dotenv
 import dj_database_url
 import json
 
-# Load environment variables from .env file (for local dev)
+# Load environment variables
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-here')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = False
 
 ALLOWED_HOSTS = [
@@ -18,7 +18,7 @@ ALLOWED_HOSTS = [
     'localhost'
 ]
 
-# Security settings for production
+# Security settings
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -34,21 +34,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # online media cloud storage
     'cloudinary_storage',
     'cloudinary',
-    # Default Django apps
     'django.contrib.sites',
     'django.contrib.humanize',
-    # Third-party apps
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'channels',
     'pwa',
-    
-    # Your local apps
+    'django_redis',
     'users.apps.UsersConfig',
     'activities.apps.ActivitiesConfig',
     'fellowship.apps.FellowshipConfig',
@@ -57,6 +53,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',  # Cache middleware - first
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -67,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'middleware.LoginRequiredMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',  # Cache middleware - last
 ]
 
 ROOT_URLCONF = 'bucosa.urls'
@@ -75,13 +73,18 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+            ],
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
             ],
         },
     },
@@ -90,10 +93,45 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bucosa.wsgi.application'
 ASGI_APPLICATION = 'bucosa.routing.application'
 
-# Production database
+# Database
 DATABASES = {
     'default': dj_database_url.config(conn_max_age=600)
 }
+
+# Cache configuration
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            "IGNORE_EXCEPTIONS": True,
+            "PARSER_CLASS": "redis.connection.HiredisParser",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 100,
+                "retry_on_timeout": True
+            },
+            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+        },
+        "KEY_PREFIX": "bucosa",
+        "TIMEOUT": 300,
+    },
+    "fallback": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "fallback-cache",
+    }
+}
+
+# Cache middleware settings
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 300
+CACHE_MIDDLEWARE_KEY_PREFIX = 'bucosa'
+
+# Sessions
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -108,20 +146,13 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-#cloudinary storage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Cloudinary
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
-#DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-#CLOUDINARY_STORAGE = {
-#    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
-#    'API_KEY': os.getenv('API_KEY_CLOUD'),
-#    'API_SECRET': os.getenv('API_SECRET_CLOUD')
-#}
-#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -166,10 +197,13 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# Email configuration for production (update if using SMTP)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT', 587)
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
 
 # PWA Settings
 PWA_APP_NAME = 'Connexa'
@@ -205,24 +239,14 @@ LOGGING = {
     },
 }
 
-# Redis/Channels config
+# Channels/Redis config
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [os.environ.get("REDIS_URL")],
+            "hosts": [os.environ.get("REDIS_URL")]
         },
     },
-}
-
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('REDIS_URL'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
 }
 
 # Firebase config

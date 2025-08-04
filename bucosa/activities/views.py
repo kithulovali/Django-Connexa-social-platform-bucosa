@@ -15,89 +15,123 @@ from notifications.utils import create_notification
 from django.utils import timezone
 from notifications.utils import send_push_notification_v1
 from utils.mentions import extract_mentions
+from django.core.cache import cache
+from django.db import transaction
+from django.db.models import Prefetch
 
 # Create your views here.
 def home_activities(request):
-    suggestions = []
-    random_groups = []
-    query = request.GET.get('q', '')
-    filter_by = request.GET.get('filter', 'recent')
-    posts = Post.objects.filter(group__isnull=True)
-    # Only show events that have not ended
-    events = Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())
-    # Filter by people you follow
+    # Cache key generation
+    cache_key = f"home_feed_{request.user.id if request.user.is_authenticated else 'anon'}_{request.GET.urlencode()}"
+    cached_response = cache.get(cache_key)
+    
+    if cached_response:
+        return cached_response
+
+    # Optimized base querysets
+    posts = Post.objects.filter(group__isnull=True)\
+                       .select_related('author', 'group')\
+                       .prefetch_related('likes', 'comments__author')\
+                       .order_by('-created_at')
+    
+    events = Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())\
+                         .select_related('creator', 'group')\
+                         .order_by('-start_time')
+
+    # Following filter
     if request.user.is_authenticated and request.GET.get('following') == '1':
         following_ids = request.user.following.values_list('following_user', flat=True)
         posts = posts.filter(author__id__in=following_ids)
         events = events.filter(creator__id__in=following_ids)
-    # Filter logic
-    if filter_by == 'most_seen':
-        posts = posts.order_by('-views') if hasattr(Post, 'views') else posts
-        events = events.order_by('-views') if hasattr(Event, 'views') else events
-    elif filter_by == 'most_comments':
-        posts = posts.annotate(num_comments=Count('comment')).order_by('-num_comments')
-        events = events.annotate(num_comments=Count('comment')).order_by('-num_comments')
-    else:  # recent
-        posts = posts.order_by('-created_at')
-        events = events.order_by('-start_time')
+
     # Search logic
+    query = request.GET.get('q', '')
     if query:
-        posts = posts.filter(Q(content__icontains=query) | Q(author__username__icontains=query))
-        posts = posts.select_related('author', 'group').prefetch_related('comments', 'group__profile')
-        events = events.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(creator__username__icontains=query))
-    followers = []
+        posts = posts.filter(
+            Q(content__icontains=query) | 
+            Q(author__username__icontains=query)
+        )
+        events = events.filter(
+            Q(title__icontains=query) | 
+            Q(description__icontains=query) |
+            Q(creator__username__icontains=query)
+        )
+
+    # User relationships (optimized)
     following = []
+    followers = []
     if request.user.is_authenticated:
-        following = list(User.objects.filter(followers__user=request.user))
-        followers = list(User.objects.filter(following__following_user=request.user))
-    for post in posts:
-        if hasattr(post, 'get_absolute_url'):
-            post.post_url = request.build_absolute_uri(post.get_absolute_url())
-        else:
-            post.post_url = ''
-    if request.user.is_authenticated:
-        following_ids = request.user.following.values_list('following_user', flat=True)
-        suggestions = list(User.objects.exclude(id__in=following_ids).exclude(id=request.user.id))
+        following = list(request.user.following.select_related('following_user')\
+                             .values_list('following_user__username', flat=True))
+        followers = list(request.user.followers.select_related('user')\
+                           .values_list('user__username', flat=True))
+
+    # Suggestions (cached)
+    suggestions_cache_key = f"suggestions_{request.user.id}" if request.user.is_authenticated else None
+    suggestions = cache.get(suggestions_cache_key, [])
+    if not suggestions and request.user.is_authenticated:
+        excluded_ids = [request.user.id] + list(request.user.following.values_list('following_user', flat=True))
+        suggestions = list(User.objects.exclude(id__in=excluded_ids)\
+                          .values('id', 'username')[:20])
         random.shuffle(suggestions)
         suggestions = suggestions[:5]
-    all_groups = list(Group.objects.all())
-    random.shuffle(all_groups)
-    random_groups = all_groups[:5]
-    from django.conf import settings
-    return render(request , 'activities/home_feed.html', {
+        cache.set(suggestions_cache_key, suggestions, 3600)  # 1 hour cache
+
+    # Random groups (cached)
+    random_groups = cache.get('random_groups', [])
+    if not random_groups:
+        random_groups = list(Group.objects.values('id', 'name')[:20])
+        random.shuffle(random_groups)
+        random_groups = random_groups[:5]
+        cache.set('random_groups', random_groups, 3600)  # 1 hour cache
+
+    response = render(request, 'activities/home_feed.html', {
         'suggestions': suggestions,
         'random_groups': random_groups,
-        'posts': posts,
-        'events': events,
+        'posts': posts[:50],  # Limit to 50 posts
+        'events': events[:20],  # Limit to 20 events
         'query': query,
-        'filter_by': filter_by,
+        'filter_by': request.GET.get('filter', 'recent'),
         'followers': followers,
         'following': following,
     })
+    
+    cache.set(cache_key, response, 300)  # Cache for 5 minutes
+    return response
 
 def post_activity(request):
     return render(request , 'activities/home_list.html')
 
 def event_activity(request):
-    events = Event.objects.all().order_by('-start_time')
-    for event in events:
-        event.can_edit = event.can_edit(request.user) if request.user.is_authenticated else False
-        event.can_delete = event.can_delete(request.user) if request.user.is_authenticated else False
-    return render(request, 'activities/event_list.html', {'events': events})
+    events = Event.objects.select_related(
+        'creator', 'group'
+    ).prefetch_related(
+        'attendees', 'registered_users'
+    ).order_by('-start_time')
+    
+    # Batch permission checks
+    if request.user.is_authenticated:
+        for event in events:
+            event.user_can_edit = event.creator_id == request.user.id
+            event.user_can_delete = event.creator_id == request.user.id
+    
+    return render(request, 'activities/event_list.html', {
+        'events': events[:50]  # Limit to 50 events
+    })
 
 def group_activities(request): 
     return render(request ,'activities/group_detail.html')
 
 @login_required
-
-
 @login_required
+@transaction.atomic
 def create_post(request, group_id=None):
     group = None
-    if group_id is not None:
-        group = get_object_or_404(Group, id=group_id)
-        if request.user not in group.user_set.all():
+    if group_id:
+        group = get_object_or_404(Group.objects.select_related('profile'), id=group_id)
+        if not group.user_set.filter(id=request.user.id).exists():
             return redirect('group_list')
+
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, user=request.user, group=group)
         if form.is_valid():
@@ -107,66 +141,50 @@ def create_post(request, group_id=None):
                 post.group = group
             post.save()
 
-            # --- MENTION HANDLING START ---
+            # Process mentions (optimized bulk query)
             mentioned_usernames = extract_mentions(post.content)
             if mentioned_usernames:
-                UserModel = get_user_model()
-                mentioned_users = UserModel.objects.filter(username__in=mentioned_usernames).exclude(id=request.user.id)
-                for mentioned_user in mentioned_users:
-                    # In-app notification
+                mentioned_users = User.objects.filter(
+                    username__in=mentioned_usernames
+                ).exclude(id=request.user.id).select_related('profile')
+                
+                for user in mentioned_users:
                     create_notification(
                         sender=request.user,
-                        recipient=mentioned_user,
+                        recipient=user,
                         notification_type='mention',
-                        message=f'You were mentioned in a post by @{request.user.username}.',
+                        message=f'You were mentioned by @{request.user.username}',
                         related_object=post
                     )
-                    # Push notification
-                    try:
-                        from users.models import user_profile
-                        profile = user_profile.objects.get(user=mentioned_user)
-                        if profile.fcm_token:
-                            send_push_notification_v1(
-                                profile.fcm_token,
-                                title="Mention",
-                                body=f"You were mentioned in a post by @{request.user.username}."
-                            )
-                    except Exception:
-                        pass
-            # --- MENTION HANDLING END ---
+                    if hasattr(user, 'profile') and user.profile.fcm_token:
+                        send_push_notification_v1(
+                            user.profile.fcm_token,
+                            title="Mention",
+                            body=f"You were mentioned by @{request.user.username}"
+                        )
 
-            # Push notification for new post (only for non-group posts)
-            if not group:
-                followers = request.user.followers.all()
-                for follower in followers:
-                    try:
-                        from users.models import user_profile
-                        profile = user_profile.objects.get(user=follower)
-                        if profile.fcm_token:
-                            send_push_notification_v1(
-                                profile.fcm_token,
-                                title="New Post",
-                                body=f"{request.user.username} posted: {post.content[:50]}"
-                            )
-                    except Exception:
-                        pass
-            if group:
-                return redirect('group_profile', pk=group.id)
-            else:
-                return redirect('users:profile', pk=request.user.id)
+            # Clear cache
+            cache.delete_pattern('home_feed_*')
+            
+            return redirect('group_profile', pk=group.id) if group else redirect('users:profile', pk=request.user.id)
     else:
         form = PostForm(user=request.user, group=group)
-    return render(request, 'activities/create_post.html', {'form': form, 'group': group})
+
+    return render(request, 'activities/create_post.html', {
+        'form': form,
+        'group': group
+    })
 
 @login_required
+@login_required
+@transaction.atomic
 def create_event(request, group_id=None):
     group = None
-    if group_id is None:
-        group_id = request.GET.get('group_id')
     if group_id:
-        group = get_object_or_404(Group, id=group_id)
-        if request.user not in group.user_set.all():
+        group = get_object_or_404(Group.objects.select_related('profile'), id=group_id)
+        if not group.user_set.filter(id=request.user.id).exists():
             return redirect('group_list')
+
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES)
         if form.is_valid():
@@ -176,56 +194,40 @@ def create_event(request, group_id=None):
                 event.group = group
             event.save()
 
-            # --- MENTION HANDLING START ---
+            # Process mentions
             mentioned_usernames = extract_mentions(event.description)
             if mentioned_usernames:
-                UserModel = get_user_model()
-                mentioned_users = UserModel.objects.filter(username__in=mentioned_usernames).exclude(id=request.user.id)
-                for mentioned_user in mentioned_users:
-                    # In-app notification
+                mentioned_users = User.objects.filter(
+                    username__in=mentioned_usernames
+                ).exclude(id=request.user.id).select_related('profile')
+                
+                for user in mentioned_users:
                     create_notification(
                         sender=request.user,
-                        recipient=mentioned_user,
+                        recipient=user,
                         notification_type='mention',
-                        message=f'You were mentioned in an event by @{request.user.username}.',
+                        message=f'You were mentioned in an event by @{request.user.username}',
                         related_object=event
                     )
-                    # Push notification
-                    try:
-                        from users.models import user_profile
-                        profile = user_profile.objects.get(user=mentioned_user)
-                        if profile.fcm_token:
-                            send_push_notification_v1(
-                                profile.fcm_token,
-                                title="Mention",
-                                body=f"You were mentioned in an event by @{request.user.username}."
-                            )
-                    except Exception:
-                        pass
-            # --- MENTION HANDLING END ---
+                    if hasattr(user, 'profile') and user.profile.fcm_token:
+                        send_push_notification_v1(
+                            user.profile.fcm_token,
+                            title="Event Mention",
+                            body=f"You were mentioned in an event by @{request.user.username}"
+                        )
 
-            # Push notification for new event (only for non-group events)
-            if not group:
-                followers = request.user.followers.all()
-                for follower in followers:
-                    try:
-                        from users.models import user_profile
-                        profile = user_profile.objects.get(user=follower)
-                        if profile.fcm_token:
-                            send_push_notification_v1(
-                                profile.fcm_token,
-                                title="New Event",
-                                body=f"{request.user.username} created an event: {event.title}"
-                            )
-                    except Exception:
-                        pass
-            if group:
-                return redirect('users:group_profile', pk=group.id)
-            else:
-                return redirect('users:profile', pk=request.user.id)
+            # Clear relevant caches
+            cache.delete_pattern('home_feed_*')
+            cache.delete_pattern('event_list_*')
+            
+            return redirect('group_profile', pk=group.id) if group else redirect('users:profile', pk=request.user.id)
     else:
         form = EventForm()
-    return render(request, 'activities/create_event.html', {'form': form, 'group': group})
+
+    return render(request, 'activities/create_event.html', {
+        'form': form,
+        'group': group
+    })
 
 @login_required
 def edit_post(request, pk):
@@ -294,10 +296,27 @@ def delete_event(request, pk):
     return render(request, 'activities/delete_confirm.html', {'cancel_url': event.get_absolute_url() if hasattr(event, 'get_absolute_url') else '/'})
 
 def event_detail(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    event.can_edit = event.can_edit(request.user) if request.user.is_authenticated else False
-    event.can_delete = event.can_delete(request.user) if request.user.is_authenticated else False
-    return render(request, 'activities/event_detail.html', {'event': event})
+    event = get_object_or_404(
+        Event.objects.select_related('creator', 'group')
+                   .prefetch_related('attendees', 'registered_users'),
+        pk=pk
+    )
+    
+    # Single permission check instead of multiple
+    if request.user.is_authenticated:
+        event.user_can_edit = event.creator_id == request.user.id
+        event.user_can_delete = event.creator_id == request.user.id
+        event.user_is_attending = event.attendees.filter(id=request.user.id).exists()
+        event.user_is_registered = event.registered_users.filter(id=request.user.id).exists()
+    else:
+        event.user_can_edit = False
+        event.user_can_delete = False
+        event.user_is_attending = False
+        event.user_is_registered = False
+    
+    return render(request, 'activities/event_detail.html', {
+        'event': event
+    })
 
 @login_required
 def remove_user_from_group(request, group_id, user_id):
@@ -405,74 +424,90 @@ def search_and_filter_feed(request):
     })
 
 @login_required
+@login_required
+@require_POST
+@transaction.atomic
 def add_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.author = request.user
-            comment.post = post
-            comment.save()
-            # Notify post author (if not self)
-            if post.author != request.user:
+    post = get_object_or_404(
+        Post.objects.select_related('author'),
+        id=post_id
+    )
+    
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+
+        # Notify post author if different from commenter
+        if post.author != request.user:
+            create_notification(
+                sender=request.user,
+                recipient=post.author,
+                notification_type='comment',
+                message=f'{request.user.username} commented: {comment.content[:50]}',
+                related_object=comment
+            )
+
+        # Process mentions
+        mentioned_usernames = extract_mentions(comment.content)
+        if mentioned_usernames:
+            mentioned_users = User.objects.filter(
+                username__in=mentioned_usernames
+            ).exclude(id=request.user.id).select_related('profile')
+            
+            for user in mentioned_users:
                 create_notification(
                     sender=request.user,
-                    recipient=post.author,
-                    notification_type='comment',
-                    message=f'{request.user} commented: {comment.content[:50]}',
+                    recipient=user,
+                    notification_type='mention',
+                    message=f'You were mentioned in a comment by @{request.user.username}',
                     related_object=comment
                 )
-            # --- MENTION HANDLING START ---
-            mentioned_usernames = extract_mentions(comment.content)
-            if mentioned_usernames:
-                UserModel = get_user_model()
-                mentioned_users = UserModel.objects.filter(username__in=mentioned_usernames).exclude(id=request.user.id)
-                for mentioned_user in mentioned_users:
-                    # In-app notification
-                    create_notification(
-                        sender=request.user,
-                        recipient=mentioned_user,
-                        notification_type='mention',
-                        message=f'You were mentioned in a comment by @{request.user.username}.',
-                        related_object=comment
+                if hasattr(user, 'profile') and user.profile.fcm_token:
+                    send_push_notification_v1(
+                        user.profile.fcm_token,
+                        title="Comment Mention",
+                        body=f"You were mentioned by @{request.user.username}"
                     )
-                    # Push notification
-                    try:
-                        from users.models import user_profile
-                        profile = user_profile.objects.get(user=mentioned_user)
-                        if profile.fcm_token:
-                            send_push_notification_v1(
-                                profile.fcm_token,
-                                title="Mention",
-                                body=f"You were mentioned in a comment by @{request.user.username}."
-                            )
-                    except Exception:
-                        pass
-            # --- MENTION HANDLING END ---
+
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required
+@require_POST
+@login_required
 def like_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    like, created = Like.objects.get_or_create(user=request.user, post=post)
+    post = get_object_or_404(
+        Post.objects.select_related('author'),
+        id=post_id
+    )
+    
+    like, created = Like.objects.get_or_create(
+        user=request.user,
+        post=post
+    )
+
     if not created:
         like.delete()
         liked = False
     else:
         liked = True
-        # Notify post author (if not self)
         if post.author != request.user:
-            from notifications.utils import create_notification
             create_notification(
                 sender=request.user,
                 recipient=post.author,
                 notification_type='like',
-                message=f'{request.user} liked your post.',
+                message=f'{request.user.username} liked your post',
                 related_object=post
             )
+
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({'liked': liked, 'count': post.likes.count()})
+        return JsonResponse({
+            'liked': liked,
+            'count': post.likes.count()
+        })
+    
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required
@@ -558,8 +593,19 @@ def saved_posts(request):
     return render(request, 'activities/saved_posts.html', {'posts': posts})
 
 def post_detail(request, pk):
-    post = get_object_or_404(Post, id=pk)
-    return render(request, 'activities/post_detail.html', {'post': post})
+    post = get_object_or_404(
+        Post.objects.select_related('author', 'group')
+                   .prefetch_related(
+                       'likes',
+                       Prefetch('comments', queryset=Comment.objects.select_related('author'))
+                   ),
+        id=pk
+    )
+    
+    return render(request, 'activities/post_detail.html', {
+        'post': post,
+        'comments': post.comments.all()[:100]  # Limit to 100 comments
+    })
 
 @login_required
 def share_to_user(request):
