@@ -108,7 +108,7 @@ CACHES = {
             "SOCKET_CONNECT_TIMEOUT": 5,
             "SOCKET_TIMEOUT": 5,
             "IGNORE_EXCEPTIONS": True,
-            "PARSER_CLASS": "redis.connection.HiredisParser",
+           #"PARSER_CLASS": "redis.connection.HiredisParser",
             "CONNECTION_POOL_KWARGS": {
                 "max_connections": 100,
                 "retry_on_timeout": True
