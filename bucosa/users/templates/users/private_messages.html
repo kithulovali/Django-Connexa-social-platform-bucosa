@@ -13,17 +13,6 @@
       <div class="flex items-center justify-between">
         <h1 class="text-xl font-semibold text-gray-800">Messages</h1>
         <div class="flex items-center space-x-2">
-          <button class="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-          </button>
-          <button class="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
 
@@ -35,7 +24,7 @@
           name="search" 
           value="{{ search_query }}" 
           placeholder="Search or start new chat"
-          class="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+          class="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
         <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -48,13 +37,17 @@
       {% for u in users %}
         <a href="{% url 'users:private_messages' u.id %}" 
            class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition-colors
-           {% if other_user and u.id == other_user.id %}bg-gray-100 border-l-4 border-green-500{% endif %}">
+           {% if other_user and u.id == other_user.id %}bg-gray-100 border-l-4 border-gradient-to-r from-yellow-400 to-blue-500 md:border-green-500{% endif %}">
           <div class="flex items-center space-x-3">
             <!-- Profile Picture -->
             <div class="relative">
-              <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                {{ u.username|first|upper }}
-              </div>
+              {% if u.profile_image %}
+                <img src="{{ u.profile_image.url }}" alt="{{ u.username }}" class="w-12 h-12 rounded-full object-cover">
+              {% else %}
+                <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-blue-500 md:from-green-400 md:to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                  {{ u.username|first|upper }}
+                </div>
+              {% endif %}
               <!-- Online indicator -->
               <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
@@ -70,7 +63,7 @@
                 {% if unread_counts %}
                   {% with count=unread_counts|get_item:u.id %}
                     {% if count %}
-                      <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-500 rounded-full">{{ count }}</span>
+                      <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-gradient-to-r from-yellow-400 to-blue-500 md:bg-green-500 rounded-full">{{ count }}</span>
                     {% endif %}
                   {% endwith %}
                 {% endif %}
@@ -96,31 +89,17 @@
       <!-- Chat Header -->
       <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center space-x-4">
         <a href="{% url 'users:profile' other_user.id %}" class="flex items-center space-x-3 hover:bg-gray-100 rounded-lg p-2 -m-2 transition-colors">
-          <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
-            {{ other_user.username|first|upper }}
-          </div>
+          {% if other_user.profile_image %}
+            <img src="{{ other_user.profile_image.url }}" alt="{{ other_user.username }}" class="w-10 h-10 rounded-full object-cover">
+          {% else %}
+            <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-blue-500 md:from-green-400 md:to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
+              {{ other_user.username|first|upper }}
+            </div>
+          {% endif %}
           <div>
             <h2 class="font-semibold text-gray-900">{{ other_user.username }}</h2>
-            <p class="text-sm text-green-600">Online</p>
           </div>
         </a>
-        <div class="ml-auto flex items-center space-x-2">
-          <button class="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-            </svg>
-          </button>
-          <button class="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-            </svg>
-          </button>
-          <button class="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
-            </svg>
-          </button>
-        </div>
       </div>
 
       <!-- Messages Area -->
@@ -129,7 +108,7 @@
           {% if messages %}
             {% for msg in messages %}
               <div class="flex {% if msg.sender == user %}justify-end{% else %}justify-start{% endif %}">
-                <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg {% if msg.sender == user %}bg-green-500 text-white rounded-br-none{% else %}bg-white text-gray-800 rounded-bl-none shadow-sm{% endif %}">
+                <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg {% if msg.sender == user %}bg-gradient-to-r from-yellow-400 to-blue-500 md:bg-green-500 text-white rounded-br-none{% else %}bg-white text-gray-800 rounded-bl-none shadow-sm{% endif %}">
                   {% if msg.content %}
                     <p class="text-sm">{{ msg.content|linebreaksbr }}</p>
                   {% endif %}
@@ -149,7 +128,7 @@
                   {% endif %}
                   
                   {% if msg.file %}
-                    <div class="mt-2 flex items-center space-x-2 p-2 {% if msg.sender == user %}bg-green-600{% else %}bg-gray-100{% endif %} rounded">
+                    <div class="mt-2 flex items-center space-x-2 p-2 {% if msg.sender == user %}bg-gradient-to-r from-yellow-500 to-blue-600 md:bg-green-600{% else %}bg-gray-100{% endif %} rounded">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                       </svg>
@@ -158,11 +137,11 @@
                   {% endif %}
                   
                   <div class="flex items-center justify-end mt-1 space-x-1">
-                    <span class="text-xs {% if msg.sender == user %}text-green-100{% else %}text-gray-500{% endif %}">
+                    <span class="text-xs {% if msg.sender == user %}text-yellow-100 md:text-green-100{% else %}text-gray-500{% endif %}">
                       {{ msg.created_at|date:'H:i' }}
                     </span>
                     {% if msg.sender == user %}
-                      <svg class="w-4 h-4 text-green-100" fill="currentColor" viewBox="0 0 20 20">
+                      <svg class="w-4 h-4 text-yellow-100 md:text-green-100" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                       </svg>
                     {% endif %}
@@ -228,14 +207,14 @@
               id="message-input"
               rows="1" 
               placeholder="Type a message..." 
-              class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none max-h-32"
+              class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 md:focus:ring-green-500 focus:border-transparent resize-none max-h-32"
               style="min-height: 44px;"
             ></textarea>
             <div id="file-preview" class="hidden absolute bottom-full left-0 mb-2 bg-blue-50 border border-blue-200 rounded-lg p-2 text-sm text-blue-700"></div>
           </div>
 
           <!-- Send Button -->
-          <button type="submit" class="p-3 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors">
+          <button type="submit" class="p-3 bg-gradient-to-r from-yellow-400 to-blue-500 md:bg-green-500 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-blue-600 md:hover:bg-green-600 text-white rounded-full transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
             </svg>
@@ -333,11 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const messageDiv = document.createElement('div');
             messageDiv.className = `flex ${isSent ? 'justify-end' : 'justify-start'}`;
             messageDiv.innerHTML = `
-                <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isSent ? 'bg-green-500 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none shadow-sm'}">
+                <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isSent ? 'bg-gradient-to-r from-yellow-400 to-blue-500 md:bg-green-500 text-white rounded-br-none' : 'bg-white text-gray-800 rounded-bl-none shadow-sm'}">
                     <p class="text-sm">${data.content}</p>
                     <div class="flex items-center justify-end mt-1 space-x-1">
-                        <span class="text-xs ${isSent ? 'text-green-100' : 'text-gray-500'}">now</span>
-                        ${isSent ? '<svg class="w-4 h-4 text-green-100" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>' : ''}
+                        <span class="text-xs ${isSent ? 'text-yellow-100 md:text-green-100' : 'text-gray-500'}">now</span>
+                        ${isSent ? '<svg class="w-4 h-4 text-yellow-100 md:text-green-100" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>' : ''}
                     </div>
                 </div>
             `;
@@ -349,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showToast(msg) {
         const toast = document.createElement('div');
         toast.textContent = msg;
-        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-y-0';
+        toast.className = 'fixed bottom-4 right-4 bg-gradient-to-r from-yellow-400 to-blue-500 md:bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-y-0';
         document.body.appendChild(toast);
         setTimeout(() => {
             toast.style.transform = 'translateY(100px)';
