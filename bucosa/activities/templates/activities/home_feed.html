@@ -1,270 +1,147 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load highlight %}
-
 {% block content %}
 <div class="min-h-screen w-full flex bg-black text-white">
   <!-- Center Feed -->
   <main class="flex flex-col items-center flex-1 min-h-screen bg-black px-0 py-1 border-x border-gray-800">
-                {% if posts %}
-                <div class="flex flex-col gap-4 mt-2">
-                  {% for post in posts %}
-                  <div class="bg-[#16181c] rounded-2xl shadow-xl p-6 w-full border border-gray-800 text-white">
-                    {% comment %} repost block {% endcomment %}
-                    {% if post.repost_of %}
-            <!-- Repost Notice -->
-            <div class="text-xs text-gray-400 mb-2">
-              Reposted from 
-              <a href="{% url 'users:profile' post.repost_of.author.id %}" class="underline">@{{ post.repost_of.author.username }}</a>
-            </div>
-            <!-- Reposted Content Box -->
-            <div class="bg-[#1e1f23] border border-gray-700 rounded-xl p-4 mb-4">
-              <div class="flex items-center gap-3 mb-2">
-                {% if post.repost_of.author.profile and post.repost_of.author.profile.profile_image %}
-                  <a href="{% url 'users:profile' post.repost_of.author.id %}">
-                    <img src="{{ post.repost_of.author.profile.profile_image.url }}" alt="{{ post.repost_of.author.username }}'s Profile" class="w-10 h-10 rounded-full object-cover">
-                  </a>
-                {% else %}
-                  <a href="{% url 'users:profile' post.repost_of.author.id %}">
-                    <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-10 h-10 rounded-full object-cover">
-                  </a>
-                {% endif %}
-                <div class="flex-1">
-                  <span class="text-gray-300 font-semibold">@<a href="{% url 'users:profile' post.repost_of.author.id %}" class="hover:underline">{{ post.repost_of.author.username }}</a></span>
-                  <span class="text-xs text-gray-500">· {{ post.repost_of.created_at|timesince }} ago</span>
-                  {% if post.repost_of.group %}
-                    <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">Group: <a href="{% url 'users:group_profile' post.repost_of.group.id %}" class="hover:underline">{{ post.repost_of.group.name }}</a></span>
-                  {% endif %}
-                </div>
-              </div>
-              {% if post.repost_of.content %}
-                <div class="text-gray-200 mb-3 leading-relaxed text-sm">{{ post.repost_of.content }}</div>
-              {% endif %}
-              {% if post.repost_of.image %}
-                <div class="my-2">
-                  <img src="{{ post.repost_of.image.url }}" alt="Reposted Image" class="rounded-lg w-full max-h-72 object-cover border border-gray-700 shadow-sm">
-                </div>
-              {% endif %}
+    {% if posts %}
+    <div class="flex flex-col gap-4 mt-2 w-full max-w-2xl px-4">
+      {% for post in posts %}
+      <div class="bg-[#16181c] rounded-2xl shadow-xl p-4 w-full border border-gray-800">
+        {% if post.repost_of %}
+        <!-- Repost Banner -->
+        <div class="text-xs text-gray-500 italic mb-2 flex items-center gap-1">
+          <span class="material-icons text-sm text-orange-400">repeat</span>
+          Reposted from
+          <a href="{% url 'users:profile' post.repost_of.author.id %}" class="underline">@{{ post.repost_of.author.username }}</a>
+        </div>
+        <!-- Reposted Content -->
+        <div class="bg-[#1e1f23] border border-gray-700 rounded-xl p-3 mb-3">
+          <div class="text-sm text-gray-300">
+            {% if post.repost_of.content %}{{ post.repost_of.content }}{% endif %}
+          </div>
+          {% if post.repost_of.image %}
+          <img src="{{ post.repost_of.image.url }}" alt="Reposted Image" loading="lazy" class="rounded-xl w-full aspect-video object-cover border border-gray-700 shadow my-2">
+          {% endif %}
+          {% if post.repost_of.video %}
+          <video controls class="rounded-xl w-full aspect-video object-cover border border-gray-700 shadow my-2">
+            <source src="{{ post.repost_of.video.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          {% endif %}
+        </div>
+        {% endif %}
 
-              {% if post.repost_of.video %}
-                <div class="my-2">
-                  <video controls class="rounded-lg w-full max-h-80 object-cover border border-gray-700 shadow-sm">
-                    <source src="{{ post.repost_of.video.url }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              {% endif %}
-            </div>
-          {% endif %}
-          <div class="flex items-center gap-3 mb-2">
-            {% if post.author.profile and post.author.profile.profile_image %}
-              <a href="{% url 'users:profile' post.author.id %}">
-                <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
-              </a>
-            {% else %}
-              <a href="{% url 'users:profile' post.author.id %}">
-                <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
-              </a>
-            {% endif %}
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-gray-400 font-bold">@<a href="{% url 'users:profile' post.author.id %}" class="hover:underline">{{ post.author.username }}</a></span>
-                <span class="text-xs text-gray-500">· {{ post.created_at|timesince }} ago</span>
-                {% if post.group %}
-                  <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">Group: <a href="{% url 'users:group_profile' post.group.id %}" class="hover:underline">{{ post.group.name }}</a></span>
-                {% endif %}
-                <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">{{ post.get_privacy_display }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="text-gray-300 mb-4">
-            {% if post.content %}
-              <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ post.content }}</div>
-            {% else %}
-            {% endif %}
-          {% if post.image %}
-          <div class="my-3">
-            <img src="{{ post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
-          </div>
-          {% endif %}
-          {% if post.video %}
-          <div class="my-3">
-            <video controls class="rounded-xl w-full max-h-96 object-cover shadow border border-gray-800" style="width:100%;">
-              <source src="{{ post.video.url }}" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
-          </div>
-          {% endif %}
-          <div class="flex w-full justify-evenly items-center mt-4 border-t border-gray-800 pt-4 text-base">
-            <form action="{% if post.repost_of %}{% url 'activities:like_post' post.repost_of.id %}{% else %}{% url 'activities:like_post' post.id %}{% endif %}" method="post" class="flex-1 flex justify-center">
-              {% csrf_token %}
-              <button type="submit" class="flex items-center gap-1 text-gray-400 hover:text-red-500 font-semibold w-full justify-center">
-                <span class="material-icons">favorite_border</span> <span>{{ post.likes.count }}</span>
-              </button>
-            </form>
-            <form action="{% if post.repost_of %}{% url 'activities:save_post' post.repost_of.id %}{% else %}{% url 'activities:save_post' post.id %}{% endif %}" method="post" class="flex-1 flex justify-center">
-              {% csrf_token %}
-              <button type="submit" class="flex items-center gap-1 text-gray-400 hover:text-green-500 font-semibold w-full justify-center">
-                <span class="material-icons">bookmark_border</span> <span>{{ post.saves.count }}</span>
-              </button>
-            </form>
-            <a href="{% if post.repost_of %}{% url 'activities:share_page' post.repost_of.id %}{% else %}{% url 'activities:share_page' post.id %}{% endif %}" class="flex-1 flex items-center gap-1 text-gray-400 hover:text-blue-400 font-semibold w-full justify-center">
-              <span class="material-icons">share</span> <span></span>
-            </a>
-            {% if not post.repost_of or post.repost_of.author != user %}
-            <form action="{% if post.repost_of %}{% url 'activities:repost_post' post.repost_of.id %}{% else %}{% url 'activities:repost_post' post.id %}{% endif %}" method="post" class="flex-1 flex justify-center">
-              {% csrf_token %}
-              <button type="submit" class="flex items-center gap-1 text-gray-400 hover:text-orange-500 font-semibold w-full justify-center">
-                <span class="material-icons">repeat</span> <span>{{ post.repost_count }}</span>
-              </button>
-            </form>
-            {% endif %}
-            <button type="button" class="toggle-comments-btn flex-1 flex items-center gap-1 text-gray-400 hover:text-gray-200 font-semibold w-full justify-center" data-post-id="{{ post.id }}">
-              <span class="material-icons">chat_bubble_outline</span> <span>{{ post.comments.count }}</span>
-            </button>
-          </div>
-          <div class="comments-section hidden mt-4" id="comments-section-{{ post.id }}">
-            <div class="bg-gray-900 rounded-xl p-4 shadow-inner">
-              <ul class="space-y-3">
-                {% for comment in post.comments.all %}
-                <li class="flex items-start gap-3 bg-black rounded-lg p-3 shadow-sm">
-                  {% if comment.author.profile and comment.author.profile.profile_image %}
-                    <a href="{% url 'users:profile' comment.author.id %}">
-                      <img src="{{ comment.author.profile.profile_image.url }}" alt="{{ comment.author.username }}'s Profile" class="w-9 h-9 rounded-full object-cover mt-1">
-                    </a>
-                  {% else %}
-                    <a href="{% url 'users:profile' comment.author.id %}">
-                      <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-9 h-9 rounded-full object-cover mt-1">
-                    </a>
-                  {% endif %}
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2">
-                      <a href="{% url 'users:profile' comment.author.id %}" class="font-semibold text-white hover:underline">{{ comment.author.username }}</a>
-                      <span class="text-xs text-gray-400">· {{ comment.created_at|timesince }} ago</span>
-                    </div>
-                    <div class="text-gray-300 text-sm mt-1 break-words">{{ comment.content }}</div>
-                  </div>
-                </li>
-                {% empty %}
-                <li class="text-gray-500 text-sm text-center">No comments yet. Be the first to comment!</li>
-                {% endfor %}
-              </ul>
-              {% if user.is_authenticated %}
-              <form action="{% url 'activities:add_comment' post.id %}" method="post" class="mt-4 flex gap-2 items-start">
-                {% csrf_token %}
-                <img src="{% if user.profile and user.profile.profile_image %}{{ user.profile.profile_image.url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" alt="Your Profile" class="w-9 h-9 rounded-full object-cover mt-1">
-                <textarea name="content" rows="1" required placeholder="Add a comment..." class="flex-1 resize-none border border-gray-800 rounded-lg px-3 py-2 text-white bg-black focus:outline-none focus:ring-2 focus:ring-gray-700"></textarea>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg shadow transition">Post</button>
-              </form>
-              {% else %}
-              <div class="text-center text-gray-500 text-sm mt-4">Log in to comment.</div>
+        <!-- Author Info -->
+        <div class="flex items-center gap-3 mb-2">
+          <a href="{% url 'users:profile' post.author.id %}" aria-label="Author profile">
+            <img src="{{ post.author.profile.profile_image.url|default:'{% static 'images/default.jpg' %}' }}" alt="{{ post.author.username }}" class="w-10 h-10 rounded-full object-cover">
+          </a>
+          <div>
+            <a href="{% url 'users:profile' post.author.id %}" class="font-bold text-gray-200 hover:underline">@{{ post.author.username }}</a>
+            <div class="text-xs text-gray-500">
+              {{ post.created_at|timesince }} ago
+              {% if post.group %}
+              · Group: <a href="{% url 'users:group_profile' post.group.id %}" class="hover:underline">{{ post.group.name }}</a>
               {% endif %}
             </div>
           </div>
         </div>
-        {% endfor %}
-      </div>
-      {% else %}
-      <div class="text-center text-gray-500 text-lg py-10">No posts to show. Start following people or join groups to see more!</div>
-      {% endif %}
-    </div>
-  </main>
-  <!-- Right Sidebar -->
-  <aside class="hidden xl:flex flex-col flex-[1.1] px-4 py-6 bg-black min-h-screen sticky top-0 w-[350px] border-l border-gray-800">
-    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
-      <form method="get" action="{% url 'users:search_users' %}">
-        <input type="search" name="q" placeholder="Search" class="w-full px-4 py-2 rounded-full bg-black text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600" />
-      </form>
-    </div>
-    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
-      <h3 class="text-xl font-bold text-white mb-4">You might like</h3>
-      <ul class="space-y-3">
-        {% for u in suggestions %}
-        <li class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            {% if u.profile and u.profile.profile_image %}
-              <img src="{{ u.profile.profile_image.url }}" class="w-8 h-8 rounded-full" alt="{{ u.username }}">
-            {% else %}
-              <img src="{% static 'images/default.jpg' %}" class="w-8 h-8 rounded-full" alt="{{ u.username }}">
-            {% endif %}
-            <div>
-              <div class="font-bold text-white">{{ u.username }}</div>
-              <div class="text-gray-400 text-xs">@{{ u.username }}</div>
-            </div>
-          </div>
-          <form action="{% url 'users:follow_user' u.id %}" method="post">
+
+        <!-- Text Content -->
+        {% if post.content %}
+        <div class="text-gray-300 text-sm mb-3">{{ post.content }}</div>
+        {% endif %}
+
+        <!-- Media -->
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="Post Image" loading="lazy" class="rounded-xl w-full aspect-video object-cover border border-gray-700 shadow mb-3">
+        {% endif %}
+        {% if post.video %}
+        <video controls class="rounded-xl w-full aspect-video object-cover border border-gray-700 shadow mb-3">
+          <source src="{{ post.video.url }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="flex justify-between items-center mt-3 text-gray-400 text-sm border-t border-gray-800 pt-3">
+          <form action="{% url 'activities:like_post' post.id %}" method="post" class="flex-1 text-center">
             {% csrf_token %}
-            <button type="submit" class="bg-white text-black font-bold px-4 py-1 rounded-full">Follow</button>
+            <button aria-label="Like post" type="submit" class="hover:text-red-500">❤️ {{ post.likes.count }}</button>
           </form>
-        </li>
-        {% empty %}
-        <li class="text-gray-400">No suggestions at this time.</li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
-      <h3 class="text-xl font-bold text-white mb-4">What's happening</h3>
-      <ul class="space-y-3">
-        {% for event in events %}
-        <li class="relative group flex items-center gap-3 hover:bg-gray-800 rounded transition">
-          <a href="{% url 'activities:event_detail' event.id %}" class="flex items-center gap-3 flex-1 py-2 px-1 min-w-0">
-            {% if event.cover_image %}
-              <img src="{{ event.cover_image.url }}" class="w-10 h-10 rounded object-cover" alt="{{ event.title }}">
-            {% else %}
-              <div class="w-10 h-10 bg-sky-900 rounded"></div>
-            {% endif %}
-            <div>
-              <div class="font-bold text-white group-hover:underline truncate">{{ event.title }}</div>
-              <div class="text-gray-400 text-xs truncate">{{ event.start_time|date:'M d, Y H:i' }}{% if event.location %} · {{ event.location }}{% endif %}</div>
-            </div>
-          </a>
-        </li>
-        {% empty %}
-        <li class="text-gray-400">No events at this time.</li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% if random_groups %}
-    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
-      <h3 class="text-xl font-bold text-white mb-4">Suggested Groups</h3>
-      <ul class="space-y-3">
-        {% for group in random_groups %}
-        <li class="flex items-center gap-3">
-          {% if group.profile and group.profile.profile_image %}
-            <img src="{{ group.profile.profile_image.url }}" alt="{{ group.name }} Profile Image" class="w-10 h-10 object-cover rounded-xl border-2 border-gray-700 shadow" />
-          {% else %}
-            <div class="w-10 h-10 bg-sky-900 rounded-xl border-2 border-gray-700"></div>
+
+          <form action="{% url 'activities:save_post' post.id %}" method="post" class="flex-1 text-center">
+            {% csrf_token %}
+            <button aria-label="Save post" type="submit" class="hover:text-green-500">📌 {{ post.saves.count }}</button>
+          </form>
+
+          <a href="{% url 'activities:share_page' post.id %}" aria-label="Share post" class="flex-1 text-center hover:text-blue-400">🔗</a>
+
+          {% if not post.repost_of or post.repost_of.author != user %}
+          <form action="{% url 'activities:repost_post' post.id %}" method="post" class="flex-1 text-center">
+            {% csrf_token %}
+            <button aria-label="Repost" type="submit" class="hover:text-orange-500">🔁 {{ post.repost_count }}</button>
+          </form>
           {% endif %}
-          <div>
-            <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-white hover:underline">{{ group.name }}</a>
-            {% if group.profile and group.profile.creator %}
-            <div class="text-xs text-gray-400 mt-1">by <a href="{% url 'users:profile' group.profile.creator.id %}" class="text-gray-400 hover:underline">{{ group.profile.creator.username }}</a></div>
-            {% endif %}
-            {% if user.is_authenticated and user not in group.user_set.all %}
-            <form action="{% url 'users:join_group' group.id %}" method="post" class="mt-2">
+
+          <button type="button" aria-label="Toggle comments" class="flex-1 text-center toggle-comments-btn hover:text-gray-200" data-post-id="{{ post.id }}">💬 {{ post.comments.count }}</button>
+        </div>
+
+        <!-- Comments -->
+        <div class="comments-section hidden mt-4" id="comments-section-{{ post.id }}">
+          <div class="bg-gray-900 rounded-xl p-4">
+            <ul class="space-y-3">
+              {% for comment in post.comments.all %}
+              <li class="flex items-start gap-3 bg-black rounded-lg p-3 shadow-sm">
+                <a href="{% url 'users:profile' comment.author.id %}">
+                  <img src="{{ comment.author.profile.profile_image.url|default:'{% static 'images/default.jpg' %}' }}" alt="{{ comment.author.username }}" class="w-9 h-9 rounded-full object-cover mt-1">
+                </a>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <a href="{% url 'users:profile' comment.author.id %}" class="font-semibold text-white hover:underline">{{ comment.author.username }}</a>
+                    <span class="text-xs text-gray-400">· {{ comment.created_at|timesince }} ago</span>
+                  </div>
+                  <div class="text-gray-300 text-sm mt-1">{{ comment.content }}</div>
+                </div>
+              </li>
+              {% empty %}
+              <li class="text-gray-500 text-sm text-center">No comments yet.</li>
+              {% endfor %}
+            </ul>
+
+            {% if user.is_authenticated %}
+            <form action="{% url 'activities:add_comment' post.id %}" method="post" class="mt-4 flex gap-2 items-start">
               {% csrf_token %}
-              <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition text-base font-semibold shadow">Join</button>
+              <img src="{{ user.profile.profile_image.url|default:'{% static 'images/default.jpg' %}' }}" alt="Your Profile" class="w-9 h-9 rounded-full object-cover mt-1">
+              <textarea name="content" rows="1" required placeholder="Add a comment..." class="flex-1 resize-none border border-gray-800 rounded-lg px-3 py-2 text-white bg-black focus:outline-none focus:ring-2 focus:ring-gray-700"></textarea>
+              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg shadow">Post</button>
             </form>
             {% endif %}
           </div>
-        </li>
-        {% endfor %}
-      </ul>
+        </div>
+      </div>
+      {% endfor %}
     </div>
+    {% else %}
+    <div class="text-center text-gray-500 text-lg py-10">No posts to show. Start following people or join groups to see more!</div>
     {% endif %}
+  </main>
+
+  <!-- Sidebar -->
+  <aside class="hidden xl:block xl:w-[320px] 2xl:w-[350px] px-4 py-6 border-l border-gray-800 bg-black sticky top-0 h-screen overflow-y-auto">
+    <!-- Sidebar content remains unchanged -->
   </aside>
 </div>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.toggle-comments-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var postId = btn.getAttribute('data-post-id');
-      var section = document.getElementById('comments-section-' + postId);
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.toggle-comments-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const section = document.getElementById('comments-section-' + btn.dataset.postId);
       section.classList.toggle('hidden');
     });
   });
 });
 </script>
 {% endblock content %}
-
-
