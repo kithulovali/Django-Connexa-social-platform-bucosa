@@ -223,7 +223,10 @@ def edit_user(request , pk):
 
 #=========== welcome view
 def welcome_user(request):
-    return render(request , 'users/welcome.html')
+    if request.user.is_authenticated:
+     return redirect('activities:home')
+    else :
+     return render(request , 'users/welcome.html')
 
 #============= Search functionality
 def search_users(request):
