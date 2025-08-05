@@ -36,7 +36,7 @@ class ProfileUpdateForm(ModelForm):
     last_name = forms.CharField(max_length=30, required=False)
     class Meta:
         model = user_profile
-        fields = ['username', 'first_name', 'last_name', 'email', 'bio', 'profile_image', 'cover_image', 'website', 'location']
+        fields = ['username', 'first_name', 'last_name', 'email', 'bio', 'profile_image', 'location']
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and hasattr(self.instance, 'user'):
