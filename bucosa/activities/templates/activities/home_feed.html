@@ -1,54 +1,49 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load highlight %}
 
 {% block content %}
-<div class="min-h-screen w-full flex bg-gradient-to-br from-gray-950 to-black text-white">
+<div class="min-h-screen w-full bg-white">
   <!-- Center Feed -->
   <main class="flex flex-col items-center flex-1 min-h-screen px-4 py-6 max-w-2xl mx-auto">
     {% if posts %}
       <div class="w-full space-y-6">
         {% for post in posts %}
-          <article class="bg-gradient-to-br from-gray-900/80 to-gray-800/60 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-blue-500/10 hover:border-gray-600/70">
+          <article class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
             
-            {% comment %} Repost Section {% endcomment %}
             {% if post.repost_of %}
               <div class="px-6 pt-4 pb-2">
-                <div class="flex items-center gap-2 text-sm text-blue-400/80 mb-3">
+                <div class="flex items-center gap-2 text-sm text-blue-600 mb-3">
                   <span class="material-icons text-base">repeat</span>
                   <span>Reposted from</span>
-                  <a href="{% url 'users:profile' post.repost_of.author.id %}" class="font-medium hover:text-blue-300 transition-colors">
+                  <a href="{% url 'users:profile' post.repost_of.author.id %}" class="font-medium hover:text-blue-500">
                     @{{ post.repost_of.author.username }}
                   </a>
                 </div>
                 
-                <!-- Original Post Content -->
-                <div class="bg-gray-800/40 border border-gray-600/30 rounded-2xl p-5 backdrop-blur-sm">
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-5">
                   <div class="flex items-center gap-3 mb-4">
                     {% if post.repost_of.author.profile and post.repost_of.author.profile.profile_image %}
                       <a href="{% url 'users:profile' post.repost_of.author.id %}" class="flex-shrink-0">
                         <img src="{{ post.repost_of.author.profile.profile_image.url }}" 
-                             alt="{{ post.repost_of.author.username }}'s Profile" 
-                             class="w-12 h-12 rounded-full object-cover ring-2 ring-gray-600/50 transition-all hover:ring-blue-500/50">
+                             class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                       </a>
                     {% else %}
                       <a href="{% url 'users:profile' post.repost_of.author.id %}" class="flex-shrink-0">
                         <img src="{% static 'images/default.jpg' %}" 
-                             alt="Default Profile" 
-                             class="w-12 h-12 rounded-full object-cover ring-2 ring-gray-600/50 transition-all hover:ring-blue-500/50">
+                             class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                       </a>
                     {% endif %}
                     
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 flex-wrap">
                         <a href="{% url 'users:profile' post.repost_of.author.id %}" 
-                           class="font-bold text-gray-200 hover:text-white transition-colors truncate">
+                           class="font-bold text-gray-800 hover:text-black truncate">
                           @{{ post.repost_of.author.username }}
                         </a>
                         <span class="text-gray-500 text-sm">·</span>
                         <time class="text-gray-500 text-sm">{{ post.repost_of.created_at|timesince }} ago</time>
                         {% if post.repost_of.group %}
-                          <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-medium">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-medium">
                             Group: <a href="{% url 'users:group_profile' post.repost_of.group.id %}" class="ml-1 hover:underline">{{ post.repost_of.group.name }}</a>
                           </span>
                         {% endif %}
@@ -57,20 +52,19 @@
                   </div>
                   
                   {% if post.repost_of.content %}
-                    <div class="text-gray-200 mb-4 leading-relaxed">{{ post.repost_of.content }}</div>
+                    <div class="text-gray-800 mb-4 leading-relaxed">{{ post.repost_of.content }}</div>
                   {% endif %}
                   
                   {% if post.repost_of.image %}
                     <div class="mb-4">
                       <img src="{{ post.repost_of.image.url }}" 
-                           alt="Reposted Image" 
-                           class="rounded-xl w-full max-h-80 object-cover border border-gray-600/30 shadow-lg">
+                           class="rounded-xl w-full max-h-80 object-cover border border-gray-200">
                     </div>
                   {% endif %}
                   
                   {% if post.repost_of.video %}
                     <div class="mb-4">
-                      <video controls class="rounded-xl w-full max-h-80 object-cover border border-gray-600/30 shadow-lg">
+                      <video controls class="rounded-xl w-full max-h-80 object-cover border border-gray-200">
                         <source src="{{ post.repost_of.video.url }}" type="video/mp4">
                         Your browser does not support the video tag.
                       </video>
@@ -80,27 +74,24 @@
               </div>
             {% endif %}
             
-            <!-- Main Post Content -->
             <div class="px-6 {% if not post.repost_of %}pt-6{% else %}pt-2{% endif %}">
               <div class="flex items-center gap-4 mb-4">
                 {% if post.author.profile and post.author.profile.profile_image %}
                   <a href="{% url 'users:profile' post.author.id %}" class="flex-shrink-0">
                     <img src="{{ post.author.profile.profile_image.url }}" 
-                         alt="{{ post.author.username }}'s Profile" 
-                         class="w-14 h-14 rounded-full object-cover ring-2 ring-gray-600/50 transition-all hover:ring-blue-500/50">
+                         class="w-14 h-14 rounded-full object-cover border-2 border-gray-200">
                   </a>
                 {% else %}
                   <a href="{% url 'users:profile' post.author.id %}" class="flex-shrink-0">
                     <img src="{% static 'images/default.jpg' %}" 
-                         alt="Default Profile" 
-                         class="w-14 h-14 rounded-full object-cover ring-2 ring-gray-600/50 transition-all hover:ring-blue-500/50">
+                         class="w-14 h-14 rounded-full object-cover border-2 border-gray-200">
                   </a>
                 {% endif %}
                 
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 flex-wrap mb-1">
                     <a href="{% url 'users:profile' post.author.id %}" 
-                       class="font-bold text-gray-100 hover:text-white transition-colors text-lg">
+                       class="font-bold text-gray-900 text-lg">
                       @{{ post.author.username }}
                     </a>
                     <span class="text-gray-500">·</span>
@@ -109,12 +100,12 @@
                   
                   <div class="flex items-center gap-2 flex-wrap">
                     {% if post.group %}
-                      <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
+                      <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">
                         <span class="material-icons text-xs mr-1">group</span>
                         <a href="{% url 'users:group_profile' post.group.id %}" class="hover:underline">{{ post.group.name }}</a>
                       </span>
                     {% endif %}
-                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-700/50 text-gray-400 text-xs font-medium">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
                       {{ post.get_privacy_display }}
                     </span>
                   </div>
@@ -122,7 +113,7 @@
               </div>
               
               {% if post.content %}
-                <div class="text-gray-200 text-lg leading-relaxed mb-6 break-words">
+                <div class="text-gray-800 text-lg leading-relaxed mb-6 break-words">
                   {{ post.content }}
                 </div>
               {% endif %}
@@ -130,14 +121,13 @@
               {% if post.image %}
                 <div class="mb-6 -mx-2">
                   <img src="{{ post.image.url }}" 
-                       alt="Post Image" 
-                       class="rounded-2xl w-full max-h-96 object-cover shadow-xl border border-gray-600/30">
+                       class="rounded-2xl w-full max-h-96 object-cover border border-gray-200">
                 </div>
               {% endif %}
               
               {% if post.video %}
                 <div class="mb-6 -mx-2">
-                  <video controls class="rounded-2xl w-full max-h-96 object-cover shadow-xl border border-gray-600/30">
+                  <video controls class="rounded-2xl w-full max-h-96 object-cover border border-gray-200">
                     <source src="{{ post.video.url }}" type="video/mp4">
                     Your browser does not support the video tag.
                   </video>
@@ -145,89 +135,80 @@
               {% endif %}
             </div>
             
-            <!-- Action Buttons -->
-            <div class="px-6 py-4 border-t border-gray-700/50 bg-gray-800/20">
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
               <div class="flex items-center justify-between">
-                <!-- Like Button -->
                 <form action="{% if post.repost_of %}{% url 'activities:like_post' post.repost_of.id %}{% else %}{% url 'activities:like_post' post.id %}{% endif %}" method="post" class="flex-1">
                   {% csrf_token %}
-                  <button type="submit" class="group flex items-center gap-2 text-gray-400 hover:text-red-400 transition-all duration-200 w-full justify-center py-2 rounded-xl hover:bg-red-500/10">
-                    <span class="material-icons group-hover:scale-110 transition-transform">favorite_border</span>
+                  <button type="submit" class="group flex items-center gap-2 text-gray-600 hover:text-red-500 w-full justify-center py-2 rounded-xl hover:bg-red-50">
+                    <span class="material-icons">favorite_border</span>
                     <span class="font-medium">{{ post.likes.count }}</span>
                   </button>
                 </form>
                 
-                <!-- Save Button -->
                 <form action="{% if post.repost_of %}{% url 'activities:save_post' post.repost_of.id %}{% else %}{% url 'activities:save_post' post.id %}{% endif %}" method="post" class="flex-1">
                   {% csrf_token %}
-                  <button type="submit" class="group flex items-center gap-2 text-gray-400 hover:text-green-400 transition-all duration-200 w-full justify-center py-2 rounded-xl hover:bg-green-500/10">
-                    <span class="material-icons group-hover:scale-110 transition-transform">bookmark_border</span>
+                  <button type="submit" class="group flex items-center gap-2 text-gray-600 hover:text-green-600 w-full justify-center py-2 rounded-xl hover:bg-green-50">
+                    <span class="material-icons">bookmark_border</span>
                     <span class="font-medium">{{ post.saves.count }}</span>
                   </button>
                 </form>
                 
-                <!-- Share Button -->
                 <a href="{% if post.repost_of %}{% url 'activities:share_page' post.repost_of.id %}{% else %}{% url 'activities:share_page' post.id %}{% endif %}" 
-                   class="group flex-1 flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-all duration-200 justify-center py-2 rounded-xl hover:bg-blue-500/10">
-                  <span class="material-icons group-hover:scale-110 transition-transform">share</span>
+                   class="flex-1 flex items-center gap-2 text-gray-600 hover:text-blue-600 justify-center py-2 rounded-xl hover:bg-blue-50">
+                  <span class="material-icons">share</span>
                 </a>
                 
-                <!-- Repost Button -->
                 {% if not post.repost_of or post.repost_of.author != user %}
                   <form action="{% if post.repost_of %}{% url 'activities:repost_post' post.repost_of.id %}{% else %}{% url 'activities:repost_post' post.id %}{% endif %}" method="post" class="flex-1">
                     {% csrf_token %}
-                    <button type="submit" class="group flex items-center gap-2 text-gray-400 hover:text-orange-400 transition-all duration-200 w-full justify-center py-2 rounded-xl hover:bg-orange-500/10">
-                      <span class="material-icons group-hover:scale-110 transition-transform">repeat</span>
+                    <button type="submit" class="group flex items-center gap-2 text-gray-600 hover:text-orange-500 w-full justify-center py-2 rounded-xl hover:bg-orange-50">
+                      <span class="material-icons">repeat</span>
                       <span class="font-medium">{{ post.repost_count }}</span>
                     </button>
                   </form>
                 {% endif %}
                 
-                <!-- Comments Toggle -->
                 <button type="button" 
-                        class="toggle-comments-btn group flex-1 flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-all duration-200 justify-center py-2 rounded-xl hover:bg-purple-500/10" 
+                        class="toggle-comments-btn flex-1 flex items-center gap-2 text-gray-600 hover:text-purple-600 justify-center py-2 rounded-xl hover:bg-purple-50" 
                         data-post-id="{{ post.id }}">
-                  <span class="material-icons group-hover:scale-110 transition-transform">chat_bubble_outline</span>
+                  <span class="material-icons">chat_bubble_outline</span>
                   <span class="font-medium">{{ post.comments.count }}</span>
                 </button>
               </div>
             </div>
             
-            <!-- Comments Section -->
-            <div class="comments-section hidden border-t border-gray-700/50" id="comments-section-{{ post.id }}">
-              <div class="px-6 py-4 bg-gray-900/30 backdrop-blur-sm">
+            <div class="comments-section hidden border-t border-gray-200" id="comments-section-{{ post.id }}">
+              <div class="px-6 py-4 bg-gray-50">
                 <div class="space-y-4 max-h-80 overflow-y-auto">
                   {% for comment in post.comments.all %}
-                    <div class="flex gap-3 bg-gray-800/40 rounded-xl p-4 border border-gray-700/30">
+                    <div class="flex gap-3 bg-white rounded-xl p-4 border border-gray-200">
                       {% if comment.author.profile and comment.author.profile.profile_image %}
                         <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
                           <img src="{{ comment.author.profile.profile_image.url }}" 
-                               alt="{{ comment.author.username }}'s Profile" 
-                               class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-600/50">
+                               class="w-10 h-10 rounded-full object-cover border border-gray-200">
                         </a>
                       {% else %}
                         <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
                           <img src="{% static 'images/default.jpg' %}" 
-                               alt="Default Profile" 
-                               class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-600/50">
+                               class="w-10 h-10 rounded-full object-cover border border-gray-200">
                         </a>
                       {% endif %}
                       
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-2">
                           <a href="{% url 'users:profile' comment.author.id %}" 
-                             class="font-semibold text-gray-200 hover:text-white transition-colors">
+                             class="font-semibold text-gray-800">
                             {{ comment.author.username }}
                           </a>
                           <span class="text-gray-500 text-sm">·</span>
                           <time class="text-gray-500 text-sm">{{ comment.created_at|timesince }} ago</time>
                         </div>
-                        <div class="text-gray-300 break-words leading-relaxed">{{ comment.content }}</div>
+                        <div class="text-gray-700 break-words leading-relaxed">{{ comment.content }}</div>
                       </div>
                     </div>
                   {% empty %}
                     <div class="text-center py-8">
-                      <span class="material-icons text-4xl text-gray-600 mb-2">chat_bubble_outline</span>
+                      <span class="material-icons text-4xl text-gray-400 mb-2">chat_bubble_outline</span>
                       <p class="text-gray-500">No comments yet. Be the first to comment!</p>
                     </div>
                   {% endfor %}
@@ -238,12 +219,10 @@
                     {% csrf_token %}
                     {% if user.profile and user.profile.profile_image %}
                       <img src="{{ user.profile.profile_image.url }}" 
-                           alt="Your Profile" 
-                           class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-600/50 flex-shrink-0">
+                           class="w-10 h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
                     {% else %}
                       <img src="{% static 'images/default.jpg' %}" 
-                           alt="Your Profile" 
-                           class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-600/50 flex-shrink-0">
+                           class="w-10 h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
                     {% endif %}
                     
                     <div class="flex-1 flex gap-2">
@@ -251,9 +230,9 @@
                                 rows="1" 
                                 required 
                                 placeholder="Add a comment..." 
-                                class="flex-1 resize-none border border-gray-600/50 rounded-xl px-4 py-3 text-white bg-gray-800/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent placeholder-gray-500 transition-all"></textarea>
+                                class="flex-1 resize-none border border-gray-300 rounded-xl px-4 py-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500"></textarea>
                       <button type="submit" 
-                              class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 hover:shadow-blue-500/25 hover:scale-105 active:scale-95">
+                              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all">
                         Post
                       </button>
                     </div>
@@ -261,7 +240,7 @@
                 {% else %}
                   <div class="text-center py-4">
                     <p class="text-gray-500">
-                      <a href="{% url 'account_login' %}" class="text-blue-400 hover:text-blue-300 underline transition-colors">Log in</a> 
+                      <a href="{% url 'account_login' %}" class="text-blue-600 hover:text-blue-500 underline">Log in</a> 
                       to join the conversation
                     </p>
                   </div>
@@ -274,15 +253,15 @@
     {% else %}
       <div class="text-center py-20">
         <div class="mb-6">
-          <span class="material-icons text-6xl text-gray-600 mb-4 block">explore</span>
-          <h2 class="text-2xl font-bold text-gray-400 mb-2">No posts to show</h2>
+          <span class="material-icons text-6xl text-gray-400 mb-4 block">explore</span>
+          <h2 class="text-2xl font-bold text-gray-600 mb-2">No posts to show</h2>
           <p class="text-gray-500 max-w-md mx-auto">Start following people or join groups to see their posts in your feed!</p>
         </div>
         <div class="flex gap-4 justify-center">
-          <a href="{% url 'users:search_users' %}" class="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 font-semibold px-6 py-3 rounded-xl border border-blue-500/30 transition-all hover:scale-105">
+          <a href="{% url 'users:search_users' %}" class="bg-blue-100 hover:bg-blue-200 text-blue-600 font-semibold px-6 py-3 rounded-xl border border-blue-200 transition-all">
             Find People
           </a>
-          <a href="#" class="bg-green-600/20 hover:bg-green-600/30 text-green-400 font-semibold px-6 py-3 rounded-xl border border-green-500/30 transition-all hover:scale-105">
+          <a href="#" class="bg-green-100 hover:bg-green-200 text-green-600 font-semibold px-6 py-3 rounded-xl border border-green-200 transition-all">
             Browse Groups
           </a>
         </div>
@@ -290,83 +269,83 @@
     {% endif %}
   </main>
   
-  <!-- Right Sidebar -->
-  <aside class="hidden xl:flex flex-col w-80 px-6 py-6 bg-gray-950/50 backdrop-blur-sm min-h-screen sticky top-0 border-l border-gray-800/50">
+  <!-- Right Sidebar - Desktop Only -->
+  <aside class="hidden lg:flex flex-col w-80 px-6 py-6 bg-white min-h-screen sticky top-0 border-l border-gray-200">
     <!-- Search Bar -->
-    <div class="bg-gradient-to-br from-gray-800/60 to-gray-700/40 backdrop-blur-sm rounded-2xl shadow-xl p-4 mb-6 border border-gray-700/50">
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-200">
       <form method="get" action="{% url 'users:search_users' %}">
         <div class="relative">
           <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl">search</span>
           <input type="search" 
                  name="q" 
                  placeholder="Search users..." 
-                 class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-900/70 text-white border border-gray-600/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent placeholder-gray-500 transition-all" />
+                 class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500" />
         </div>
       </form>
     </div>
     
-    <!-- User Suggestions -->
-    <div class="bg-gradient-to-br from-gray-800/60 to-gray-700/40 backdrop-blur-sm rounded-2xl shadow-xl p-5 mb-6 border border-gray-700/50">
-      <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+    <!-- Friend Suggestions -->
+    <div class="bg-white rounded-xl shadow-sm p-5 mb-6 border border-gray-200">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
         <span class="material-icons">people</span>
         You might like
       </h3>
       <div class="space-y-4">
         {% for u in suggestions %}
-          <div class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-700/30 transition-all">
+          <div class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-all">
             <div class="flex items-center gap-3 min-w-0 flex-1">
               {% if u.profile and u.profile.profile_image %}
                 <img src="{{ u.profile.profile_image.url }}" 
-                     class="w-12 h-12 rounded-full object-cover ring-2 ring-gray-600/50" 
+                     class="w-12 h-12 rounded-full object-cover border-2 border-gray-200" 
                      alt="{{ u.username }}">
               {% else %}
                 <img src="{% static 'images/default.jpg' %}" 
-                     class="w-12 h-12 rounded-full object-cover ring-2 ring-gray-600/50" 
+                     class="w-12 h-12 rounded-full object-cover border-2 border-gray-200" 
                      alt="{{ u.username }}">
               {% endif %}
               <div class="min-w-0 flex-1">
-                <div class="font-bold text-white truncate">{{ u.username }}</div>
-                <div class="text-gray-400 text-sm truncate">@{{ u.username }}</div>
+                <div class="font-bold text-gray-800 truncate">{{ u.username }}</div>
+                <div class="text-gray-500 text-sm truncate">@{{ u.username }}</div>
               </div>
             </div>
             <form action="{% url 'users:follow_user' u.id %}" method="post">
               {% csrf_token %}
-              <button type="submit" class="bg-white hover:bg-gray-100 text-black font-semibold px-4 py-2 rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg">
+              <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-4 py-2 rounded-full border border-gray-300 transition-all shadow-sm">
                 Follow
               </button>
             </form>
           </div>
         {% empty %}
           <div class="text-center py-6">
-            <span class="material-icons text-3xl text-gray-500 mb-2 block">people_outline</span>
-            <p class="text-gray-400">No suggestions at this time</p>
+            <span class="material-icons text-3xl text-gray-400 mb-2 block">people_outline</span>
+            <p class="text-gray-500">No suggestions at this time</p>
           </div>
         {% endfor %}
       </div>
     </div>
     
     <!-- Events -->
-    <div class="bg-gradient-to-br from-gray-800/60 to-gray-700/40 backdrop-blur-sm rounded-2xl shadow-xl p-5 mb-6 border border-gray-700/50">
-      <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+    <div class="bg-white rounded-xl shadow-sm p-5 mb-6 border border-gray-200">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
         <span class="material-icons">event</span>
         What's happening
       </h3>
       <div class="space-y-3">
         {% for event in events %}
           <a href="{% url 'activities:event_detail' event.id %}" 
-             class="group flex items-center gap-3 p-3 rounded-xl hover:bg-gray-700/30 transition-all">
+             class="group flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-all">
             {% if event.cover_image %}
               <img src="{{ event.cover_image.url }}" 
-                   class="w-12 h-12 rounded-xl object-cover ring-1 ring-gray-600/50" 
+                   class="w-12 h-12 rounded-xl object-cover border border-gray-200" 
                    alt="{{ event.title }}">
             {% else %}
-              <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                <span class="material-icons text-white">event</span>
+              <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <span class="material-icons text-blue-600">event</span>
               </div>
             {% endif %}
             <div class="min-w-0 flex-1">
-              <div class="font-bold text-white group-hover:text-blue-300 truncate transition-colors">{{ event.title }}</div>
-              <div class="text-gray-400 text-sm truncate">
+              <div class="font-bold text-gray-800 group-hover:text-blue-600 truncate transition-colors">{{ event.title }}</div>
+              <div class="text-gray-500 text-sm truncate">
                 {{ event.start_time|date:'M d, Y H:i' }}
                 {% if event.location %}
                   <span class="mx-1">·</span>
@@ -377,60 +356,63 @@
           </a>
         {% empty %}
           <div class="text-center py-6">
-            <span class="material-icons text-3xl text-gray-500 mb-2 block">event_note</span>
-            <p class="text-gray-400">No events at this time</p>
+            <span class="material-icons text-3xl text-gray-400 mb-2 block">event_note</span>
+            <p class="text-gray-500">No events at this time</p>
           </div>
         {% endfor %}
       </div>
     </div>
     
     <!-- Suggested Groups -->
-    {% if random_groups %}
-      <div class="bg-gradient-to-br from-gray-800/60 to-gray-700/40 backdrop-blur-sm rounded-2xl shadow-xl p-5 border border-gray-700/50">
-        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <span class="material-icons">groups</span>
-          Suggested Groups
-        </h3>
-        <div class="space-y-4">
-          {% for group in random_groups %}
-            <div class="p-3 rounded-xl hover:bg-gray-700/30 transition-all">
-              <div class="flex items-center gap-3 mb-3">
-                {% if group.profile and group.profile.profile_image %}
-                  <img src="{{ group.profile.profile_image.url }}" 
-                       alt="{{ group.name }} Profile Image" 
-                       class="w-12 h-12 object-cover rounded-xl ring-2 ring-gray-600/50 shadow" />
-                {% else %}
-                  <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
-                    <span class="material-icons text-white">group</span>
+    <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <span class="material-icons">groups</span>
+        Suggested Groups
+      </h3>
+      <div class="space-y-4">
+        {% for group in random_groups %}
+          <div class="p-3 rounded-xl hover:bg-gray-50 transition-all">
+            <div class="flex items-center gap-3 mb-3">
+              {% if group.profile and group.profile.profile_image %}
+                <img src="{{ group.profile.profile_image.url }}" 
+                     alt="{{ group.name }} Profile Image" 
+                     class="w-12 h-12 object-cover rounded-xl border border-gray-200" />
+              {% else %}
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                  <span class="material-icons text-green-600">group</span>
+                </div>
+              {% endif %}
+              <div class="min-w-0 flex-1">
+                <a href="{% url 'users:group_profile' group.id %}" 
+                   class="font-bold text-gray-800 hover:text-blue-600 transition-colors block truncate">
+                  {{ group.name }}
+                </a>
+                {% if group.profile and group.profile.creator %}
+                  <div class="text-sm text-gray-500 truncate">
+                    by <a href="{% url 'users:profile' group.profile.creator.id %}" 
+                          class="text-gray-500 hover:text-gray-600 transition-colors">{{ group.profile.creator.username }}</a>
                   </div>
                 {% endif %}
-                <div class="min-w-0 flex-1">
-                  <a href="{% url 'users:group_profile' group.id %}" 
-                     class="font-bold text-white hover:text-blue-300 transition-colors block truncate">
-                    {{ group.name }}
-                  </a>
-                  {% if group.profile and group.profile.creator %}
-                    <div class="text-sm text-gray-400 truncate">
-                      by <a href="{% url 'users:profile' group.profile.creator.id %}" 
-                            class="text-gray-400 hover:text-gray-300 transition-colors">{{ group.profile.creator.username }}</a>
-                    </div>
-                  {% endif %}
-                </div>
               </div>
-              {% if user.is_authenticated and user not in group.user_set.all %}
-                <form action="{% url 'users:join_group' group.id %}" method="post">
-                  {% csrf_token %}
-                  <button type="submit" 
-                          class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-xl font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg">
-                    Join Group
-                  </button>
-                </form>
-              {% endif %}
             </div>
-          {% endfor %}
-        </div>
+            {% if user.is_authenticated and user not in group.user_set.all %}
+              <form action="{% url 'users:join_group' group.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-semibold transition-all shadow-sm">
+                  Join Group
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        {% empty %}
+          <div class="text-center py-6">
+            <span class="material-icons text-3xl text-gray-400 mb-2 block">group</span>
+            <p class="text-gray-500">No group suggestions at this time</p>
+          </div>
+        {% endfor %}
       </div>
-    {% endif %}
+    </div>
   </aside>
 </div>
 
@@ -447,10 +429,8 @@ document.addEventListener('DOMContentLoaded', function() {
       var icon = btn.querySelector('.material-icons');
       if (section.classList.contains('hidden')) {
         icon.textContent = 'chat_bubble_outline';
-        btn.classList.remove('text-purple-400', 'bg-purple-500/10');
       } else {
         icon.textContent = 'chat_bubble';
-        btn.classList.add('text-purple-400', 'bg-purple-500/10');
       }
     });
   });
@@ -464,5 +444,3 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-
-{% endblock content %}
