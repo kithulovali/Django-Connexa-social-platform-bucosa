@@ -70,20 +70,6 @@
           <h1 class="text-lg lg:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
           <p class="text-gray-500 text-sm truncate">{{ group.description|default:"No description" }}</p>
         </div>
-        <div class="flex space-x-2 ml-4">
-          {% if request.user in group.user_set.all %}
-            <form action="{% url 'leave_group' group.id %}" method="post" class="inline">
-              {% csrf_token %}
-              <button type="submit" class="px-3 py-2 lg:px-4 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 text-xs lg:text-sm font-medium">Leave</button>
-            </form>
-          {% else %}
-            <form action="{% url 'join_group' group.id %}" method="post" class="inline">
-              {% csrf_token %}
-              <button type="submit" class="px-3 py-2 lg:px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-xs lg:text-sm font-medium">Join</button>
-            </form>
-          {% endif %}
-        </div>
-      </div>
     </div>
 
     <!-- Messages area -->
