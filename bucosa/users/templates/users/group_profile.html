@@ -2,25 +2,6 @@
 {% load static %}
 {% block content %}
 <div class="min-h-screen w-full flex bg-black text-white">
-  <!-- Left Sidebar (reuse home sidebar for consistency) -->
-  <aside class="hidden md:flex flex-col items-end justify-between py-4 px-2 bg-black min-h-screen sticky top-0" style="width: 260px;">
-    <nav class="flex flex-col gap-2 w-full">
-      <a href="{% url 'activities:home' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
-        <span class="material-icons">home</span> Home
-      </a>
-      <a href="{% url 'users:search_users' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
-        <span class="material-icons">search</span> Explore
-      </a>
-      <a href="{% url 'users:private_messages' user.id %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
-        <span class="material-icons">mail</span> Messages
-      </a>
-      <a href="{% url 'users:profile' user.pk %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
-        <span class="material-icons">person</span> Profile
-      </a>
-      <a href="{% url 'users:logout' %}" class="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-gray-900 transition font-semibold text-lg">
-        <span class="material-icons">logout</span> Logout
-      </a>
-    </nav>
   </aside>
   <!-- Center: Group Profile -->
   <main class="flex flex-col items-center flex-1 min-h-screen bg-black px-0 py-1 border-x border-gray-800">
@@ -144,46 +125,7 @@
         {% endif %}
       </div>
     </div>
-  </main>
-  <!-- Right Sidebar -->
-  <aside class="hidden xl:flex flex-col flex-[1.1] px-4 py-6 bg-black min-h-screen sticky top-0 w-[350px] border-l border-gray-800">
-    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
-      <form method="get" action="{% url 'users:search_users' %}">
-        <input type="search" name="q" placeholder="Search" class="w-full px-4 py-2 rounded-full bg-black text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600" />
-      </form>
-    </div>
-    <div class="bg-[#16181c] rounded-2xl shadow-2xl p-4 mb-6">
-      <h3 class="text-xl font-bold text-white mb-4">What's happening</h3>
-      <ul class="space-y-3">
-        {% for event in group_events %}
-        {% ifchanged event.id %}
-        <li class="relative group flex items-center gap-3 hover:bg-gray-800 rounded transition">
-          <a href="{% url 'activities:event_detail' event.id %}" class="flex items-center gap-3 flex-1 py-2 px-1 min-w-0">
-            {% if event.cover_image %}
-              <img src="{{ event.cover_image.url }}" class="w-10 h-10 rounded object-cover" alt="{{ event.title }}">
-            {% else %}
-              <div class="w-10 h-10 bg-sky-900 rounded"></div>
-            {% endif %}
-            <div>
-              <div class="font-bold text-white group-hover:underline truncate">{{ event.title }}</div>
-              <div class="text-gray-400 text-xs truncate">{{ event.start_time|date:'M d, Y H:i' }}{% if event.location %} · {{ event.location }}{% endif %}</div>
-            </div>
-          </a>
-          {% if request.user == event.creator %}
-            <form action="{% url 'activities:delete_event' event.id %}" method="post" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="ml-2 text-red-500 hover:text-red-700" title="Delete Event">
-                <span class="material-icons" style="font-size:20px;">delete</span>
-              </button>
-            </form>
-          {% endif %}
-        </li>
-        {% endifchanged %}
-        {% empty %}
-        <li class="text-gray-400">No events at this time.</li>
-        {% endfor %}
-      </ul>
-    </div>
+  </main> 
   </aside>
 </div>
 {% endblock content %}

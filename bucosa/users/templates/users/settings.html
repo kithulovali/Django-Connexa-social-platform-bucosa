@@ -19,16 +19,6 @@
         </a>
         <a href="{% url 'users:create_group' %}" class="block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition shadow flex items-center gap-2">
             <span class="material-icons">group_add</span> Create Group
-        </a>
-        <a href="{% url 'activities:saved_posts' %}" class="block bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700 transition shadow flex items-center gap-2">
-            <span class="material-icons">bookmark</span> My Saved Posts
-        </a>
-        <a href="{% url 'activities:my_reposts' %}" class="block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition shadow flex items-center gap-2">
-            <span class="material-icons">repeat</span> My Reposts
-        </a>
-        <a href="{% url 'users:analytics_dashboard' %}?user_id={{ user.id }}" class="block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition shadow flex items-center gap-2">
-            <span class="material-icons">analytics</span> View User Analytics
-        </a>
         <a href="{% url 'users:edit_user' user.id %}" class="block bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition shadow flex items-center gap-2">
             <span class="material-icons">edit</span> Edit Profile
         </a>
