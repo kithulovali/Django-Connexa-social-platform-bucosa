@@ -144,7 +144,7 @@ def home_activities(request):
         'events': events,
     }
     
-    response = render(request, 'home_feed.html', context)
+    response = render(request, 'activities/home_feed.html', context)
     
     cache.set(cache_key, response, 300) # Cache for 5 minutes
     return response
