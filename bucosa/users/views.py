@@ -97,48 +97,50 @@ def register_user(request):
     return render(request , 'users/register.html' , {'form': form})
 
 #=============profile view - HEAVILY OPTIMIZED
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.cache import cache
+from django.contrib.auth.models import User
+from users.models import user_profile, user_following
+from django.db.models import Count, Q
+from allauth.socialaccount.models import SocialAccount
+from activities.models import Post, Event, Repost
+from django.conf import settings
+
 def profile_user(request, pk):
     if pk is None or pk == 'None':
         messages.error(request, 'Invalid user profile requested.')
-        return redirect('/')  
+        return redirect('/')
 
-    # Use select_related to avoid N+1 queries
     try:
-        user = User.objects.select_related().get(id=pk)
+        user = User.objects.get(id=pk)
     except User.DoesNotExist:
         messages.error(request, 'User not found.')
         return redirect('/')
 
-    # Cache key for expensive operations
+    # Cache profile only
     cache_key = f'user_profile_setup_{pk}'
-    cached_profile = cache.get(cache_key)
-    
-    if not cached_profile:
-        # Handle Google user setup
+    profile = cache.get(cache_key)
+
+    if not profile:
+        # Check Google Social Account for name and email
         google_first_name = None
+        email = user.email
+
         try:
-            from allauth.socialaccount.models import SocialAccount
             social = SocialAccount.objects.filter(user=user, provider='google').first()
-            if social and 'given_name' in social.extra_data:
-                google_first_name = social.extra_data['given_name']
+            if social:
+                google_first_name = social.extra_data.get('given_name')
+                email = social.extra_data.get('email', email)
         except Exception:
             pass
-        
+
+        # Set username from Google first name if needed
         if google_first_name and (user.username == user.email or user.username == '' or user.username.startswith('user')):
             user.username = google_first_name
             user.save()
 
-        # Ensure profile exists - use get_or_create for atomic operation
-        email = user.email
-        try:
-            from allauth.socialaccount.models import SocialAccount
-            social = SocialAccount.objects.filter(user=user, provider='google').first()
-            if social and 'email' in social.extra_data:
-                email = social.extra_data['email']
-        except Exception:
-            pass
-
-        # Check if profile exists with this email
+        # Fetch or create profile
         existing_profile = user_profile.objects.filter(email=email).first()
         if existing_profile:
             if existing_profile.user != user:
@@ -146,55 +148,48 @@ def profile_user(request, pk):
                 existing_profile.save()
             profile = existing_profile
         else:
-            profile, created = user_profile.objects.get_or_create(
+            profile, _ = user_profile.objects.get_or_create(
                 user=user,
                 defaults={'email': email}
             )
-        
-        # Cache profile data for 5 minutes
+
+        # Cache for 5 minutes
         cache.set(cache_key, profile, 300)
-        cached_profile = profile
-    
-    profile = cached_profile
 
-    # Use annotations to get counts in single queries
-    user_stats = User.objects.filter(id=pk).annotate(
-        followers_count=Count('followers'),
-        following_count=Count('following')
-    ).first()
+    # Accurate follower and following counts
+    followers_count = user_following.objects.filter(following_user=user).count()
+    following_count = user_following.objects.filter(user=user).count()
 
-    # Get following status efficiently
+    # Following status (is request.user following this user?)
     is_following = False
     if request.user.is_authenticated and request.user != user:
         is_following = user_following.objects.filter(
-            user=request.user, 
+            user=request.user,
             following_user=user
         ).exists()
 
-    # Optimize content queries with select_related and prefetch_related
-    from activities.models import Post, Event, Repost, Save
-    
-    # Use slicing to limit results and improve performance
+    # Posts, events, reposts, saved posts
     posts = Post.objects.filter(author=user).select_related('author').order_by('-created_at')[:20]
     events = Event.objects.filter(creator=user).select_related('creator').order_by('-start_time')[:10]
     reposts = Repost.objects.filter(user=user).select_related('user', 'post__author').order_by('-created_at')[:10]
     saved_posts = Post.objects.filter(saves__user=user).select_related('author').order_by('-created_at').distinct()[:10]
-    
-    user_groups = user.created_groups.all()[:10]  # Limit groups displayed
 
-    # Pre-calculate permissions to avoid repeated queries in templates
+    # Groups
+    user_groups = user.created_groups.all()[:10]
+
+    # Permissions
     for post in posts:
         post.can_edit = post.author == request.user
         post.can_delete = post.author == request.user
-    
+
     for event in events:
         event.can_edit = event.creator == request.user
         event.can_delete = event.creator == request.user
-        
+
     for repost in reposts:
         repost.can_edit = repost.post.author == request.user
         repost.can_delete = repost.post.author == request.user
-        
+
     for post in saved_posts:
         post.can_edit = post.author == request.user
         post.can_delete = post.author == request.user
@@ -203,8 +198,8 @@ def profile_user(request, pk):
         'user': user,
         'profile': profile,
         'is_following': is_following,
-        'followers_count': user_stats.followers_count if user_stats else 0,
-        'following_count': user_stats.following_count if user_stats else 0,
+        'followers_count': followers_count,
+        'following_count': following_count,
         'user_groups': user_groups,
         'posts': posts,
         'reposts': reposts,
