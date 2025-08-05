@@ -7,204 +7,381 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Profile</title>
 </head>
-<body class="bg-gradient-to-br from-white via-sky-50 to-indigo-50 min-h-screen">
+<body class="bg-white">
 {% block content %}
-<div class="min-h-screen w-full flex bg-black text-white">
-  <main class="flex flex-col items-center flex-1 min-h-screen bg-black px-0 py-1 border-x border-gray-800">
-    <div class="w-full max-w-2xl mx-auto">
-      <!-- User Info Card -->
-      <div class="bg-[#181c24] rounded-2xl shadow-2xl px-10 pt-10 pb-10 mb-8 relative border border-gray-800">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h2 class="text-4xl font-extrabold text-white flex items-center gap-2 tracking-tight">{{ user.username }}
-              {% if profile.0.verified %}
-                <span class="material-icons text-blue-400 align-middle">verified</span>
-              {% endif %}
-            </h2>
-            <div class="text-gray-400 text-xl font-mono">@{{ user.username }}</div>
-            <div class="mt-3 text-gray-200 text-lg leading-relaxed">{{ profile.0.bio }}</div>
-            {% if profile.0.website %}
-              <div class="mt-1"><a href="{{ profile.0.website }}" class="text-blue-400 hover:underline" target="_blank">{{ profile.0.website }}</a></div>
+<div class="min-h-screen bg-white">
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    
+    <!-- Profile Header -->
+    <div class="mb-8">
+      <!-- Mobile Layout -->
+      <div class="block md:hidden">
+        <!-- Username and Actions -->
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-xl font-semibold">{{ user.username }}</h1>
+          <div class="flex items-center gap-2">
+            {% if request.user == user %}
+              <a href="{% url 'users:user_settings' %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
+                Edit profile
+              </a>
+              <button class="bg-gray-100 hover:bg-gray-200 p-2 rounded-md transition">
+                <span class="material-icons text-lg">settings</span>
+              </button>
+            {% else %}
+              <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-md text-sm font-semibold transition">
+                Follow
+              </button>
+              <a href="{% url 'users:private_messages' user.id %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
+                Message
+              </a>
             {% endif %}
-            {% if profile.0.location %}
-              <div class="text-gray-400 text-sm mt-1">{{ profile.0.location }}</div>
+          </div>
+        </div>
+        
+        <!-- Profile Picture and Stats -->
+        <div class="flex items-center gap-6 mb-4">
+          <div class="flex-shrink-0">
+            {% if profile.0.profile_image %}
+              <img src="{{ profile.0.profile_image.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
+            {% else %}
+              <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
             {% endif %}
-            <div class="flex flex-wrap gap-6 mt-6 text-gray-400 text-base">
-              <div><span class="font-bold text-white">{{ followers_count }}</span> Followers</div>
-              <div><span class="font-bold text-white">{{ following_count }}</span> Following</div>
+          </div>
+          
+          <div class="flex-1">
+            <div class="flex justify-around text-center">
+              <div>
+                <div class="font-semibold text-lg">{{ posts.count|default:0 }}</div>
+                <div class="text-gray-500 text-sm">posts</div>
+              </div>
+              <div>
+                <div class="font-semibold text-lg">{{ followers_count }}</div>
+                <div class="text-gray-500 text-sm">followers</div>
+              </div>
+              <div>
+                <div class="font-semibold text-lg">{{ following_count }}</div>
+                <div class="text-gray-500 text-sm">following</div>
+              </div>
             </div>
-            <div class="flex gap-3 mt-6">
-              {% if request.user.is_authenticated %}
-                <a href="{% url 'users:private_messages' user.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full transition font-bold shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400" tabindex="0" aria-label="Private Chat">Private Chat</a>
+          </div>
+        </div>
+        
+        <!-- Bio -->
+        <div class="space-y-1">
+          <div class="font-semibold">{{ user.get_full_name|default:user.username }}</div>
+          {% if profile.0.bio %}
+            <div class="text-sm">{{ profile.0.bio }}</div>
+          {% endif %}
+          {% if profile.0.website %}
+            <div class="text-sm">
+              <a href="{{ profile.0.website }}" class="text-blue-900 font-semibold" target="_blank">{{ profile.0.website }}</a>
+            </div>
+          {% endif %}
+          {% if profile.0.location %}
+            <div class="text-sm text-gray-500">{{ profile.0.location }}</div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Desktop Layout -->
+      <div class="hidden md:block">
+        <div class="flex items-start gap-8">
+          <!-- Profile Picture -->
+          <div class="flex-shrink-0">
+            {% if profile.0.profile_image %}
+              <img src="{{ profile.0.profile_image.url }}" alt="{{ user.username }}" class="w-36 h-36 rounded-full object-cover border border-gray-300">
+            {% else %}
+              <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-36 h-36 rounded-full object-cover border border-gray-300">
+            {% endif %}
+          </div>
+          
+          <!-- Profile Info -->
+          <div class="flex-1 space-y-6">
+            <!-- Username and Actions -->
+            <div class="flex items-center gap-4">
+              <h1 class="text-2xl font-light">{{ user.username }}</h1>
+              {% if profile.0.verified %}
+                <span class="material-icons text-blue-500">verified</span>
+              {% endif %}
+              
+              <div class="flex items-center gap-2">
                 {% if request.user == user %}
-                  <a href="{% url 'users:user_settings' %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3 rounded-full transition font-bold shadow-lg flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-yellow-400" tabindex="0" aria-label="Settings">
-                    <span class="material-icons">settings</span> Settings
+                  <a href="{% url 'users:user_settings' %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
+                    Edit profile
+                  </a>
+                  <button class="bg-gray-100 hover:bg-gray-200 p-2 rounded-md transition">
+                    <span class="material-icons text-lg">settings</span>
+                  </button>
+                {% else %}
+                  <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-md text-sm font-semibold transition">
+                    Follow
+                  </button>
+                  <a href="{% url 'users:private_messages' user.id %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
+                    Message
                   </a>
                 {% endif %}
+              </div>
+            </div>
+            
+            <!-- Stats -->
+            <div class="flex gap-8">
+              <div class="flex items-center gap-1">
+                <span class="font-semibold">{{ posts.count|default:0 }}</span>
+                <span class="text-gray-700">posts</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="font-semibold">{{ followers_count }}</span>
+                <span class="text-gray-700">followers</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="font-semibold">{{ following_count }}</span>
+                <span class="text-gray-700">following</span>
+              </div>
+            </div>
+            
+            <!-- Bio -->
+            <div class="space-y-1">
+              <div class="font-semibold">{{ user.get_full_name|default:user.username }}</div>
+              {% if profile.0.bio %}
+                <div class="text-sm">{{ profile.0.bio }}</div>
+              {% endif %}
+              {% if profile.0.website %}
+                <div class="text-sm">
+                  <a href="{{ profile.0.website }}" class="text-blue-900 font-semibold" target="_blank">{{ profile.0.website }}</a>
+                </div>
+              {% endif %}
+              {% if profile.0.location %}
+                <div class="text-sm text-gray-500">{{ profile.0.location }}</div>
               {% endif %}
             </div>
           </div>
         </div>
       </div>
-      <!-- Tabs (Posts, Reposts, Saved, Events) -->
-      <div class="flex gap-10 border-b border-gray-800 mb-8 px-10 profile-tabs">
-        <button id="tab-posts" class="py-3 font-bold text-white border-b-4 border-blue-500 transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('posts');window.location.hash='posts';" type="button">Posts</button>
-        <button id="tab-reposts" class="py-3 font-bold text-gray-400 hover:text-white transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('reposts');window.location.hash='reposts';" type="button">Reposts</button>
-        <button id="tab-saved" class="py-3 font-bold text-gray-400 hover:text-white transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('saved');window.location.hash='saved';" type="button">Saved</button>
-        <button id="tab-events" class="py-3 font-bold text-gray-400 hover:text-white transition-all duration-200 focus:outline-none tab-btn" onclick="showTab('events');window.location.hash='events';" type="button">Events</button>
-      </div>
-      <!-- Tabbed Content Sections -->
-      <div id="posts-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8">
-        {% if posts %}
-        <ul class="flex flex-col gap-8">
-          {% for post in posts %}
-          <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
-            <div class="flex items-center gap-4 mb-2">
-              {% if post.author.profile and post.author.profile.profile_image %}
-                <a href="{% url 'users:profile' post.author.id %}">
-                  <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
-                </a>
-              {% else %}
-                <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
-              {% endif %}
-              <div class="flex-1 min-w-0">
-                <a href="{% url 'users:profile' post.author.id %}" class="font-bold text-white hover:underline">{{ post.author.username }}</a>
-                <span class="text-xs text-gray-400">· {{ post.created_at|timesince }} ago</span>
-              </div>
-            </div>
-            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ post.content }}</div>
-            {% if post.image %}
-              <div class="my-3">
-                <img src="{{ post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
-              </div>
-            {% endif %}
-            {% if post.video %}
-              <div class="my-3">
-                <video controls class="rounded-xl w-full max-h-96 object-cover shadow border border-gray-800" style="width:100%;">
-                  <source src="{{ post.video.url }}" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <div class="text-center text-gray-500 text-lg py-10">No posts yet.</div>
-        {% endif %}
-      </div>
-      <div id="reposts-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8 hidden">
-        {% if reposts %}
-        <ul class="flex flex-col gap-8">
-          {% for repost in reposts %}
-          <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
-            <div class="flex items-center gap-4 mb-2">
-              {% if repost.post.author.profile and repost.post.author.profile_image %}
-                <img src="{{ repost.post.author.profile.profile_image.url }}" alt="{{ repost.post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
-              {% else %}
-                <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
-              {% endif %}
-              <div class="flex-1 min-w-0">
-                <a href="{% url 'users:profile' repost.post.author.id %}" class="font-bold text-white hover:underline">{{ repost.post.author.username }}</a>
-                <span class="text-xs text-gray-400">· {{ repost.created_at|timesince }} ago</span>
-                <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">Repost</span>
-              </div>
-            </div>
-            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ repost.post.content }}</div>
-            {% if repost.post.image %}
-              <div class="my-3">
-                <img src="{{ repost.post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
-              </div>
-            {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <div class="text-center text-gray-500 text-lg py-10">No reposts yet.</div>
-        {% endif %}
-      </div>
-      <div id="saved-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8 hidden">
-        {% if saved %}
-        <ul class="flex flex-col gap-8">
-          {% for post in saved %}
-          <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
-            <div class="flex items-center gap-4 mb-2">
-              {% if post.author.profile and post.author.profile.profile_image %}
-                <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
-              {% else %}
-                <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
-              {% endif %}
-              <div class="flex-1 min-w-0">
-                <a href="{% url 'users:profile' post.author.id %}" class="font-bold text-white hover:underline">{{ post.author.username }}</a>
-                <span class="text-xs text-gray-400">· {{ post.created_at|timesince }} ago</span>
-                <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">Saved</span>
-              </div>
-            </div>
-            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ post.content }}</div>
-            {% if post.image %}
-              <div class="my-3">
-                <img src="{{ post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-80 object-cover shadow border border-gray-800" style="width:100%;">
-              </div>
-            {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <div class="text-center text-gray-500 text-lg py-10">No saved posts yet.</div>
-        {% endif %}
-      </div>
-      <div id="events-section" class="bg-[#16181c] rounded-2xl shadow-2xl px-10 py-8 mb-8 hidden">
-        {% if events %}
-        <ul class="flex flex-col gap-8">
-          {% for event in events %}
-          <li class="bg-black rounded-xl p-8 border border-gray-800 hover:shadow-2xl transition-shadow duration-200">
-            <div class="flex items-center gap-4 mb-2">
-              {% if event.cover_image %}
-                <img src="{{ event.cover_image.url }}" alt="{{ event.title }}" class="w-12 h-12 rounded object-cover rounded-xl">
-              {% else %}
-                <div class="w-12 h-12 bg-sky-900 rounded-xl"></div>
-              {% endif %}
-              <div class="flex-1 min-w-0">
-                <span class="font-bold text-white">{{ event.title }}</span>
-                <span class="text-xs text-gray-400">· {{ event.start_time|date:'M d, Y H:i' }}</span>
-              </div>
-            </div>
-            <div class="mt-2 text-gray-200 text-lg leading-relaxed break-words">{{ event.description }}</div>
-            {% if event.location %}
-              <div class="text-gray-400 text-sm mt-2">Location: {{ event.location }}</div>
-            {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <div class="text-center text-gray-500 text-lg py-10">No events yet.</div>
-        {% endif %}
-      </div>
-      <script>
-      function showTab(tab) {
-        const tabIds = ['posts', 'reposts', 'saved', 'events'];
-        tabIds.forEach(function(t) {
-          document.getElementById(t+'-section').classList.toggle('hidden', t !== tab);
-          document.getElementById('tab-'+t).classList.toggle('text-white', t === tab);
-          document.getElementById('tab-'+t).classList.toggle('text-gray-400', t !== tab);
-          document.getElementById('tab-'+t).classList.toggle('border-b-4', t === tab);
-          document.getElementById('tab-'+t).classList.toggle('border-blue-500', t === tab);
-        });
-      }
-      document.addEventListener('DOMContentLoaded', function() {
-        const hash = window.location.hash.replace('#', '');
-        if(['posts','reposts','saved','events'].includes(hash)) {
-          showTab(hash);
-        } else {
-          showTab('posts');
-        }
-      });
-      </script>
     </div>
+    
+    <!-- Divider -->
+    <div class="border-t border-gray-300 mb-0"></div>
+    
+    <!-- Tabs -->
+    <div class="flex justify-center gap-12 mb-6">
+      <button id="tab-posts" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-gray-900 border-t-2 border-black transition-all tab-btn" onclick="showTab('posts');window.location.hash='posts';" type="button">
+        <span class="material-icons text-sm">grid_on</span>
+        <span class="hidden md:inline">Posts</span>
+      </button>
+      <button id="tab-reposts" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 transition-all tab-btn" onclick="showTab('reposts');window.location.hash='reposts';" type="button">
+        <span class="material-icons text-sm">repeat</span>
+        <span class="hidden md:inline">Reposts</span>
+      </button>
+      <button id="tab-saved" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 transition-all tab-btn" onclick="showTab('saved');window.location.hash='saved';" type="button">
+        <span class="material-icons text-sm">bookmark_border</span>
+        <span class="hidden md:inline">Saved</span>
+      </button>
+      <button id="tab-events" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 transition-all tab-btn" onclick="showTab('events');window.location.hash='events';" type="button">
+        <span class="material-icons text-sm">event</span>
+        <span class="hidden md:inline">Events</span>
+      </button>
+    </div>
+    
+    <!-- Content Sections -->
+    
+    <!-- Posts Section -->
+    <div id="posts-section" class="tab-content">
+      {% if posts %}
+        <div class="grid grid-cols-3 gap-1 md:gap-4">
+          {% for post in posts %}
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
+              {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Post" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                  <div class="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-4">
+                    <div class="flex items-center gap-1">
+                      <span class="material-icons">favorite</span>
+                      <span class="font-semibold">{{ post.likes.count|default:0 }}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="material-icons">chat_bubble</span>
+                      <span class="font-semibold">{{ post.comments.count|default:0 }}</span>
+                    </div>
+                  </div>
+                </div>
+              {% elif post.video %}
+                <video class="w-full h-full object-cover">
+                  <source src="{{ post.video.url }}" type="video/mp4">
+                </video>
+                <div class="absolute top-2 right-2">
+                  <span class="material-icons text-white text-lg drop-shadow">play_circle_filled</span>
+                </div>
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                  <div class="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-4">
+                    <div class="flex items-center gap-1">
+                      <span class="material-icons">favorite</span>
+                      <span class="font-semibold">{{ post.likes.count|default:0 }}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <span class="material-icons">chat_bubble</span>
+                      <span class="font-semibold">{{ post.comments.count|default:0 }}</span>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <div class="text-center p-4">
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ post.author.username }}</div>
+                    <div class="text-gray-800 text-xs leading-tight">{{ post.content|truncatechars:100 }}</div>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-16">
+          <div class="mb-4">
+            <span class="material-icons text-6xl text-gray-300">photo_camera</span>
+          </div>
+          <div class="text-2xl font-light mb-2">No Posts Yet</div>
+          <div class="text-gray-500">When {{ user.username }} shares photos, they'll appear here.</div>
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Reposts Section -->
+    <div id="reposts-section" class="tab-content hidden">
+      {% if reposts %}
+        <div class="grid grid-cols-3 gap-1 md:gap-4">
+          {% for repost in reposts %}
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
+              {% if repost.post.image %}
+                <img src="{{ repost.post.image.url }}" alt="Repost" class="w-full h-full object-cover">
+                <div class="absolute top-2 right-2">
+                  <span class="material-icons text-white text-lg drop-shadow">repeat</span>
+                </div>
+              {% else %}
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <div class="text-center p-4">
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ repost.post.author.username }}</div>
+                    <div class="text-gray-800 text-xs leading-tight">{{ repost.post.content|truncatechars:100 }}</div>
+                  </div>
+                </div>
+              {% endif %}
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200"></div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-16">
+          <div class="mb-4">
+            <span class="material-icons text-6xl text-gray-300">repeat</span>
+          </div>
+          <div class="text-2xl font-light mb-2">No Reposts Yet</div>
+          <div class="text-gray-500">When {{ user.username }} shares reposts, they'll appear here.</div>
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Saved Section -->
+    <div id="saved-section" class="tab-content hidden">
+      {% if saved %}
+        <div class="grid grid-cols-3 gap-1 md:gap-4">
+          {% for post in saved %}
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
+              {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Saved Post" class="w-full h-full object-cover">
+                <div class="absolute top-2 right-2">
+                  <span class="material-icons text-white text-lg drop-shadow">bookmark</span>
+                </div>
+              {% else %}
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <div class="text-center p-4">
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ post.author.username }}</div>
+                    <div class="text-gray-800 text-xs leading-tight">{{ post.content|truncatechars:100 }}</div>
+                  </div>
+                </div>
+              {% endif %}
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200"></div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-16">
+          <div class="mb-4">
+            <span class="material-icons text-6xl text-gray-300">bookmark_border</span>
+          </div>
+          <div class="text-2xl font-light mb-2">No Saved Posts</div>
+          <div class="text-gray-500">Save posts to see them here.</div>
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Events Section -->
+    <div id="events-section" class="tab-content hidden">
+      {% if events %}
+        <div class="grid grid-cols-3 gap-1 md:gap-4">
+          {% for event in events %}
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
+              {% if event.cover_image %}
+                <img src="{{ event.cover_image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover">
+              {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center">
+                  <span class="material-icons text-white text-4xl">event</span>
+                </div>
+              {% endif %}
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-end">
+                <div class="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 w-full">
+                  <div class="font-semibold text-sm truncate">{{ event.title }}</div>
+                  <div class="text-xs">{{ event.start_time|date:'M d' }}</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-16">
+          <div class="mb-4">
+            <span class="material-icons text-6xl text-gray-300">event</span>
+          </div>
+          <div class="text-2xl font-light mb-2">No Events Yet</div>
+          <div class="text-gray-500">When {{ user.username }} creates events, they'll appear here.</div>
+        </div>
+      {% endif %}
+    </div>
+    
   </main>
 </div>
+
+<script>
+function showTab(tab) {
+  const tabIds = ['posts', 'reposts', 'saved', 'events'];
+  
+  tabIds.forEach(function(t) {
+    const section = document.getElementById(t + '-section');
+    const tabBtn = document.getElementById('tab-' + t);
+    
+    if (t === tab) {
+      section.classList.remove('hidden');
+      tabBtn.classList.remove('text-gray-400', 'hover:text-gray-600');
+      tabBtn.classList.add('text-gray-900', 'border-t-2', 'border-black');
+    } else {
+      section.classList.add('hidden');
+      tabBtn.classList.remove('text-gray-900', 'border-t-2', 'border-black');
+      tabBtn.classList.add('text-gray-400', 'hover:text-gray-600');
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const hash = window.location.hash.replace('#', '');
+  if(['posts','reposts','saved','events'].includes(hash)) {
+    showTab(hash);
+  } else {
+    showTab('posts');
+  }
+});
+</script>
+
 {% endblock content %}
 </body>
 </html>
