@@ -20,83 +20,133 @@ from django.db import transaction
 from django.db.models import Prefetch
 
 # Create your views here.
+from itertools import cycle
 def home_activities(request):
-    # Cache key generation
+    # Cache key generation, considering filters and user authentication
     cache_key = f"home_feed_{request.user.id if request.user.is_authenticated else 'anon'}_{request.GET.urlencode()}"
     cached_response = cache.get(cache_key)
     
     if cached_response:
         return cached_response
 
+    # --- 1. Fetch all the necessary data ---
+    
     # Optimized base querysets
     posts = Post.objects.filter(group__isnull=True)\
-                       .select_related('author', 'group')\
-                       .prefetch_related('likes', 'comments__author')\
-                       .order_by('-created_at')
+                        .select_related('author', 'group')\
+                        .prefetch_related('likes', 'comments__author')\
+                        .order_by('-created_at')[:20] # Limit initial posts
     
-    events = Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())\
-                         .select_related('creator', 'group')\
-                         .order_by('-start_time')
+    events = list(Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())\
+                               .select_related('creator', 'group')\
+                               .order_by('start_time')[:10]) # Get a list of top 10 events
 
     # Following filter
     if request.user.is_authenticated and request.GET.get('following') == '1':
         following_ids = request.user.following.values_list('following_user', flat=True)
         posts = posts.filter(author__id__in=following_ids)
-        events = events.filter(creator__id__in=following_ids)
+        events = list(Event.objects.filter(creator__id__in=following_ids, start_time__gte=timezone.now()).order_by('start_time')[:10])
 
     # Search logic
     query = request.GET.get('q', '')
     if query:
-        posts = posts.filter(
-            Q(content__icontains=query) | 
-            Q(author__username__icontains=query)
-        )
-        events = events.filter(
-            Q(title__icontains=query) | 
-            Q(description__icontains=query) |
-            Q(creator__username__icontains=query)
-        )
+        posts = posts.filter(Q(content__icontains=query) | Q(author__username__icontains=query))
+        events = list(Event.objects.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(creator__username__icontains=query), start_time__gte=timezone.now()).order_by('start_time')[:10])
 
-    # User relationships (optimized)
-    following = []
-    followers = []
-    if request.user.is_authenticated:
-        following = list(request.user.following.select_related('following_user')\
-                             .values_list('following_user__username', flat=True))
-        followers = list(request.user.followers.select_related('user')\
-                           .values_list('user__username', flat=True))
-
-    # Suggestions (cached)
+    # Suggested users (cached)
     suggestions_cache_key = f"suggestions_{request.user.id}" if request.user.is_authenticated else None
-    suggestions = cache.get(suggestions_cache_key, [])
-    if not suggestions and request.user.is_authenticated:
+    suggested_users = cache.get(suggestions_cache_key, [])
+    if not suggested_users and request.user.is_authenticated:
         excluded_ids = [request.user.id] + list(request.user.following.values_list('following_user', flat=True))
-        suggestions = list(User.objects.exclude(id__in=excluded_ids)\
-                          .values('id', 'username')[:20])
-        random.shuffle(suggestions)
-        suggestions = suggestions[:5]
-        cache.set(suggestions_cache_key, suggestions, 3600)  # 1 hour cache
+        suggested_users = list(User.objects.exclude(id__in=excluded_ids).order_by('?')[:10])
+        cache.set(suggestions_cache_key, suggested_users, 3600)  # 1 hour cache
 
-    # Random groups (cached)
-    random_groups = cache.get('random_groups', [])
-    if not random_groups:
-        random_groups = list(Group.objects.values('id', 'name')[:20])
-        random.shuffle(random_groups)
-        random_groups = random_groups[:5]
-        cache.set('random_groups', random_groups, 3600)  # 1 hour cache
+    # Suggested groups (cached)
+    groups_cache_key = 'suggested_groups'
+    suggested_groups = cache.get(groups_cache_key, [])
+    if not suggested_groups:
+        suggested_groups = list(Group.objects.all().order_by('?')[:10])
+        cache.set(groups_cache_key, suggested_groups, 3600)  # 1 hour cache
 
-    response = render(request, 'activities/home_feed.html', {
-        'suggestions': suggestions,
-        'random_groups': random_groups,
-        'posts': posts[:50],  # Limit to 50 posts
-        'events': events[:20],  # Limit to 20 events
+    # --- 2. Interleave the content for the main feed ---
+    
+    combined_feed = []
+    
+    # Create a list of discovery item types to cycle through
+    discovery_types = []
+    if suggested_users:
+        discovery_types.append('users')
+    if suggested_groups:
+        discovery_types.append('groups')
+    if events:
+        discovery_types.append('events')
+    
+    random.shuffle(discovery_types)
+    discovery_cycler = cycle(discovery_types)
+    
+    post_index = 0
+    discovery_index = {
+        'users': 0,
+        'groups': 0,
+        'events': 0
+    }
+    
+    # Combine posts and discovery content
+    while post_index < len(posts):
+        # Add a discovery item first to ensure it's at the top on a small number of posts
+        if discovery_types:
+            try:
+                item_type = next(discovery_cycler)
+                if item_type == 'users' and discovery_index['users'] < len(suggested_users):
+                    combined_feed.append(('users', suggested_users[discovery_index['users']]))
+                    discovery_index['users'] += 1
+                elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
+                    combined_feed.append(('groups', suggested_groups[discovery_index['groups']]))
+                    discovery_index['groups'] += 1
+                elif item_type == 'events' and discovery_index['events'] < len(events):
+                    combined_feed.append(('events', events[discovery_index['events']]))
+                    discovery_index['events'] += 1
+            except StopIteration:
+                pass  # All discovery items have been added
+
+        # Add two posts
+        for _ in range(2):
+            if post_index < len(posts):
+                combined_feed.append(('post', posts[post_index]))
+                post_index += 1
+    
+    # Handle remaining discovery items if there are few posts
+    while discovery_index['users'] < len(suggested_users) or \
+          discovery_index['groups'] < len(suggested_groups) or \
+          discovery_index['events'] < len(events):
+        
+        try:
+            item_type = next(discovery_cycler)
+            if item_type == 'users' and discovery_index['users'] < len(suggested_users):
+                combined_feed.append(('users', suggested_users[discovery_index['users']]))
+                discovery_index['users'] += 1
+            elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
+                combined_feed.append(('groups', suggested_groups[discovery_index['groups']]))
+                discovery_index['groups'] += 1
+            elif item_type == 'events' and discovery_index['events'] < len(events):
+                combined_feed.append(('events', events[discovery_index['events']]))
+                discovery_index['events'] += 1
+        except StopIteration:
+            pass
+            
+    context = {
+        'combined_feed': combined_feed,
         'query': query,
         'filter_by': request.GET.get('filter', 'recent'),
-        'followers': followers,
-        'following': following,
-    })
+        # Pass full discovery lists for the right sidebar (desktop only)
+        'suggested_users': suggested_users,
+        'suggested_groups': suggested_groups,
+        'events': events,
+    }
     
-    cache.set(cache_key, response, 300)  # Cache for 5 minutes
+    response = render(request, 'home_template.html', context)
+    
+    cache.set(cache_key, response, 300) # Cache for 5 minutes
     return response
 
 def post_activity(request):
