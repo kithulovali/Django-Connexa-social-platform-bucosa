@@ -466,30 +466,13 @@ def leave_group(request, pk):
 def group_chat(request, pk):
     group = get_object_or_404(Group, pk=pk)
     
-    # Check membership efficiently
+    # Check membership
     if not group.user_set.filter(id=request.user.id).exists():
         return HttpResponseForbidden('You must be a member to view the chat.')
     
-    # Optimize message loading with pagination
+    # Get messages for the group
     messages_qs = GroupMessage.objects.filter(group=group)
     
-    emojis = ['👍', '❤️', '😂']
-    
-    # Batch process reactions to avoid N+1 queries
-    for msg in messages_qs:
-        reaction_counts = {emoji: 0 for emoji in emojis}
-        user_reaction = None
-        
-        for reaction in msg.reactions.all():
-            if reaction.emoji in reaction_counts:
-                reaction_counts[reaction.emoji] += 1
-            if reaction.user == request.user:
-                user_reaction = reaction.emoji
-                
-        msg.reaction_counts = reaction_counts
-        msg.user_reaction = user_reaction
-        msg.reaction_tuples = [(emoji, reaction_counts[emoji]) for emoji in emojis]
-
     if request.method == 'POST':
         content = request.POST.get('content', '').strip()
         file = request.FILES.get('file')
@@ -518,10 +501,8 @@ def group_chat(request, pk):
                 }
             )
             
-            # Bulk create notifications and push notifications
+            # Create notifications for members
             members = group.user_set.exclude(id=request.user.id)
-            
-            # Create notifications
             for member in members:
                 create_notification(
                     sender=request.user,
@@ -548,10 +529,8 @@ def group_chat(request, pk):
 
     return render(request, 'users/group_chat.html', {
         'group': group, 
-        'messages': messages_qs, 
-        'emojis': emojis
+        'messages': messages_qs
     })
-
 @login_required
 def edit_group_message(request, msg_id):
     from .models_group_message import GroupMessage
