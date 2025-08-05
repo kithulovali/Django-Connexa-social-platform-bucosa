@@ -470,38 +470,31 @@ def group_chat(request, pk):
     if not group.user_set.filter(id=request.user.id).exists():
         return HttpResponseForbidden('You must be a member to view the chat.')
     
-    # Get messages for the group
-    messages_qs = GroupMessage.objects.filter(group=group)
-    
     if request.method == 'POST':
         content = request.POST.get('content', '').strip()
         file = request.FILES.get('file')
         
         if content or file:
             msg = GroupMessage.objects.create(
-                group=group, 
-                user=request.user, 
-                content=content, 
-                file=file
+                group=group, user=request.user, content=content, file=file
             )
             
             # WebSocket broadcast
-            channel_layer = get_channel_layer()
-            group_name = f"group_{group.id}"
-            async_to_sync(channel_layer.group_send)(
-                group_name,
-                {
-                    "type": "send_group_message",
-                    "message": {
-                        "sender": str(request.user),
-                        "content": content,
-                        "timestamp": str(msg.timestamp),
-                        "id": msg.id
+            if channel_layer := get_channel_layer():
+                async_to_sync(channel_layer.group_send)(
+                    f"group_{group.id}",
+                    {
+                        "type": "send_group_message",
+                        "message": {
+                            "sender": str(request.user),
+                            "content": content,
+                            "timestamp": str(msg.timestamp),
+                            "id": msg.id
+                        }
                     }
-                }
-            )
+                )
             
-            # Create notifications for members
+            # Notifications for members
             members = group.user_set.exclude(id=request.user.id)
             for member in members:
                 create_notification(
@@ -512,25 +505,22 @@ def group_chat(request, pk):
                     related_object=msg
                 )
             
-            # Send push notifications
-            member_profiles = user_profile.objects.filter(
-                user__in=members
-            ).exclude(fcm_token__isnull=True).exclude(fcm_token='')
-            
-            for profile in member_profiles:
+            # Push notifications
+            for profile in user_profile.objects.filter(user__in=members).exclude(fcm_token=''):
                 try:
                     send_push_notification_v1(
                         profile.fcm_token,
                         title="New Group Message",
-                        body=f"{request.user.username} in {group.name}: {content[:50]}"
+                        body=f"{request.user.username}: {content[:50]}"
                     )
-                except Exception:
+                except:
                     pass
 
     return render(request, 'users/group_chat.html', {
         'group': group, 
-        'messages': messages_qs
+        'messages': GroupMessage.objects.filter(group=group)
     })
+    
 @login_required
 def edit_group_message(request, msg_id):
     from .models_group_message import GroupMessage

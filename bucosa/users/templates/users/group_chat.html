@@ -4,15 +4,25 @@
 {% block content %}
 <head>
   <link rel="stylesheet" href="{% static 'css/group.css'%}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<div class="flex h-screen bg-gray-100">
+
+<div class="flex h-screen bg-gray-100 relative">
+  <!-- Mobile menu button -->
+  <button id="mobile-menu-btn" class="lg:hidden fixed top-4 left-4 z-50 bg-white rounded-lg p-2 shadow-lg">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+
   <!-- Left sidebar - Members list -->
-  <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
+  <div id="sidebar" class="w-64 lg:w-64 bg-white border-r border-gray-200 flex flex-col fixed lg:relative h-full z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
     <div class="p-4 border-b border-gray-200">
       <h2 class="text-xl font-bold text-gray-800">{{ group.name }}</h2>
-      <p class="text-sm text-gray-500">{{ group.members.count }} members</p>
+      <p class="text-sm text-gray-500">{{ group.user_set.count }} members</p>
     </div>
     <div class="flex-1 overflow-y-auto">
+      {% if group.admins.exists %}
       <div class="p-4">
         <h3 class="text-sm font-semibold text-gray-500 mb-2">ADMINS</h3>
         <ul>
@@ -21,24 +31,26 @@
             {% if admin.profile and admin.profile.profile_image %}
               <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-2" alt="{{ admin.username }}">
             {% else %}
-              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-2">{{ admin.username|first }}</div>
+              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-2">{{ admin.username|first|upper }}</div>
             {% endif %}
-            <span class="text-gray-800">{{ admin.username }}</span>
+            <span class="text-gray-800 truncate">{{ admin.username }}</span>
           </li>
           {% endfor %}
         </ul>
       </div>
-      <div class="p-4 border-t border-gray-200">
+      {% endif %}
+      
+      <div class="p-4 {% if group.admins.exists %}border-t border-gray-200{% endif %}">
         <h3 class="text-sm font-semibold text-gray-500 mb-2">MEMBERS</h3>
         <ul>
-          {% for member in group.members.all %}
+          {% for member in group.user_set.all %}
           <li class="flex items-center py-2">
             {% if member.profile and member.profile.profile_image %}
               <img src="{{ member.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-2" alt="{{ member.username }}">
             {% else %}
-              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-2">{{ member.username|first }}</div>
+              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-2">{{ member.username|first|upper }}</div>
             {% endif %}
-            <span class="text-gray-800">{{ member.username }}</span>
+            <span class="text-gray-800 truncate">{{ member.username }}</span>
           </li>
           {% endfor %}
         </ul>
@@ -46,25 +58,28 @@
     </div>
   </div>
 
+  <!-- Overlay for mobile -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
+
   <!-- Main chat area -->
-  <div class="flex-1 flex flex-col">
+  <div class="flex-1 flex flex-col lg:ml-0">
     <!-- Group profile header -->
-    <div class="bg-white border-b border-gray-200 p-4">
+    <div class="bg-white border-b border-gray-200 p-4 pl-16 lg:pl-4">
       <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">{{ group.name }}</h1>
-          <p class="text-gray-500">{{ group.description }}</p>
+        <div class="flex-1 min-w-0">
+          <h1 class="text-lg lg:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
+          <p class="text-gray-500 text-sm truncate">{{ group.description|default:"No description" }}</p>
         </div>
-        <div class="flex space-x-2">
-          {% if request.user in group.members.all %}
+        <div class="flex space-x-2 ml-4">
+          {% if request.user in group.user_set.all %}
             <form action="{% url 'leave_group' group.id %}" method="post" class="inline">
               {% csrf_token %}
-              <button type="submit" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 text-sm font-medium">Leave Group</button>
+              <button type="submit" class="px-3 py-2 lg:px-4 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 text-xs lg:text-sm font-medium">Leave</button>
             </form>
           {% else %}
             <form action="{% url 'join_group' group.id %}" method="post" class="inline">
               {% csrf_token %}
-              <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm font-medium">Join Group</button>
+              <button type="submit" class="px-3 py-2 lg:px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-xs lg:text-sm font-medium">Join</button>
             </form>
           {% endif %}
         </div>
@@ -72,34 +87,34 @@
     </div>
 
     <!-- Messages area -->
-    <div class="flex-1 overflow-y-auto p-4 bg-gray-50" id="chat-messages">
+    <div class="flex-1 overflow-y-auto p-2 lg:p-4 bg-gray-50" id="chat-messages">
       <div class="max-w-3xl mx-auto">
         {% for msg in messages %}
         <div class="flex mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
-          <div class="flex max-w-xs lg:max-w-md">
+          <div class="flex max-w-xs lg:max-w-md w-full">
             {% if msg.user != request.user %}
               {% if msg.user.profile and msg.user.profile.profile_image %}
-                <img src="{{ msg.user.profile.profile_image.url }}" class="w-10 h-10 rounded-full mr-3 flex-shrink-0" alt="{{ msg.user.username }}">
+                <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 lg:w-10 lg:h-10 rounded-full mr-2 lg:mr-3 flex-shrink-0" alt="{{ msg.user.username }}">
               {% else %}
-                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-3">{{ msg.user.username|first }}</div>
+                <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs lg:text-sm font-bold mr-2 lg:mr-3">{{ msg.user.username|first|upper }}</div>
               {% endif %}
             {% endif %}
-            <div>
+            <div class="flex-1 min-w-0">
               {% if msg.user != request.user %}
-                <div class="text-sm font-medium text-gray-900 mb-1">{{ msg.user.username }}</div>
+                <div class="text-xs lg:text-sm font-medium text-gray-900 mb-1">{{ msg.user.username }}</div>
               {% endif %}
-              <div class="{% if msg.user == request.user %}bg-blue-500 text-white{% else %}bg-white border border-gray-200{% endif %} rounded-lg p-3">
-                <div class="text-sm">{{ msg.content|linebreaksbr }}</div>
+              <div class="{% if msg.user == request.user %}bg-blue-500 text-white{% else %}bg-white border border-gray-200{% endif %} rounded-lg p-2 lg:p-3">
+                <div class="text-xs lg:text-sm break-words">{{ msg.content|linebreaksbr }}</div>
                 {% if msg.file %}
                   {% with msg.file.url|lower as file_url %}
-                    {% if file_url|slice:'-4:' == '.jpg' or file_url|slice:'-5:' == '.jpeg' or file_url|slice:'-4:' == '.png' or file_url|slice:'-4:' == '.gif' %}
-                      <img src="{{ msg.file.url }}" class="rounded-lg mt-2 max-w-xs border border-gray-200 shadow" />
-                    {% elif file_url|slice:'-4:' == '.mp4' or file_url|slice:'-5:' == '.webm' or file_url|slice:'-4:' == '.ogg' %}
-                      <video controls class="rounded-lg mt-2 max-w-xs border border-gray-200 shadow">
+                    {% if '.jpg' in file_url or '.jpeg' in file_url or '.png' in file_url or '.gif' in file_url %}
+                      <img src="{{ msg.file.url }}" class="rounded-lg mt-2 max-w-full border border-gray-200 shadow" />
+                    {% elif '.mp4' in file_url or '.webm' in file_url or '.ogg' in file_url %}
+                      <video controls class="rounded-lg mt-2 max-w-full border border-gray-200 shadow">
                         <source src="{{ msg.file.url }}">
                       </video>
                     {% else %}
-                      <a href="{{ msg.file.url }}" target="_blank" class="text-blue-500 underline block mt-2">Download file</a>
+                      <a href="{{ msg.file.url }}" target="_blank" class="text-blue-500 underline block mt-2 text-xs lg:text-sm">Download file</a>
                     {% endif %}
                   {% endwith %}
                 {% endif %}
@@ -108,23 +123,6 @@
                 <span>{{ msg.timestamp|timesince }} ago</span>
                 {% if msg.edited %}
                   <span class="text-gray-400">(edited)</span>
-                {% endif %}
-                
-                <!-- Reaction buttons -->
-                {% for emoji in emojis %}
-                  <button class="emoji-btn bg-white border border-gray-200 rounded-full px-1 hover:bg-gray-50 transition text-xs"
-                          data-message-id="{{ msg.id }}"
-                          data-emoji="{{ emoji }}">
-                    {{ emoji }} <span class="emoji-count ml-1">0</span>
-                  </button>
-                {% endfor %}
-                
-                {% if request.user == msg.user %}
-                  <a href="{% url 'edit_message' msg.id %}" class="hover:text-gray-700">Edit</a>
-                  <form action="{% url 'delete_message' msg.id %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="hover:text-gray-700">Delete</button>
-                  </form>
                 {% endif %}
               </div>
             </div>
@@ -135,18 +133,18 @@
     </div>
 
     <!-- Message input -->
-    <div class="bg-white border-t border-gray-200 p-4">
+    <div class="bg-white border-t border-gray-200 p-2 lg:p-4">
       <form method="post" enctype="multipart/form-data" class="max-w-3xl mx-auto" id="message-form">
         {% csrf_token %}
-        <div class="flex items-center space-x-2">
-          <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="flex items-end space-x-2">
+          <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-gray-700 p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 lg:h-6 lg:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
             </svg>
             <input id="group-file-input" type="file" name="file" class="hidden">
           </label>
-          <textarea name="content" rows="1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Message #{{ group.name }}" id="message-input"></textarea>
-          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          <textarea name="content" rows="1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="Message #{{ group.name }}" id="message-input"></textarea>
+          <button type="submit" class="px-3 py-2 lg:px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm">
             Send
           </button>
         </div>
@@ -155,90 +153,103 @@
   </div>
 </div>
 
-<!-- WebSocket and reaction handling -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const chatMessages = document.getElementById('chat-messages');
   const messageForm = document.getElementById('message-form');
   const messageInput = document.getElementById('message-input');
   
-  // Connect to WebSocket
-  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-  const socket = new WebSocket(
-    protocol + window.location.host + '/ws/group/{{ group.id }}/'
-  );
+  // Mobile menu toggle
+  mobileMenuBtn.addEventListener('click', function() {
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+  });
   
-  // Handle incoming messages
-  socket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    const messageDiv = document.createElement('div');
-    
-    // Format the message HTML (similar to your template)
-    messageDiv.innerHTML = `
-      <div class="flex mb-4 justify-start" data-message-id="${data.message_id}">
-        <div class="flex max-w-xs lg:max-w-md">
-          ${data.user_avatar ? 
-            `<img src="${data.user_avatar}" class="w-10 h-10 rounded-full mr-3 flex-shrink-0" alt="${data.sender}">` : 
-            `<div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-3">${data.sender.charAt(0)}</div>`
-          }
-          <div>
-            <div class="text-sm font-medium text-gray-900 mb-1">${data.sender}</div>
-            <div class="bg-white border border-gray-200 rounded-lg p-3">
-              <div class="text-sm">${data.content}</div>
-            </div>
-            <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500">
-              <span>just now</span>
-              {% for emoji in emojis %}
-                <button class="emoji-btn bg-white border border-gray-200 rounded-full px-1 hover:bg-gray-50 transition text-xs"
-                        data-message-id="${data.message_id}"
-                        data-emoji="{{ emoji }}">
-                  {{ emoji }} <span class="emoji-count ml-1">0</span>
-                </button>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    chatMessages.insertBefore(messageDiv, chatMessages.firstChild);
-  };
-  
-  // Handle emoji reactions
-  document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('emoji-btn') || e.target.closest('.emoji-btn')) {
-      const btn = e.target.classList.contains('emoji-btn') ? e.target : e.target.closest('.emoji-btn');
-      const messageId = btn.dataset.messageId;
-      const emoji = btn.dataset.emoji;
-      
-      // Update UI immediately
-      const countSpan = btn.querySelector('.emoji-count');
-      const currentCount = parseInt(countSpan.textContent) || 0;
-      countSpan.textContent = currentCount + 1;
-      
-      // Send reaction to server
-      fetch(`/messages/${messageId}/react/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({emoji: emoji})
-      }).then(response => response.json())
-        .then(data => {
-          if (!data.success) {
-            // Revert UI if failed
-            countSpan.textContent = currentCount;
-          }
-        });
-    }
+  overlay.addEventListener('click', function() {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
   });
   
   // Auto-resize textarea
   messageInput.addEventListener('input', function() {
     this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
   });
+  
+  // Form submission
+  messageForm.addEventListener('submit', function(e) {
+    const content = messageInput.value.trim();
+    const file = document.getElementById('group-file-input').files[0];
+    
+    if (!content && !file) {
+      e.preventDefault();
+      alert('Please enter a message or select a file.');
+    }
+  });
+  
+  // Scroll to bottom of messages
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  
+  // WebSocket connection (if available)
+  if (typeof WebSocket !== 'undefined') {
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      const socket = new WebSocket(
+        protocol + window.location.host + '/ws/group/{{ group.id }}/'
+      );
+      
+      socket.onmessage = function(e) {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex mb-4 justify-start';
+            messageDiv.setAttribute('data-message-id', data.message.id || '');
+            
+            messageDiv.innerHTML = `
+              <div class="flex max-w-xs lg:max-w-md w-full">
+                <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs lg:text-sm font-bold mr-2 lg:mr-3">
+                  ${(data.message.sender || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs lg:text-sm font-medium text-gray-900 mb-1">${data.message.sender || 'Unknown'}</div>
+                  <div class="bg-white border border-gray-200 rounded-lg p-2 lg:p-3">
+                    <div class="text-xs lg:text-sm break-words">${(data.message.content || '').replace(/\n/g, '<br>')}</div>
+                  </div>
+                  <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500">
+                    <span>just now</span>
+                  </div>
+                </div>
+              </div>
+            `;
+            
+            const messagesContainer = chatMessages.querySelector('.max-w-3xl');
+            if (messagesContainer) {
+              messagesContainer.appendChild(messageDiv);
+              scrollToBottom();
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+        }
+      };
+      
+      socket.onerror = function(error) {
+        console.error('WebSocket error:', error);
+      };
+      
+    } catch (error) {
+      console.error('WebSocket connection failed:', error);
+    }
+  }
+  
+  // Initial scroll to bottom
+  scrollToBottom();
 });
 </script>
 {% endblock %}

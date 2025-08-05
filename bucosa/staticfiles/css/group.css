@@ -1,0 +1,22 @@
+@media (max-width: 1024px) {
+  .max-w-xs {
+    max-width: calc(100vw - 6rem);
+  }
+}
+
+#message-input:focus {
+  max-height: 120px;
+}
+
+/* Smooth transitions */
+#sidebar {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Fix for mobile viewport */
+@media (max-width: 768px) {
+  .h-screen {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+}
