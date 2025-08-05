@@ -471,7 +471,7 @@ def group_chat(request, pk):
         return HttpResponseForbidden('You must be a member to view the chat.')
     
     # Optimize message loading with pagination
-    messages_qs = GroupMessage.objects.filter(group=group).select_related('user').prefetch_related('reactions').order_by('timestamp')[:50]
+    messages_qs = GroupMessage.objects.filter(...)
     
     emojis = ['👍', '❤️', '😂']
     

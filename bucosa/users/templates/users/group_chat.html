@@ -1,18 +1,22 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
+<head>
+  <link rel="stylesheet" href="{% static 'css/group.css'%}">
+</head>
 <div class="flex h-screen bg-gray-100">
   <!-- Left sidebar - Members list -->
   <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
     <div class="p-4 border-b border-gray-200">
       <h2 class="text-xl font-bold text-gray-800">{{ group.name }}</h2>
-      <p class="text-sm text-gray-500">{{ members|length }} members</p>
+      <p class="text-sm text-gray-500">{{ group.members.count }} members</p>
     </div>
     <div class="flex-1 overflow-y-auto">
       <div class="p-4">
         <h3 class="text-sm font-semibold text-gray-500 mb-2">ADMINS</h3>
         <ul>
-          {% for admin in group_profile.admins.all %}
+          {% for admin in group.admins.all %}
           <li class="flex items-center py-2">
             {% if admin.profile and admin.profile.profile_image %}
               <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-2" alt="{{ admin.username }}">
@@ -27,21 +31,18 @@
       <div class="p-4 border-t border-gray-200">
         <h3 class="text-sm font-semibold text-gray-500 mb-2">MEMBERS</h3>
         <ul>
-          {% for user in members %}
+          {% for member in group.members.all %}
           <li class="flex items-center py-2">
-            {% if user.profile and user.profile.profile_image %}
-              <img src="{{ user.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-2" alt="{{ user.username }}">
+            {% if member.profile and member.profile.profile_image %}
+              <img src="{{ member.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-2" alt="{{ member.username }}">
             {% else %}
-              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-2">{{ user.username|first }}</div>
+              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-2">{{ member.username|first }}</div>
             {% endif %}
-            <span class="text-gray-800">{{ user.username }}</span>
+            <span class="text-gray-800">{{ member.username }}</span>
           </li>
           {% endfor %}
         </ul>
       </div>
-    </div>
-    <div class="p-4 border-t border-gray-200">
-      <a href="{% url 'users:group_profile' group.id %}" class="text-blue-500 hover:text-blue-700 text-sm font-medium">Group Settings</a>
     </div>
   </div>
 
@@ -52,16 +53,16 @@
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">{{ group.name }}</h1>
-          <p class="text-gray-500">{{ group_profile.description }}</p>
+          <p class="text-gray-500">{{ group.description }}</p>
         </div>
         <div class="flex space-x-2">
-          {% if request.user in members %}
-            <form action="{% url 'users:leave_group' group.id %}" method="post" class="inline">
+          {% if request.user in group.members.all %}
+            <form action="{% url 'leave_group' group.id %}" method="post" class="inline">
               {% csrf_token %}
               <button type="submit" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 text-sm font-medium">Leave Group</button>
             </form>
           {% else %}
-            <form action="{% url 'users:join_group' group.id %}" method="post" class="inline">
+            <form action="{% url 'join_group' group.id %}" method="post" class="inline">
               {% csrf_token %}
               <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm font-medium">Join Group</button>
             </form>
@@ -71,10 +72,10 @@
     </div>
 
     <!-- Messages area -->
-    <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
+    <div class="flex-1 overflow-y-auto p-4 bg-gray-50" id="chat-messages">
       <div class="max-w-3xl mx-auto">
         {% for msg in messages %}
-        <div class="flex mb-4 {% if msg.user == request.user %}justify-end{% endif %}">
+        <div class="flex mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
           <div class="flex max-w-xs lg:max-w-md">
             {% if msg.user != request.user %}
               {% if msg.user.profile and msg.user.profile.profile_image %}
@@ -105,17 +106,22 @@
               </div>
               <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 {% if msg.user == request.user %}justify-end{% endif %}">
                 <span>{{ msg.timestamp|timesince }} ago</span>
-                {% for emoji, count in msg.reaction_tuples %}
-                  <form action="{% url 'users:react_to_message' msg.id emoji %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="bg-white border border-gray-200 rounded-full px-1 hover:bg-gray-50 transition text-xs {% if msg.user_reaction == emoji %}font-bold text-blue-600{% endif %}">
-                      {{ emoji }} <span class="ml-1">{{ count }}</span>
-                    </button>
-                  </form>
+                {% if msg.edited %}
+                  <span class="text-gray-400">(edited)</span>
+                {% endif %}
+                
+                <!-- Reaction buttons -->
+                {% for emoji in emojis %}
+                  <button class="emoji-btn bg-white border border-gray-200 rounded-full px-1 hover:bg-gray-50 transition text-xs"
+                          data-message-id="{{ msg.id }}"
+                          data-emoji="{{ emoji }}">
+                    {{ emoji }} <span class="emoji-count ml-1">0</span>
+                  </button>
                 {% endfor %}
+                
                 {% if request.user == msg.user %}
-                  <a href="{% url 'users:edit_group_message' msg.id %}" class="hover:text-gray-700">Edit</a>
-                  <form action="{% url 'users:delete_group_message' msg.id %}" method="post" style="display:inline;">
+                  <a href="{% url 'edit_message' msg.id %}" class="hover:text-gray-700">Edit</a>
+                  <form action="{% url 'delete_message' msg.id %}" method="post" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" class="hover:text-gray-700">Delete</button>
                   </form>
@@ -130,7 +136,7 @@
 
     <!-- Message input -->
     <div class="bg-white border-t border-gray-200 p-4">
-      <form method="post" enctype="multipart/form-data" class="max-w-3xl mx-auto">
+      <form method="post" enctype="multipart/form-data" class="max-w-3xl mx-auto" id="message-form">
         {% csrf_token %}
         <div class="flex items-center space-x-2">
           <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-gray-700">
@@ -139,7 +145,7 @@
             </svg>
             <input id="group-file-input" type="file" name="file" class="hidden">
           </label>
-          <textarea name="content" rows="1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Message #{{ group.name }}"></textarea>
+          <textarea name="content" rows="1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Message #{{ group.name }}" id="message-input"></textarea>
           <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
             Send
           </button>
@@ -148,4 +154,91 @@
     </div>
   </div>
 </div>
+
+<!-- WebSocket and reaction handling -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const chatMessages = document.getElementById('chat-messages');
+  const messageForm = document.getElementById('message-form');
+  const messageInput = document.getElementById('message-input');
+  
+  // Connect to WebSocket
+  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+  const socket = new WebSocket(
+    protocol + window.location.host + '/ws/group/{{ group.id }}/'
+  );
+  
+  // Handle incoming messages
+  socket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    const messageDiv = document.createElement('div');
+    
+    // Format the message HTML (similar to your template)
+    messageDiv.innerHTML = `
+      <div class="flex mb-4 justify-start" data-message-id="${data.message_id}">
+        <div class="flex max-w-xs lg:max-w-md">
+          ${data.user_avatar ? 
+            `<img src="${data.user_avatar}" class="w-10 h-10 rounded-full mr-3 flex-shrink-0" alt="${data.sender}">` : 
+            `<div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-3">${data.sender.charAt(0)}</div>`
+          }
+          <div>
+            <div class="text-sm font-medium text-gray-900 mb-1">${data.sender}</div>
+            <div class="bg-white border border-gray-200 rounded-lg p-3">
+              <div class="text-sm">${data.content}</div>
+            </div>
+            <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500">
+              <span>just now</span>
+              {% for emoji in emojis %}
+                <button class="emoji-btn bg-white border border-gray-200 rounded-full px-1 hover:bg-gray-50 transition text-xs"
+                        data-message-id="${data.message_id}"
+                        data-emoji="{{ emoji }}">
+                  {{ emoji }} <span class="emoji-count ml-1">0</span>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    chatMessages.insertBefore(messageDiv, chatMessages.firstChild);
+  };
+  
+  // Handle emoji reactions
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('emoji-btn') || e.target.closest('.emoji-btn')) {
+      const btn = e.target.classList.contains('emoji-btn') ? e.target : e.target.closest('.emoji-btn');
+      const messageId = btn.dataset.messageId;
+      const emoji = btn.dataset.emoji;
+      
+      // Update UI immediately
+      const countSpan = btn.querySelector('.emoji-count');
+      const currentCount = parseInt(countSpan.textContent) || 0;
+      countSpan.textContent = currentCount + 1;
+      
+      // Send reaction to server
+      fetch(`/messages/${messageId}/react/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({emoji: emoji})
+      }).then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            // Revert UI if failed
+            countSpan.textContent = currentCount;
+          }
+        });
+    }
+  });
+  
+  // Auto-resize textarea
+  messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
+});
+</script>
 {% endblock %}
