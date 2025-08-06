@@ -95,15 +95,11 @@
   <nav id="mobileNav">
     <div class="nav-expanded" id="expandedMenu">
       <div class="nav-expanded-grid">
-        <a href="{% url 'users:profile' user.id %}" class="nav-expanded-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-          <span class="material-icons nav-icon">person_outline</span>
-          <span class="nav-label">Profile</span>
+        <a href="{% url 'users:search_users' %}" class="nav-item {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
+          <span class="material-icons nav-icon">search</span>
+          <span class="nav-label">Search</span>
         </a>
-        <a href="#" class="nav-expanded-item" id="mobile-notifications">
-          <span class="material-icons nav-icon">notifications_none</span>
-          <span class="nav-label">Notifications</span>
-          <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
-        </a>
+
         <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}">
           <span class="material-symbols-outlined nav-icon">church</span>
           <span class="nav-label">Fellowship</span>
@@ -112,7 +108,7 @@
           <span class="material-icons nav-icon">groups</span>
           <span class="nav-label">Bucosa</span>
         </a>
-        <a href="#" class="nav-expanded-item">
+        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item">
           <span class="material-icons nav-icon">settings</span>
           <span class="nav-label">Settings</span>
         </a>
@@ -128,11 +124,11 @@
         <span class="material-icons nav-icon">home</span>
         <span class="nav-label">Home</span>
       </a>
-
-      <a href="{% url 'users:search_users' %}" class="nav-item {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
-        <span class="material-icons nav-icon">search</span>
-        <span class="nav-label">Search</span>
-      </a>
+       <a href="{% url 'users:profile' user.id %}" class="nav-expanded-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+          <span class="material-icons nav-icon">person_outline</span>
+          <span class="nav-label">Profile</span>
+        </a>
+      
 
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <span class="material-icons nav-icon">add</span>
@@ -144,10 +140,12 @@
         <span class="nav-label">Messages</span>
       </a>
 
-      <a href="#" class="nav-item">
-        <span class="material-icons nav-icon">analytics</span>
-        <span class="nav-label">Analytics</span>
+      <a href="#" class="nav-expanded-item" id="mobile-notifications">
+          <span class="material-icons nav-icon">notifications_none</span>
+          <span class="nav-label">Notifications</span>
+          <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
       </a>
+
     </div>
   </nav>
 
