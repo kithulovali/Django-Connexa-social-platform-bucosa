@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="manifest" href="{% static 'manifest.json' %}" />
   <meta name="theme-color" content="#22223b" />
@@ -39,6 +41,7 @@
       });
     }
   </script>
+
 </head>
 <body class="bg-white min-h-screen transition-colors duration-300 text-black" id="body-root">
 
@@ -47,285 +50,190 @@
     Install Bucosa App
   </button>
 
-  <div class="flex min-h-screen">
-    <!-- Desktop Sidebar Navigation -->
-    <nav class="hidden md:flex bg-black w-20 lg:w-56 flex-col py-8 px-2 lg:px-4 items-center lg:items-start">
-      <ul class="space-y-6 w-full">
-        <li>
-          <a href="{% url 'activities:home' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'home' %}bg-gray-900{% endif %}">
-            <span class="material-icons">home</span>
-            <span class="hidden lg:inline">Home</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'users:search_users' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'search_users' %}bg-gray-900{% endif %}">
-            <span class="material-icons">explore</span>
-            <span class="hidden lg:inline">Explore</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'users:private_messages' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'private_messages' %}bg-gray-900{% endif %}">
-            <span class="material-icons">mail</span>
-            <span class="hidden lg:inline">Messages</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'users:profile' user.id %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'profile' %}bg-gray-900{% endif %}">
-            <span class="material-icons">person</span>
-            <span class="hidden lg:inline">Profile</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'fellowship_detail' 1 %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-gray-900{% endif %}">
-            <span class="material-symbols-outlined">church</span>
-            <span class="hidden lg:inline">Fellowship</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'bucosa_main' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full">
-            <span class="material-icons">groups</span>
-            <span class="hidden lg:inline">Bucosa</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'users:logout' %}" class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full">
-            <span class="material-icons">logout</span>
-            <span class="hidden lg:inline">Logout</span>
-          </a>
-        </li>
-        <li id="notification-bell-sidebar" style="position:relative;">
-          <div class="flex items-center gap-3 px-3 py-3 rounded-full hover:bg-gray-900 transition text-white font-semibold text-lg w-full cursor-pointer" id="notificationDropdown">
-            <span class="material-icons">notifications</span>
-            <span class="hidden lg:inline">Notifications</span>
-            <span id="notification-badge" style="display:none;position:absolute;top:10px;right:10px;background:red;color:white;border-radius:50%;padding:2px 6px;font-size:12px;">0</span>
-          </div>
-          <div id="notification-dropdown" style="display:none;position:absolute;left:60px;top:0;background:#fff;border:1px solid #ccc;width:300px;max-height:400px;overflow-y:auto;z-index:1000;"></div>
-        </li>
-      </ul>
-    </nav>
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="rounded-xl p-6 transition-colors duration-300 shadow">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50">
-      <!-- Main Bottom Navigation Bar -->
-      <div class="bg-black/95 backdrop-blur-lg border-t border-gray-800 mobile-nav-safe">
-        <div class="flex items-center justify-around px-2 py-2">
-          <!-- Home -->
-          <a href="{% url 'activities:home' %}" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 {% if request.resolver_match.url_name == 'home' %}bg-blue-600/20 text-blue-400{% else %}text-gray-400 hover:text-white hover:bg-gray-800/50{% endif %}">
-            <span class="material-icons text-2xl">home</span>
-            <span class="text-xs font-medium">Home</span>
-          </a>
+  <!-- Unified Responsive Navigation Bar -->
+  <nav id="mainNav">
+    <ul class="nav nav-pills nav-links-container">
+      <!-- Primary visible links on mobile -->
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'activities:home' %}" data-link-id="home">
+          <span class="material-icons">home</span>
+          <span class="nav-text hidden md:inline">Home</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" href="{% url 'users:search_users' %}" data-link-id="explore">
+          <span class="material-icons">explore</span>
+          <span class="nav-text hidden md:inline">Explore</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" href="{% url 'users:private_messages' %}" data-link-id="messages">
+          <span class="material-icons">mail</span>
+          <span class="nav-text hidden md:inline">Messages</span>
+        </a>
+      </li>
+      
+      <!-- Toggle button (leaf icon) - only visible on mobile -->
+      <li class="nav-item md:hidden">
+        <a class="nav-link toggle-button" href="#" id="toggleLeaf">
+          <i class="fas fa-ellipsis-h"></i>
+        </a>
+      </li>
 
-          <!-- Explore -->
-          <a href="{% url 'users:search_users' %}" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 {% if request.resolver_match.url_name == 'search_users' %}bg-blue-600/20 text-blue-400{% else %}text-gray-400 hover:text-white hover:bg-gray-800/50{% endif %}">
-            <span class="material-icons text-2xl">explore</span>
-            <span class="text-xs font-medium">Explore</span>
-          </a>
+      <!-- Hidden links on mobile, always visible on desktop -->
+      <li class="nav-item hidden-mobile-link">
+        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'users:profile' user.id %}" data-link-id="profile">
+          <span class="material-icons">person</span>
+          <span class="nav-text hidden md:inline">Profile</span>
+        </a>
+      </li>
+      <li class="nav-item hidden-mobile-link">
+        <a class="nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" href="{% url 'fellowship_detail' 1 %}" data-link-id="fellowship">
+          <span class="material-symbols-outlined">church</span>
+          <span class="nav-text hidden md:inline">Fellowship</span>
+        </a>
+      </li>
+      <li class="nav-item hidden-mobile-link">
+        <a class="nav-link" href="{% url 'bucosa_main' %}" data-link-id="bucosa">
+          <span class="material-icons">groups</span>
+          <span class="nav-text hidden md:inline">Bucosa</span>
+        </a>
+      </li>
+      <li class="nav-item hidden-mobile-link" id="notification-nav-item">
+        <a class="nav-link" href="#" data-link-id="notifications" id="notificationDropdown">
+          <span class="material-icons">notifications</span>
+          <span class="nav-text hidden md:inline">Notifications</span>
+          <span id="notification-badge" class="notification-badge" style="display:none;">0</span>
+        </a>
+        <div id="notification-dropdown" style="display:none;position:absolute;left:60px;top:0;background:#fff;border:1px solid #ccc;width:300px;max-height:400px;overflow-y:auto;z-index:1000;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
+      </li>
+      <li class="nav-item hidden-mobile-link">
+        <a class="nav-link" href="{% url 'users:logout' %}" data-link-id="logout">
+          <span class="material-icons">logout</span>
+          <span class="nav-text hidden md:inline">Logout</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 
-          <!-- Messages -->
-          <a href="{% url 'users:private_messages' %}" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 {% if request.resolver_match.url_name == 'private_messages' %}bg-blue-600/20 text-blue-400{% else %}text-gray-400 hover:text-white hover:bg-gray-800/50{% endif %}">
-            <span class="material-icons text-2xl">mail</span>
-            <span class="text-xs font-medium">Messages</span>
-          </a>
-
-          <!-- More Menu Toggle -->
-          <button id="mobile-more-btn" class="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 relative">
-            <span class="material-icons text-2xl" id="more-icon">more_horiz</span>
-            <span class="text-xs font-medium">More</span>
-            <!-- Notification Badge for More Menu -->
-            <span id="mobile-notification-badge" style="display:none;position:absolute;top:4px;right:8px;background:red;color:white;border-radius:50%;padding:2px 6px;font-size:10px;">0</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Expanded More Menu -->
-      <div id="mobile-more-menu" class="absolute bottom-full left-0 right-0 bg-black/95 backdrop-blur-lg border-t border-gray-800 transform translate-y-full opacity-0 transition-all duration-300 ease-out" style="display: none;">
-        <div class="px-4 py-6 space-y-2">
-          <!-- Profile -->
-          <a href="{% url 'users:profile' user.id %}" class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 {% if request.resolver_match.url_name == 'profile' %}bg-blue-600/20 text-blue-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800/50{% endif %}">
-            <span class="material-icons text-2xl">person</span>
-            <span class="font-medium text-lg">Profile</span>
-          </a>
-
-          <!-- Fellowship -->
-          <a href="{% url 'fellowship_detail' 1 %}" class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-blue-600/20 text-blue-400{% else %}text-gray-300 hover:text-white hover:bg-gray-800/50{% endif %}">
-            <span class="material-symbols-outlined text-2xl">church</span>
-            <span class="font-medium text-lg">Fellowship</span>
-          </a>
-
-          <!-- Bucosa -->
-          <a href="{% url 'bucosa_main' %}" class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 text-gray-300 hover:text-white hover:bg-gray-800/50">
-            <span class="material-icons text-2xl">groups</span>
-            <span class="font-medium text-lg">Bucosa</span>
-          </a>
-
-          <!-- Notifications -->
-          <div id="mobile-notification-item" class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 text-gray-300 hover:text-white hover:bg-gray-800/50 cursor-pointer relative">
-            <span class="material-icons text-2xl">notifications</span>
-            <span class="font-medium text-lg">Notifications</span>
-            <span id="mobile-notification-badge-menu" style="display:none;position:absolute;left:28px;top:8px;background:red;color:white;border-radius:50%;padding:2px 6px;font-size:10px;">0</span>
-          </div>
-
-          <!-- Logout -->
-          <a href="{% url 'users:logout' %}" class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 text-red-400 hover:text-red-300 hover:bg-red-500/10">
-            <span class="material-icons text-2xl">logout</span>
-            <span class="font-medium text-lg">Logout</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Mobile Notification Dropdown -->
-      <div id="mobile-notification-dropdown" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;background:rgba(0,0,0,0.95);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;max-height:400px;overflow-y:auto;z-index:1000;padding:16px;">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-white font-bold text-lg">Notifications</h3>
-          <button id="close-mobile-notifications" class="text-gray-400 hover:text-white transition-colors">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
-        <div id="mobile-notification-content">
-          <!-- Notifications will be loaded here -->
-        </div>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="flex-1 container mx-auto px-4 pb-20 md:pb-0">
-      <div class="rounded-xl p-6 transition-colors duration-300 shadow">
-        {% block content %}{% endblock %}
-      </div>
-    </main>
-  </div>
-
-  <!-- JavaScript for Mobile Navigation -->
+  <!-- JavaScript for Navigation -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const moreBtn = document.getElementById('mobile-more-btn');
-      const moreMenu = document.getElementById('mobile-more-menu');
-      const moreIcon = document.getElementById('more-icon');
-      const mobileNotificationItem = document.getElementById('mobile-notification-item');
-      const mobileNotificationDropdown = document.getElementById('mobile-notification-dropdown');
-      const closeMobileNotifications = document.getElementById('close-mobile-notifications');
-      
-      let isMoreMenuOpen = false;
+      const mainNav = document.getElementById('mainNav');
+      const navLinks = document.querySelectorAll('#mainNav .nav-link');
+      const toggleLeaf = document.getElementById('toggleLeaf');
 
-      // Toggle More Menu
-      moreBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        if (!isMoreMenuOpen) {
-          // Open menu
-          moreMenu.style.display = 'block';
-          requestAnimationFrame(() => {
-            moreMenu.style.transform = 'translateY(0)';
-            moreMenu.style.opacity = '1';
-          });
-          moreIcon.textContent = 'close';
-          moreBtn.classList.add('text-blue-400', 'bg-blue-600/20');
-          isMoreMenuOpen = true;
-        } else {
-          // Close menu
-          moreMenu.style.transform = 'translateY(100%)';
-          moreMenu.style.opacity = '0';
-          setTimeout(() => {
-            moreMenu.style.display = 'none';
-          }, 300);
-          moreIcon.textContent = 'more_horiz';
-          moreBtn.classList.remove('text-blue-400', 'bg-blue-600/20');
-          isMoreMenuOpen = false;
-        }
-      });
-
-      // Close more menu when clicking outside
-      document.addEventListener('click', function(e) {
-        if (isMoreMenuOpen && !moreBtn.contains(e.target) && !moreMenu.contains(e.target)) {
-          moreMenu.style.transform = 'translateY(100%)';
-          moreMenu.style.opacity = '0';
-          setTimeout(() => {
-            moreMenu.style.display = 'none';
-          }, 300);
-          moreIcon.textContent = 'more_horiz';
-          moreBtn.classList.remove('text-blue-400', 'bg-blue-600/20');
-          isMoreMenuOpen = false;
-        }
-      });
-
-      // Mobile Notifications
-      mobileNotificationItem.addEventListener('click', function() {
-        mobileNotificationDropdown.style.display = 'block';
-        // Close more menu
-        moreMenu.style.transform = 'translateY(100%)';
-        moreMenu.style.opacity = '0';
-        setTimeout(() => {
-          moreMenu.style.display = 'none';
-        }, 300);
-        moreIcon.textContent = 'more_horiz';
-        moreBtn.classList.remove('text-blue-400', 'bg-blue-600/20');
-        isMoreMenuOpen = false;
-      });
-
-      // Close mobile notifications
-      closeMobileNotifications.addEventListener('click', function() {
-        mobileNotificationDropdown.style.display = 'none';
-      });
-
-      // Close mobile notifications when clicking outside
-      document.addEventListener('click', function(e) {
-        if (mobileNotificationDropdown.style.display === 'block' && 
-            !mobileNotificationDropdown.contains(e.target) && 
-            !mobileNotificationItem.contains(e.target)) {
-          mobileNotificationDropdown.style.display = 'none';
-        }
-      });
-
-      // Handle escape key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          if (isMoreMenuOpen) {
-            moreMenu.style.transform = 'translateY(100%)';
-            moreMenu.style.opacity = '0';
-            setTimeout(() => {
-              moreMenu.style.display = 'none';
-            }, 300);
-            moreIcon.textContent = 'more_horiz';
-            moreBtn.classList.remove('text-blue-400', 'bg-blue-600/20');
-            isMoreMenuOpen = false;
-          }
-          if (mobileNotificationDropdown.style.display === 'block') {
-            mobileNotificationDropdown.style.display = 'none';
-          }
-        }
-      });
-
-      // Sync notification badges (you can integrate this with your existing notification system)
-      function syncNotificationBadges() {
-        const desktopBadge = document.getElementById('notification-badge');
-        const mobileBadge = document.getElementById('mobile-notification-badge');
-        const mobileMenuBadge = document.getElementById('mobile-notification-badge-menu');
-        
-        // If you have notification count, update all badges
-        // Example: updateBadges(notificationCount);
+      // Function to check if it's a mobile view
+      function isMobileView() {
+        return window.matchMedia("(max-width: 767.98px)").matches;
       }
 
-      function updateBadges(count) {
-        const badges = [
-          document.getElementById('notification-badge'),
-          document.getElementById('mobile-notification-badge'),
-          document.getElementById('mobile-notification-badge-menu')
-        ];
-        
-        badges.forEach(badge => {
-          if (badge) {
-            if (count > 0) {
-              badge.textContent = count;
-              badge.style.display = 'block';
+      // Function to set the active link based on current URL
+      function setActiveLinkBasedOnUrl() {
+        const currentPath = window.location.pathname;
+        navLinks.forEach(link => {
+          if (link !== toggleLeaf) {
+            const href = link.getAttribute('href');
+            if (href && currentPath === href) {
+              link.classList.add('active');
             } else {
-              badge.style.display = 'none';
+              link.classList.remove('active');
             }
           }
         });
       }
 
-      // Initialize
-      syncNotificationBadges();
+      // Set initial active link
+      setActiveLinkBasedOnUrl();
+
+      // Handle clicks on regular navigation links (excluding the toggle)
+      navLinks.forEach(link => {
+        if (link !== toggleLeaf && !link.closest('#notification-nav-item')) {
+          link.addEventListener('click', function(event) {
+            // Don't prevent default for actual navigation links
+            
+            // Remove 'active' class from all links except toggle
+            navLinks.forEach(l => {
+              if (l !== toggleLeaf) {
+                l.classList.remove('active');
+              }
+            });
+
+            // Add 'active' class to the clicked link
+            this.classList.add('active');
+
+            // If in mobile view and hidden links are shown, hide them
+            if (isMobileView() && mainNav.classList.contains('show-all-links')) {
+              setTimeout(() => {
+                mainNav.classList.remove('show-all-links');
+                toggleLeaf.classList.remove('active');
+              }, 200);
+            }
+          });
+        }
+      });
+
+      // Handle click on the toggle button
+      if (toggleLeaf) {
+        toggleLeaf.addEventListener('click', function(event) {
+          event.preventDefault();
+          if (isMobileView()) {
+            mainNav.classList.toggle('show-all-links');
+            this.classList.toggle('active');
+          }
+        });
+      }
+
+      // Handle window resize
+      window.addEventListener('resize', function() {
+        if (!isMobileView()) {
+          mainNav.classList.remove('show-all-links');
+          if (toggleLeaf) {
+            toggleLeaf.classList.remove('active');
+          }
+        }
+      });
+
+      // Notification handling
+      const notificationDropdown = document.getElementById('notificationDropdown');
+      const notificationDropdownMenu = document.getElementById('notification-dropdown');
+
+      if (notificationDropdown && notificationDropdownMenu) {
+        notificationDropdown.addEventListener('click', function(event) {
+          event.preventDefault();
+          const isVisible = notificationDropdownMenu.style.display === 'block';
+          notificationDropdownMenu.style.display = isVisible ? 'none' : 'block';
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+          if (!event.target.closest('#notification-nav-item')) {
+            notificationDropdownMenu.style.display = 'none';
+          }
+        });
+      }
+
+      // Function to update notification badges
+      function updateNotificationBadges(count) {
+        const badge = document.getElementById('notification-badge');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      }
+
+      // Example: updateNotificationBadges(3);
     });
   </script>
 
