@@ -9,7 +9,7 @@
       <div class="w-full space-y-6">
         {% for item_type, item in combined_feed %}
           {% if item_type == 'post' %}
-            <article class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden mobile-post">
+            <article class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden mobile-post" id="post-{{ item.id }}">
               {% if item.repost_of %}
                 <div class="px-4 sm:px-6 pt-4 pb-2">
                   <div class="flex items-center gap-2 text-sm text-blue-600 mb-3">
@@ -125,13 +125,16 @@
               </div>
               <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50">
                 <div class="flex items-center justify-between">
-                  <form action="{% if item.repost_of %}{% url 'activities:like_post' item.repost_of.id %}{% else %}{% url 'activities:like_post' item.id %}{% endif %}" method="post" class="flex-1">
-                    {% csrf_token %}
-                    <button type="submit" class="group flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-red-500 w-full justify-center py-2 rounded-xl hover:bg-red-50">
-                      <span class="material-icons text-lg">favorite_border</span>
-                      <span class="font-medium text-sm sm:text-base">{{ item.likes.count }}</span>
-                    </button>
-                  </form>
+                  <button type="button" 
+                          class="like-btn group flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-red-500 w-full justify-center py-2 rounded-xl hover:bg-red-50 transition-colors"
+                          data-post-id="{{ item.id }}"
+                          data-liked="{% if user in item.likes.all %}true{% else %}false{% endif %}">
+                    <span class="material-icons text-lg like-icon">
+                      {% if user in item.likes.all %}favorite{% else %}favorite_border{% endif %}
+                    </span>
+                    <span class="font-medium text-sm sm:text-base like-count">{{ item.likes.count }}</span>
+                  </button>
+                  
                   <form action="{% if item.repost_of %}{% url 'activities:save_post' item.repost_of.id %}{% else %}{% url 'activities:save_post' item.id %}{% endif %}" method="post" class="flex-1">
                     {% csrf_token %}
                     <button type="submit" class="group flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-green-600 w-full justify-center py-2 rounded-xl hover:bg-green-50">
@@ -518,6 +521,70 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+  // AJAX Like functionality
+  document.querySelectorAll('.like-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const postId = this.getAttribute('data-post-id');
+      const isLiked = this.getAttribute('data-liked') === 'true';
+      const icon = this.querySelector('.like-icon');
+      const countElement = this.querySelector('.like-count');
+      let currentCount = parseInt(countElement.textContent);
+
+      // Optimistic UI update
+      if (isLiked) {
+        icon.textContent = 'favorite_border';
+        countElement.textContent = currentCount - 1;
+        this.setAttribute('data-liked', 'false');
+        this.classList.remove('text-red-500');
+        this.classList.add('text-gray-600');
+      } else {
+        icon.textContent = 'favorite';
+        countElement.textContent = currentCount + 1;
+        this.setAttribute('data-liked', 'true');
+        this.classList.add('text-red-500');
+        this.classList.remove('text-gray-600');
+      }
+
+      // Send AJAX request
+      fetch(`/activities/like_post/${postId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+      })
+      .then(response => {
+        if (!response.ok) {
+          // Revert UI if request fails
+          if (isLiked) {
+            icon.textContent = 'favorite';
+            countElement.textContent = currentCount;
+            this.setAttribute('data-liked', 'true');
+            this.classList.add('text-red-500');
+            this.classList.remove('text-gray-600');
+          } else {
+            icon.textContent = 'favorite_border';
+            countElement.textContent = currentCount;
+            this.setAttribute('data-liked', 'false');
+            this.classList.remove('text-red-500');
+            this.classList.add('text-gray-600');
+          }
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Update count with server value in case of discrepancies
+        countElement.textContent = data.likes_count;
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+    });
+  });
 });
 </script>
 {% endblock content %}
