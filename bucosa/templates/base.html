@@ -13,16 +13,13 @@
   <link rel="manifest" href="{% static 'manifest.json' %}" />
   <meta name="theme-color" content="#22223b" />
 
-  <!-- Firebase SDK (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
 
-  <!-- Global Scripts -->
   <script src="{% static 'js/theme-toggle.js' %}"></script>
   <script src="{% static 'js/pwa-install.js' %}"></script>
   <script src="{% static 'js/notifications.js' %}" defer></script>
 
-  <!-- Auth flag for JS -->
   <script>
     window.USER_IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
   </script>
@@ -30,7 +27,6 @@
 
   {% block extra_head %}{% endblock %}
 
-  <!-- Register one service worker only -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
@@ -44,12 +40,10 @@
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
-  <!-- PWA Install Button -->
   <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
     Install Bucosa App
   </button>
 
-  <!-- Desktop Sidebar -->
   <nav id="desktopSidebar">
     <div class="sidebar-header">
       <h1>Bucosa</h1>
@@ -98,9 +92,7 @@
     </div>
   </nav>
 
-  <!-- Mobile Navigation -->
   <nav id="mobileNav">
-    <!-- Expanded Menu (Hidden by default) -->
     <div class="nav-expanded" id="expandedMenu">
       <div class="nav-expanded-grid">
         <a href="{% url 'users:profile' user.id %}" class="nav-expanded-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
@@ -131,33 +123,27 @@
       </div>
     </div>
 
-    <!-- Main Navigation Bar -->
     <div class="nav-main-container">
-      <!-- Home -->
       <a href="{% url 'activities:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
         <span class="material-icons nav-icon">home</span>
         <span class="nav-label">Home</span>
       </a>
 
-      <!-- Search -->
       <a href="{% url 'users:search_users' %}" class="nav-item {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
         <span class="material-icons nav-icon">search</span>
         <span class="nav-label">Search</span>
       </a>
 
-      <!-- More (Center button) -->
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <span class="material-icons nav-icon">add</span>
         <span class="nav-label">More</span>
       </a>
 
-      <!-- Messages -->
       <a href="{% url 'users:private_messages' %}" class="nav-item {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}">
         <span class="material-icons nav-icon">chat_bubble_outline</span>
         <span class="nav-label">Messages</span>
       </a>
 
-      <!-- Analytics/Dashboard -->
       <a href="#" class="nav-item">
         <span class="material-icons nav-icon">analytics</span>
         <span class="nav-label">Analytics</span>
@@ -165,7 +151,6 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
   <main class="main-content">
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       {% block content %}
@@ -175,7 +160,6 @@
     </div>
   </main>
 
-  <!-- JavaScript -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const moreButton = document.getElementById('moreButton');
