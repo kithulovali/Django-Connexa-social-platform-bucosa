@@ -8,7 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="manifest" href="{% static 'manifest.json' %}" />
@@ -43,197 +42,251 @@
   </script>
 
 </head>
-<body class="bg-white min-h-screen transition-colors duration-300 text-black" id="body-root">
+<body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
   <!-- PWA Install Button -->
   <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
     Install Bucosa App
   </button>
 
+  <!-- Desktop Sidebar -->
+  <nav id="desktopSidebar">
+    <div class="sidebar-header">
+      <h1>Bucosa</h1>
+    </div>
+    <div class="sidebar-nav">
+      <a href="{% url 'activities:home' %}" class="sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+        <span class="material-icons nav-icon">home</span>
+        <span class="nav-label">Home</span>
+      </a>
+      <a href="{% url 'users:search_users' %}" class="sidebar-item {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
+        <span class="material-icons nav-icon">search</span>
+        <span class="nav-label">Search</span>
+      </a>
+      <a href="{% url 'users:private_messages' %}" class="sidebar-item {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}">
+        <span class="material-icons nav-icon">chat_bubble_outline</span>
+        <span class="nav-label">Messages</span>
+      </a>
+      <a href="#" class="sidebar-item" id="desktop-notifications">
+        <span class="material-icons nav-icon">notifications_none</span>
+        <span class="nav-label">Notifications</span>
+        <span id="desktop-notification-badge" class="notification-badge" style="display:none;">0</span>
+      </a>
+      <a href="{% url 'users:profile' user.id %}" class="sidebar-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+        <span class="material-icons nav-icon">person_outline</span>
+        <span class="nav-label">Profile</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Community</div>
+      <a href="{% url 'fellowship_detail' 1 %}" class="sidebar-item {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}">
+        <span class="material-symbols-outlined nav-icon">church</span>
+        <span class="nav-label">Fellowship</span>
+      </a>
+      <a href="{% url 'bucosa_main' %}" class="sidebar-item">
+        <span class="material-icons nav-icon">groups</span>
+        <span class="nav-label">Bucosa Main</span>
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <a href="{% url 'users:logout' %}" class="sidebar-item">
+        <span class="material-icons nav-icon">logout</span>
+        <span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation -->
+  <nav id="mobileNav">
+    <!-- Expanded Menu (Hidden by default) -->
+    <div class="nav-expanded" id="expandedMenu">
+      <div class="nav-expanded-grid">
+        <a href="{% url 'users:profile' user.id %}" class="nav-expanded-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+          <span class="material-icons nav-icon">person_outline</span>
+          <span class="nav-label">Profile</span>
+        </a>
+        <a href="#" class="nav-expanded-item" id="mobile-notifications">
+          <span class="material-icons nav-icon">notifications_none</span>
+          <span class="nav-label">Notifications</span>
+          <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
+        </a>
+        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}">
+          <span class="material-symbols-outlined nav-icon">church</span>
+          <span class="nav-label">Fellowship</span>
+        </a>
+        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item">
+          <span class="material-icons nav-icon">groups</span>
+          <span class="nav-label">Bucosa</span>
+        </a>
+        <a href="#" class="nav-expanded-item">
+          <span class="material-icons nav-icon">settings</span>
+          <span class="nav-label">Settings</span>
+        </a>
+        <a href="{% url 'users:logout' %}" class="nav-expanded-item">
+          <span class="material-icons nav-icon">logout</span>
+          <span class="nav-label">Logout</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <div class="nav-main-container">
+      <!-- Home -->
+      <a href="{% url 'activities:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+        <span class="material-icons nav-icon">home</span>
+        <span class="nav-label">Home</span>
+      </a>
+
+      <!-- Search -->
+      <a href="{% url 'users:search_users' %}" class="nav-item {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
+        <span class="material-icons nav-icon">search</span>
+        <span class="nav-label">Search</span>
+      </a>
+
+      <!-- More (Center button) -->
+      <a href="#" class="nav-item nav-more-btn" id="moreButton">
+        <span class="material-icons nav-icon">add</span>
+        <span class="nav-label">More</span>
+      </a>
+
+      <!-- Messages -->
+      <a href="{% url 'users:private_messages' %}" class="nav-item {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}">
+        <span class="material-icons nav-icon">chat_bubble_outline</span>
+        <span class="nav-label">Messages</span>
+      </a>
+
+      <!-- Analytics/Dashboard -->
+      <a href="#" class="nav-item">
+        <span class="material-icons nav-icon">analytics</span>
+        <span class="nav-label">Analytics</span>
+      </a>
+    </div>
+  </nav>
+
   <!-- Main Content -->
   <main class="main-content">
-    <div class="rounded-xl p-6 transition-colors duration-300 shadow">
-      {% block content %}{% endblock %}
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      {% block content %}
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">Welcome to Bucosa</h1>
+      <p class="text-gray-600">Your content goes here...</p>
+      {% endblock %}
     </div>
   </main>
 
-  <!-- Unified Responsive Navigation Bar -->
-  <nav id="mainNav">
-    <ul class="nav nav-pills nav-links-container">
-      <!-- Primary visible links on mobile -->
-      <li class="nav-item">
-        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'activities:home' %}" data-link-id="home">
-          <span class="material-icons">home</span>
-          <span class="nav-text hidden md:inline">Home</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" href="{% url 'users:search_users' %}" data-link-id="explore">
-          <span class="material-icons">explore</span>
-          <span class="nav-text hidden md:inline">Explore</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" href="{% url 'users:private_messages' %}" data-link-id="messages">
-          <span class="material-icons">mail</span>
-          <span class="nav-text hidden md:inline">Messages</span>
-        </a>
-      </li>
-      
-      <!-- Toggle button (leaf icon) - only visible on mobile -->
-      <li class="nav-item md:hidden">
-        <a class="nav-link toggle-button" href="#" id="toggleLeaf">
-          <i class="fas fa-ellipsis-h"></i>
-        </a>
-      </li>
-
-      <!-- Hidden links on mobile, always visible on desktop -->
-      <li class="nav-item hidden-mobile-link">
-        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'users:profile' user.id %}" data-link-id="profile">
-          <span class="material-icons">person</span>
-          <span class="nav-text hidden md:inline">Profile</span>
-        </a>
-      </li>
-      <li class="nav-item hidden-mobile-link">
-        <a class="nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" href="{% url 'fellowship_detail' 1 %}" data-link-id="fellowship">
-          <span class="material-symbols-outlined">church</span>
-          <span class="nav-text hidden md:inline">Fellowship</span>
-        </a>
-      </li>
-      <li class="nav-item hidden-mobile-link">
-        <a class="nav-link" href="{% url 'bucosa_main' %}" data-link-id="bucosa">
-          <span class="material-icons">groups</span>
-          <span class="nav-text hidden md:inline">Bucosa</span>
-        </a>
-      </li>
-      <li class="nav-item hidden-mobile-link" id="notification-nav-item">
-        <a class="nav-link" href="#" data-link-id="notifications" id="notificationDropdown">
-          <span class="material-icons">notifications</span>
-          <span class="nav-text hidden md:inline">Notifications</span>
-          <span id="notification-badge" class="notification-badge" style="display:none;">0</span>
-        </a>
-        <div id="notification-dropdown" style="display:none;position:absolute;left:60px;top:0;background:#fff;border:1px solid #ccc;width:300px;max-height:400px;overflow-y:auto;z-index:1000;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
-      </li>
-      <li class="nav-item hidden-mobile-link">
-        <a class="nav-link" href="{% url 'users:logout' %}" data-link-id="logout">
-          <span class="material-icons">logout</span>
-          <span class="nav-text hidden md:inline">Logout</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
-
-  <!-- JavaScript for Navigation -->
+  <!-- JavaScript -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const mainNav = document.getElementById('mainNav');
-      const navLinks = document.querySelectorAll('#mainNav .nav-link');
-      const toggleLeaf = document.getElementById('toggleLeaf');
+      const moreButton = document.getElementById('moreButton');
+      const expandedMenu = document.getElementById('expandedMenu');
+      let isExpanded = false;
 
-      // Function to check if it's a mobile view
-      function isMobileView() {
-        return window.matchMedia("(max-width: 767.98px)").matches;
-      }
-
-      // Function to set the active link based on current URL
-      function setActiveLinkBasedOnUrl() {
-        const currentPath = window.location.pathname;
-        navLinks.forEach(link => {
-          if (link !== toggleLeaf) {
-            const href = link.getAttribute('href');
-            if (href && currentPath === href) {
-              link.classList.add('active');
-            } else {
-              link.classList.remove('active');
-            }
-          }
-        });
-      }
-
-      // Set initial active link
-      setActiveLinkBasedOnUrl();
-
-      // Handle clicks on regular navigation links (excluding the toggle)
-      navLinks.forEach(link => {
-        if (link !== toggleLeaf && !link.closest('#notification-nav-item')) {
-          link.addEventListener('click', function(event) {
-            // Don't prevent default for actual navigation links
-            
-            // Remove 'active' class from all links except toggle
-            navLinks.forEach(l => {
-              if (l !== toggleLeaf) {
-                l.classList.remove('active');
-              }
-            });
-
-            // Add 'active' class to the clicked link
-            this.classList.add('active');
-
-            // If in mobile view and hidden links are shown, hide them
-            if (isMobileView() && mainNav.classList.contains('show-all-links')) {
-              setTimeout(() => {
-                mainNav.classList.remove('show-all-links');
-                toggleLeaf.classList.remove('active');
-              }, 200);
-            }
-          });
+      // Toggle expanded menu
+      moreButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        isExpanded = !isExpanded;
+        
+        if (isExpanded) {
+          expandedMenu.classList.add('show');
+          moreButton.classList.add('active');
+        } else {
+          expandedMenu.classList.remove('show');
+          moreButton.classList.remove('active');
         }
       });
 
-      // Handle click on the toggle button
-      if (toggleLeaf) {
-        toggleLeaf.addEventListener('click', function(event) {
-          event.preventDefault();
-          if (isMobileView()) {
-            mainNav.classList.toggle('show-all-links');
-            this.classList.toggle('active');
+      // Close expanded menu when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('#mobileNav') && isExpanded) {
+          expandedMenu.classList.remove('show');
+          moreButton.classList.remove('active');
+          isExpanded = false;
+        }
+      });
+
+      // Close expanded menu when clicking on a nav item
+      document.querySelectorAll('.nav-expanded-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          // Don't close if it's the notifications item (prevent default behavior)
+          if (!this.id.includes('notifications')) {
+            expandedMenu.classList.remove('show');
+            moreButton.classList.remove('active');
+            isExpanded = false;
           }
         });
-      }
+      });
 
-      // Handle window resize
-      window.addEventListener('resize', function() {
-        if (!isMobileView()) {
-          mainNav.classList.remove('show-all-links');
-          if (toggleLeaf) {
-            toggleLeaf.classList.remove('active');
-          }
-        }
+      // Handle active states for main nav items
+      document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(item => {
+        item.addEventListener('click', function() {
+          // Remove active from all main nav items
+          document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(navItem => {
+            navItem.classList.remove('active');
+          });
+          
+          // Add active to clicked item
+          this.classList.add('active');
+        });
       });
 
       // Notification handling
-      const notificationDropdown = document.getElementById('notificationDropdown');
-      const notificationDropdownMenu = document.getElementById('notification-dropdown');
-
-      if (notificationDropdown && notificationDropdownMenu) {
-        notificationDropdown.addEventListener('click', function(event) {
-          event.preventDefault();
-          const isVisible = notificationDropdownMenu.style.display === 'block';
-          notificationDropdownMenu.style.display = isVisible ? 'none' : 'block';
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-          if (!event.target.closest('#notification-nav-item')) {
-            notificationDropdownMenu.style.display = 'none';
-          }
-        });
-      }
-
-      // Function to update notification badges
       function updateNotificationBadges(count) {
-        const badge = document.getElementById('notification-badge');
-        if (badge) {
+        const badges = document.querySelectorAll('[id$="notification-badge"]');
+        badges.forEach(badge => {
           if (count > 0) {
             badge.textContent = count;
             badge.style.display = 'flex';
           } else {
             badge.style.display = 'none';
           }
-        }
+        });
       }
 
-      // Example: updateNotificationBadges(3);
+      // Example: Update notification count
+      // updateNotificationBadges(3);
+
+      // Handle notification clicks
+      document.getElementById('mobile-notifications')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Add your notification logic here
+        console.log('Mobile notifications clicked');
+      });
+
+      document.getElementById('desktop-notifications')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Add your notification logic here
+        console.log('Desktop notifications clicked');
+      });
+
+      // Handle escape key to close expanded menu
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isExpanded) {
+          expandedMenu.classList.remove('show');
+          moreButton.classList.remove('active');
+          isExpanded = false;
+        }
+      });
+
+      // Smooth animations
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes slideUp {
+          from {
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+        }
+        
+        .nav-expanded.show {
+          animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+      `;
+      document.head.appendChild(style);
     });
   </script>
 
