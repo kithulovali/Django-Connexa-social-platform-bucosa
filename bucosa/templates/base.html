@@ -19,11 +19,11 @@
   <script src="{% static 'js/theme-toggle.js' %}"></script>
   <script src="{% static 'js/pwa-install.js' %}"></script>
   <script src="{% static 'js/notifications.js' %}" defer></script>
+  <script src="{% static 'js/firebase-push.js' %}" defer></script>
 
   <script>
     window.USER_IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
   </script>
-  <script src="{% static 'js/firebase-push.js' %}" defer></script>
 
   {% block extra_head %}{% endblock %}
 
@@ -37,118 +37,86 @@
     }
   </script>
 
+  <style>
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 3s linear infinite;
+    }
+  </style>
 </head>
+
 <body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
+  <!-- Futuristic Link Click Loader -->
+  <div id="circle-loader" class="fixed inset-0 bg-white bg-opacity-100 flex items-center justify-center z-[9999] hidden">
+    <div class="relative w-24 h-24">
+      <div class="absolute inset-0 rounded-full border-[6px] border-blue-500 animate-pulse blur-sm opacity-50"></div>
+      <div class="absolute inset-2 rounded-full border-[3px] border-blue-500 animate-spin-slow"></div>
+      <div class="absolute inset-4 rounded-full border-[2px] border-blue-300 animate-ping"></div>
+      <div class="absolute w-4 h-4 bg-blue-600 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+    </div>
+  </div>
+
+  <!-- Install PWA Button -->
   <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
     Install Bucosa App
   </button>
 
-  <nav id="desktopSidebar">
-    <div class="sidebar-header">
-      <h1>Bucosa</h1>
-    </div>
-    <div class="sidebar-nav">
-      <a href="{% url 'activities:home' %}" class="sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-        <span class="material-icons nav-icon">home</span>
-        <span class="nav-label">Home</span>
-      </a>
-      <a href="{% url 'users:search_users' %}" class="sidebar-item {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
-        <span class="material-icons nav-icon">search</span>
-        <span class="nav-label">Search</span>
-      </a>
-      <a href="{% url 'users:private_messages' %}" class="sidebar-item {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}">
-        <span class="material-icons nav-icon">chat_bubble_outline</span>
-        <span class="nav-label">Messages</span>
-      </a>
-      <a href="#" class="sidebar-item" id="desktop-notifications">
-        <span class="material-icons nav-icon">notifications_none</span>
-        <span class="nav-label">Notifications</span>
-        <span id="desktop-notification-badge" class="notification-badge" style="display:none;">0</span>
-      </a>
-      <a href="{% url 'users:profile' user.id %}" class="sidebar-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-        <span class="material-icons nav-icon">person_outline</span>
-        <span class="nav-label">Profile</span>
-      </a>
-    </div>
-    
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">Community</div>
-      <a href="{% url 'fellowship_detail' 1 %}" class="sidebar-item {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}">
-        <span class="material-symbols-outlined nav-icon">church</span>
-        <span class="nav-label">Fellowship</span>
-      </a>
-      <a href="{% url 'bucosa_main' %}" class="sidebar-item">
-        <span class="material-icons nav-icon">groups</span>
-        <span class="nav-label">Bucosa Main</span>
-      </a>
-    </div>
-
-    <div class="sidebar-section">
-      <a href="{% url 'users:logout' %}" class="sidebar-item">
-        <span class="material-icons nav-icon">logout</span>
-        <span class="nav-label">Logout</span>
-      </a>
-    </div>
+  <!-- Desktop Sidebar -->
+  <nav id="desktopSidebar" class="desktop-sidebar">
+    ... <!-- Keep your existing sidebar nav content here -->
   </nav>
 
-  <nav id="mobileNav">
+  <!-- Mobile Nav -->
+  <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
-      <div class="nav-expanded-grid">
-        <a href="{% url 'users:search_users' %}" class="nav-item {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
-          <span class="material-icons nav-icon">search</span>
-          <span class="nav-label">Search</span>
-        </a>
-
-        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}">
-          <span class="material-symbols-outlined nav-icon">church</span>
-          <span class="nav-label">Fellowship</span>
-        </a>
-        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item">
-          <span class="material-icons nav-icon">groups</span>
-          <span class="nav-label">Bucosa</span>
-        </a>
-        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item">
-          <span class="material-icons nav-icon">settings</span>
-          <span class="nav-label">Settings</span>
-        </a>
-        <a href="{% url 'users:logout' %}" class="nav-expanded-item">
-          <span class="material-icons nav-icon">logout</span>
-          <span class="nav-label">Logout</span>
-        </a>
-      </div>
+      ... <!-- Keep your existing expanded menu here -->
     </div>
 
-    <div class="nav-main-container">
-      <a href="{% url 'activities:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-        <span class="material-icons nav-icon">home</span>
-        <span class="nav-label">Home</span>
+    <div class="nav-main-container flex justify-between px-2 py-1 bg-white shadow-inner border-t border-gray-200">
+      <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %} flex-1 text-center" data-page="home">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">home</span>
+          <span class="nav-label text-xs">Home</span>
+        </div>
       </a>
-       <a href="{% url 'users:profile' user.id %}" class="nav-expanded-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+
+      <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %} flex-1 text-center" data-page="profile">
+        <div class="nav-item-content">
           <span class="material-icons nav-icon">person_outline</span>
-          <span class="nav-label">Profile</span>
-        </a>
-      
-
-      <a href="#" class="nav-item nav-more-btn" id="moreButton">
-        <span class="material-icons nav-icon">add</span>
-        <span class="nav-label">More</span>
+          <span class="nav-label text-xs">Profile</span>
+        </div>
       </a>
 
-      <a href="{% url 'users:private_messages' %}" class="nav-item {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}">
-        <span class="material-icons nav-icon">chat_bubble_outline</span>
-        <span class="nav-label">Messages</span>
+      <a href="#" class="nav-item nav-more-btn flex-1 text-center" id="moreButton">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">add</span>
+          <span class="nav-label text-xs">More</span>
+        </div>
+        <div class="more-btn-bg"></div>
       </a>
 
-      <a href="#" class="nav-expanded-item" id="mobile-notifications">
+      <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %} flex-1 text-center" data-page="messages">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">chat_bubble_outline</span>
+          <span class="nav-label text-xs">Messages</span>
+        </div>
+      </a>
+
+      <a href="#" class="nav-item flex-1 text-center" id="mobile-notifications">
+        <div class="nav-item-content relative">
           <span class="material-icons nav-icon">notifications_none</span>
-          <span class="nav-label">Notifications</span>
-          <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
+          <span class="nav-label text-xs">Notifications</span>
+          <span id="mobile-notification-badge" class="notification-badge absolute top-0 right-1 bg-red-600 text-white text-xs px-1.5 rounded-full" style="display:none;">0</span>
+        </div>
       </a>
-
     </div>
   </nav>
 
+  <!-- Page Content -->
   <main class="main-content">
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       {% block content %}
@@ -159,27 +127,21 @@
   </main>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const moreButton = document.getElementById('moreButton');
       const expandedMenu = document.getElementById('expandedMenu');
       let isExpanded = false;
 
-      // Toggle expanded menu
-      moreButton.addEventListener('click', function(e) {
+      // More menu toggle
+      moreButton.addEventListener('click', function (e) {
         e.preventDefault();
         isExpanded = !isExpanded;
-        
-        if (isExpanded) {
-          expandedMenu.classList.add('show');
-          moreButton.classList.add('active');
-        } else {
-          expandedMenu.classList.remove('show');
-          moreButton.classList.remove('active');
-        }
+        expandedMenu.classList.toggle('show', isExpanded);
+        moreButton.classList.toggle('active', isExpanded);
       });
 
-      // Close expanded menu when clicking outside
-      document.addEventListener('click', function(e) {
+      // Outside click to close
+      document.addEventListener('click', function (e) {
         if (!e.target.closest('#mobileNav') && isExpanded) {
           expandedMenu.classList.remove('show');
           moreButton.classList.remove('active');
@@ -187,10 +149,9 @@
         }
       });
 
-      // Close expanded menu when clicking on a nav item
+      // Close on nav item click
       document.querySelectorAll('.nav-expanded-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-          // Don't close if it's the notifications item (prevent default behavior)
+        item.addEventListener('click', function () {
           if (!this.id.includes('notifications')) {
             expandedMenu.classList.remove('show');
             moreButton.classList.remove('active');
@@ -199,50 +160,19 @@
         });
       });
 
-      // Handle active states for main nav items
-      document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(item => {
-        item.addEventListener('click', function() {
-          // Remove active from all main nav items
-          document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(navItem => {
-            navItem.classList.remove('active');
-          });
-          
-          // Add active to clicked item
-          this.classList.add('active');
-        });
-      });
-
-      // Notification handling
-      function updateNotificationBadges(count) {
-        const badges = document.querySelectorAll('[id$="notification-badge"]');
-        badges.forEach(badge => {
-          if (count > 0) {
-            badge.textContent = count;
-            badge.style.display = 'flex';
-          } else {
-            badge.style.display = 'none';
-          }
-        });
-      }
-
-      // Example: Update notification count
-      // updateNotificationBadges(3);
-
-      // Handle notification clicks
-      document.getElementById('mobile-notifications')?.addEventListener('click', function(e) {
+      // Notifications
+      document.getElementById('mobile-notifications')?.addEventListener('click', function (e) {
         e.preventDefault();
-        // Add your notification logic here
         console.log('Mobile notifications clicked');
       });
 
-      document.getElementById('desktop-notifications')?.addEventListener('click', function(e) {
+      document.getElementById('desktop-notifications')?.addEventListener('click', function (e) {
         e.preventDefault();
-        // Add your notification logic here
         console.log('Desktop notifications clicked');
       });
 
-      // Handle escape key to close expanded menu
-      document.addEventListener('keydown', function(e) {
+      // Escape to close
+      document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && isExpanded) {
           expandedMenu.classList.remove('show');
           moreButton.classList.remove('active');
@@ -250,22 +180,26 @@
         }
       });
 
-      // Smooth animations
+      // Futuristic loader trigger
+      const circleLoader = document.getElementById('circle-loader');
+      document.querySelectorAll('a[href]:not([href^="#"])').forEach(link => {
+        link.addEventListener('click', e => {
+          const target = e.currentTarget.getAttribute('target');
+          if (!e.ctrlKey && !e.metaKey && target !== '_blank') {
+            circleLoader.classList.remove('hidden');
+          }
+        });
+      });
+
+      // Add animation for expanded menu
       const style = document.createElement('style');
       style.textContent = `
         @keyframes slideUp {
-          from {
-            transform: translateY(20px) scale(0.95);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-          }
+          from { transform: translateY(20px) scale(0.95); opacity: 0; }
+          to { transform: translateY(0) scale(1); opacity: 1; }
         }
-        
         .nav-expanded.show {
-          animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          animation: slideUp 0.3s ease-out;
         }
       `;
       document.head.appendChild(style);
