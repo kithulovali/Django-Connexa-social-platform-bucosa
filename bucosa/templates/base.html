@@ -72,9 +72,8 @@
   </button>
 
   <nav id="desktopSidebar" class="desktop-sidebar">
-    <div class="sidebar-header">
+  <div class="sidebar-header">
       <div class="sidebar-logo">
-        <img src="{% static 'img/bucosa-logo.png' %}" alt="Bucosa Logo" class="logo-image">
         <h1>Bucosa</h1>
         <div class="logo-accent"></div>
       </div>
@@ -151,104 +150,94 @@
       </div>
     </div>
   </nav>
-
-  <nav id="mobileNav" class="mobile-nav">
+    <!-- Replace your existing mobile nav section with this improved version -->
+  <nav id="mobileNav" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl px-5 py-3 z-50 border-t border-gray-100">
+    
     <!-- Expanded Menu (hidden by default) -->
-    <div class="nav-expanded" id="expandedMenu">
-      <div class="expanded-header">
-        <div class="expanded-logo">
-          <img src="{% static 'img/bucosa-logo.png' %}" alt="Bucosa Logo" class="expanded-logo-image">
-          <h2>Bucosa</h2>
-        </div>
-        <button class="close-expanded" id="closeExpanded">
-          <span class="material-icons">close</span>
+    <div class="nav-expanded absolute bottom-full left-0 right-0 bg-white rounded-2xl shadow-xl mx-4 mb-3 p-5 border border-gray-100" id="expandedMenu">
+      <div class="flex justify-end mb-4">
+        <button class="p-2 hover:bg-gray-100 rounded-full transition-colors" id="closeExpanded">
+          <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
         </button>
       </div>
       
-      <div class="expanded-user-info">
-        <div class="user-avatar">
-          <img src="{{ request.user.profile.avatar.url|default:'/static/img/default-avatar.png' }}" alt="Profile" class="profile-image">
-        </div>
-        <div class="user-details">
-          <h3>{{ request.user.get_full_name|default:request.user.username }}</h3>
-          <p>@{{ request.user.username }}</p>
-        </div>
-      </div>
-      
-      <div class="nav-expanded-grid">
-        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">search</span>
-            <span class="nav-label">Search</span>
-          </div>
-        </a>
-
-        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
-          <div class="nav-item-content">
-            <span class="material-symbols-outlined nav-icon">church</span>
-            <span class="nav-label">Fellowship</span>
-          </div>
+      <div class="grid grid-cols-3 gap-4">
+        <!-- Search -->
+        <a href="{% url 'users:search_users' %}" class="nav-hover-effect flex flex-col items-center p-4 rounded-2xl hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 transition-colors {% if request.resolver_match.url_name == 'search_users' %}bg-indigo-50 text-indigo-600{% endif %}">
+          <span class="material-icons text-2xl mb-2">search</span>
+          <span class="text-xs font-medium">Search</span>
         </a>
         
-        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">groups</span>
-            <span class="nav-label">Bucosa</span>
-          </div>
+        <!-- Fellowship -->
+        <a href="{% url 'fellowship_detail' 1 %}" class="nav-hover-effect flex flex-col items-center p-4 rounded-2xl hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 transition-colors {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-indigo-50 text-indigo-600{% endif %}">
+          <span class="material-symbols-outlined text-2xl mb-2">church</span>
+          <span class="text-xs font-medium">Fellowship</span>
         </a>
         
-        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">settings</span>
-            <span class="nav-label">Settings</span>
-          </div>
+        <!-- Bucosa -->
+        <a href="{% url 'bucosa_main' %}" class="nav-hover-effect flex flex-col items-center p-4 rounded-2xl hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 transition-colors">
+          <span class="material-icons text-2xl mb-2">groups</span>
+          <span class="text-xs font-medium">Bucosa</span>
         </a>
         
-        <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">logout</span>
-            <span class="nav-label">Logout</span>
-          </div>
+        <!-- Settings -->
+        <a href="{% url 'users:user_settings' %}" class="nav-hover-effect flex flex-col items-center p-4 rounded-2xl hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 transition-colors">
+          <span class="material-icons text-2xl mb-2">settings</span>
+          <span class="text-xs font-medium">Settings</span>
+        </a>
+        
+        <!-- Help or Additional Feature -->
+        <a href="#" class="nav-hover-effect flex flex-col items-center p-4 rounded-2xl hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 transition-colors">
+          <span class="material-icons text-2xl mb-2">help</span>
+          <span class="text-xs font-medium">Help</span>
+        </a>
+        
+        <!-- Logout -->
+        <a href="{% url 'users:logout' %}" class="nav-hover-effect flex flex-col items-center p-4 rounded-2xl hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors">
+          <span class="material-icons text-2xl mb-2">logout</span>
+          <span class="text-xs font-medium">Logout</span>
         </a>
       </div>
     </div>
 
-    <!-- Main Navigation -->
-    <div class="nav-main-container">
-      <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
-        <div class="nav-item-content">
-          <span class="material-icons nav-icon">home</span>
-          <span class="nav-label">Home</span>
-        </div>
+    <!-- Main Navigation Container -->
+    <div class="flex justify-between items-center">
+      
+      <!-- Home -->
+      <a href="{% url 'activities:home' %}" class="nav-hover-effect flex flex-col items-center p-3 rounded-2xl transition-colors {% if request.resolver_match.url_name == 'home' %}bg-indigo-600 text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-900{% endif %}">
+        <span class="material-icons text-2xl mb-1">home</span>
+        <span class="text-xs font-medium">Home</span>
       </a>
       
-      <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
-        <div class="nav-item-content">
-          <span class="material-icons nav-icon">person_outline</span>
-          <span class="nav-label">Profile</span>
-        </div>
+      <!-- Profile -->
+      <a href="{% url 'users:profile' user.id %}" class="nav-hover-effect flex flex-col items-center p-3 rounded-2xl transition-colors {% if request.resolver_match.url_name == 'profile' %}bg-indigo-600 text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-900{% endif %}">
+        <span class="material-icons text-2xl mb-1">person_outline</span>
+        <span class="text-xs font-medium">Profile</span>
       </a>
 
-      <button class="nav-item nav-more-btn" id="moreButton">
-        <div class="nav-item-content">
-          <img src="{% static 'img/bucosa-icon.png' %}" alt="Bucosa" class="logo-icon">
-        </div>
-        <div class="more-btn-bg"></div>
+      <!-- More Button -->
+      <button class="nav-hover-effect flex flex-col items-center p-3 rounded-2xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors relative" id="moreButton">
+        <!-- Using SVG for consistent sizing and better control -->
+        <svg class="more-icon-rotate w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+        <span class="text-xs font-medium">More</span>
       </button>
 
-      <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
-        <div class="nav-item-content">
-          <span class="material-icons nav-icon">chat_bubble_outline</span>
-          <span class="nav-label">Messages</span>
-        </div>
+      <!-- Messages -->
+      <a href="{% url 'users:private_messages' %}" class="nav-hover-effect flex flex-col items-center p-3 rounded-2xl transition-colors {% if request.resolver_match.url_name == 'private_messages' %}bg-indigo-600 text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-100 hover:text-gray-900{% endif %}">
+        <span class="material-icons text-2xl mb-1">chat_bubble_outline</span>
+        <span class="text-xs font-medium">Messages</span>
       </a>
 
-      <a href="#" class="nav-item" id="mobile-notifications">
-        <div class="nav-item-content">
-          <span class="material-icons nav-icon">notifications_none</span>
-          <span class="nav-label">Notifications</span>
-          <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
-        </div>
+      <!-- Notifications -->
+      <a href="#" class="nav-hover-effect flex flex-col items-center p-3 rounded-2xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors relative" id="mobile-notifications">
+        <span class="material-icons text-2xl mb-1">notifications_none</span>
+        <span class="text-xs font-medium">Alerts</span>
+        <!-- Notification badge -->
+        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display:none;">0</span>
       </a>
     </div>
   </nav>
@@ -331,80 +320,104 @@
       // Also hide loading if there's an error
       window.addEventListener('error', stopLoading);
 
-      // Mobile nav toggle logic
-      const moreButton = document.getElementById('moreButton');
-      const expandedMenu = document.getElementById('expandedMenu');
-      const closeExpanded = document.getElementById('closeExpanded');
-      let isExpanded = false;
+      // Mobile nav toggle logic (existing code)
 
-      // Toggle expanded menu
-      function toggleExpandedMenu() {
-        isExpanded = !isExpanded;
-        
-        if (isExpanded) {
-          expandedMenu.classList.add('show');
-          moreButton.classList.add('active');
-          document.body.style.overflow = 'hidden';
-        } else {
-          expandedMenu.classList.remove('show');
-          moreButton.classList.remove('active');
-          document.body.style.overflow = '';
-        }
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile nav toggle logic
+  const moreButton = document.getElementById('moreButton');
+  const expandedMenu = document.getElementById('expandedMenu');
+  const closeExpanded = document.getElementById('closeExpanded');
+  let isExpanded = false;
+
+  if (moreButton && expandedMenu) {
+    const moreIcon = moreButton.querySelector('.more-icon-rotate');
+    
+    // Toggle expanded menu
+    moreButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      isExpanded = !isExpanded;
+      
+      if (isExpanded) {
+        expandedMenu.classList.add('show');
+        if (moreIcon) moreIcon.classList.add('active');
+        moreButton.classList.add('bg-indigo-100', 'text-indigo-600');
+        moreButton.classList.remove('hover:bg-gray-100', 'hover:text-gray-900');
+      } else {
+        closeExpandedMenu();
       }
+    });
 
-      moreButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        toggleExpandedMenu();
-      });
-
+    // Close expanded menu
+    if (closeExpanded) {
       closeExpanded.addEventListener('click', function(e) {
         e.preventDefault();
-        toggleExpandedMenu();
+        closeExpandedMenu();
       });
+    }
 
-      // Close expanded menu when clicking outside
-      document.addEventListener('click', function(e) {
-        if (!e.target.closest('#mobileNav') && isExpanded) {
-          toggleExpandedMenu();
-        }
-      });
-
-      // Notification handling
-      function updateNotificationBadges(count) {
-        const badges = document.querySelectorAll('[id$="notification-badge"]');
-        badges.forEach(badge => {
-          if (count > 0) {
-            badge.textContent = count;
-            badge.style.display = 'flex';
-          } else {
-            badge.style.display = 'none';
-          }
-        });
+    // Close when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#mobileNav') && isExpanded) {
+        closeExpandedMenu();
       }
-
-      // Example: Update notification count
-      // updateNotificationBadges(3);
-
-      // Handle notification clicks
-      document.getElementById('mobile-notifications')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        // Add your notification logic here
-        console.log('Mobile notifications clicked');
-      });
-
-      document.getElementById('desktop-notifications')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        // Add your notification logic here
-        console.log('Desktop notifications clicked');
-      });
-
-      // Handle escape key to close expanded menu
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isExpanded) {
-          toggleExpandedMenu();
-        }
-      });
     });
+
+    // Close with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isExpanded) {
+        closeExpandedMenu();
+      }
+    });
+
+    function closeExpandedMenu() {
+      expandedMenu.classList.remove('show');
+      if (moreIcon) moreIcon.classList.remove('active');
+      moreButton.classList.remove('bg-indigo-100', 'text-indigo-600');
+      moreButton.classList.add('hover:bg-gray-100', 'hover:text-gray-900');
+      isExpanded = false;
+    }
+  }
+
+  // Notification handling
+  function updateNotificationBadges(count) {
+    const badges = document.querySelectorAll('[id$="notification-badge"]');
+    badges.forEach(badge => {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    });
+  }
+
+  // Handle notification clicks
+  const mobileNotifications = document.getElementById('mobile-notifications');
+  const desktopNotifications = document.getElementById('desktop-notifications');
+  
+  if (mobileNotifications) {
+    mobileNotifications.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Add your notification logic here
+      console.log('Mobile notifications clicked');
+    });
+  }
+
+  if (desktopNotifications) {
+    desktopNotifications.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Add your notification logic here
+      console.log('Desktop notifications clicked');
+    });
+  }
+
+  // Example: Update notification count (uncomment to test)
+  // updateNotificationBadges(3);
+
+  // Keep your existing page transition logic here...
+  // [Rest of your existing JavaScript for page transitions, loading, etc.]
+});
   </script>
 
   {% block extra_js %}{% endblock %}
