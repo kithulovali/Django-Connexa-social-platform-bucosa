@@ -40,23 +40,39 @@
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
-  <!-- Loading Indicator -->
+  <!-- Initial Page Loader -->
   <div id="page-loader" class="page-loader">
     <div class="loader-container">
       <div class="loader-spinner"></div>
-      <div class="loader-text">Loading...</div>
+      <div class="loader-text">Loading Bucosa...</div>
     </div>
   </div>
 
   <!-- Navigation Loading Bar -->
   <div id="nav-loading-bar" class="nav-loading-bar"></div>
 
+  <!-- Modern Loading Transition -->
+  <div class="page-transition" id="pageTransition">
+    <div class="loading-animation">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="loading-text" id="loadingText">Loading content...</div>
+  </div>
+
   <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
     Install Bucosa App
   </button>
 
   <nav id="desktopSidebar" class="desktop-sidebar">
-    <div class="sidebar-header">
+  <div class="sidebar-header">
       <div class="sidebar-logo">
         <h1>Bucosa</h1>
         <div class="logo-accent"></div>
@@ -133,10 +149,11 @@
         </a>
       </div>
     </div>
+  
   </nav>
 
   <nav id="mobileNav" class="mobile-nav">
-    <div class="nav-expanded" id="expandedMenu">
+   <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
         <h3>More Options</h3>
         <button class="close-expanded" id="closeExpanded">
@@ -216,6 +233,8 @@
         </div>
       </a>
     </div>
+
+    
   </nav>
 
   <main class="main-content">
@@ -228,12 +247,80 @@
   </main>
 
   <script>
+    // Page Transition Logic
     document.addEventListener('DOMContentLoaded', function() {
+      // Hide initial page loader
+      const pageLoader = document.getElementById('page-loader');
+      setTimeout(() => {
+        pageLoader.classList.add('hidden');
+      }, 500);
+
+      // Get transition elements
+      const pageTransition = document.getElementById('pageTransition');
+      const loadingText = document.getElementById('loadingText');
+      const navLoadingBar = document.getElementById('nav-loading-bar');
+      
+      // Function to start loading
+      function startLoading(destination) {
+        // Show loading transition
+        pageTransition.classList.add('active');
+        navLoadingBar.classList.add('active');
+        
+        // Update loading text based on destination
+        const pageName = getPageName(destination);
+        loadingText.textContent = `Loading ${pageName}...`;
+      }
+      
+      // Function to stop loading
+      function stopLoading() {
+        pageTransition.classList.remove('active');
+        navLoadingBar.classList.remove('active');
+      }
+      
+      // Helper function to get page name from URL
+      function getPageName(url) {
+        const path = new URL(url, window.location.origin).pathname;
+        if (path.includes('profile')) return 'Profile';
+        if (path.includes('messages')) return 'Messages';
+        if (path.includes('search')) return 'Search';
+        if (path.includes('fellowship')) return 'Fellowship';
+        if (path.includes('bucosa-main')) return 'Bucosa';
+        if (path.includes('home')) return 'Home';
+        return 'page';
+      }
+      
+      // Intercept all link clicks
+      document.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        
+        if (link && link.href && !link.href.includes('#') && 
+            !link.classList.contains('no-transition') &&
+            new URL(link.href).origin === window.location.origin) {
+          e.preventDefault();
+          startLoading(link.href);
+          
+          // Navigate after a short delay to allow animation to show
+          setTimeout(() => {
+            window.location.href = link.href;
+          }, 300);
+        }
+      });
+      
+      // When page is fully loaded
+      window.addEventListener('load', function() {
+        // Hide loading transition with a slight delay
+        setTimeout(stopLoading, 300);
+      });
+      
+      // Also hide loading if there's an error
+      window.addEventListener('error', stopLoading);
+
+      // Mobile nav toggle logic (existing code)
       const moreButton = document.getElementById('moreButton');
       const expandedMenu = document.getElementById('expandedMenu');
+      const closeExpanded = document.getElementById('closeExpanded');
       let isExpanded = false;
 
-      // Toggle expanded menu
       moreButton.addEventListener('click', function(e) {
         e.preventDefault();
         isExpanded = !isExpanded;
@@ -247,6 +334,13 @@
         }
       });
 
+      closeExpanded.addEventListener('click', function(e) {
+        e.preventDefault();
+        expandedMenu.classList.remove('show');
+        moreButton.classList.remove('active');
+        isExpanded = false;
+      });
+
       // Close expanded menu when clicking outside
       document.addEventListener('click', function(e) {
         if (!e.target.closest('#mobileNav') && isExpanded) {
@@ -254,31 +348,6 @@
           moreButton.classList.remove('active');
           isExpanded = false;
         }
-      });
-
-      // Close expanded menu when clicking on a nav item
-      document.querySelectorAll('.nav-expanded-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-          // Don't close if it's the notifications item (prevent default behavior)
-          if (!this.id.includes('notifications')) {
-            expandedMenu.classList.remove('show');
-            moreButton.classList.remove('active');
-            isExpanded = false;
-          }
-        });
-      });
-
-      // Handle active states for main nav items
-      document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(item => {
-        item.addEventListener('click', function() {
-          // Remove active from all main nav items
-          document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(navItem => {
-            navItem.classList.remove('active');
-          });
-          
-          // Add active to clicked item
-          this.classList.add('active');
-        });
       });
 
       // Notification handling
@@ -318,26 +387,6 @@
           isExpanded = false;
         }
       });
-
-      // Smooth animations
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes slideUp {
-          from {
-            transform: translateY(20px) scale(0.95);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-          }
-        }
-        
-        .nav-expanded.show {
-          animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-      `;
-      document.head.appendChild(style);
     });
   </script>
 
