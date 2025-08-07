@@ -5,17 +5,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="manifest" href="{% static 'manifest.json' %}" />
   <meta name="theme-color" content="#22223b" />
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
 
+  <!-- Custom JS -->
   <script src="{% static 'js/theme-toggle.js' %}"></script>
   <script src="{% static 'js/pwa-install.js' %}"></script>
   <script src="{% static 'js/notifications.js' %}" defer></script>
@@ -26,7 +36,6 @@
   <script src="{% static 'js/firebase-push.js' %}" defer></script>
 
   {% block extra_head %}{% endblock %}
-
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
@@ -36,7 +45,6 @@
       });
     }
   </script>
-
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
@@ -71,8 +79,9 @@
     Install Bucosa App
   </button>
 
+  <!-- Desktop Sidebar -->
   <nav id="desktopSidebar" class="desktop-sidebar">
-  <div class="sidebar-header">
+    <div class="sidebar-header">
       <div class="sidebar-logo">
         <h1>Bucosa</h1>
         <div class="logo-accent"></div>
@@ -149,98 +158,70 @@
         </a>
       </div>
     </div>
-  
   </nav>
 
- <nav id="mobileNav" class="mobile-nav">
-  <!-- Expanded Menu (hidden by default) -->
-  <div class="nav-expanded" id="expandedMenu">
-    <div class="expanded-header">
-      <button class="close-expanded" id="closeExpanded">
-        <img src="{% static 'img/more.png' %}" alt="Close menu">
-      </button>
-    </div>
-    <div class="nav-expanded-grid">
-      <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
-        <div class="nav-item-content">
+  <!-- Mobile Navigation -->
+  <div class="bottom-nav">
+    <!-- Expanded Menu (hidden by default) -->
+    <div class="expanded-menu" id="expandedMenu">
+      <div class="expanded-grid">
+        <a href="{% url 'users:search_users' %}" class="expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
           <span class="material-icons nav-icon">search</span>
           <span class="nav-label">Search</span>
-        </div>
-      </a>
+        </a>
 
-      <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
-        <div class="nav-item-content">
+        <a href="{% url 'fellowship_detail' 1 %}" class="expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
           <span class="material-symbols-outlined nav-icon">church</span>
           <span class="nav-label">Fellowship</span>
-        </div>
-      </a>
-      
-      <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
-        <div class="nav-item-content">
+        </a>
+        
+        <a href="{% url 'bucosa_main' %}" class="expanded-item nav-link" data-page="bucosa-main">
           <span class="material-icons nav-icon">groups</span>
           <span class="nav-label">Bucosa</span>
-        </div>
-      </a>
-      
-      <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
-        <div class="nav-item-content">
+        </a>
+        
+        <a href="{% url 'users:user_settings' %}" class="expanded-item nav-link" data-page="settings">
           <span class="material-icons nav-icon">settings</span>
           <span class="nav-label">Settings</span>
-        </div>
-      </a>
-      
-      <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
-        <div class="nav-item-content">
+        </a>
+        
+        <a href="{% url 'users:logout' %}" class="expanded-item logout-item">
           <span class="material-icons nav-icon">logout</span>
           <span class="nav-label">Logout</span>
-        </div>
-      </a>
+        </a>
+      </div>
     </div>
-  </div>
 
-  <!-- Main Navigation -->
-  <div class="nav-main-container">
-    <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
-      <div class="nav-item-content">
+    <!-- Main Navigation -->
+    <div class="d-flex justify-content-around">
+      <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
         <span class="material-icons nav-icon">home</span>
         <span class="nav-label">Home</span>
-      </div>
-    </a>
-    
-    <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
-      <div class="nav-item-content">
+      </a>
+      
+      <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
         <span class="material-icons nav-icon">person_outline</span>
         <span class="nav-label">Profile</span>
-      </div>
-    </a>
+      </a>
 
-    <!-- Modified More Button - now using the image as trigger -->
-    <button class="nav-item nav-more-btn" id="moreButton">
-      <div class="nav-item-content">
+      <!-- More Button -->
+      <button class="nav-item more-btn" id="moreButton">
         <img src="{% static 'img/more.png' %}" alt="More options" class="more-icon">
-      </div>
-      <div class="more-btn-bg"></div>
-    </button>
+        <span class="nav-label">More</span>
+      </button>
 
-    <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
-      <div class="nav-item-content">
+      <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
         <span class="material-icons nav-icon">chat_bubble_outline</span>
         <span class="nav-label">Messages</span>
-      </div>
-    </a>
+      </a>
 
-    <a href="#" class="nav-item" id="mobile-notifications">
-      <div class="nav-item-content">
+      <a href="#" class="nav-item position-relative" id="mobile-notifications">
         <span class="material-icons nav-icon">notifications_none</span>
         <span class="nav-label">Notifications</span>
         <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
-      </div>
-    </a>
+      </a>
+    </div>
   </div>
-</nav>
-
-    
-  
 
   <main class="main-content">
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -250,6 +231,9 @@
       {% endblock %}
     </div>
   </main>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
     // Page Transition Logic
@@ -320,10 +304,9 @@
       // Also hide loading if there's an error
       window.addEventListener('error', stopLoading);
 
-      // Mobile nav toggle logic (existing code)
+      // Mobile nav toggle logic
       const moreButton = document.getElementById('moreButton');
       const expandedMenu = document.getElementById('expandedMenu');
-      const closeExpanded = document.getElementById('closeExpanded');
       let isExpanded = false;
 
       moreButton.addEventListener('click', function(e) {
@@ -332,32 +315,30 @@
         
         if (isExpanded) {
           expandedMenu.classList.add('show');
-          moreButton.classList.add('active');
         } else {
           expandedMenu.classList.remove('show');
-          moreButton.classList.remove('active');
         }
-      });
-
-      closeExpanded.addEventListener('click', function(e) {
-        e.preventDefault();
-        expandedMenu.classList.remove('show');
-        moreButton.classList.remove('active');
-        isExpanded = false;
       });
 
       // Close expanded menu when clicking outside
       document.addEventListener('click', function(e) {
-        if (!e.target.closest('#mobileNav') && isExpanded) {
+        if (!e.target.closest('.bottom-nav') && isExpanded) {
           expandedMenu.classList.remove('show');
-          moreButton.classList.remove('active');
+          isExpanded = false;
+        }
+      });
+
+      // Handle escape key to close expanded menu
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isExpanded) {
+          expandedMenu.classList.remove('show');
           isExpanded = false;
         }
       });
 
       // Notification handling
       function updateNotificationBadges(count) {
-        const badges = document.querySelectorAll('[id$="notification-badge"]');
+        const badges = document.querySelectorAll('.notification-badge');
         badges.forEach(badge => {
           if (count > 0) {
             badge.textContent = count;
@@ -382,15 +363,6 @@
         e.preventDefault();
         // Add your notification logic here
         console.log('Desktop notifications clicked');
-      });
-
-      // Handle escape key to close expanded menu
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isExpanded) {
-          expandedMenu.classList.remove('show');
-          moreButton.classList.remove('active');
-          isExpanded = false;
-        }
       });
     });
   </script>
