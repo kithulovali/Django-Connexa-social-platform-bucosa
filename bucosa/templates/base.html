@@ -36,6 +36,7 @@
       });
     }
   </script>
+
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
@@ -228,48 +229,11 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Navigation loading handlers
-      function showLoading() {
-        document.getElementById('page-loader').classList.add('active');
-        document.getElementById('nav-loading-bar').style.width = '30%';
-      }
-      
-      function hideLoading() {
-        document.getElementById('page-loader').classList.remove('active');
-        document.getElementById('nav-loading-bar').style.width = '100%';
-        setTimeout(() => {
-          document.getElementById('nav-loading-bar').style.width = '0%';
-        }, 300);
-      }
-      
-      // Handle all navigation links
-      document.querySelectorAll('a[href^="/"], a[href^="http"]').forEach(link => {
-        if (link.id !== 'pwa-install-btn' && !link.classList.contains('logout-item')) {
-          link.addEventListener('click', function(e) {
-            // Don't intercept if it's an external link or has a target
-            if (this.target || this.href.startsWith('http') && !this.href.includes(window.location.host)) {
-              return;
-            }
-            
-            e.preventDefault();
-            const href = this.href;
-            
-            showLoading();
-            
-            // Simulate loading (replace with actual fetch in production)
-            setTimeout(() => {
-              window.location.href = href;
-              hideLoading();
-            }, 800);
-          });
-        }
-      });
-      
-      // More button toggle
       const moreButton = document.getElementById('moreButton');
       const expandedMenu = document.getElementById('expandedMenu');
       let isExpanded = false;
 
+      // Toggle expanded menu
       moreButton.addEventListener('click', function(e) {
         e.preventDefault();
         isExpanded = !isExpanded;
@@ -295,6 +259,7 @@
       // Close expanded menu when clicking on a nav item
       document.querySelectorAll('.nav-expanded-item').forEach(item => {
         item.addEventListener('click', function(e) {
+          // Don't close if it's the notifications item (prevent default behavior)
           if (!this.id.includes('notifications')) {
             expandedMenu.classList.remove('show');
             moreButton.classList.remove('active');
@@ -306,9 +271,12 @@
       // Handle active states for main nav items
       document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(item => {
         item.addEventListener('click', function() {
+          // Remove active from all main nav items
           document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(navItem => {
             navItem.classList.remove('active');
           });
+          
+          // Add active to clicked item
           this.classList.add('active');
         });
       });
@@ -332,11 +300,13 @@
       // Handle notification clicks
       document.getElementById('mobile-notifications')?.addEventListener('click', function(e) {
         e.preventDefault();
+        // Add your notification logic here
         console.log('Mobile notifications clicked');
       });
 
       document.getElementById('desktop-notifications')?.addEventListener('click', function(e) {
         e.preventDefault();
+        // Add your notification logic here
         console.log('Desktop notifications clicked');
       });
 
