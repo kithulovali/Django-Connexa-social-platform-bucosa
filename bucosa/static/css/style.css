@@ -275,14 +275,14 @@ body {
         display: none;
       }
     }
-  /* Modern Loading Transition Styles */
+    /* Modern Loading Transition Styles */
     .page-transition {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #22223b;
+      background: white;  /* Changed to white */
       z-index: 9999;
       display: flex;
       flex-direction: column;
@@ -309,10 +309,10 @@ body {
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: #fff;
       animation: loading 1.2s linear infinite;
     }
 
+    /* Updated dot colors for better contrast on white */
     .loading-animation div:nth-child(1) {
       top: 8px;
       left: 8px;
@@ -388,7 +388,7 @@ body {
     }
 
     .loading-text {
-      color: white;
+      color: #22223b;  /* Dark text for white background */
       margin-top: 20px;
       font-size: 1.2rem;
       font-weight: 500;
@@ -418,7 +418,7 @@ body {
       left: 0;
       width: 100%;
       height: 100%;
-      background: #22223b;
+      background: white;  /* Changed to white */
       z-index: 9999;
       display: flex;
       align-items: center;
@@ -438,7 +438,7 @@ body {
     .loader-spinner {
       width: 50px;
       height: 50px;
-      border: 5px solid rgba(255, 255, 255, 0.1);
+      border: 5px solid rgba(34, 34, 59, 0.1);  /* Adjusted for white bg */
       border-radius: 50%;
       border-top-color: #f72585;
       animation: spin 1s ease-in-out infinite;
@@ -446,7 +446,7 @@ body {
     }
 
     .loader-text {
-      color: white;
+      color: #22223b;  /* Dark text for white background */
       font-size: 1.2rem;
     }
 
