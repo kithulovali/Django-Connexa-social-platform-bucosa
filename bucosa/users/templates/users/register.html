@@ -8,47 +8,80 @@
 <body>
     {% extends 'base.html' %}
     {% block content %}
-    <div class="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-gray-900 via-sky-950 to-indigo-900">
-      <!-- Left: Hero -->
-      <div class="hidden md:flex flex-col justify-center items-center flex-1 px-10 py-20">
-        <span class="material-icons text-sky-400 text-[7rem] mb-8 drop-shadow-xl">person_add</span>
-        <h1 class="text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight drop-shadow-xl">Create your account</h1>
-        <h2 class="text-2xl font-bold text-sky-300 mb-2 drop-shadow">Join the conversation on Bucosa</h2>
-      </div>
-      <!-- Right: Registration Card -->
-      <div class="flex flex-col justify-center items-center flex-1 px-4 py-20">
-        <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-10 max-w-md w-full flex flex-col items-center border-2 border-sky-200">
-          <h2 class="text-3xl font-extrabold mb-6 text-gray-900 tracking-tight text-center">Sign up</h2>
-          <form action="" method="POST" class="mb-4 w-full flex flex-col gap-4">
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-md w-full space-y-8">
+        <div class="text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+          <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create your account
+          </h2>
+          <p class="mt-2 text-center text-sm text-gray-600">
+            Or
+            <a href="{% url 'users:login' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+              sign in to your existing account
+            </a>
+          </p>
+        </div>
+        
+        <div class="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
+          {% if messages %}
+          <ul class="mb-4">
+            {% for message in messages %}
+            <li class="text-red-500 text-sm">{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          
+          <form class="mb-6 space-y-6" action="" method="POST">
             {% csrf_token %}
             {% for field in form %}
-              <div class="flex flex-col gap-1">
-                <label for="{{ field.id_for_label }}" class="font-semibold text-gray-700">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <span class="text-red-500 text-xs">{{ field.errors|striptags }}</span>
-                {% endif %}
+              <div>
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                <div class="mt-1">
+                  {{ field }}
+                  {% if field.errors %}
+                    <span class="mt-1 text-sm text-red-600">{{ field.errors|striptags }}</span>
+                  {% endif %}
+                </div>
               </div>
             {% endfor %}
-            <input type="submit" value="Register" class="w-full bg-sky-500 text-white px-4 py-3 rounded-full font-bold text-lg shadow hover:bg-sky-600 transition cursor-pointer mt-2">
+
+            <div class="flex items-center">
+              <input id="terms" name="terms" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" required>
+              <label for="terms" class="ml-2 block text-sm text-gray-900">
+                I agree to the <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms</a> and <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+              </label>
+            </div>
+
+            <div>
+              <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Register
+              </button>
+            </div>
           </form>
-          <div class="text-xs text-gray-500 mb-2">* For best appearance, add widget tweaks or set widget attrs in your Django form.</div>
-          {% if messages %}
-            <ul class="messages w-full mb-2">
-              {% for message in messages %}
-              <li class="text-red-500">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-          <div class="mt-4 text-center">
-            <span class="text-gray-600">Already have an account?</span>
-            <a href="{% url 'users:login' %}" class="text-sky-600 underline hover:text-sky-800 font-semibold transition ml-1">Login</a>
+
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">
+                Or sign up with
+              </span>
+            </div>
           </div>
-          <div class="w-full mt-4">
-            <!-- Google Register Button -->
-            {% load socialaccount %}
-            <a href="{% provider_login_url 'google' %}" class="w-full bg-red-500 text-white px-4 py-3 rounded-full font-bold text-lg shadow hover:bg-red-600 transition cursor-pointer flex items-center justify-center gap-2">
-              <span class="material-icons">google</span> Register with Google
+
+          <div class="mt-6 grid grid-cols-1 gap-3">
+            <a href="{% provider_login_url 'google' %}" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                <path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.22l6.85-6.85C35.62 2.7 30.13 0 24 0 14.73 0 6.62 5.48 2.44 13.44l8.44 6.56C12.98 13.36 17.08 9.5 24 9.5z"/>
+                <path fill="#34A853" d="M46.1 24.5c0-1.64-.15-3.22-.43-4.75H24v9.02h12.44c-.54 2.9-2.16 5.36-4.6 7.02l7.19 5.59C43.98 37.36 46.1 31.36 46.1 24.5z"/>
+                <path fill="#FBBC05" d="M10.88 28.5c-.54-1.62-.85-3.34-.85-5.02s.31-3.4.85-5.02l-8.44-6.56C1.16 15.62 0 19.92 0 24.5c0 4.58 1.16 8.88 2.44 12.1l8.44-6.56z"/>
+                <path fill="#EA4335" d="M24 46c6.13 0 11.62-2.02 15.79-5.5l-7.19-5.59c-2.01 1.36-4.59 2.16-8.6 2.16-6.92 0-11.02-3.86-13.12-7.5l-8.44 6.56C6.62 42.52 14.73 48 24 48z"/>
+              </svg>
+              <span class="ml-2">Google</span>
             </a>
           </div>
         </div>
