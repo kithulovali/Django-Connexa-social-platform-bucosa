@@ -455,3 +455,27 @@ body {
         transform: rotate(360deg);
       }
     }
+.more-icon {
+  width: 24px; /* Adjust as needed */
+  height: 24px; /* Adjust as needed */
+  display: block;
+  margin: 0 auto;
+}
+
+.nav-more-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Hide the expanded menu by default */
+.nav-expanded {
+  display: none;
+  /* Your existing styles for the expanded menu */
+}
+
+/* Show when active */
+.nav-expanded.active {
+  display: block;
+}

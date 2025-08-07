@@ -152,89 +152,95 @@
   
   </nav>
 
-  <nav id="mobileNav" class="mobile-nav">
-   <div class="nav-expanded" id="expandedMenu">
-      <div class="expanded-header">
-        <button class="close-expanded" id="closeExpanded">
-          <img src="{% static 'img/more.png'%}" alt="">
-        </button>
-      </div>
-      <div class="nav-expanded-grid">
-        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">search</span>
-            <span class="nav-label">Search</span>
-          </div>
-        </a>
-
-        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
-          <div class="nav-item-content">
-            <span class="material-symbols-outlined nav-icon">church</span>
-            <span class="nav-label">Fellowship</span>
-          </div>
-        </a>
-        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">groups</span>
-            <span class="nav-label">Bucosa</span>
-          </div>
-        </a>
-        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">settings</span>
-            <span class="nav-label">Settings</span>
-          </div>
-        </a>
-        <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">logout</span>
-            <span class="nav-label">Logout</span>
-          </div>
-        </a>
-      </div>
+ <nav id="mobileNav" class="mobile-nav">
+  <!-- Expanded Menu (hidden by default) -->
+  <div class="nav-expanded" id="expandedMenu">
+    <div class="expanded-header">
+      <button class="close-expanded" id="closeExpanded">
+        <img src="{% static 'img/more.png' %}" alt="Close menu">
+      </button>
     </div>
-
-    <div class="nav-main-container">
-      <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
+    <div class="nav-expanded-grid">
+      <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
         <div class="nav-item-content">
-          <span class="material-icons nav-icon">home</span>
-          <span class="nav-label">Home</span>
+          <span class="material-icons nav-icon">search</span>
+          <span class="nav-label">Search</span>
+        </div>
+      </a>
+
+      <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
+        <div class="nav-item-content">
+          <span class="material-symbols-outlined nav-icon">church</span>
+          <span class="nav-label">Fellowship</span>
         </div>
       </a>
       
-      <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
+      <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
         <div class="nav-item-content">
-          <span class="material-icons nav-icon">person_outline</span>
-          <span class="nav-label">Profile</span>
+          <span class="material-icons nav-icon">groups</span>
+          <span class="nav-label">Bucosa</span>
         </div>
       </a>
-
-      <a href="#" class="nav-item nav-more-btn" id="moreButton">
+      
+      <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
         <div class="nav-item-content">
-          <span class="material-icons nav-icon">add</span>
-          <span class="nav-label">More</span>
-        </div>
-        <div class="more-btn-bg"></div>
-      </a>
-
-      <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
-        <div class="nav-item-content">
-          <span class="material-icons nav-icon">chat_bubble_outline</span>
-          <span class="nav-label">Messages</span>
+          <span class="material-icons nav-icon">settings</span>
+          <span class="nav-label">Settings</span>
         </div>
       </a>
-
-      <a href="#" class="nav-item" id="mobile-notifications">
+      
+      <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
         <div class="nav-item-content">
-          <span class="material-icons nav-icon">notifications_none</span>
-          <span class="nav-label">Notifications</span>
-          <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
+          <span class="material-icons nav-icon">logout</span>
+          <span class="nav-label">Logout</span>
         </div>
       </a>
     </div>
+  </div>
+
+  <!-- Main Navigation -->
+  <div class="nav-main-container">
+    <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
+      <div class="nav-item-content">
+        <span class="material-icons nav-icon">home</span>
+        <span class="nav-label">Home</span>
+      </div>
+    </a>
+    
+    <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
+      <div class="nav-item-content">
+        <span class="material-icons nav-icon">person_outline</span>
+        <span class="nav-label">Profile</span>
+      </div>
+    </a>
+
+    <!-- Modified More Button - now using the image as trigger -->
+    <button class="nav-item nav-more-btn" id="moreButton">
+      <div class="nav-item-content">
+        <img src="{% static 'img/more.png' %}" alt="More options" class="more-icon">
+      </div>
+      <div class="more-btn-bg"></div>
+    </button>
+
+    <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
+      <div class="nav-item-content">
+        <span class="material-icons nav-icon">chat_bubble_outline</span>
+        <span class="nav-label">Messages</span>
+      </div>
+    </a>
+
+    <a href="#" class="nav-item" id="mobile-notifications">
+      <div class="nav-item-content">
+        <span class="material-icons nav-icon">notifications_none</span>
+        <span class="nav-label">Notifications</span>
+        <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
+      </div>
+    </a>
+  </div>
+</nav>
 
     
-  </nav>
+  
 
   <main class="main-content">
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
