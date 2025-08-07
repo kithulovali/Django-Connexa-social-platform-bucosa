@@ -15,10 +15,16 @@ def sync_google_profile_on_add(request, sociallogin, **kwargs):
         user.last_name = extra_data.get('family_name', user.last_name)
         # Sync email (should already be set)
         user.email = extra_data.get('email', user.email)
-        # Sync avatar/profile picture
-        if hasattr(user, 'profile'):
-            user.profile.avatar_url = extra_data.get('picture', getattr(user.profile, 'avatar_url', ''))
-            user.profile.save()
+        
+        # Sync avatar/profile picture - safely handle profile creation
+        try:
+            if hasattr(user, 'profile') and user.profile:
+                user.profile.avatar_url = extra_data.get('picture', getattr(user.profile, 'avatar_url', ''))
+                user.profile.save(update_fields=['avatar_url'])
+        except Exception:
+            # Profile doesn't exist or other error - ignore for now
+            # Profile will be created when needed by other views
+            pass
         user.save()
 
 @receiver(social_account_updated)
@@ -29,7 +35,14 @@ def sync_google_profile_on_update(request, sociallogin, **kwargs):
         user.first_name = extra_data.get('given_name', user.first_name)
         user.last_name = extra_data.get('family_name', user.last_name)
         user.email = extra_data.get('email', user.email)
-        if hasattr(user, 'profile'):
-            user.profile.avatar_url = extra_data.get('picture', getattr(user.profile, 'avatar_url', ''))
-            user.profile.save()
+        
+        # Sync avatar/profile picture - safely handle profile access
+        try:
+            if hasattr(user, 'profile') and user.profile:
+                user.profile.avatar_url = extra_data.get('picture', getattr(user.profile, 'avatar_url', ''))
+                user.profile.save(update_fields=['avatar_url'])
+        except Exception:
+            # Profile doesn't exist or other error - ignore for now
+            # Profile will be created when needed by other views
+            pass
         user.save()

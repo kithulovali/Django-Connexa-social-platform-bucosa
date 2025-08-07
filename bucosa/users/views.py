@@ -1,44 +1,67 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required 
-from django.views.decorators.http import require_POST
-from .models import user_profile
-from django.shortcuts import render , redirect , get_object_or_404
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib import messages
-from django.contrib.auth import login , logout , authenticate
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from . forms import profileForm, ProfileUpdateForm
-from . models import user_profile
-from django.contrib.auth.models import Group
-from .forms import GroupCreateForm
-from .models import GroupProfile
-from .forms import GroupProfileForm
-from django.http import HttpResponseForbidden, JsonResponse
-from .models_group_message import GroupMessage
-from django.views.decorators.http import require_POST
-from .models_private_message import PrivateMessage
+# Django core imports
 import datetime
-from django.db.models import Q, Count, Max, Prefetch
-from notifications.utils import create_notification
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import (
     PasswordResetView,
     PasswordResetDoneView,
     PasswordResetConfirmView,
     PasswordResetCompleteView
 )
-from notifications.utils import send_push_notification_v1
-from .models_block_report import UserBlock, UserReport
-from .models import user_following
-from django.views.decorators.cache import cache_page
 from django.core.cache import cache
 from django.db import transaction
+from django.db.models import Q, Count, Max, Prefetch, Exists, OuterRef
+from django.http import JsonResponse, HttpResponseForbidden
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+# Third-party imports
+from allauth.socialaccount.models import SocialAccount
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+# Local imports
+from .forms import profileForm, ProfileUpdateForm, GroupCreateForm, GroupProfileForm
+from .models import user_profile, GroupProfile, user_following
+from .models_block_report import UserBlock, UserReport
+from .models_group_message import GroupMessage
+from .models_private_message import PrivateMessage
+from activities.models import Post, Event, Repost
+from notifications.utils import create_notification, send_push_notification_v1
+from users.models import user_profile, user_following
 
 # Create your views here.
+
+def safe_get_or_create_profile(user, defaults=None):
+    """
+    Safely get or create a user profile, handling race conditions and integrity errors.
+    """
+    if defaults is None:
+        defaults = {'email': user.email or ''}
+    
+    try:
+        profile, created = user_profile.objects.get_or_create(
+            user=user,
+            defaults=defaults
+        )
+        return profile
+    except Exception as e:
+        from django.db import IntegrityError
+        if isinstance(e, IntegrityError) and 'duplicate key' in str(e):
+            # Profile was created by another request, get it
+            try:
+                return user_profile.objects.get(user=user)
+            except user_profile.DoesNotExist:
+                # This shouldn't happen, but handle it gracefully
+                raise e
+        raise e
+
 @csrf_exempt
 @require_POST
 @login_required
@@ -54,6 +77,17 @@ def save_fcm_token(request):
         )
         return JsonResponse({'status': 'success'})
     except Exception as e:
+        # Handle IntegrityError specifically for duplicate key violations
+        from django.db import IntegrityError
+        if isinstance(e, IntegrityError) and 'duplicate key' in str(e):
+            # Try to get existing profile and update it
+            try:
+                profile = user_profile.objects.get(user=request.user)
+                profile.fcm_token = token
+                profile.save(update_fields=['fcm_token'])
+                return JsonResponse({'status': 'success'})
+            except user_profile.DoesNotExist:
+                pass
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 #=============login view
@@ -97,116 +131,126 @@ def register_user(request):
     return render(request , 'users/register.html' , {'form': form})
 
 #=============profile view - HEAVILY OPTIMIZED
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.core.cache import cache
-from django.contrib.auth.models import User
-from users.models import user_profile, user_following
-from django.db.models import Count, Q
-from allauth.socialaccount.models import SocialAccount
-from activities.models import Post, Event, Repost
-from django.conf import settings
+
 
 def profile_user(request, pk):
-    if pk is None or pk == 'None':
+    # Early validation
+    if not pk or pk == 'None':
         messages.error(request, 'Invalid user profile requested.')
         return redirect('/')
 
+    # Base cache keys
+    cache_key = f'user_profile_full_{pk}'
+    auth_user_id = request.user.id if request.user.is_authenticated else None
+    
+    # Try to get cached response
+    cached_response = cache.get(cache_key)
+    if cached_response and cached_response.get('auth_user_id') == auth_user_id:
+        return render(request, 'users/profile.html', cached_response['context'])
+
     try:
-        user = User.objects.get(id=pk)
+        # Get user with select_related for common joins
+        user = User.objects.select_related('user_profile').get(id=pk)
     except User.DoesNotExist:
         messages.error(request, 'User not found.')
         return redirect('/')
 
-    # Cache profile only
-    cache_key = f'user_profile_setup_{pk}'
-    profile = cache.get(cache_key)
-
+    # Check if we have a profile or need to create one
+    profile = getattr(user, 'user_profile', None)
     if not profile:
-        # Check Google Social Account for name and email
-        google_first_name = None
-        email = user.email
+        profile = create_or_update_user_profile(user)
 
-        try:
-            social = SocialAccount.objects.filter(user=user, provider='google').first()
-            if social:
-                google_first_name = social.extra_data.get('given_name')
-                email = social.extra_data.get('email', email)
-        except Exception:
-            pass
+    # Prefetch all related data in optimized queries
+    posts_prefetch = Prefetch(
+        'posts',
+        queryset=Post.objects.select_related('author').order_by('-created_at')[:20],
+        to_attr='prefetched_posts'
+    )
+    
+    events_prefetch = Prefetch(
+        'created_events',
+        queryset=Event.objects.select_related('creator').order_by('-start_time')[:10],
+        to_attr='prefetched_events'
+    )
+    
+    reposts_prefetch = Prefetch(
+        'reposts',
+        queryset=Repost.objects.select_related('user', 'post__author').order_by('-created_at')[:10],
+        to_attr='prefetched_reposts'
+    )
+    
+    saved_posts_prefetch = Prefetch(
+        'saved_posts',
+        queryset=Post.objects.select_related('author').order_by('-created_at').distinct()[:10],
+        to_attr='prefetched_saved_posts'
+    )
 
-        # Set username from Google first name if needed
-        if google_first_name and (user.username == user.email or user.username == '' or user.username.startswith('user')):
-            user.username = google_first_name
-            user.save()
-
-        # Fetch or create profile
-        existing_profile = user_profile.objects.filter(email=email).first()
-        if existing_profile:
-            if existing_profile.user != user:
-                existing_profile.user = user
-                existing_profile.save()
-            profile = existing_profile
-        else:
-            profile, _ = user_profile.objects.get_or_create(
-                user=user,
-                defaults={'email': email}
+    # Get the user with all prefetched data in a single query
+    user = User.objects.filter(id=pk).prefetch_related(
+        posts_prefetch,
+        events_prefetch,
+        reposts_prefetch,
+        saved_posts_prefetch,
+        Prefetch('created_groups', queryset=Group.objects.all()[:10], to_attr='prefetched_groups')
+    ).annotate(
+        followers_count=Count('followers', distinct=True),
+        following_count=Count('following', distinct=True),
+        is_following=Exists(
+            user_following.objects.filter(
+                user_id=auth_user_id,
+                following_user_id=pk
             )
+        ) if auth_user_id else False
+    ).first()
 
-        # Cache for 5 minutes
-        cache.set(cache_key, profile, 300)
-
-    # Accurate follower and following counts
-    followers_count = user_following.objects.filter(following_user=user).count()
-    following_count = user_following.objects.filter(user=user).count()
-
-    # Following status (is request.user following this user?)
-    is_following = False
-    if request.user.is_authenticated and request.user != user:
-        is_following = user_following.objects.filter(
-            user=request.user,
-            following_user=user
-        ).exists()
-
-    # Posts, events, reposts, saved posts
-    posts = Post.objects.filter(author=user).select_related('author').order_by('-created_at')[:20]
-    events = Event.objects.filter(creator=user).select_related('creator').order_by('-start_time')[:10]
-    reposts = Repost.objects.filter(user=user).select_related('user', 'post__author').order_by('-created_at')[:10]
-    saved_posts = Post.objects.filter(saves__user=user).select_related('author').order_by('-created_at').distinct()[:10]
-
-    # Groups
-    user_groups = user.created_groups.all()[:10]
-
-    # Permissions
-    for post in posts:
-        post.can_edit = post.author == request.user
-        post.can_delete = post.author == request.user
-
-    for event in events:
-        event.can_edit = event.creator == request.user
-        event.can_delete = event.creator == request.user
-
-    for repost in reposts:
-        repost.can_edit = repost.post.author == request.user
-        repost.can_delete = repost.post.author == request.user
-
-    for post in saved_posts:
-        post.can_edit = post.author == request.user
-        post.can_delete = post.author == request.user
-
+    # Prepare context with all data
     context = {
         'user': user,
         'profile': profile,
-        'is_following': is_following,
-        'followers_count': followers_count,
-        'following_count': following_count,
-        'user_groups': user_groups,
-        'posts': posts,
-        'reposts': reposts,
-        'saved_posts': saved_posts,
-        'events': events,
+        'is_following': getattr(user, 'is_following', False),
+        'followers_count': getattr(user, 'followers_count', 0),
+        'following_count': getattr(user, 'following_count', 0),
+        'user_groups': getattr(user, 'prefetched_groups', []),
+        'posts': getattr(user, 'prefetched_posts', []),
+        'reposts': getattr(user, 'prefetched_reposts', []),
+        'saved_posts': getattr(user, 'prefetched_saved_posts', []),
+        'events': getattr(user, 'prefetched_events', []),
     }
+
+    # Cache the full response for 5 minutes
+    cache.set(cache_key, {
+        'context': context,
+        'auth_user_id': auth_user_id
+    }, 300)
+
     return render(request, 'users/profile.html', context)
+
+def create_or_update_user_profile(user):
+    """Handle profile creation/update in a separate function"""
+    email = user.email
+    google_first_name = None
+    
+    try:
+        social = SocialAccount.objects.filter(user=user, provider='google').first()
+        if social:
+            google_first_name = social.extra_data.get('given_name')
+            email = social.extra_data.get('email', email)
+            
+            if google_first_name and (user.username == user.email or user.username == '' or user.username.startswith('user')):
+                user.username = google_first_name
+                user.save(update_fields=['username'])
+    except Exception:
+        pass
+
+    # Use our safe utility function
+    profile = safe_get_or_create_profile(user, defaults={'email': email})
+    
+    # Update email if it's different
+    if profile.email != email:
+        profile.email = email
+        profile.save(update_fields=['email'])
+        
+    return profile
 
 #=========== design profile view - OPTIMIZED
 def edit_user(request, pk):
@@ -908,14 +952,14 @@ def edit_privacy(request):
     try:
         profile = request.user.profile
     except AttributeError:
-        # Handle case where profile doesn't exist
-        profile, created = user_profile.objects.get_or_create(user=request.user)
+        # Handle case where profile doesn't exist - use our safe utility
+        profile = safe_get_or_create_profile(request.user)
         
     if request.method == 'POST':
         privacy = request.POST.get('privacy')
         if privacy in dict(profile.PRIVACY_CHOICES):
             profile.privacy = privacy
-            profile.save()
+            profile.save(update_fields=['privacy'])
             messages.success(request, 'Privacy settings updated.')
             return redirect('users:profile', pk=request.user.id)
             
