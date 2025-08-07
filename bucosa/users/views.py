@@ -150,13 +150,13 @@ def profile_user(request, pk):
 
     try:
         # Get user with select_related for common joins
-        user = User.objects.select_related('user_profile').get(id=pk)
+        user = User.objects.select_related('profile').get(id=pk)
     except User.DoesNotExist:
         messages.error(request, 'User not found.')
         return redirect('/')
 
     # Check if we have a profile or need to create one
-    profile = getattr(user, 'user_profile', None)
+    profile = getattr(user, 'profile', None)
     if not profile:
         profile = create_or_update_user_profile(user)
 
