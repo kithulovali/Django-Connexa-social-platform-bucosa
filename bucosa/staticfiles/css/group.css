@@ -1,82 +1,25 @@
-
-/* Fix for mobile viewport */
-@media (max-width: 768px) {
-  .h-screen {
-    height: 100vh;
-    height: -webkit-fill-available;
-  }
-}
- /* Enhanced responsive styles */
-    @media (max-width: 640px) {
-      .safe-area-inset-bottom {
-        padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+    /* Enhanced mobile optimizations */
+    @supports (-webkit-touch-callout: none) {
+      .mobile-keyboard-adjust {
+        padding-bottom: env(keyboard-inset-height, 0px);
       }
     }
     
-    /* Smooth transitions for better UX */
-    .transition-all {
+    /* Improved mobile input handling */
+    .mobile-input-container {
+      position: relative;
       transition: all 0.3s ease;
     }
     
-    /* Better touch targets */
-    .touch-manipulation {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Prevent zoom on input focus (iOS) */
-    @media screen and (max-width: 767px) {
-      input[type="text"],
-      input[type="email"],
-      input[type="password"],
-      textarea,
-      select {
-        font-size: 16px !important;
+    /* Better mobile message bubbles */
+    @media (max-width: 640px) {
+      .message-bubble {
+        max-width: calc(100vw - 80px) !important;
       }
-    }
-    
-    /* Custom scrollbar for webkit browsers */
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 2px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #c1c1c1;
-      border-radius: 2px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #a8a8a8;
-    }
-    
-    /* Message animation */
-    @keyframes messageSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
+      
+      .message-content {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .message-animate {
-      animation: messageSlideIn 0.3s ease-out;
-    }
-    
-    /* Loading spinner */
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-    
-    .animate-spin {
-      animation: spin 1s linear infinite;
     }

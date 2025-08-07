@@ -4,10 +4,10 @@
 {% block content %}
 <head>
   <link rel="stylesheet" href="{% static 'css/group.css'%}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <style>
-   
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="mobile-web-app-capable" content="yes">
 </head>
 
 <div class="flex h-screen bg-gray-100 relative overflow-hidden">
@@ -91,7 +91,7 @@
       <div class="max-w-4xl mx-auto">
         {% for msg in messages %}
         <div class="flex mb-3 sm:mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
-          <div class="flex max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
+          <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
             {% if msg.user != request.user %}
               {% if msg.user.profile and msg.user.profile.profile_image %}
                 <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end" alt="{{ msg.user.username }}">
@@ -104,7 +104,7 @@
                 <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">{{ msg.user.username }}</div>
               {% endif %}
               <div class="{% if msg.user == request.user %}bg-blue-500 text-white ml-auto{% else %}bg-white border border-gray-200 text-gray-900{% endif %} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
-                <div class="text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>
+                <div class="message-content text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>
                 {% if msg.file %}
                   {% with msg.file.url|lower as file_url %}
                     {% if '.jpg' in file_url or '.jpeg' in file_url or '.png' in file_url or '.gif' in file_url %}
@@ -134,8 +134,8 @@
     </div>
 
     <!-- Message input -->
-    <div class="bg-white border-t border-gray-200 p-2 sm:p-3 lg:p-4 safe-area-inset-bottom">
-      <form method="post" enctype="multipart/form-data" class="max-w-4xl mx-auto" id="message-form">
+    <div class="bg-white border-t border-gray-200 p-2 sm:p-3 lg:p-4 safe-area-inset-bottom mobile-keyboard-adjust" id="message-input-container">
+      <form method="post" enctype="multipart/form-data" class="max-w-4xl mx-auto mobile-input-container" id="message-form">
         {% csrf_token %}
         <!-- File preview area -->
         <div id="file-preview" class="hidden mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -165,10 +165,14 @@
             <textarea
               name="content"
               rows="1"
-              class="w-full border border-gray-300 rounded-2xl px-4 py-3 sm:px-5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none max-h-32 leading-relaxed"
+              class="w-full border border-gray-300 rounded-2xl px-4 py-3 sm:px-5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none max-h-32 leading-relaxed touch-manipulation"
               placeholder="Type a message..."
               id="message-input"
               style="min-height: 44px;"
+              autocomplete="off"
+              autocorrect="on"
+              autocapitalize="sentences"
+              spellcheck="true"
             ></textarea>
           </div>
           <button
@@ -200,33 +204,92 @@ document.addEventListener('DOMContentLoaded', function() {
   const removeFileBtn = document.getElementById('remove-file');
   const sendButton = document.getElementById('send-button');
   
-  // Mobile menu toggle with improved touch handling
-  mobileMenuBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    sidebar.classList.toggle('-translate-x-full');
-    overlay.classList.toggle('hidden');
-    
-    // Prevent body scroll when sidebar is open
-    if (!sidebar.classList.contains('-translate-x-full')) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-  });
+  // Enhanced mobile menu with swipe gestures
+  let sidebarTouchStartX = 0;
+  let sidebarTouchStartY = 0;
+  let sidebarIsSwiping = false;
+  let sidebarSwipeThreshold = 50;
   
-  overlay.addEventListener('click', function() {
+  function openSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    sidebar.setAttribute('aria-hidden', 'false');
+  }
+  
+  function closeSidebar() {
     sidebar.classList.add('-translate-x-full');
     overlay.classList.add('hidden');
     document.body.style.overflow = '';
+    sidebar.setAttribute('aria-hidden', 'true');
+  }
+  
+  mobileMenuBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (sidebar.classList.contains('-translate-x-full')) {
+      openSidebar();
+    } else {
+      closeSidebar();
+    }
   });
+  
+  overlay.addEventListener('click', closeSidebar);
+  
+  // Enhanced swipe gestures for sidebar
+  document.addEventListener('touchstart', function(e) {
+    sidebarTouchStartX = e.touches[0].clientX;
+    sidebarTouchStartY = e.touches[0].clientY;
+    sidebarIsSwiping = false;
+  }, { passive: true });
+  
+  document.addEventListener('touchmove', function(e) {
+    if (!sidebarTouchStartX || !sidebarTouchStartY) return;
+    
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+    const diffX = sidebarTouchStartX - touchX;
+    const diffY = sidebarTouchStartY - touchY;
+    
+    // Only handle horizontal swipes
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      sidebarIsSwiping = true;
+      
+      // Swipe from left edge to open sidebar
+      if (sidebarTouchStartX < 20 && diffX < -sidebarSwipeThreshold && sidebar.classList.contains('-translate-x-full')) {
+        e.preventDefault();
+        openSidebar();
+      }
+      
+      // Swipe right to close sidebar when open
+      if (!sidebar.classList.contains('-translate-x-full') && diffX < -sidebarSwipeThreshold) {
+        e.preventDefault();
+        closeSidebar();
+      }
+    }
+  }, { passive: false });
+  
+  document.addEventListener('touchend', function() {
+    sidebarTouchStartX = 0;
+    sidebarTouchStartY = 0;
+    sidebarIsSwiping = false;
+  }, { passive: true });
   
   // Close sidebar on escape key
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
-      document.body.style.overflow = '';
+      closeSidebar();
+    }
+  });
+  
+  // Handle sidebar focus management
+  sidebar.addEventListener('transitionend', function() {
+    if (!sidebar.classList.contains('-translate-x-full')) {
+      // Sidebar is open, focus first focusable element
+      const firstFocusable = sidebar.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (firstFocusable) {
+        firstFocusable.focus();
+      }
     }
   });
   
@@ -278,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 2000);
   });
   
-  // Enhanced keyboard shortcuts
+  // Enhanced keyboard shortcuts and mobile input handling
   messageInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -287,6 +350,25 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
+  
+  // Better mobile input focus handling
+  messageInput.addEventListener('focus', function() {
+    if (window.innerWidth < 768) {
+      setTimeout(() => {
+        messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  });
+  
+  // Prevent zoom on double tap for message input
+  let lastTouchEnd = 0;
+  messageInput.addEventListener('touchend', function(e) {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+      e.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, false);
   
   // Improved scroll to bottom with smooth behavior
   function scrollToBottom(smooth = false) {
@@ -297,16 +379,46 @@ document.addEventListener('DOMContentLoaded', function() {
     chatMessages.scrollTo(scrollOptions);
   }
   
-  // Handle viewport changes (mobile keyboard)
-  let initialViewportHeight = window.innerHeight;
-  window.addEventListener('resize', function() {
-    const currentHeight = window.innerHeight;
+  // Enhanced mobile keyboard handling
+  let initialViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  let isKeyboardOpen = false;
+  const messageInputContainer = document.getElementById('message-input-container');
+  
+  function handleViewportChange() {
+    const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     const heightDifference = initialViewportHeight - currentHeight;
     
-    // If keyboard is likely open (significant height reduction)
-    if (heightDifference > 150) {
+    // Detect keyboard open/close
+    const keyboardThreshold = window.innerWidth < 768 ? 150 : 200;
+    const wasKeyboardOpen = isKeyboardOpen;
+    isKeyboardOpen = heightDifference > keyboardThreshold;
+    
+    if (isKeyboardOpen && !wasKeyboardOpen) {
+      // Keyboard opened
+      document.body.classList.add('keyboard-open');
+      messageInputContainer.style.transform = 'translateY(0)';
       setTimeout(() => scrollToBottom(true), 300);
+    } else if (!isKeyboardOpen && wasKeyboardOpen) {
+      // Keyboard closed
+      document.body.classList.remove('keyboard-open');
+      messageInputContainer.style.transform = '';
+      setTimeout(() => scrollToBottom(false), 100);
     }
+  }
+  
+  // Use Visual Viewport API if available, fallback to resize
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportChange);
+  } else {
+    window.addEventListener('resize', handleViewportChange);
+  }
+  
+  // Handle orientation changes
+  window.addEventListener('orientationchange', function() {
+    setTimeout(() => {
+      initialViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      scrollToBottom(false);
+    }, 500);
   });
   
   // Intersection Observer for auto-scroll
@@ -321,68 +433,179 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
   });
   
-  // WebSocket connection (if available)
-  if (typeof WebSocket !== 'undefined') {
-    try {
-      const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-      const socket = new WebSocket(
-        protocol + window.location.host + '/ws/group/{{ group.id }}/'
-      );
-      
-      socket.onmessage = function(e) {
-        try {
-          const data = JSON.parse(e.data);
-          if (data.message) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'flex mb-3 sm:mb-4 justify-start';
-            messageDiv.setAttribute('data-message-id', data.message.id || '');
-            
-            messageDiv.innerHTML = `
-              <div class="flex max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full">
-                <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold mr-2 sm:mr-3 flex-shrink-0 self-end">
-                  ${(data.message.sender || 'U').charAt(0).toUpperCase()}
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">${data.message.sender || 'Unknown'}</div>
-                  <div class="bg-white border border-gray-200 text-gray-900 rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
-                    <div class="text-sm sm:text-base break-words leading-relaxed">${(data.message.content || '').replace(/\n/g, '<br>')}</div>
+  // Enhanced WebSocket connection with mobile optimizations
+  let socket = null;
+  let reconnectAttempts = 0;
+  const maxReconnectAttempts = 5;
+  let reconnectTimeout = null;
+  
+  function connectWebSocket() {
+    if (typeof WebSocket !== 'undefined') {
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        socket = new WebSocket(
+          protocol + window.location.host + '/ws/group/{{ group.id }}/'
+        );
+        
+        socket.onopen = function() {
+          console.log('WebSocket connected');
+          reconnectAttempts = 0;
+        };
+        
+        socket.onmessage = function(e) {
+          try {
+            const data = JSON.parse(e.data);
+            if (data.message) {
+              // Use DocumentFragment for better performance
+              const fragment = document.createDocumentFragment();
+              const messageDiv = document.createElement('div');
+              messageDiv.className = 'flex mb-3 sm:mb-4 justify-start message-animate';
+              messageDiv.setAttribute('data-message-id', data.message.id || '');
+              
+              messageDiv.innerHTML = `
+                <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full">
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold mr-2 sm:mr-3 flex-shrink-0 self-end">
+                    ${(data.message.sender || 'U').charAt(0).toUpperCase()}
                   </div>
-                  <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 px-1">
-                    <span>just now</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">${data.message.sender || 'Unknown'}</div>
+                    <div class="bg-white border border-gray-200 text-gray-900 rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
+                      <div class="message-content text-sm sm:text-base break-words leading-relaxed">${(data.message.content || '').replace(/\n/g, '<br>')}</div>
+                    </div>
+                    <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 px-1">
+                      <span>just now</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            `;
-            
-            const messagesContainer = chatMessages.querySelector('.max-w-4xl');
-            if (messagesContainer) {
-              messagesContainer.appendChild(messageDiv);
-              if (!isUserScrolling) {
-                scrollToBottom(true);
+              `;
+              
+              fragment.appendChild(messageDiv);
+              
+              const messagesContainer = chatMessages.querySelector('.max-w-4xl');
+              if (messagesContainer) {
+                messagesContainer.appendChild(fragment);
+                if (!isUserScrolling) {
+                  requestAnimationFrame(() => scrollToBottom(true));
+                }
               }
             }
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
           }
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-      
-      socket.onerror = function(error) {
-        console.error('WebSocket error:', error);
-      };
-      
-    } catch (error) {
-      console.error('WebSocket connection failed:', error);
+        };
+        
+        socket.onclose = function(e) {
+          console.log('WebSocket closed:', e.code, e.reason);
+          if (reconnectAttempts < maxReconnectAttempts) {
+            const delay = Math.pow(2, reconnectAttempts) * 1000; // Exponential backoff
+            reconnectTimeout = setTimeout(() => {
+              reconnectAttempts++;
+              console.log(`Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})`);
+              connectWebSocket();
+            }, delay);
+          }
+        };
+        
+        socket.onerror = function(error) {
+          console.error('WebSocket error:', error);
+        };
+        
+      } catch (error) {
+        console.error('WebSocket connection failed:', error);
+      }
     }
   }
+  
+  // Handle app visibility changes for WebSocket management
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      // App is hidden, close WebSocket to save battery
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+    } else {
+      // App is visible again, reconnect WebSocket
+      if (!socket || socket.readyState === WebSocket.CLOSED) {
+        connectWebSocket();
+      }
+    }
+  });
+  
+  // Initialize WebSocket connection
+  connectWebSocket();
+  
+  // Enhanced touch gesture support
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let isSwiping = false;
+  
+  chatMessages.addEventListener('touchstart', function(e) {
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+    isSwiping = false;
+  }, { passive: true });
+  
+  chatMessages.addEventListener('touchmove', function(e) {
+    if (!touchStartY || !touchStartX) return;
+    
+    const touchY = e.touches[0].clientY;
+    const touchX = e.touches[0].clientX;
+    const diffY = touchStartY - touchY;
+    const diffX = touchStartX - touchX;
+    
+    // Detect horizontal swipe (for potential future features)
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      isSwiping = true;
+    }
+  }, { passive: true });
+  
+  // Pull-to-refresh prevention in chat area
+  chatMessages.addEventListener('touchstart', function(e) {
+    if (chatMessages.scrollTop === 0) {
+      chatMessages.scrollTop = 1;
+    }
+  }, { passive: true });
+  
+  // Improved scroll performance on mobile
+  let ticking = false;
+  function updateScrollPosition() {
+    // Throttle scroll events for better performance
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        // Add any scroll-based animations or updates here
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+  
+  chatMessages.addEventListener('scroll', updateScrollPosition, { passive: true });
   
   // Initial scroll to bottom
   scrollToBottom();
   
-  // Focus message input on load (desktop only)
+  // Smart focus handling
   if (window.innerWidth >= 1024) {
     messageInput.focus();
+  } else {
+    // On mobile, only focus if user explicitly taps the input
+    messageInput.addEventListener('click', function() {
+      this.focus();
+    });
   }
+  
+  // Handle app state changes (when user switches apps)
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && window.innerWidth < 768) {
+      // App became visible again, ensure proper layout
+      setTimeout(() => {
+        scrollToBottom(false);
+      }, 100);
+    }
+  });
 });
 </script>
 
