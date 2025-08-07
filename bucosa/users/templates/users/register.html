@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
+{% load socialaccount %}    
 {% block content %}
-{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +9,7 @@
     <title>Register</title>
 </head>
 <body>
-    
+   
     <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full space-y-8">
         <div class="text-center">
@@ -41,8 +41,21 @@
             {% for field in form %}
               <div>
                 <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                <div class="mt-1">
-                  {{ field }}
+                <div class="mt-1 relative">
+                  {% if field.name == 'password' or field.name == 'password1' or field.name == 'password2' %}
+                    <input id="{{ field.id_for_label }}" name="{{ field.name }}" type="password" required
+                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10"
+                           onfocus="this.type='text'" onblur="this.type='password'">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </div>
+                  {% else %}
+                    <input id="{{ field.id_for_label }}" name="{{ field.name }}" type="{% if 'email' in field.name %}email{% else %}text{% endif %}" required
+                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  {% endif %}
                   {% if field.errors %}
                     <span class="mt-1 text-sm text-red-600">{{ field.errors|striptags }}</span>
                   {% endif %}
