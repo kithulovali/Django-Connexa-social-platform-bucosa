@@ -11,7 +11,7 @@ class user_profile(models.Model):
         related_name='profile',
         db_index=True  # Added index
     ) 
-    email = models.EmailField('email address', unique=True, db_index=True)  
+    email = models.EmailField('email address', db_index=True ,blank=True, null=True)  
     bio = models.TextField(max_length=500, blank=True)
     profile_image = CloudinaryField('profile_pics', blank=True, null=True)
     cover_image = CloudinaryField('profile_covers', blank=True, null=True)

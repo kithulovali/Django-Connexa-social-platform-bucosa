@@ -20,6 +20,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 
 # Third-party imports
 from allauth.socialaccount.models import SocialAccount
@@ -38,29 +40,60 @@ from users.models import user_profile, user_following
 
 # Create your views here.
 
+# users/utils.py
 def safe_get_or_create_profile(user, defaults=None):
     """
-    Safely get or create a user profile, handling race conditions and integrity errors.
+    Safely gets or creates a user profile with error handling
+    Usage: profile = safe_get_or_create_profile(request.user)
     """
     if defaults is None:
-        defaults = {'email': user.email or ''}
+        defaults = {}
     
     try:
-        profile, created = user_profile.objects.get_or_create(
-            user=user,
-            defaults=defaults
-        )
-        return profile
-    except Exception as e:
-        from django.db import IntegrityError
-        if isinstance(e, IntegrityError) and 'duplicate key' in str(e):
-            # Profile was created by another request, get it
-            try:
-                return user_profile.objects.get(user=user)
-            except user_profile.DoesNotExist:
-                # This shouldn't happen, but handle it gracefully
-                raise e
-        raise e
+        # Try to get existing profile
+        return user_profile.objects.get(user=user)
+    except ObjectDoesNotExist:
+        try:
+            # Try to create new profile
+            return user_profile.objects.create(user=user, **defaults)
+        except IntegrityError:
+            # If creation fails (race condition), get the profile
+            return user_profile.objects.get(user=user)
+
+
+def get_or_create_user_profile(user):
+    """One-function solution combining the best of #1 and #2"""
+    # Phase 1: Get best available email
+    email = user.email or ''
+    
+    # Optimized social account check (single query)
+    try:
+        social = SocialAccount.objects.filter(user=user, provider='google').first()
+        if social:
+            email = social.extra_data.get('email', email)
+            # Update username if default-ish
+            if (social.extra_data.get('given_name') and 
+                (not user.username or user.username == user.email)):
+                user.username = social.extra_data['given_name']
+                user.save(update_fields=['username'])
+    except Exception:
+        pass  # Skip if social account check fails
+
+    # Phase 2: Profile creation with atomic retries
+    try:
+        with transaction.atomic():
+            profile, _ = user_profile.objects.get_or_create(
+                user=user,
+                defaults={'email': email}
+            )
+            return profile
+    except IntegrityError:
+        # Handle race condition or email conflict
+        try:
+            return user_profile.objects.get(user=user)
+        except ObjectDoesNotExist:
+            # Fallback: Create without email
+            return user_profile.objects.create(user=user, email='')
 
 @csrf_exempt
 @require_POST
@@ -107,7 +140,7 @@ def login_user(request):
             if not User.objects.filter(username=username).exists():
                 messages.error(request ,'Username does not exists!')
             else :
-                messages.error(request ,'Incorect password')
+                messages.error(request ,'Incorrect password')
     return render(request , 'users/login.html')
 
 #=============logout view
@@ -127,7 +160,7 @@ def register_user(request):
             user.save()
             return redirect('users:login')
         else :
-            messages.error(request ,'Registartion failed please try again!')
+            messages.error(request ,'Registration failed please try again!')
     return render(request , 'users/register.html' , {'form': form})
 
 #=============profile view - HEAVILY OPTIMIZED
