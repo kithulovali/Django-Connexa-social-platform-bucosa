@@ -123,46 +123,58 @@
                 </div>
                 {% endif %}
               </div>
+              
+              <!-- Improved Action Buttons Section with Equal Spacing -->
               <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50">
-                <div class="flex items-center justify-between">
+                <div class="grid grid-cols-5 gap-1">
+                  <!-- Like Button -->
                   <button type="button" 
-                          class="like-btn group flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-red-500 w-full justify-center py-2 rounded-xl hover:bg-red-50 transition-colors"
+                          class="like-btn group flex flex-col items-center justify-center text-gray-600 hover:text-red-500 py-1 rounded-xl hover:bg-red-50 transition-colors"
                           data-post-id="{{ item.id }}"
                           data-liked="{% if user in item.likes.all %}true{% else %}false{% endif %}">
-                    <span class="material-icons text-lg like-icon">
+                    <span class="material-icons text-lg like-icon mb-1">
                       {% if user in item.likes.all %}favorite{% else %}favorite_border{% endif %}
                     </span>
-                    <span class="font-medium text-sm sm:text-base like-count">{{ item.likes.count }}</span>
+                    <span class="font-medium text-xs sm:text-sm like-count">{{ item.likes.count }}</span>
                   </button>
                   
-                  <form action="{% if item.repost_of %}{% url 'activities:save_post' item.repost_of.id %}{% else %}{% url 'activities:save_post' item.id %}{% endif %}" method="post" class="flex-1">
+                  <!-- Save Button -->
+                  <form action="{% if item.repost_of %}{% url 'activities:save_post' item.repost_of.id %}{% else %}{% url 'activities:save_post' item.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
                     {% csrf_token %}
-                    <button type="submit" class="group flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-green-600 w-full justify-center py-2 rounded-xl hover:bg-green-50">
-                      <span class="material-icons text-lg">bookmark_border</span>
-                      <span class="font-medium text-sm sm:text-base">{{ item.saves.count }}</span>
+                    <button type="submit" class="group flex flex-col items-center justify-center text-gray-600 hover:text-green-600 w-full py-1 rounded-xl hover:bg-green-50">
+                      <span class="material-icons text-lg mb-1">bookmark_border</span>
+                      <span class="font-medium text-xs sm:text-sm">{{ item.saves.count }}</span>
                     </button>
                   </form>
+                  
+                  <!-- Share Button -->
                   <a href="{% if item.repost_of %}{% url 'activities:share_page' item.repost_of.id %}{% else %}{% url 'activities:share_page' item.id %}{% endif %}" 
-                     class="flex-1 flex items-center justify-center text-gray-600 hover:text-blue-600 py-2 rounded-xl hover:bg-blue-50">
-                    <span class="material-icons text-lg">share</span>
+                     class="flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 py-1 rounded-xl hover:bg-blue-50">
+                    <span class="material-icons text-lg mb-1">share</span>
+                    <span class="font-medium text-xs sm:text-sm">Share</span>
                   </a>
+                  
+                  <!-- Repost Button -->
                   {% if not item.repost_of or item.repost_of.author != user %}
-                  <form action="{% if item.repost_of %}{% url 'activities:repost_post' item.repost_of.id %}{% else %}{% url 'activities:repost_post' item.id %}{% endif %}" method="post" class="flex-1">
+                  <form action="{% if item.repost_of %}{% url 'activities:repost_post' item.repost_of.id %}{% else %}{% url 'activities:repost_post' item.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
                     {% csrf_token %}
-                    <button type="submit" class="group flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-orange-500 w-full justify-center py-2 rounded-xl hover:bg-orange-50">
-                      <span class="material-icons text-lg">repeat</span>
-                      <span class="font-medium text-sm sm:text-base">{{ item.repost_count }}</span>
+                    <button type="submit" class="group flex flex-col items-center justify-center text-gray-600 hover:text-orange-500 w-full py-1 rounded-xl hover:bg-orange-50">
+                      <span class="material-icons text-lg mb-1">repeat</span>
+                      <span class="font-medium text-xs sm:text-sm">{{ item.repost_count }}</span>
                     </button>
                   </form>
                   {% endif %}
+                  
+                  <!-- Comment Button -->
                   <button type="button" 
-                           class="toggle-comments-btn flex-1 flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-purple-600 justify-center py-2 rounded-xl hover:bg-purple-50" 
-                           data-post-id="{{ item.id }}">
-                    <span class="material-icons text-lg">chat_bubble_outline</span>
-                    <span class="font-medium text-sm sm:text-base">{{ item.comments.count }}</span>
+                          class="toggle-comments-btn flex flex-col items-center justify-center text-gray-600 hover:text-purple-600 py-1 rounded-xl hover:bg-purple-50" 
+                          data-post-id="{{ item.id }}">
+                    <span class="material-icons text-lg mb-1">chat_bubble_outline</span>
+                    <span class="font-medium text-xs sm:text-sm">{{ item.comments.count }}</span>
                   </button>
                 </div>
               </div>
+              
               <div class="comments-section hidden border-t border-gray-200" id="comments-section-{{ item.id }}">
                   <div class="px-4 sm:px-6 py-4 bg-gray-50">
                       <div class="space-y-4 max-h-80 overflow-y-auto">
@@ -522,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // AJAX Like functionality
+  // Pure frontend Like functionality
   document.querySelectorAll('.like-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       const postId = this.getAttribute('data-post-id');
@@ -531,7 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const countElement = this.querySelector('.like-count');
       let currentCount = parseInt(countElement.textContent);
 
-      // Optimistic UI update
+      // Toggle like state
       if (isLiked) {
         icon.textContent = 'favorite_border';
         countElement.textContent = currentCount - 1;
@@ -546,7 +558,14 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.remove('text-gray-600');
       }
 
-      // Send AJAX request
+      // Add animation effect
+      icon.classList.add('animate-pulse');
+      setTimeout(() => {
+        icon.classList.remove('animate-pulse');
+      }, 300);
+
+      // Send AJAX request in the background (optional)
+      // This is just for server-side tracking but doesn't affect UI
       fetch(`/activities/like_post/${postId}/`, {
         method: 'POST',
         headers: {
@@ -555,34 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
           'X-Requested-With': 'XMLHttpRequest'
         },
         credentials: 'same-origin'
-      })
-      .then(response => {
-        if (!response.ok) {
-          // Revert UI if request fails
-          if (isLiked) {
-            icon.textContent = 'favorite';
-            countElement.textContent = currentCount;
-            this.setAttribute('data-liked', 'true');
-            this.classList.add('text-red-500');
-            this.classList.remove('text-gray-600');
-          } else {
-            icon.textContent = 'favorite_border';
-            countElement.textContent = currentCount;
-            this.setAttribute('data-liked', 'false');
-            this.classList.remove('text-red-500');
-            this.classList.add('text-gray-600');
-          }
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        // Update count with server value in case of discrepancies
-        countElement.textContent = data.likes_count;
-      })
-      .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-      });
+      }).catch(error => console.error('Error:', error));
     });
   });
 });
