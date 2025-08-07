@@ -32,7 +32,7 @@ from .models import user_profile, GroupProfile, user_following
 from .models_block_report import UserBlock, UserReport
 from .models_group_message import GroupMessage
 from .models_private_message import PrivateMessage
-from activities.models import Post, Event, Repost
+from activities.models import Post, Event, Repost, Save
 from notifications.utils import create_notification, send_push_notification_v1
 from users.models import user_profile, user_following
 
@@ -162,27 +162,27 @@ def profile_user(request, pk):
 
     # Prefetch all related data in optimized queries
     posts_prefetch = Prefetch(
-        'posts',
+        'post_set',
         queryset=Post.objects.select_related('author').order_by('-created_at')[:20],
         to_attr='prefetched_posts'
     )
     
     events_prefetch = Prefetch(
-        'created_events',
+        'event_set',
         queryset=Event.objects.select_related('creator').order_by('-start_time')[:10],
         to_attr='prefetched_events'
     )
     
     reposts_prefetch = Prefetch(
-        'reposts',
+        'repost_set',
         queryset=Repost.objects.select_related('user', 'post__author').order_by('-created_at')[:10],
         to_attr='prefetched_reposts'
     )
     
     saved_posts_prefetch = Prefetch(
-        'saved_posts',
-        queryset=Post.objects.select_related('author').order_by('-created_at').distinct()[:10],
-        to_attr='prefetched_saved_posts'
+        'save_set',
+        queryset=Save.objects.select_related('post__author').order_by('-created_at')[:10],
+        to_attr='prefetched_saves'
     )
 
     # Get the user with all prefetched data in a single query
@@ -191,7 +191,7 @@ def profile_user(request, pk):
         events_prefetch,
         reposts_prefetch,
         saved_posts_prefetch,
-        Prefetch('created_groups', queryset=Group.objects.all()[:10], to_attr='prefetched_groups')
+        Prefetch('groups', queryset=Group.objects.all()[:10], to_attr='prefetched_groups')
     ).annotate(
         followers_count=Count('followers', distinct=True),
         following_count=Count('following', distinct=True),
@@ -204,6 +204,10 @@ def profile_user(request, pk):
     ).first()
 
     # Prepare context with all data
+    saved_posts = []
+    if hasattr(user, 'prefetched_saves'):
+        saved_posts = [save.post for save in user.prefetched_saves]
+    
     context = {
         'user': user,
         'profile': profile,
@@ -213,7 +217,7 @@ def profile_user(request, pk):
         'user_groups': getattr(user, 'prefetched_groups', []),
         'posts': getattr(user, 'prefetched_posts', []),
         'reposts': getattr(user, 'prefetched_reposts', []),
-        'saved_posts': getattr(user, 'prefetched_saved_posts', []),
+        'saved_posts': saved_posts,
         'events': getattr(user, 'prefetched_events', []),
     }
 
