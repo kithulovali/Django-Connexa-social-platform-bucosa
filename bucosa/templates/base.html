@@ -207,7 +207,6 @@
       <!-- More Button -->
       <button class="nav-item more-btn" id="moreButton">
         <img src="{% static 'img/more.png' %}" alt="More options" class="more-icon">
-        <span class="nav-label">More</span>
       </button>
 
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
