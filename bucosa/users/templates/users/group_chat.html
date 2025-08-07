@@ -4,53 +4,61 @@
 {% block content %}
 <head>
   <link rel="stylesheet" href="{% static 'css/group.css'%}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+   
+  </style>
 </head>
 
-<div class="flex h-screen bg-gray-100 relative">
+<div class="flex h-screen bg-gray-100 relative overflow-hidden">
   <!-- Mobile menu button -->
-  <button id="mobile-menu-btn" class="lg:hidden fixed top-4 left-4 z-50 bg-white rounded-lg p-2 shadow-lg">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <button id="mobile-menu-btn" class="lg:hidden fixed top-2 left-2 z-50 bg-white rounded-lg p-3 shadow-lg border border-gray-200 touch-manipulation">
+    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
     </svg>
   </button>
 
   <!-- Left sidebar - Members list -->
-  <div id="sidebar" class="w-64 lg:w-64 bg-white border-r border-gray-200 flex flex-col fixed lg:relative h-full z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
-    <div class="p-4 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-800">{{ group.name }}</h2>
-      <p class="text-sm text-gray-500">{{ group.user_set.count }} members</p>
+  <div id="sidebar" class="w-full sm:w-80 lg:w-64 xl:w-72 bg-white border-r border-gray-200 flex flex-col fixed lg:relative h-full z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+    <div class="p-3 sm:p-4 border-b border-gray-200">
+      <h2 class="text-lg sm:text-xl font-bold text-gray-800 truncate">{{ group.name }}</h2>
+      <p class="text-xs sm:text-sm text-gray-500">{{ group.user_set.count }} member{{ group.user_set.count|pluralize }}</p>
     </div>
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto overscroll-contain custom-scrollbar">
       {% if group.admins.exists %}
-      <div class="p-4">
-        <h3 class="text-sm font-semibold text-gray-500 mb-2">ADMINS</h3>
-        <ul>
+      <div class="p-3 sm:p-4">
+        <h3 class="text-xs sm:text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Admins</h3>
+        <ul class="space-y-1">
           {% for admin in group.admins.all %}
-          <li class="flex items-center py-2">
+          <li class="flex items-center py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
             {% if admin.profile and admin.profile.profile_image %}
-              <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-2" alt="{{ admin.username }}">
+              <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ admin.username }}">
             {% else %}
-              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-2">{{ admin.username|first|upper }}</div>
+              <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ admin.username|first|upper }}</div>
             {% endif %}
-            <span class="text-gray-800 truncate">{{ admin.username }}</span>
+            <div class="flex-1 min-w-0">
+              <span class="text-gray-800 text-sm font-medium truncate block">{{ admin.username }}</span>
+              <span class="text-xs text-blue-600 font-medium">Admin</span>
+            </div>
           </li>
           {% endfor %}
         </ul>
       </div>
       {% endif %}
       
-      <div class="p-4 {% if group.admins.exists %}border-t border-gray-200{% endif %}">
-        <h3 class="text-sm font-semibold text-gray-500 mb-2">MEMBERS</h3>
-        <ul>
+      <div class="p-3 sm:p-4 {% if group.admins.exists %}border-t border-gray-200{% endif %}">
+        <h3 class="text-xs sm:text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Members</h3>
+        <ul class="space-y-1">
           {% for member in group.user_set.all %}
-          <li class="flex items-center py-2">
+          <li class="flex items-center py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
             {% if member.profile and member.profile.profile_image %}
-              <img src="{{ member.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-2" alt="{{ member.username }}">
+              <img src="{{ member.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ member.username }}">
             {% else %}
-              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-2">{{ member.username|first|upper }}</div>
+              <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ member.username|first|upper }}</div>
             {% endif %}
-            <span class="text-gray-800 truncate">{{ member.username }}</span>
+            <div class="flex-1 min-w-0">
+              <span class="text-gray-800 text-sm truncate block">{{ member.username }}</span>
+            </div>
           </li>
           {% endfor %}
         </ul>
@@ -62,50 +70,57 @@
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
 
   <!-- Main chat area -->
-  <div class="flex-1 flex flex-col lg:ml-0">
+  <div class="flex-1 flex flex-col lg:ml-0 min-w-0">
     <!-- Group profile header -->
-    <div class="bg-white border-b border-gray-200 p-4 pl-16 lg:pl-4">
+    <div class="bg-white border-b border-gray-200 p-3 sm:p-4 pl-14 sm:pl-16 lg:pl-4">
       <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
-          <h1 class="text-lg lg:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
-          <p class="text-gray-500 text-sm truncate">{{ group.description|default:"No description" }}</p>
+          <h1 class="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
+          <p class="text-gray-500 text-xs sm:text-sm truncate mt-0.5">{{ group.description|default:"No description" }}</p>
         </div>
+        <div class="flex-shrink-0 ml-4">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {{ group.user_set.count }} member{{ group.user_set.count|pluralize }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Messages area -->
-    <div class="flex-1 overflow-y-auto p-2 lg:p-4 bg-gray-50" id="chat-messages">
-      <div class="max-w-3xl mx-auto">
+    <div class="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4 bg-gray-50 custom-scrollbar" id="chat-messages">
+      <div class="max-w-4xl mx-auto">
         {% for msg in messages %}
-        <div class="flex mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
-          <div class="flex max-w-xs lg:max-w-md w-full">
+        <div class="flex mb-3 sm:mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
+          <div class="flex max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
             {% if msg.user != request.user %}
               {% if msg.user.profile and msg.user.profile.profile_image %}
-                <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 lg:w-10 lg:h-10 rounded-full mr-2 lg:mr-3 flex-shrink-0" alt="{{ msg.user.username }}">
+                <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end" alt="{{ msg.user.username }}">
               {% else %}
-                <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs lg:text-sm font-bold mr-2 lg:mr-3">{{ msg.user.username|first|upper }}</div>
+                <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end">{{ msg.user.username|first|upper }}</div>
               {% endif %}
             {% endif %}
             <div class="flex-1 min-w-0">
               {% if msg.user != request.user %}
-                <div class="text-xs lg:text-sm font-medium text-gray-900 mb-1">{{ msg.user.username }}</div>
+                <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">{{ msg.user.username }}</div>
               {% endif %}
-              <div class="{% if msg.user == request.user %}bg-blue-500 text-white{% else %}bg-white border border-gray-200{% endif %} rounded-lg p-2 lg:p-3">
-                <div class="text-xs lg:text-sm break-words">{{ msg.content|linebreaksbr }}</div>
+              <div class="{% if msg.user == request.user %}bg-blue-500 text-white ml-auto{% else %}bg-white border border-gray-200 text-gray-900{% endif %} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
+                <div class="text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>
                 {% if msg.file %}
                   {% with msg.file.url|lower as file_url %}
                     {% if '.jpg' in file_url or '.jpeg' in file_url or '.png' in file_url or '.gif' in file_url %}
-                      <img src="{{ msg.file.url }}" class="rounded-lg mt-2 max-w-full border border-gray-200 shadow" />
+                      <img src="{{ msg.file.url }}" class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" onclick="window.open(this.src, '_blank')" />
                     {% elif '.mp4' in file_url or '.webm' in file_url or '.ogg' in file_url %}
-                      <video controls class="rounded-lg mt-2 max-w-full border border-gray-200 shadow">
+                      <video controls class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm">
                         <source src="{{ msg.file.url }}">
+                        Your browser does not support the video tag.
                       </video>
                     {% else %}
-                      <a href="{{ msg.file.url }}" target="_blank" class="text-blue-500 underline block mt-2 text-xs lg:text-sm">Download file</a>
+                      <a href="{{ msg.file.url }}" target="_blank" class="{% if msg.user == request.user %}text-blue-200 hover:text-white{% else %}text-blue-600 hover:text-blue-800{% endif %} underline block mt-2 text-sm font-medium">📎 Download file</a>
                     {% endif %}
                   {% endwith %}
                 {% endif %}
               </div>
-              <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 {% if msg.user == request.user %}justify-end{% endif %}">
+              <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 {% if msg.user == request.user %}justify-end{% endif %} px-1">
                 <span>{{ msg.timestamp|timesince }} ago</span>
                 {% if msg.edited %}
                   <span class="text-gray-400">(edited)</span>
@@ -119,19 +134,51 @@
     </div>
 
     <!-- Message input -->
-    <div class="bg-white border-t border-gray-200 p-2 lg:p-4">
-      <form method="post" enctype="multipart/form-data" class="max-w-3xl mx-auto" id="message-form">
+    <div class="bg-white border-t border-gray-200 p-2 sm:p-3 lg:p-4 safe-area-inset-bottom">
+      <form method="post" enctype="multipart/form-data" class="max-w-4xl mx-auto" id="message-form">
         {% csrf_token %}
-        <div class="flex items-end space-x-2">
-          <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-gray-700 p-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 lg:h-6 lg:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- File preview area -->
+        <div id="file-preview" class="hidden mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <span id="file-name" class="text-sm text-gray-700 truncate"></span>
+            </div>
+            <button type="button" id="remove-file" class="text-gray-400 hover:text-gray-600 p-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="flex items-end space-x-2 sm:space-x-3">
+          <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-blue-500 p-2 sm:p-3 rounded-full hover:bg-gray-100 transition-colors duration-150 touch-manipulation">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
             </svg>
-            <input id="group-file-input" type="file" name="file" class="hidden">
+            <input id="group-file-input" type="file" name="file" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt">
           </label>
-          <textarea name="content" rows="1" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="Message #{{ group.name }}" id="message-input"></textarea>
-          <button type="submit" class="px-3 py-2 lg:px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm">
-            Send
+          <div class="flex-1 relative">
+            <textarea
+              name="content"
+              rows="1"
+              class="w-full border border-gray-300 rounded-2xl px-4 py-3 sm:px-5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none max-h-32 leading-relaxed"
+              placeholder="Type a message..."
+              id="message-input"
+              style="min-height: 44px;"
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="px-4 py-3 sm:px-5 sm:py-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base font-medium transition-colors duration-150 touch-manipulation min-w-[60px] sm:min-w-[70px]"
+            id="send-button"
+          >
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
           </button>
         </div>
       </form>
@@ -147,39 +194,132 @@ document.addEventListener('DOMContentLoaded', function() {
   const chatMessages = document.getElementById('chat-messages');
   const messageForm = document.getElementById('message-form');
   const messageInput = document.getElementById('message-input');
+  const fileInput = document.getElementById('group-file-input');
+  const filePreview = document.getElementById('file-preview');
+  const fileName = document.getElementById('file-name');
+  const removeFileBtn = document.getElementById('remove-file');
+  const sendButton = document.getElementById('send-button');
   
-  // Mobile menu toggle
-  mobileMenuBtn.addEventListener('click', function() {
+  // Mobile menu toggle with improved touch handling
+  mobileMenuBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
     sidebar.classList.toggle('-translate-x-full');
     overlay.classList.toggle('hidden');
+    
+    // Prevent body scroll when sidebar is open
+    if (!sidebar.classList.contains('-translate-x-full')) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   });
   
   overlay.addEventListener('click', function() {
     sidebar.classList.add('-translate-x-full');
     overlay.classList.add('hidden');
+    document.body.style.overflow = '';
   });
   
-  // Auto-resize textarea
-  messageInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  // Close sidebar on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
   });
   
-  // Form submission
+  // Auto-resize textarea with better mobile handling
+  function adjustTextareaHeight() {
+    messageInput.style.height = 'auto';
+    const newHeight = Math.min(messageInput.scrollHeight, 128);
+    messageInput.style.height = newHeight + 'px';
+  }
+  
+  messageInput.addEventListener('input', adjustTextareaHeight);
+  messageInput.addEventListener('paste', function() {
+    setTimeout(adjustTextareaHeight, 10);
+  });
+  
+  // File handling
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      fileName.textContent = file.name;
+      filePreview.classList.remove('hidden');
+    }
+  });
+  
+  removeFileBtn.addEventListener('click', function() {
+    fileInput.value = '';
+    filePreview.classList.add('hidden');
+  });
+  
+  // Enhanced form submission
   messageForm.addEventListener('submit', function(e) {
     const content = messageInput.value.trim();
-    const file = document.getElementById('group-file-input').files[0];
+    const file = fileInput.files[0];
     
     if (!content && !file) {
       e.preventDefault();
       alert('Please enter a message or select a file.');
+      return;
+    }
+    
+    // Disable send button to prevent double submission
+    sendButton.disabled = true;
+    sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    
+    // Re-enable after a delay
+    setTimeout(() => {
+      sendButton.disabled = false;
+      sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
+    }, 2000);
+  });
+  
+  // Enhanced keyboard shortcuts
+  messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (messageInput.value.trim() || fileInput.files[0]) {
+        messageForm.dispatchEvent(new Event('submit'));
+      }
     }
   });
   
-  // Scroll to bottom of messages
-  function scrollToBottom() {
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Improved scroll to bottom with smooth behavior
+  function scrollToBottom(smooth = false) {
+    const scrollOptions = {
+      top: chatMessages.scrollHeight,
+      behavior: smooth ? 'smooth' : 'auto'
+    };
+    chatMessages.scrollTo(scrollOptions);
   }
+  
+  // Handle viewport changes (mobile keyboard)
+  let initialViewportHeight = window.innerHeight;
+  window.addEventListener('resize', function() {
+    const currentHeight = window.innerHeight;
+    const heightDifference = initialViewportHeight - currentHeight;
+    
+    // If keyboard is likely open (significant height reduction)
+    if (heightDifference > 150) {
+      setTimeout(() => scrollToBottom(true), 300);
+    }
+  });
+  
+  // Intersection Observer for auto-scroll
+  let isUserScrolling = false;
+  let scrollTimeout;
+  
+  chatMessages.addEventListener('scroll', function() {
+    isUserScrolling = true;
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      isUserScrolling = false;
+    }, 1000);
+  });
   
   // WebSocket connection (if available)
   if (typeof WebSocket !== 'undefined') {
@@ -194,30 +334,32 @@ document.addEventListener('DOMContentLoaded', function() {
           const data = JSON.parse(e.data);
           if (data.message) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = 'flex mb-4 justify-start';
+            messageDiv.className = 'flex mb-3 sm:mb-4 justify-start';
             messageDiv.setAttribute('data-message-id', data.message.id || '');
             
             messageDiv.innerHTML = `
-              <div class="flex max-w-xs lg:max-w-md w-full">
-                <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs lg:text-sm font-bold mr-2 lg:mr-3">
+              <div class="flex max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full">
+                <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold mr-2 sm:mr-3 flex-shrink-0 self-end">
                   ${(data.message.sender || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div class="flex-1 min-w-0">
-                  <div class="text-xs lg:text-sm font-medium text-gray-900 mb-1">${data.message.sender || 'Unknown'}</div>
-                  <div class="bg-white border border-gray-200 rounded-lg p-2 lg:p-3">
-                    <div class="text-xs lg:text-sm break-words">${(data.message.content || '').replace(/\n/g, '<br>')}</div>
+                  <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">${data.message.sender || 'Unknown'}</div>
+                  <div class="bg-white border border-gray-200 text-gray-900 rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
+                    <div class="text-sm sm:text-base break-words leading-relaxed">${(data.message.content || '').replace(/\n/g, '<br>')}</div>
                   </div>
-                  <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500">
+                  <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 px-1">
                     <span>just now</span>
                   </div>
                 </div>
               </div>
             `;
             
-            const messagesContainer = chatMessages.querySelector('.max-w-3xl');
+            const messagesContainer = chatMessages.querySelector('.max-w-4xl');
             if (messagesContainer) {
               messagesContainer.appendChild(messageDiv);
-              scrollToBottom();
+              if (!isUserScrolling) {
+                scrollToBottom(true);
+              }
             }
           }
         } catch (error) {
@@ -236,6 +378,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initial scroll to bottom
   scrollToBottom();
+  
+  // Focus message input on load (desktop only)
+  if (window.innerWidth >= 1024) {
+    messageInput.focus();
+  }
 });
 </script>
 
