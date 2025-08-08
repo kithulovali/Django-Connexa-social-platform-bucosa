@@ -46,6 +46,8 @@ class ProfileUpdateForm(ModelForm):
             
     def clean_profile_image(self):
         image = self.cleaned_data.get('profile_image')
+        if image is None:  # If no file was uploaded
+             return self.instance.profile_image  # Keep the existing image
         return validate_image_size(image)
 
     def clean_cover_image(self):
