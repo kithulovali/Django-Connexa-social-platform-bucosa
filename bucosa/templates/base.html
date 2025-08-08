@@ -5,27 +5,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
-  <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="manifest" href="{% static 'manifest.json' %}" />
   <meta name="theme-color" content="#22223b" />
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
 
-  <!-- Custom JS -->
   <script src="{% static 'js/theme-toggle.js' %}"></script>
   <script src="{% static 'js/pwa-install.js' %}"></script>
   <script src="{% static 'js/notifications.js' %}" defer></script>
@@ -36,6 +26,7 @@
   <script src="{% static 'js/firebase-push.js' %}" defer></script>
 
   {% block extra_head %}{% endblock %}
+
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
@@ -45,194 +36,273 @@
       });
     }
   </script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300" id="body-root">
 
-  <!-- Modern Loading Animation -->
-  <div id="page-transition" class="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900 transition-opacity duration-500 opacity-0 pointer-events-none">
-    <div class="relative w-24 h-24">
-      <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-500 border-r-indigo-500 animate-spin"></div>
-      <div class="absolute inset-2 rounded-full border-4 border-transparent border-b-purple-500 border-l-purple-500 animate-spin-reverse"></div>
-      <div class="absolute inset-4 flex items-center justify-center">
-        <div class="text-indigo-600 dark:text-indigo-400 font-bold text-xl">Bucosa</div>
-      </div>
+</head>
+<body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
+
+  <!-- Initial Page Loader -->
+  <div id="page-loader" class="page-loader">
+    <div class="loader-container">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Loading Bucosa...</div>
     </div>
+  </div>
+
+  <!-- Navigation Loading Bar -->
+  <div id="nav-loading-bar" class="nav-loading-bar"></div>
+
+  <!-- Modern Loading Transition -->
+  <div class="page-transition" id="pageTransition">
+    <div class="loading-animation">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="loading-text" id="loadingText">Loading content...</div>
   </div>
 
   <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
     Install Bucosa App
   </button>
 
-  <!-- Desktop Sidebar -->
-  <nav id="desktopSidebar" class="desktop-sidebar bg-white dark:bg-gray-800 shadow-lg">
+  <nav id="desktopSidebar" class="desktop-sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <h1 class="text-indigo-600 dark:text-indigo-400">Bucosa</h1>
-        <div class="logo-accent bg-purple-500"></div>
+        <img src="{% static 'img/bucosa-logo.png' %}" alt="Bucosa Logo" class="logo-image">
+        <h1>Bucosa</h1>
+        <div class="logo-accent"></div>
       </div>
     </div>
     
     <div class="sidebar-nav">
       <div class="nav-section">
-        <a href="{% url 'activities:home' %}" class="sidebar-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700 {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
+        <a href="{% url 'activities:home' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
           <div class="nav-item-content">
-            <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">home</span>
-            <span class="nav-label text-gray-700 dark:text-gray-300">Home</span>
+            <span class="material-icons nav-icon">home</span>
+            <span class="nav-label">Home</span>
           </div>
-          <div class="nav-item-indicator bg-indigo-600"></div>
+          <div class="nav-item-indicator"></div>
         </a>
-        <a href="{% url 'users:search_users' %}" class="sidebar-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700 {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
+        <a href="{% url 'users:search_users' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
           <div class="nav-item-content">
-            <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">search</span>
-            <span class="nav-label text-gray-700 dark:text-gray-300">Search</span>
+            <span class="material-icons nav-icon">search</span>
+            <span class="nav-label">Search</span>
           </div>
-          <div class="nav-item-indicator bg-indigo-600"></div>
+          <div class="nav-item-indicator"></div>
         </a>
-        <a href="{% url 'users:private_messages' %}" class="sidebar-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700 {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
+        <a href="{% url 'users:private_messages' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
           <div class="nav-item-content">
-            <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">chat_bubble_outline</span>
-            <span class="nav-label text-gray-700 dark:text-gray-300">Messages</span>
+            <span class="material-icons nav-icon">chat_bubble_outline</span>
+            <span class="nav-label">Messages</span>
           </div>
-          <div class="nav-item-indicator bg-indigo-600"></div>
+          <div class="nav-item-indicator"></div>
         </a>
-        <a href="#" class="sidebar-item hover:bg-gray-100 dark:hover:bg-gray-700" id="desktop-notifications">
+        <a href="#" class="sidebar-item" id="desktop-notifications">
           <div class="nav-item-content">
-            <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">notifications_none</span>
-            <span class="nav-label text-gray-700 dark:text-gray-300">Notifications</span>
-            <span id="desktop-notification-badge" class="notification-badge bg-red-500 text-white" style="display:none;">0</span>
+            <span class="material-icons nav-icon">notifications_none</span>
+            <span class="nav-label">Notifications</span>
+            <span id="desktop-notification-badge" class="notification-badge" style="display:none;">0</span>
           </div>
-          <div class="nav-item-indicator bg-indigo-600"></div>
+          <div class="nav-item-indicator"></div>
         </a>
-        <a href="{% url 'users:profile' user.id %}" class="sidebar-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700 {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
+        <a href="{% url 'users:profile' user.id %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
           <div class="nav-item-content">
-            <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">person_outline</span>
-            <span class="nav-label text-gray-700 dark:text-gray-300">Profile</span>
+            <span class="material-icons nav-icon">person_outline</span>
+            <span class="nav-label">Profile</span>
           </div>
-          <div class="nav-item-indicator bg-indigo-600"></div>
+          <div class="nav-item-indicator"></div>
         </a>
       </div>
       
       <div class="sidebar-section">
-        <div class="sidebar-section-title text-gray-500 dark:text-gray-400">
+        <div class="sidebar-section-title">
           <span class="material-icons section-icon">groups</span>
           Community
         </div>
-        <a href="{% url 'fellowship_detail' 1 %}" class="sidebar-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700 {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
+        <a href="{% url 'fellowship_detail' 1 %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
           <div class="nav-item-content">
-            <span class="material-symbols-outlined nav-icon text-gray-700 dark:text-gray-300">church</span>
-            <span class="nav-label text-gray-700 dark:text-gray-300">Fellowship</span>
+            <span class="material-symbols-outlined nav-icon">church</span>
+            <span class="nav-label">Fellowship</span>
           </div>
-          <div class="nav-item-indicator bg-indigo-600"></div>
+          <div class="nav-item-indicator"></div>
         </a>
-        <a href="{% url 'bucosa_main' %}" class="sidebar-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700" data-page="bucosa-main">
+        <a href="{% url 'bucosa_main' %}" class="sidebar-item nav-link" data-page="bucosa-main">
           <div class="nav-item-content">
-            <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">groups</span>
-            <span class="nav-label text-gray-700 dark:text-gray-300">Bucosa Main</span>
+            <span class="material-icons nav-icon">groups</span>
+            <span class="nav-label">Bucosa Main</span>
           </div>
-          <div class="nav-item-indicator bg-indigo-600"></div>
+          <div class="nav-item-indicator"></div>
         </a>
       </div>
 
       <div class="sidebar-footer">
-        <a href="{% url 'users:logout' %}" class="sidebar-item logout-item hover:bg-gray-100 dark:hover:bg-gray-700">
+        <a href="{% url 'users:logout' %}" class="sidebar-item logout-item">
           <div class="nav-item-content">
-            <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">logout</span>
-            <span class="nav-label text-gray-700 dark:text-gray-300">Logout</span>
+            <span class="material-icons nav-icon">logout</span>
+            <span class="nav-label">Logout</span>
           </div>
         </a>
       </div>
     </div>
   </nav>
 
-  <!-- Mobile Navigation -->
-  <div class="bottom-nav bg-white dark:bg-gray-800 shadow-lg">
-    <!-- Expanded Menu -->
-    <div class="expanded-menu bg-white dark:bg-gray-800" id="expandedMenu">
-      <div class="expanded-grid">
-        <a href="{% url 'users:search_users' %}" class="expanded-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700 {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
-          <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">search</span>
-          <span class="nav-label text-gray-700 dark:text-gray-300">Search</span>
+  <nav id="mobileNav" class="mobile-nav">
+    <!-- Expanded Menu (hidden by default) -->
+    <div class="nav-expanded" id="expandedMenu">
+      <div class="expanded-header">
+        <div class="expanded-logo">
+          <img src="{% static 'img/bucosa-logo.png' %}" alt="Bucosa Logo" class="expanded-logo-image">
+          <h2>Bucosa</h2>
+        </div>
+        <button class="close-expanded" id="closeExpanded">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <div class="expanded-user-info">
+        <div class="user-avatar">
+          <img src="{{ request.user.profile.avatar.url|default:'/static/img/default-avatar.png' }}" alt="Profile" class="profile-image">
+        </div>
+        <div class="user-details">
+          <h3>{{ request.user.get_full_name|default:request.user.username }}</h3>
+          <p>@{{ request.user.username }}</p>
+        </div>
+      </div>
+      
+      <div class="nav-expanded-grid">
+        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">search</span>
+            <span class="nav-label">Search</span>
+          </div>
         </a>
 
-        <a href="{% url 'fellowship_detail' 1 %}" class="expanded-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700 {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
-          <span class="material-symbols-outlined nav-icon text-gray-700 dark:text-gray-300">church</span>
-          <span class="nav-label text-gray-700 dark:text-gray-300">Fellowship</span>
+        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
+          <div class="nav-item-content">
+            <span class="material-symbols-outlined nav-icon">church</span>
+            <span class="nav-label">Fellowship</span>
+          </div>
         </a>
         
-        <a href="{% url 'bucosa_main' %}" class="expanded-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700" data-page="bucosa-main">
-          <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">groups</span>
-          <span class="nav-label text-gray-700 dark:text-gray-300">Bucosa</span>
+        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">groups</span>
+            <span class="nav-label">Bucosa</span>
+          </div>
         </a>
         
-        <a href="{% url 'users:user_settings' %}" class="expanded-item nav-link hover:bg-gray-100 dark:hover:bg-gray-700" data-page="settings">
-          <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">settings</span>
-          <span class="nav-label text-gray-700 dark:text-gray-300">Settings</span>
+        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">settings</span>
+            <span class="nav-label">Settings</span>
+          </div>
         </a>
         
-        <a href="{% url 'users:logout' %}" class="expanded-item logout-item hover:bg-gray-100 dark:hover:bg-gray-700">
-          <span class="material-icons nav-icon text-gray-700 dark:text-gray-300">logout</span>
-          <span class="nav-label text-gray-700 dark:text-gray-300">Logout</span>
+        <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">logout</span>
+            <span class="nav-label">Logout</span>
+          </div>
         </a>
       </div>
     </div>
 
     <!-- Main Navigation -->
-    <div class="d-flex justify-content-around align-items-center">
-      <a href="{% url 'activities:home' %}" class="nav-item nav-link hover:text-indigo-600 dark:hover:text-indigo-400 {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
-        <span class="material-icons nav-icon">home</span>
-        <span class="nav-label">Home</span>
+    <div class="nav-main-container">
+      <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">home</span>
+          <span class="nav-label">Home</span>
+        </div>
       </a>
       
-      <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link hover:text-indigo-600 dark:hover:text-indigo-400 {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
-        <span class="material-icons nav-icon">person_outline</span>
-        <span class="nav-label">Profile</span>
+      <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">person_outline</span>
+          <span class="nav-label">Profile</span>
+        </div>
       </a>
 
-      <!-- More Button -->
-      <button class="nav-item more-btn" id="moreButton">
-        <img src="{% static 'img/more.png' %}" alt="More options" class="more-icon">
+      <button class="nav-item nav-more-btn" id="moreButton">
+        <div class="nav-item-content">
+          <img src="{% static 'img/more.png' %}" alt="Bucosa" class="logo-icon">
+        </div>
+        <div class="more-btn-bg"></div>
       </button>
 
-      <a href="{% url 'users:private_messages' %}" class="nav-item nav-link hover:text-indigo-600 dark:hover:text-indigo-400 {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
-        <span class="material-icons nav-icon">chat_bubble_outline</span>
-        <span class="nav-label">Messages</span>
+      <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">chat_bubble_outline</span>
+          <span class="nav-label">Messages</span>
+        </div>
       </a>
 
-      <a href="#" class="nav-item position-relative hover:text-indigo-600 dark:hover:text-indigo-400" id="mobile-notifications">
-        <span class="material-icons nav-icon">notifications_none</span>
-        <span class="nav-label">Notifications</span>
-        <span id="mobile-notification-badge" class="notification-badge bg-red-500 text-white" style="display:none;">0</span>
+      <a href="#" class="nav-item" id="mobile-notifications">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">notifications_none</span>
+          <span class="nav-label">Notifications</span>
+          <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
+        </div>
       </a>
     </div>
-  </div>
+  </nav>
 
   <main class="main-content">
-    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 transition-all duration-300">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       {% block content %}
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Welcome to Bucosa</h1>
-      <p class="text-gray-600 dark:text-gray-300">Your content goes here...</p>
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">Welcome to Bucosa</h1>
+      <p class="text-gray-600">Your content goes here...</p>
       {% endblock %}
     </div>
   </main>
 
-  <!-- Bootstrap JS Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   <script>
-    // Modern Page Transition Logic
+    // Page Transition Logic
     document.addEventListener('DOMContentLoaded', function() {
-      const pageTransition = document.getElementById('page-transition');
+      // Hide initial page loader
+      const pageLoader = document.getElementById('page-loader');
+      setTimeout(() => {
+        pageLoader.classList.add('hidden');
+      }, 500);
+
+      // Get transition elements
+      const pageTransition = document.getElementById('pageTransition');
+      const loadingText = document.getElementById('loadingText');
+      const navLoadingBar = document.getElementById('nav-loading-bar');
       
-      // Function to show loading
-      function showLoading() {
-        pageTransition.style.opacity = '1';
-        pageTransition.style.pointerEvents = 'auto';
+      // Function to start loading
+      function startLoading(destination) {
+        // Show loading transition
+        pageTransition.classList.add('active');
+        navLoadingBar.classList.add('active');
+        
+        // Update loading text based on destination
+        const pageName = getPageName(destination);
+        loadingText.textContent = `Loading ${pageName}...`;
       }
       
-      // Function to hide loading
-      function hideLoading() {
-        pageTransition.style.opacity = '0';
-        pageTransition.style.pointerEvents = 'none';
+      // Function to stop loading
+      function stopLoading() {
+        pageTransition.classList.remove('active');
+        navLoadingBar.classList.remove('active');
+      }
+      
+      // Helper function to get page name from URL
+      function getPageName(url) {
+        const path = new URL(url, window.location.origin).pathname;
+        if (path.includes('profile')) return 'Profile';
+        if (path.includes('messages')) return 'Messages';
+        if (path.includes('search')) return 'Search';
+        if (path.includes('fellowship')) return 'Fellowship';
+        if (path.includes('bucosa-main')) return 'Bucosa';
+        if (path.includes('home')) return 'Home';
+        return 'page';
       }
       
       // Intercept all link clicks
@@ -243,10 +313,7 @@
             !link.classList.contains('no-transition') &&
             new URL(link.href).origin === window.location.origin) {
           e.preventDefault();
-          showLoading();
-          
-          // Store scroll position
-          sessionStorage.setItem('scrollPosition', window.scrollY);
+          startLoading(link.href);
           
           // Navigate after a short delay to allow animation to show
           setTimeout(() => {
@@ -257,55 +324,54 @@
       
       // When page is fully loaded
       window.addEventListener('load', function() {
-        // Hide loading transition
-        setTimeout(hideLoading, 300);
-        
-        // Restore scroll position if available
-        const scrollPosition = sessionStorage.getItem('scrollPosition');
-        if (scrollPosition) {
-          window.scrollTo(0, parseInt(scrollPosition));
-          sessionStorage.removeItem('scrollPosition');
-        }
+        // Hide loading transition with a slight delay
+        setTimeout(stopLoading, 300);
       });
       
       // Also hide loading if there's an error
-      window.addEventListener('error', hideLoading);
+      window.addEventListener('error', stopLoading);
 
       // Mobile nav toggle logic
       const moreButton = document.getElementById('moreButton');
       const expandedMenu = document.getElementById('expandedMenu');
+      const closeExpanded = document.getElementById('closeExpanded');
       let isExpanded = false;
 
-      moreButton.addEventListener('click', function(e) {
-        e.preventDefault();
+      // Toggle expanded menu
+      function toggleExpandedMenu() {
         isExpanded = !isExpanded;
         
         if (isExpanded) {
           expandedMenu.classList.add('show');
+          moreButton.classList.add('active');
+          document.body.style.overflow = 'hidden';
         } else {
           expandedMenu.classList.remove('show');
+          moreButton.classList.remove('active');
+          document.body.style.overflow = '';
         }
+      }
+
+      moreButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleExpandedMenu();
+      });
+
+      closeExpanded.addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleExpandedMenu();
       });
 
       // Close expanded menu when clicking outside
       document.addEventListener('click', function(e) {
-        if (!e.target.closest('.bottom-nav') && isExpanded) {
-          expandedMenu.classList.remove('show');
-          isExpanded = false;
-        }
-      });
-
-      // Handle escape key to close expanded menu
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isExpanded) {
-          expandedMenu.classList.remove('show');
-          isExpanded = false;
+        if (!e.target.closest('#mobileNav') && isExpanded) {
+          toggleExpandedMenu();
         }
       });
 
       // Notification handling
       function updateNotificationBadges(count) {
-        const badges = document.querySelectorAll('.notification-badge');
+        const badges = document.querySelectorAll('[id$="notification-badge"]');
         badges.forEach(badge => {
           if (count > 0) {
             badge.textContent = count;
@@ -330,6 +396,13 @@
         e.preventDefault();
         // Add your notification logic here
         console.log('Desktop notifications clicked');
+      });
+
+      // Handle escape key to close expanded menu
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isExpanded) {
+          toggleExpandedMenu();
+        }
       });
     });
   </script>
