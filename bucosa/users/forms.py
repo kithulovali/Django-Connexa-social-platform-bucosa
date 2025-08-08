@@ -2,15 +2,23 @@ from .models import user_profile, GroupProfile
 from django.forms import ModelForm
 from django import forms
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 
 MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
 def validate_image_size(image):
-    if image and image.size > MAX_IMAGE_SIZE:
-        raise forms.ValidationError("Image file too large (max 10MB).")
+    """Validate image size with proper error handling"""
+    if not image:
+        return None
+        
+    if not hasattr(image, 'size'):
+        raise ValidationError("Invalid image file provided")
+        
+    if image.size > MAX_IMAGE_SIZE:
+        raise ValidationError(f"Image file too large (max {MAX_IMAGE_SIZE//(1024*1024)}MB)")
     return image
 
-class profileForm(ModelForm):
+class ProfileForm(ModelForm):
     class Meta:
         model = user_profile
         exclude = ['user']
@@ -28,39 +36,56 @@ class GroupProfileForm(forms.ModelForm):
         
     def clean_profile_image(self):
         image = self.cleaned_data.get('profile_image')
+        if image is None:  # If field was cleared
+            return self.instance.profile_image if hasattr(self.instance, 'profile_image') else None
         return validate_image_size(image)
 
 class ProfileUpdateForm(ModelForm):
-    username = forms.CharField(max_length=150, required=True, help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.")
+    username = forms.CharField(
+        max_length=150, 
+        required=True,
+        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+    )
     first_name = forms.CharField(max_length=30, required=False)
     last_name = forms.CharField(max_length=30, required=False)
+    email = forms.EmailField(required=True)  # Added email field explicitly
+    
     class Meta:
         model = user_profile
         fields = ['username', 'first_name', 'last_name', 'email', 'bio', 'profile_image', 'location']
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and hasattr(self.instance, 'user'):
-            self.fields['username'].initial = self.instance.user.username
-            self.fields['first_name'].initial = self.instance.user.first_name
-            self.fields['last_name'].initial = self.instance.user.last_name
+            user = self.instance.user
+            self.fields['username'].initial = user.username
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+            self.fields['email'].initial = user.email
             
     def clean_profile_image(self):
         image = self.cleaned_data.get('profile_image')
-        if image is None:  # If no file was uploaded
-             return self.instance.profile_image  # Keep the existing image
+        # Return existing image if no new one was uploaded
+        if image is None:
+            return getattr(self.instance, 'profile_image', None)
         return validate_image_size(image)
-
+    
     def clean_cover_image(self):
         image = self.cleaned_data.get('cover_image')
+        if image is None:
+            return getattr(self.instance, 'cover_image', None)
         return validate_image_size(image)
     
     def save(self, commit=True):
         profile = super().save(commit=False)
-        user = profile.user
-        user.username = self.cleaned_data.get('username', user.username)
-        user.first_name = self.cleaned_data.get('first_name', user.first_name)
-        user.last_name = self.cleaned_data.get('last_name', user.last_name)
+        if hasattr(profile, 'user'):
+            user = profile.user
+            user.username = self.cleaned_data['username']
+            user.first_name = self.cleaned_data['first_name']
+            user.last_name = self.cleaned_data['last_name']
+            user.email = self.cleaned_data['email']
+            if commit:
+                user.save()
         if commit:
-            user.save()
             profile.save()
         return profile
