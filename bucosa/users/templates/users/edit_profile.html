@@ -34,21 +34,35 @@
           <label class="block font-medium text-green-800 text-sm">User Type</label>
           <div class="flex items-center space-x-4">
             <div class="flex items-center">
-              <input type="radio" id="undergraduate" name="user_type" value="undergraduate" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500" checked>
+              <input type="radio" id="undergraduate" name="user_type" value="undergraduate" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500" 
+              {% if form.initial.user_type == 'undergraduate' or not form.initial.user_type %}checked{% endif %}>
               <label for="undergraduate" class="ml-2">
-                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Undergraduate</span>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                  </svg>
+                  Undergraduate
+                </span>
               </label>
             </div>
             <div class="flex items-center">
-              <input type="radio" id="alumni" name="user_type" value="alumni" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500">
+              <input type="radio" id="alumni" name="user_type" value="alumni" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+              {% if form.initial.user_type == 'alumni' %}checked{% endif %}>
               <label for="alumni" class="ml-2">
-                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Alumni</span>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
+                    <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                  </svg>
+                  Alumni
+                </span>
               </label>
             </div>
           </div>
         </div>
         
         {% for field in form %}
+          {% if field.name != 'user_type' %}
           <div class="space-y-1">
             <label class="block font-medium text-green-800 text-sm">{{ field.label_tag }}</label>
             {% if field.field.widget.input_type == 'textarea' %}
@@ -77,6 +91,7 @@
               <p class="text-xs text-red-500 mt-1 font-medium">{{ error }}</p>
             {% endfor %}
           </div>
+          {% endif %}
         {% endfor %}
         
         <button type="submit" class="w-full mt-4 bg-indigo-600/90 text-white px-4 py-3 rounded-lg transition-all flex items-center justify-center space-x-2 hover:bg-indigo-700">
