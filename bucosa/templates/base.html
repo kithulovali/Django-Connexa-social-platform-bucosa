@@ -135,7 +135,6 @@
         <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">search</span>
-            <span class="nav-label">Search</span>
           </div>
         </a>
 
@@ -170,14 +169,12 @@
       <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
         <div class="nav-item-content">
           <span class="material-icons nav-icon">home</span>
-          <span class="nav-label">Home</span>
         </div>
       </a>
       
       <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
         <div class="nav-item-content">
           <span class="material-icons nav-icon">person_outline</span>
-          <span class="nav-label">Profile</span>
         </div>
       </a>
 
@@ -190,14 +187,12 @@
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
         <div class="nav-item-content">
           <span class="material-icons nav-icon">chat_bubble_outline</span>
-          <span class="nav-label">Messages</span>
         </div>
       </a>
 
       <a href="#" class="nav-item" id="mobile-notifications">
         <div class="nav-item-content">
           <span class="material-icons nav-icon">notifications_none</span>
-          <span class="nav-label">Notifications</span>
           <span id="mobile-notification-badge" class="notification-badge" style="display:none;">0</span>
         </div>
       </a>
