@@ -44,7 +44,7 @@
             {% if profile.0.profile_image %}
               <img src="{{ profile.0.profile_image.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-full object-cover">
             {% else %}
-              <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover">
+              <img src="{% static 'images/default.png' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover">
             {% endif %}
           </div>
           
@@ -93,7 +93,7 @@
             {% if profile.0.profile_image %}
               <img src="{{ profile.0.profile_image.url }}" alt="{{ user.username }}" class="w-36 h-36 rounded-full object-cover border border-gray-300">
             {% else %}
-              <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-36 h-36 rounded-full object-cover border border-gray-300">
+              <img src="{% static 'images/default.png' %}" alt="Default Profile" class="w-36 h-36 rounded-full object-cover border border-gray-300">
             {% endif %}
           </div>
           
