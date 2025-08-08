@@ -36,7 +36,6 @@
       });
     }
   </script>
-
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
@@ -51,7 +50,13 @@
   <!-- Navigation Loading Bar -->
   <div id="nav-loading-bar" class="nav-loading-bar"></div>
 
-  <!-- Modern Loading Transition -->
+  <!-- Bubble Loading Animation -->
+  <div class="bubble-loading" id="bubbleLoading">
+    <div class="bubble"></div>
+    <div class="bubble-text" id="bubbleText">Loading content...</div>
+  </div>
+
+  <!-- Modern Loading Transition (keeping your original) -->
   <div class="page-transition" id="pageTransition">
     <div class="loading-animation">
       <div></div>
@@ -71,6 +76,7 @@
     Install Bucosa App
   </button>
 
+  <!-- Desktop Sidebar -->
   <nav id="desktopSidebar" class="desktop-sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
@@ -152,6 +158,7 @@
     </div>
   </nav>
 
+  <!-- Mobile Bottom Navigation -->
   <nav id="mobileNav" class="mobile-nav">
     <!-- Expanded Menu (hidden by default) -->
     <div class="nav-expanded" id="expandedMenu">
@@ -213,7 +220,7 @@
       </div>
     </div>
 
-    <!-- Main Navigation -->
+    <!-- Main Bottom Navigation -->
     <div class="nav-main-container">
       <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
         <div class="nav-item-content">
@@ -253,6 +260,7 @@
     </div>
   </nav>
 
+  <!-- Main Content -->
   <main class="main-content">
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       {% block content %}
@@ -273,23 +281,26 @@
 
       // Get transition elements
       const pageTransition = document.getElementById('pageTransition');
+      const bubbleLoading = document.getElementById('bubbleLoading');
+      const bubbleText = document.getElementById('bubbleText');
       const loadingText = document.getElementById('loadingText');
       const navLoadingBar = document.getElementById('nav-loading-bar');
       
-      // Function to start loading
+      // Function to start loading with bubble animation
       function startLoading(destination) {
-        // Show loading transition
-        pageTransition.classList.add('active');
+        // Show bubble loading instead of page transition
+        bubbleLoading.classList.add('active');
         navLoadingBar.classList.add('active');
         
         // Update loading text based on destination
         const pageName = getPageName(destination);
-        loadingText.textContent = `Loading ${pageName}...`;
+        bubbleText.textContent = `Loading ${pageName}...`;
       }
       
       // Function to stop loading
       function stopLoading() {
         pageTransition.classList.remove('active');
+        bubbleLoading.classList.remove('active');
         navLoadingBar.classList.remove('active');
       }
       
@@ -318,7 +329,7 @@
           // Navigate after a short delay to allow animation to show
           setTimeout(() => {
             window.location.href = link.href;
-          }, 300);
+          }, 1500);
         }
       });
       
@@ -331,7 +342,7 @@
       // Also hide loading if there's an error
       window.addEventListener('error', stopLoading);
 
-      // Mobile nav toggle logic
+      // Mobile nav toggle logic (your existing code)
       const moreButton = document.getElementById('moreButton');
       const expandedMenu = document.getElementById('expandedMenu');
       const closeExpanded = document.getElementById('closeExpanded');
