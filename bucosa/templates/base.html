@@ -55,20 +55,12 @@
     Install Bucosa App
   </button>
 
-  <nav id="desktopSidebar" class="desktop-sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <h1>Bucosa</h1>
-        <div class="logo-accent"></div>
-      </div>
-    </div>
-    
+  <nav id="desktopSidebar" class="desktop-sidebar">    
     <div class="sidebar-nav">
       <div class="nav-section">
         <a href="{% url 'activities:home' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
           <div class="nav-item-content">
-            <span class="material-icons nav-icon">home</span>
-            <span class="nav-label">Home</span>
+          <img src="{% static 'img/more.png'%}" alt="">
           </div>
           <div class="nav-item-indicator"></div>
         </a>
@@ -138,9 +130,8 @@
   <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
-        <h3>More Options</h3>
         <button class="close-expanded" id="closeExpanded">
-          <span class="material-icons">close</span>
+              <img src="{% static 'img/more.png'%}" alt="">
         </button>
       </div>
       <div class="nav-expanded-grid">
