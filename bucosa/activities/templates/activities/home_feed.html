@@ -28,7 +28,7 @@
                       </a>
                       {% else %}
                       <a href="{% url 'users:profile' item.repost_of.author.id %}" class="flex-shrink-0">
-                        <img src="{% static 'images/default.png' %}" 
+                        <img src="{% static 'img/default.png' %}" 
                                class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200">
                       </a>
                       {% endif %}
@@ -77,7 +77,7 @@
                   </a>
                   {% else %}
                   <a href="{% url 'users:profile' item.author.id %}" class="flex-shrink-0">
-                    <img src="{% static 'images/default.png' %}" 
+                    <img src="{% static 'img/default.png' %}" 
                            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200">
                   </a>
                   {% endif %}
@@ -186,7 +186,7 @@
                               </a>
                               {% else %}
                               <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
-                                  <img src="{% static 'images/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">
+                                  <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">
                               </a>
                               {% endif %}
                               <div class="flex-1 min-w-0">
@@ -211,7 +211,8 @@
                           {% if user.profile and user.profile.profile_image %}
                           <img src="{{ user.profile.profile_image.url }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
                           {% else %}
-                          <img src="{% static 'images/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
+                          <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
+
                           {% endif %}
                           <div class="flex-1 flex gap-2">
                               <textarea name="content" rows="1" required placeholder="Add a comment..." class="flex-1 resize-none border border-gray-300 rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm sm:text-base comment-textarea"></textarea>
@@ -245,7 +246,7 @@
                     </a>
                     {% else %}
                     <a href="{% url 'users:profile' u.id %}" class="block">
-                      <img src="{% static 'images/default.png' %}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
+                      <img src="{% static 'img/default.png' %}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
                     </a>
                     {% endif %}
                     <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ u.username }}</a>
@@ -383,7 +384,7 @@
             {% if u.profile and u.profile.profile_image %}
             <img src="{{ u.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u.username }}">
             {% else %}
-            <img src="{% static 'images/default.png' %}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u.username }}">
+            <img src="{% static 'img/default.png' %}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u.username }}">
             {% endif %}
             <div class="min-w-0 flex-1">
               <div class="font-bold text-gray-800 truncate text-sm sm:text-base">{{ u.username }}</div>
