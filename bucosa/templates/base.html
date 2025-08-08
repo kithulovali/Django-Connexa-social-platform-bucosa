@@ -183,9 +183,8 @@
 
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <div class="nav-item-content">
-          <img src="{% static 'img/more.png' %}" alt="Menu" class="mobile-menu-icon">
+          <img src="{% static 'img/more.png' %}"  class="mobile-menu-icon">
         </div>
-        <div class="more-btn-bg"></div>
       </a>
 
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
