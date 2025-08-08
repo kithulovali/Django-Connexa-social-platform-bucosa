@@ -141,19 +141,16 @@
         <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
           <div class="nav-item-content">
             <span class="material-symbols-outlined nav-icon">church</span>
-            <span class="nav-label">Fellowship</span>
           </div>
         </a>
         <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">groups</span>
-            <span class="nav-label">Bucosa</span>
           </div>
         </a>
         <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">settings</span>
-            <span class="nav-label">Settings</span>
           </div>
         </a>
         <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
