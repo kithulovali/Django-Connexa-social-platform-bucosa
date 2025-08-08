@@ -29,10 +29,47 @@
         {% csrf_token %}
         {{ form.non_field_errors }}
         
+        <!-- User Type Selection -->
+        <div class="space-y-2">
+          <label class="block font-medium text-green-800 text-sm">User Type</label>
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+              <input type="radio" id="undergraduate" name="user_type" value="undergraduate" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500" checked>
+              <label for="undergraduate" class="ml-2">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Undergraduate</span>
+              </label>
+            </div>
+            <div class="flex items-center">
+              <input type="radio" id="alumni" name="user_type" value="alumni" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500">
+              <label for="alumni" class="ml-2">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Alumni</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
         {% for field in form %}
           <div class="space-y-1">
             <label class="block font-medium text-green-800 text-sm">{{ field.label_tag }}</label>
-            {{ field }}
+            {% if field.field.widget.input_type == 'textarea' %}
+              <textarea 
+                name="{{ field.name }}" 
+                id="{{ field.id_for_label }}" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                rows="4"
+                {% if field.field.required %}required{% endif %}
+              >{% if field.value %}{{ field.value }}{% endif %}</textarea>
+            {% else %}
+              <input 
+                type="{{ field.field.widget.input_type }}" 
+                name="{{ field.name }}" 
+                id="{{ field.id_for_label }}" 
+                value="{% if field.value %}{{ field.value }}{% endif %}"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                {% if field.field.required %}required{% endif %}
+                {% if field.field.widget.input_type == 'file' %}accept="image/*"{% endif %}
+              >
+            {% endif %}
             {% if field.help_text %}
               <p class="text-xs text-gray-600 mt-1">{{ field.help_text }}</p>
             {% endif %}
@@ -42,7 +79,7 @@
           </div>
         {% endfor %}
         
-        <button type="submit" class="w-full mt-4 bg-indigo-600/90 text-white px-4 py-3 rounded-lg transition-all flex items-center justify-center space-x-2">
+        <button type="submit" class="w-full mt-4 bg-indigo-600/90 text-white px-4 py-3 rounded-lg transition-all flex items-center justify-center space-x-2 hover:bg-indigo-700">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
