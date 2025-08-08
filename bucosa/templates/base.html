@@ -130,9 +130,7 @@
   <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
-        <button class="close-expanded" id="closeExpanded">
-              <img src="{% static 'img/more.png'%}" alt="">
-        </button>
+          <img src="{% static 'img/more.png'%}" alt="" class="close-expanded" id="closeExpanded" >
       </div>
       <div class="nav-expanded-grid">
         <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
