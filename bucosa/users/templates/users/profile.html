@@ -1,16 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <title>Profile</title>
-</head>
-<body class="bg-white">
 {% block content %}
 <div class="min-h-screen bg-white">
   <main class="max-w-4xl mx-auto px-4 py-6">
@@ -23,7 +12,7 @@
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <h1 class="text-xl font-normal">{{ user.username }}</h1>
-            {% if profile.0.user_type == 'alumni' %}
+            {% if profile.user_type == 'alumni' %}
               <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
@@ -59,10 +48,10 @@
         <!-- Profile Picture and Stats -->
         <div class="flex items-start gap-6 mb-4">
           <div class="flex-shrink-0">
-            {% if profile.0.profile_image %}
-              <img src="{{ profile.0.profile_image.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-full object-cover">
+            {% if profile.profile_image %}
+              <img src="{{ profile.profile_image.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-full object-cover border border-gray-200">
             {% else %}
-              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover">
+              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover border border-gray-200">
             {% endif %}
           </div>
           
@@ -84,21 +73,42 @@
           </div>
         </div>
         
-        <!-- Bio -->
+        <!-- Bio and Profile Info -->
         <div class="space-y-1">
           {% if user.get_full_name %}
             <div class="font-semibold text-sm">{{ user.get_full_name }}</div>
           {% endif %}
-          {% if profile.0.bio %}
-            <div class="text-sm leading-relaxed">{{ profile.0.bio }}</div>
+          
+          {% if profile.bio %}
+            <div class="text-sm leading-relaxed">{{ profile.bio }}</div>
           {% endif %}
-          {% if profile.0.website %}
+          
+          {% if profile.website %}
             <div class="text-sm">
-              <a href="{{ profile.0.website }}" class="text-blue-900 font-medium" target="_blank">{{ profile.0.website }}</a>
+              <a href="{{ profile.website }}" class="text-blue-900 font-medium" target="_blank">
+                {% if profile.website|length > 30 %}
+                  {{ profile.website|slice:":30" }}...
+                {% else %}
+                  {{ profile.website }}
+                {% endif %}
+              </a>
             </div>
           {% endif %}
-          {% if profile.0.location %}
-            <div class="text-sm text-gray-500">{{ profile.0.location }}</div>
+          
+          {% if profile.location %}
+            <div class="text-sm text-gray-500">{{ profile.location }}</div>
+          {% endif %}
+          
+          {% if profile.department %}
+            <div class="text-sm text-gray-500">
+              <span class="font-medium">Department:</span> {{ profile.department }}
+            </div>
+          {% endif %}
+          
+          {% if profile.graduation_year %}
+            <div class="text-sm text-gray-500">
+              <span class="font-medium">Graduation:</span> {{ profile.graduation_year }}
+            </div>
           {% endif %}
         </div>
       </div>
@@ -108,8 +118,8 @@
         <div class="flex items-start gap-8">
           <!-- Profile Picture -->
           <div class="flex-shrink-0">
-            {% if profile.0.profile_image %}
-              <img src="{{ profile.0.profile_image.url }}" alt="{{ user.username }}" class="w-36 h-36 rounded-full object-cover border border-gray-300">
+            {% if profile.profile_image %}
+              <img src="{{ profile.profile_image.url }}" alt="{{ user.username }}" class="w-36 h-36 rounded-full object-cover border border-gray-300">
             {% else %}
               <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-36 h-36 rounded-full object-cover border border-gray-300">
             {% endif %}
@@ -121,7 +131,7 @@
             <div class="flex items-center gap-4">
               <div class="flex items-center gap-2">
                 <h1 class="text-2xl font-light">{{ user.username }}</h1>
-                {% if profile.0.user_type == 'alumni' %}
+                {% if profile.user_type == 'alumni' %}
                   <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
@@ -137,8 +147,8 @@
                     Undergraduate
                   </span>
                 {% endif %}
-                {% if profile.0.verified %}
-                  <span class="material-icons text-blue-500">verified</span>
+                {% if profile.verified %}
+                  <span class="material-icons text-blue-500 text-lg">verified</span>
                 {% endif %}
               </div>
               
@@ -177,19 +187,50 @@
               </div>
             </div>
             
-            <!-- Bio -->
-            <div class="space-y-1">
-              <div class="font-semibold">{{ user.get_full_name|default:user.username }}</div>
-              {% if profile.0.bio %}
-                <div class="text-sm">{{ profile.0.bio }}</div>
+            <!-- Bio and Profile Info -->
+            <div class="space-y-2">
+              {% if user.get_full_name %}
+                <div class="font-semibold">{{ user.get_full_name }}</div>
               {% endif %}
-              {% if profile.0.website %}
+              
+              {% if profile.bio %}
+                <div class="text-sm leading-relaxed">{{ profile.bio }}</div>
+              {% endif %}
+              
+              {% if profile.website %}
                 <div class="text-sm">
-                  <a href="{{ profile.0.website }}" class="text-blue-900 font-semibold" target="_blank">{{ profile.0.website }}</a>
+                  <a href="{{ profile.website }}" class="text-blue-900 font-semibold" target="_blank">
+                    {% if profile.website|length > 30 %}
+                      {{ profile.website|slice:":30" }}...
+                    {% else %}
+                      {{ profile.website }}
+                    {% endif %}
+                  </a>
                 </div>
               {% endif %}
-              {% if profile.0.location %}
-                <div class="text-sm text-gray-500">{{ profile.0.location }}</div>
+              
+              {% if profile.location %}
+                <div class="text-sm text-gray-500">
+                  <span class="font-medium">Location:</span> {{ profile.location }}
+                </div>
+              {% endif %}
+              
+              {% if profile.department %}
+                <div class="text-sm text-gray-500">
+                  <span class="font-medium">Department:</span> {{ profile.department }}
+                </div>
+              {% endif %}
+              
+              {% if profile.graduation_year %}
+                <div class="text-sm text-gray-500">
+                  <span class="font-medium">Graduation Year:</span> {{ profile.graduation_year }}
+                </div>
+              {% endif %}
+              
+              {% if profile.current_job %}
+                <div class="text-sm text-gray-500">
+                  <span class="font-medium">Current Job:</span> {{ profile.current_job }}
+                </div>
               {% endif %}
             </div>
           </div>
@@ -418,5 +459,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% endblock content %}
-</body>
-</html>
