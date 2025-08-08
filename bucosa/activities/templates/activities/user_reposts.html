@@ -1,71 +1,130 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<h2 class="text-2xl font-bold mb-4">Reposted Posts{% if profile_user %} by {{ profile_user.username }}{% endif %}</h2>
-{% if posts %}
-    <ul>
-    {% for post in posts %}
-        <li class="mb-6 p-4 border rounded bg-white flex gap-4">
-            <div>
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header Card -->
+    <div class="bg-white rounded-xl shadow-md border border-blue-100 mb-6 overflow-hidden">
+      <div class="bg-blue-600 px-6 py-4">
+        <div class="flex items-center justify-center space-x-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          <h2 class="text-xl font-bold text-white">Reposted Posts{% if profile_user %} by @{{ profile_user.username }}{% endif %}</h2>
+        </div>
+      </div>
+    </div>
+
+    {% if posts %}
+      <div class="space-y-4">
+        {% for post in posts %}
+          <!-- Post Card -->
+          <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+            <!-- Post Header -->
+            <div class="p-4 border-b border-gray-100 flex items-start gap-4">
+              <div class="flex-shrink-0">
                 {% if post.author.profile and post.author.profile.profile_image %}
-                    <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="profile-image">
+                  <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
                 {% else %}
-                    <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="profile-image">
+                  <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
                 {% endif %}
-            </div>
-            <div class="flex-1">
-                <div class="font-bold">By <a href="{% url 'users:profile' post.author.id %}">{{ post.author.username }}</a></div>
-                {% if post.repost_of %}
-                  <div class="text-xs text-gray-500 mb-1">Reposted from <a href="{% url 'users:profile' post.repost_of.author.id %}" class="underline">@{{ post.repost_of.author.username }}</a></div>
-                {% endif %}
-                <div class="my-2">{{ post.content }}</div>
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" alt="Post Image" class="rounded mb-2" style="max-width:220px; max-height:180px;">
-                {% endif %}
-                {% if post.video %}
-                    <video controls class="rounded mb-2" style="max-width:220px; max-height:180px;">
-                        <source src="{{ post.video.url }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                {% endif %}
-                <div class="text-gray-500 text-sm">{{ post.created_at|timesince }} ago</div>
-                <div class="flex gap-4 mt-2">
-                    <form action="{% if post.repost_of %}{% url 'activities:like_post' post.repost_of.id %}{% else %}{% url 'activities:like_post' post.id %}{% endif %}" method="post" class="inline">
-                        {% csrf_token %}
-                        <button type="submit" class="text-red-600 hover:text-red-800 font-semibold flex items-center gap-1">
-                            <span class="material-icons">favorite</span>
-                            Like ({% if post.repost_of %}{{ post.repost_of.likes.count }}{% else %}{{ post.likes.count }}{% endif %})
-                        </button>
-                    </form>
-                    <form action="{% if post.repost_of %}{% url 'activities:save_post' post.repost_of.id %}{% else %}{% url 'activities:save_post' post.id %}{% endif %}" method="post" class="inline">
-                        {% csrf_token %}
-                        <button type="submit" class="text-green-600 hover:text-green-800 font-semibold flex items-center gap-1">
-                            <span class="material-icons">bookmark</span>
-                            Save ({% if post.repost_of %}{{ post.repost_of.saves.count }}{% else %}{{ post.saves.count }}{% endif %})
-                        </button>
-                    </form>
-                    <form action="{% if post.repost_of %}{% url 'activities:share_post' post.repost_of.id %}{% else %}{% url 'activities:share_post' post.id %}{% endif %}" method="post" class="inline">
-                        {% csrf_token %}
-                        <button type="submit" class="text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1">
-                            <span class="material-icons">share</span>
-                            Share ({% if post.repost_of %}{{ post.repost_of.shares.count }}{% else %}{{ post.shares.count }}{% endif %})
-                        </button>
-                    </form>
-                    {% if not post.repost_of or post.repost_of.author != user %}
-                    <form action="{% if post.repost_of %}{% url 'activities:repost_post' post.repost_of.id %}{% else %}{% url 'activities:repost_post' post.id %}{% endif %}" method="post" class="inline">
-                        {% csrf_token %}
-                        <button type="submit" class="text-orange-600 hover:text-orange-800 font-semibold flex items-center gap-1">
-                            <span class="material-icons">repeat</span>
-                            Repost ({% if post.repost_of %}{{ post.repost_of.reposts.count }}{% else %}{{ post.reposts.count }}{% endif %})
-                        </button>
-                    </form>
-                    {% endif %}
+              </div>
+              <div class="flex-1">
+                <div class="font-bold text-blue-800">
+                  <a href="{% url 'users:profile' post.author.id %}" class="hover:underline">@{{ post.author.username }}</a>
                 </div>
+                {% if post.repost_of %}
+                  <div class="text-xs text-gray-500 mt-1">
+                    <span class="inline-flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                      </svg>
+                      Reposted from <a href="{% url 'users:profile' post.repost_of.author.id %}" class="text-blue-600 hover:underline ml-1">@{{ post.repost_of.author.username }}</a>
+                    </span>
+                  </div>
+                {% endif %}
+                <div class="text-sm text-gray-500 mt-1">{{ post.created_at|timesince }} ago</div>
+              </div>
             </div>
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <div class="text-gray-500">No reposted posts yet.</div>
-{% endif %}
+
+            <!-- Post Content -->
+            <div class="p-4">
+              <div class="mb-3 text-gray-800">{{ post.content }}</div>
+              
+              {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Post Image" class="rounded-lg mb-3 max-w-full h-auto max-h-80 object-cover">
+              {% endif %}
+              
+              {% if post.video %}
+                <video controls class="rounded-lg mb-3 w-full max-h-80">
+                  <source src="{{ post.video.url }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              {% endif %}
+            </div>
+
+            <!-- Post Actions -->
+            <div class="px-4 py-3 border-t border-gray-100 bg-gray-50">
+              <div class="flex justify-between text-sm">
+                <!-- Like Button -->
+                <form action="{% if post.repost_of %}{% url 'activities:like_post' post.repost_of.id %}{% else %}{% url 'activities:like_post' post.id %}{% endif %}" method="post" class="inline">
+                  {% csrf_token %}
+                  <button type="submit" class="text-gray-600 hover:text-red-600 font-medium flex items-center gap-1 px-3 py-1 rounded-full hover:bg-red-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span>{% if post.repost_of %}{{ post.repost_of.likes.count }}{% else %}{{ post.likes.count }}{% endif %}</span>
+                  </button>
+                </form>
+
+                <!-- Save Button -->
+                <form action="{% if post.repost_of %}{% url 'activities:save_post' post.repost_of.id %}{% else %}{% url 'activities:save_post' post.id %}{% endif %}" method="post" class="inline">
+                  {% csrf_token %}
+                  <button type="submit" class="text-gray-600 hover:text-green-600 font-medium flex items-center gap-1 px-3 py-1 rounded-full hover:bg-green-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                    </svg>
+                    <span>{% if post.repost_of %}{{ post.repost_of.saves.count }}{% else %}{{ post.saves.count }}{% endif %}</span>
+                  </button>
+                </form>
+
+                <!-- Share Button -->
+                <form action="{% if post.repost_of %}{% url 'activities:share_post' post.repost_of.id %}{% else %}{% url 'activities:share_post' post.id %}{% endif %}" method="post" class="inline">
+                  {% csrf_token %}
+                  <button type="submit" class="text-gray-600 hover:text-blue-600 font-medium flex items-center gap-1 px-3 py-1 rounded-full hover:bg-blue-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    <span>{% if post.repost_of %}{{ post.repost_of.shares.count }}{% else %}{{ post.shares.count }}{% endif %}</span>
+                  </button>
+                </form>
+
+                <!-- Repost Button -->
+                {% if not post.repost_of or post.repost_of.author != user %}
+                <form action="{% if post.repost_of %}{% url 'activities:repost_post' post.repost_of.id %}{% else %}{% url 'activities:repost_post' post.id %}{% endif %}" method="post" class="inline">
+                  {% csrf_token %}
+                  <button type="submit" class="text-gray-600 hover:text-purple-600 font-medium flex items-center gap-1 px-3 py-1 rounded-full hover:bg-purple-50 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    <span>{% if post.repost_of %}{{ post.repost_of.reposts.count }}{% else %}{{ post.reposts.count }}{% endif %}</span>
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No reposted posts yet</h3>
+        <p class="mt-1 text-gray-500">When you repost something, it will appear here.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

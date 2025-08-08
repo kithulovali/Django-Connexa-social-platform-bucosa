@@ -12,7 +12,7 @@ class PostForm(forms.ModelForm):
     group = forms.ModelChoiceField(queryset=Group.objects.none(), required=False, help_text="(Optional) Post to a group you belong to.")
     class Meta:
         model = Post
-        fields = ['content', 'image', 'video', 'privacy', 'group']
+        fields = ['content', 'image', 'video', 'group']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)

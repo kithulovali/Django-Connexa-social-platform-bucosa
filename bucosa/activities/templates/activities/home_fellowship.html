@@ -1,59 +1,240 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
-  <h2 class="text-2xl font-bold mb-6">Fellowship Posts & Events</h2>
-  {% if request.user.is_superuser %}
-  <div class="flex gap-4 mb-8">
-    <a href="{% url 'fellowship' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">Go to Fellowship Home</a>
-    <a href="{% url 'fellowship_admin' 1 %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold">Fellowship Admin</a>
-  </div>
-  {% endif %}
-  {% if user.is_authenticated %}
-    {% if not is_fellowship_member %}
-      <form method="post" action="{% url 'join_fellowship' 1 %}" class="mb-6">
-        {% csrf_token %}
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">Join Fellowship</button>
-      </form>
-    {% else %}
-      <div class="mb-6 text-green-600 font-semibold">You are a member of the fellowship.</div>
-    {% endif %}
-  {% else %}
-    <div class="mb-6 text-gray-600">Please <a href="{% url 'login' %}" class="text-blue-600 underline">log in</a> to join the fellowship.</div>
-  {% endif %}
-  <div class="mb-8">
-    <h3 class="text-xl font-bold mb-2">Fellowship Posts</h3>
-    {% for post in fellowship_posts %}
-      <div class="border-b py-4">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="font-semibold">{{ post.author.username }}</span>
-          <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
-          <span class="text-xs text-blue-500">({{ post.fellowship.name }})</span>
+
+<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen text-gray-800">
+    <!-- Header Section -->
+    <header class="bg-white shadow-lg p-4 md:p-6 rounded-b-xl text-center">
+        <div class="container mx-auto">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-700">
+                <span class="inline-block transform rotate-6 text-yellow-500 mr-2">✨</span>Bucosa Fellowship
+            </h1>
         </div>
-        <div class="mb-2">{{ post.content|linebreaksbr }}</div>
-        {% if post.image %}<img src="{{ post.image.url }}" class="max-w-xs rounded mb-2" />{% endif %}
-        {% if post.video %}<video controls class="max-w-xs rounded mb-2"><source src="{{ post.video.url }}"></video>{% endif %}
-      </div>
-    {% empty %}
-      <div class="text-gray-400">No fellowship posts yet.</div>
-    {% endfor %}
-  </div>
-  <div>
-    <h3 class="text-xl font-bold mb-2">Fellowship Events</h3>
-    {% for event in fellowship_events %}
-      <div class="border-b py-4">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="font-semibold">{{ event.creator.username }}</span>
-          <span class="text-xs text-gray-400">{{ event.start_time|date:'M d, H:i' }}</span>
-          <span class="text-xs text-blue-500">({{ event.fellowship.name }})</span>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto p-4 md:p-8">
+        <!-- Today's Message Card -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+            <div class="flex items-center mb-4">
+                <img src="{% static 'images/default.jpg' %}" alt="Admin Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-indigo-400">
+                <div>
+                    <p class="font-bold text-indigo-700">Fellowship Updates</p>
+                    <p class="text-sm text-gray-500">@BucosaFellowship • Today</p>
+                </div>
+            </div>
+            <div class="border-t-2 border-indigo-300 pt-4 mt-4">
+                <h2 class="text-2xl font-bold mb-6 text-indigo-800">Fellowship Posts & Events</h2>
+                
+                {% if request.user.is_superuser %}
+                <div class="flex gap-4 mb-6">
+                    <a href="{% url 'fellowship' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">Go to Fellowship Home</a>
+                    <a href="{% url 'fellowship_admin' 1 %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">Fellowship Admin</a>
+                </div>
+                {% endif %}
+                
+                {% if user.is_authenticated %}
+                    {% if not is_fellowship_member %}
+                    <form method="post" action="{% url 'join_fellowship' 1 %}" class="mb-6">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">Join Fellowship</button>
+                    </form>
+                    {% else %}
+                    <div class="mb-6 text-green-600 font-semibold flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        You are a member of the fellowship.
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="mb-6 text-gray-600">
+                        Please <a href="{% url 'login' %}" class="text-blue-600 underline hover:text-blue-800">log in</a> to join the fellowship.
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        <div class="mb-1 font-bold">{{ event.title }}</div>
-        <div class="mb-2 text-gray-700">{{ event.description|linebreaksbr }}</div>
-        {% if event.cover_image %}<img src="{{ event.cover_image.url }}" class="max-w-xs rounded mb-2" />{% endif %}
-        <div class="text-sm text-gray-500">Location: {{ event.location }}</div>
-      </div>
-    {% empty %}
-      <div class="text-gray-400">No fellowship events yet.</div>
-    {% endfor %}
-  </div>
-</div>
+
+        <!-- Posts Section -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+            <h3 class="text-xl font-bold mb-4 text-indigo-700 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                Fellowship Posts
+            </h3>
+            
+            {% if fellowship_posts %}
+                {% for post in fellowship_posts %}
+                <div class="border-b border-gray-200 py-6">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            {% if post.author.profile and post.author.profile.profile_image %}
+                                <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
+                            {% else %}
+                                <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-semibold text-indigo-700">{{ post.author.username }}</span>
+                                <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
+                                <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ post.fellowship.name }}</span>
+                            </div>
+                            <div class="mb-3 text-gray-700">{{ post.content|linebreaksbr }}</div>
+                            
+                            {% if post.image %}
+                            <img src="{{ post.image.url }}" class="rounded-lg mb-3 max-w-full h-auto max-h-80 object-cover shadow-md" />
+                            {% endif %}
+                            
+                            {% if post.video %}
+                            <video controls class="rounded-lg mb-3 w-full max-h-80 shadow-md">
+                                <source src="{{ post.video.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    No fellowship posts yet.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Events Section -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+            <h3 class="text-xl font-bold mb-4 text-indigo-700 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Fellowship Events
+            </h3>
+            
+            {% if fellowship_events %}
+                {% for event in fellowship_events %}
+                <div class="border-b border-gray-200 py-6">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            {% if event.creator.profile and event.creator.profile.profile_image %}
+                                <img src="{{ event.creator.profile.profile_image.url }}" alt="{{ event.creator.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
+                            {% else %}
+                                <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-semibold text-indigo-700">{{ event.creator.username }}</span>
+                                <span class="text-xs text-gray-400">{{ event.start_time|date:'M d, H:i' }}</span>
+                                <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ event.fellowship.name }}</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-1">{{ event.title }}</h4>
+                            <div class="mb-3 text-gray-700">{{ event.description|linebreaksbr }}</div>
+                            
+                            {% if event.cover_image %}
+                            <img src="{{ event.cover_image.url }}" class="rounded-lg mb-3 max-w-full h-auto max-h-80 object-cover shadow-md" />
+                            {% endif %}
+                            
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                {{ event.location }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    No fellowship events scheduled yet.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Pastor's Stories Section -->
+        <section class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-6 text-center">Pastor's Stories</h2>
+            <div class="flex overflow-x-auto pb-4 space-x-6 px-2 scroll-container">
+                <!-- Story Card 1 -->
+                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 transform hover:scale-105 transition duration-300 ease-in-out border border-indigo-100">
+                    <img src="{% static 'connexa/images/Shepherd Elosha Kapata..jpg' %}" alt="Pastor Elosha Kapata" class="rounded-xl mb-4 w-full h-40 object-cover shadow-sm">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">The Journey of Faith</h3>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Pastor:</span> Elosha Kapata
+                    </p>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Dates:</span> 2023 - 2024
+                    </p>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        Pastor Elosha shares his personal journey of discovering faith and how it transformed his life. A testament to divine guidance and unwavering hope.
+                    </p>
+                </div>
+                
+                <!-- Story Card 2 -->
+                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 transform hover:scale-105 transition duration-300 ease-in-out border border-indigo-100">
+                    <img src="{% static 'connexa/images/Shepherd Lydia Satira.jpg' %}" alt="Pastor Lydia Satira" class="rounded-xl mb-4 w-full h-40 object-cover shadow-sm">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Building Community</h3>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Pastor:</span> Lydia Satira
+                    </p>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Dates:</span> 2022 - 2023
+                    </p>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        Learn about the challenges and triumphs of building a vibrant and supportive community within the church, fostering love and fellowship.
+                    </p>
+                </div>
+                
+                <!-- Story Card 3 -->
+                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 transform hover:scale-105 transition duration-300 ease-in-out border border-indigo-100">
+                    <img src="{% static 'connexa/images/Shepherd Philippe Batezi.jpg' %}" alt="Pastor Philippe Batezi" class="rounded-xl mb-4 w-full h-40 object-cover shadow-sm">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Moments of Grace</h3>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Pastor:</span> Philippe Batezi
+                    </p>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Dates:</span> 2019 - 2021
+                    </p>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        Heartwarming anecdotes of parishioners experiencing profound moments of grace and divine intervention in their lives.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Mission Section -->
+        <section class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4 text-center">Our Mission</h2>
+            <div class="border-t-2 border-indigo-300 pt-4 mt-4 text-center">
+                <p class="text-lg md:text-xl text-gray-700 leading-relaxed">
+                    Leading students to a personal relationship with God while equipping them for leadership 
+                    and service through the transforming power of the Gospel to impact the University Campus, 
+                    the country and subsequently the entire world.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white p-4 md:p-6 rounded-t-xl">
+        <div class="container mx-auto text-center text-sm md:text-base">
+            <p>&copy; 2025 Bucosa Fellowship. All rights reserved.</p>
+            <p class="mt-2">
+                <a href="#" class="text-blue-300 hover:underline">Privacy Policy</a> |
+                <a href="#" class="text-blue-300 hover:underline">Terms of Service</a>
+            </p>
+        </div>
+    </footer>
+</body>
+
 {% endblock %}
