@@ -36,7 +36,6 @@
       });
     }
   </script>
-
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
@@ -60,7 +59,7 @@
       <div class="nav-section">
         <a href="{% url 'activities:home' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
           <div class="nav-item-content">
-          <img src="{% static 'img/more.png'%}" alt="">
+            <img src="{% static 'img/more.png' %}" alt="Home" class="desktop-sidebar-icon">
           </div>
           <div class="nav-item-indicator"></div>
         </a>
@@ -130,7 +129,7 @@
   <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
-          <img src="{% static 'img/more.png'%}" alt="" class="close-expanded" id="closeExpanded" >
+          <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded" id="closeExpanded">
       </div>
       <div class="nav-expanded-grid">
         <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
@@ -184,7 +183,7 @@
 
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <div class="nav-item-content">
-          <span class="material-icons nav-icon">add</span>
+          <img src="{% static 'img/more.png' %}" alt="Menu" class="mobile-menu-icon">
           <span class="nav-label">More</span>
         </div>
         <div class="more-btn-bg"></div>
@@ -220,6 +219,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       const moreButton = document.getElementById('moreButton');
       const expandedMenu = document.getElementById('expandedMenu');
+      const closeExpanded = document.getElementById('closeExpanded');
       let isExpanded = false;
 
       // Toggle expanded menu
@@ -236,6 +236,14 @@
         }
       });
 
+      // Close menu when clicking close button
+      closeExpanded?.addEventListener('click', function(e) {
+        e.preventDefault();
+        expandedMenu.classList.remove('show');
+        moreButton.classList.remove('active');
+        isExpanded = false;
+      });
+
       // Close expanded menu when clicking outside
       document.addEventListener('click', function(e) {
         if (!e.target.closest('#mobileNav') && isExpanded) {
@@ -245,27 +253,12 @@
         }
       });
 
-      // Close expanded menu when clicking on a nav item
-      document.querySelectorAll('.nav-expanded-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-          // Don't close if it's the notifications item (prevent default behavior)
-          if (!this.id.includes('notifications')) {
-            expandedMenu.classList.remove('show');
-            moreButton.classList.remove('active');
-            isExpanded = false;
-          }
-        });
-      });
-
       // Handle active states for main nav items
       document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(item => {
         item.addEventListener('click', function() {
-          // Remove active from all main nav items
           document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(navItem => {
             navItem.classList.remove('active');
           });
-          
-          // Add active to clicked item
           this.classList.add('active');
         });
       });
@@ -283,19 +276,14 @@
         });
       }
 
-      // Example: Update notification count
-      // updateNotificationBadges(3);
-
       // Handle notification clicks
       document.getElementById('mobile-notifications')?.addEventListener('click', function(e) {
         e.preventDefault();
-        // Add your notification logic here
         console.log('Mobile notifications clicked');
       });
 
       document.getElementById('desktop-notifications')?.addEventListener('click', function(e) {
         e.preventDefault();
-        // Add your notification logic here
         console.log('Desktop notifications clicked');
       });
 
@@ -307,26 +295,6 @@
           isExpanded = false;
         }
       });
-
-      // Smooth animations
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes slideUp {
-          from {
-            transform: translateY(20px) scale(0.95);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-          }
-        }
-        
-        .nav-expanded.show {
-          animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-      `;
-      document.head.appendChild(style);
     });
   </script>
 

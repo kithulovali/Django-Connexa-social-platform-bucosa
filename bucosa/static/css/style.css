@@ -276,3 +276,43 @@ body {
       }
     }
 
+style>
+    /* Mobile menu styles */
+    .mobile-menu-icon {
+      width: 24px;
+      height: 24px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Desktop sidebar icon */
+.desktop-sidebar-icon {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+    }
+
+    /* Expanded menu animation */
+.nav-expanded {
+      display: none;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s ease-out;
+    }
+
+.nav-expanded.show {
+      display: block;
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Close button in expanded menu */
+.close-expanded {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    /* Active state for mobile menu button */
+.nav-more-btn.active .mobile-menu-icon {
+      transform: rotate(45deg);
+    }
