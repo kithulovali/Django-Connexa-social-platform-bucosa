@@ -4,8 +4,8 @@
 {% block content %}
 <div class="min-h-screen w-full bg-white flex flex-col lg:flex-row">
   <!-- Main Content - comes first in mobile view -->
-  <main class="flex flex-col items-center flex-1 min-h-screen px-4 py-6 w-full max-w-2xl mx-auto">
-   {% if combined_feed %}
+          {% else %}
+            {% if item_type == 'users_batch' %}
       <div id="feed-container" class="w-full space-y-6">
         {% for item_type, item in combined_feed|slice:":10" %}
           {% include 'activities/_feed_item.html' with item_type=item_type item=item user=user %}
@@ -51,6 +51,8 @@
                   <!-- Comment Button -->
                   <button type="button" 
                           class="toggle-comments-btn flex flex-col items-center justify-center text-gray-600 hover:text-purple-600 py-1 rounded-xl hover:bg-purple-50" 
+
+            {% elif item_type == 'groups_batch' %}
                           data-post-id="{{ item.id }}">
                     <span class="material-icons text-lg mb-1">chat_bubble_outline</span>
                     <span class="font-medium text-xs sm:text-sm">{{ item.comments.count }}</span>
@@ -98,6 +100,8 @@
                     <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
                     {% endif %}
                     <div class="flex-1 flex gap-2">
+
+            {% elif item_type == 'events' %}
                       <textarea name="content" rows="1" required placeholder="Add a comment..." class="flex-1 resize-none border border-gray-300 rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm sm:text-base comment-textarea"></textarea>
                       <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl shadow transition-all text-sm sm:text-base">Post</button>
                     </div>
@@ -128,6 +132,8 @@
                       <img src="{{ u.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
                     </a>
                     {% else %}
+            {% endif %}
+          {% endif %}
                     <a href="{% url 'users:profile' u.id %}" class="block">
                       <img src="{% static 'img/default.png' %}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
                     </a>
