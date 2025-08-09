@@ -63,7 +63,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    'middleware.LoginRequiredMiddleware',
+    'bucosa.middleware.LoginRequiredMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',  # Cache middleware - last
 ]
 
