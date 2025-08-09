@@ -1,172 +1,183 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render, redirect, get_object_or_404
+import asyncio
+import logging
 import random
-from django.contrib.auth.models import User, Group
-from django.contrib.auth.decorators import login_required
-from .models import Post, Event, Comment, Like, Save, Share, Repost
-from .forms import PostForm, EventForm, CommentForm
+from functools import wraps
+from itertools import cycle
+
+from django.template.loader import render_to_string
+from asgiref.sync import sync_to_async
 from django.contrib import messages
-from .views_group_admin import group_admin
-from django.views.decorators.http import require_POST
-from django.db.models import Count, Q
-from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from notifications.utils import create_notification
-from django.utils import timezone
-from notifications.utils import send_push_notification_v1
-from utils.mentions import extract_mentions
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
 from django.core.cache import cache
 from django.db import transaction
-from django.db.models import Prefetch
-import random
-# Create your views here.
-from itertools import cycle
-def home_activities(request):
-    # Cache key generation, considering filters and user authentication
-    cache_key = f"home_feed_{request.user.id if request.user.is_authenticated else 'anon'}_{request.GET.urlencode()}"
-    cached_response = cache.get(cache_key)
+from django.db.models import Count, Q, Prefetch
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from notifications.utils import create_notification, send_push_notification_v1
+
+from .forms import PostForm, EventForm, CommentForm
+from .models import Post, Event, Comment, Like, Save, Share, Repost
+from utils.mentions import extract_mentions
+
+logger = logging.getLogger(__name__)
+
+# ======================
+# UTILITY FUNCTIONS
+# ======================
+
+def async_view(view_func):
+    """Decorator to convert sync views to async"""
+    @wraps(view_func)
+    async def wrapped_view(request, *args, **kwargs):
+        return await sync_to_async(view_func)(request, *args, **kwargs)
+    return wrapped_view
+
+def cache_key_generator(view_name, request):
+    """Generate consistent cache keys"""
+    user_id = request.user.id if request.user.is_authenticated else 'anon'
+    params = request.GET.urlencode()
+    return f"{view_name}_{user_id}_{params}"
+
+async def get_suggested_users(request):
+    """Get cached suggested users or generate new suggestions"""
+    if not request.user.is_authenticated:
+        return []
+    
+    cache_key = f"suggestions_{request.user.id}"
+    suggested_users = await sync_to_async(cache.get)(cache_key, [])
+    
+    if not suggested_users:
+        excluded_ids = [request.user.id] + list(await sync_to_async(list)(
+            request.user.following.values_list('following_user', flat=True)
+        ))
+        suggested_users = list(await sync_to_async(list)(
+            User.objects.exclude(id__in=excluded_ids)
+            .order_by('?')[:10]
+            .select_related('profile')
+        ))
+        await sync_to_async(cache.set)(cache_key, suggested_users, 3600)
+    
+    return suggested_users
+
+async def get_suggested_groups():
+    """Get cached suggested groups"""
+    cache_key = 'suggested_groups'
+    suggested_groups = await sync_to_async(cache.get)(cache_key, [])
+    
+    if not suggested_groups:
+        suggested_groups = list(await sync_to_async(list)(
+            Group.objects.all().order_by('?')[:10]
+        ))
+        await sync_to_async(cache.set)(cache_key, suggested_groups, 3600)
+    
+    return suggested_groups
+
+# ======================
+# CORE VIEWS
+# ======================
+
+async def home_activities(request):
+    """Optimized home feed view with async support"""
+    cache_key = cache_key_generator('home_feed', request)
+    cached_response = await sync_to_async(cache.get)(cache_key)
     
     if cached_response:
         return cached_response
 
-    # --- 1. Fetch all the necessary data ---
+    # Async data fetching
+    base_posts_query = Post.objects.filter(group__isnull=True)\
+        .select_related('author', 'group')\
+        .prefetch_related('likes', 'comments__author')
     
-    # Optimized base querysets
-    posts = Post.objects.filter(group__isnull=True)\
-                        .select_related('author', 'group')\
-                        .prefetch_related('likes', 'comments__author')
-    # Improved event discovery: upcoming and popular
-    events = list(Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())\
-                               .select_related('creator', 'group')\
-                               .annotate(num_attendees=Count('attendees'))\
-                               .order_by('-num_attendees', 'start_time')[:10]) # Top 10 trending/upcoming events
+    base_events_query = Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())\
+        .select_related('creator', 'group')\
+        .annotate(num_attendees=Count('attendees'))\
+        .order_by('-num_attendees', 'start_time')[:10]
+
+    # Execute queries in parallel
+    posts, events = await asyncio.gather(
+        sync_to_async(list)(base_posts_query),
+        sync_to_async(list)(base_events_query)
+    )
 
     # Following filter
     if request.user.is_authenticated and request.GET.get('following') == '1':
-        following_ids = request.user.following.values_list('following_user', flat=True)
-        events = list(Event.objects.filter(creator__id__in=following_ids, start_time__gte=timezone.now())
-                               .annotate(num_attendees=Count('attendees'))
-                               .order_by('-num_attendees', 'start_time')[:10])
-        posts = posts.filter(author__id__in=following_ids)
-        events = list(Event.objects.filter(creator__id__in=following_ids, start_time__gte=timezone.now()).order_by('start_time')[:10])
+        following_ids = await sync_to_async(list)(request.user.following.values_list('following_user', flat=True))
+        posts = [p for p in posts if p.author.id in following_ids]
+        events = [e for e in events if e.creator.id in following_ids]
 
     # Search logic
     query = request.GET.get('q', '')
     if query:
-        events = list(Event.objects.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(creator__username__icontains=query), start_time__gte=timezone.now())
-                               .annotate(num_attendees=Count('attendees'))
-                               .order_by('-num_attendees', 'start_time')[:10])
-        posts = posts.filter(Q(content__icontains=query) | Q(author__username__icontains=query))
-        events = list(Event.objects.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(creator__username__icontains=query), start_time__gte=timezone.now()).order_by('start_time')[:10])
+        query_lower = query.lower()
+        posts = [p for p in posts if 
+                query_lower in p.content.lower() or 
+                query_lower in p.author.username.lower()]
+        events = [e for e in events if 
+                 query_lower in e.title.lower() or 
+                 query_lower in e.description.lower() or
+                 query_lower in e.creator.username.lower()]
 
-    # Suggested users (cached)
-    suggestions_cache_key = f"suggestions_{request.user.id}" if request.user.is_authenticated else None
-    suggested_users = cache.get(suggestions_cache_key, [])
-    if not suggested_users and request.user.is_authenticated:
-        excluded_ids = [request.user.id] + list(request.user.following.values_list('following_user', flat=True))
-        suggested_users = list(User.objects.exclude(id__in=excluded_ids).order_by('?')[:10])
-        cache.set(suggestions_cache_key, suggested_users, 3600)  # 1 hour cache
+    # Get suggestions
+    suggested_users, suggested_groups = await asyncio.gather(
+        get_suggested_users(request),
+        get_suggested_groups()
+    )
 
-    # Suggested groups (cached)
-    groups_cache_key = 'suggested_groups'
-    suggested_groups = cache.get(groups_cache_key, [])
-    if not suggested_groups:
-        suggested_groups = list(Group.objects.all().order_by('?')[:10])
-        cache.set(groups_cache_key, suggested_groups, 3600)  # 1 hour cache
-
-    # --- 2. Interleave the content for the main feed ---
-    
+    # Feed combination
     combined_feed = []
     
-    # Create a list of discovery item types to cycle through
-    discovery_types = []
+    # Add discovery items first
     if suggested_users:
-        discovery_types.append('users')
+        combined_feed.append(('users_batch', suggested_users[:3]))
     if suggested_groups:
-        discovery_types.append('groups')
+        combined_feed.append(('groups_batch', suggested_groups[:3]))
     if events:
-        discovery_types.append('events')
-    
-    random.shuffle(discovery_types)
-    discovery_cycler = cycle(discovery_types)
-    
-    post_index = 0
-    discovery_index = {
-        'users': 0,
-        'groups': 0,
-        'events': 0
+        combined_feed.append(('events', events[0]))
+
+    # Add posts
+    combined_feed.extend([('post', post) for post in posts])
+
+    # Batch processing for infinite scroll
+    batch_size = 10
+    start = int(request.GET.get('start', 0))
+    end = start + batch_size
+    feed_batch = combined_feed[start:end]
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+        items_html = []
+        for item_type, item in feed_batch:
+            items_html.append(await sync_to_async(render_to_string)(
+                'activities/_feed_item.html', 
+                {'item_type': item_type, 'item': item, 'user': request.user}
+            ))
+        has_more = end < len(combined_feed)
+        return JsonResponse({'items': items_html, 'has_more': has_more})
+
+    context = {
+        'combined_feed': combined_feed[:batch_size],
+        'query': query,
+        'suggested_users': suggested_users,
+        'suggested_groups': suggested_groups,
+        'events': events,
     }
     
-    # Combine posts and discovery content
-    while post_index < len(posts):
-        # Add a discovery item first to ensure it's at the top on a small number of posts
-        if discovery_types:
-            try:
-                item_type = next(discovery_cycler)
-                if item_type == 'users' and discovery_index['users'] < len(suggested_users):
-                    # Take up to 3 users at once
-                    users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
-                    combined_feed.append(('users_batch', users_batch))
-                    discovery_index['users'] += len(users_batch)
-                elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
-                    # Take up to 3 groups at once
-                    groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
-            except StopIteration:
-                break
-        # Shuffle batches of suggestions for more randomness
-       
-        user_batches = [suggested_users[i:i+3] for i in range(0, len(suggested_users), 3)] if suggested_users else []
-        group_batches = [suggested_groups[i:i+3] for i in range(0, len(suggested_groups), 3)] if suggested_groups else []
-        event_items = events if events else []
-        random.shuffle(user_batches)
-        random.shuffle(group_batches)
-        random.shuffle(event_items)
-
-        # Combine all batches and posts into a single list
-        suggestion_items = []
-        suggestion_items += [('users_batch', batch) for batch in user_batches]
-        suggestion_items += [('groups_batch', batch) for batch in group_batches]
-        suggestion_items += [('events', event) for event in event_items]
-        random.shuffle(suggestion_items)
-
-        post_items = [('post', post) for post in posts]
-        combined_feed = suggestion_items + post_items
-        random.shuffle(combined_feed)
-    
-    # Batch permission checks
-    if request.user.is_authenticated:
-        for event in events:
-            event.user_can_edit = event.creator_id == request.user.id
-            event.user_can_delete = event.creator_id == request.user.id
-    
-        # Infinite scroll batch logic
-        start = int(request.GET.get('start', 0))
-        batch_size = 10
-        end = start + batch_size
-        feed_batch = combined_feed[start:end]
-
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
-            from django.template.loader import render_to_string
-            items_html = []
-            for item_type, item in feed_batch:
-                items_html.append(render_to_string('activities/_feed_item.html', {'item_type': item_type, 'item': item, 'user': request.user}))
-            has_more = end < len(combined_feed)
-            return JsonResponse({'items': items_html, 'has_more': has_more})
-
-        context = {
-            'combined_feed': combined_feed,
-            'query': query,
-            'filter_by': request.GET.get('filter', 'recent'),
-            'suggested_users': suggested_users,
-            'suggested_groups': suggested_groups,
-            'events': events,
-        }
-        return render(request, 'activities/home_feed.html', context)
+    response = await sync_to_async(render)(request, 'activities/home_feed.html', context)
+    await sync_to_async(cache.set)(cache_key, response, 300)
+    return response
 
 def group_activities(request): 
-    return render(request ,'activities/group_detail.html')
+    return render(request, 'activities/group_detail.html')
 
-@login_required
+# ======================
+# POST/EVENT CRUD VIEWS
+# ======================
+
 @login_required
 @transaction.atomic
 def create_post(request, group_id=None):
@@ -185,7 +196,7 @@ def create_post(request, group_id=None):
                 post.group = group
             post.save()
 
-            # Process mentions (optimized bulk query)
+            # Process mentions
             mentioned_usernames = extract_mentions(post.content)
             if mentioned_usernames:
                 mentioned_users = User.objects.filter(
@@ -207,9 +218,7 @@ def create_post(request, group_id=None):
                             body=f"You were mentioned by @{request.user.username}"
                         )
 
-            # Clear cache
             cache.delete_pattern('home_feed_*')
-            
             return redirect('group_profile', pk=group.id) if group else redirect('users:profile', pk=request.user.id)
     else:
         form = PostForm(user=request.user, group=group)
@@ -219,7 +228,6 @@ def create_post(request, group_id=None):
         'group': group
     })
 
-@login_required
 @login_required
 @transaction.atomic
 def create_event(request, group_id=None):
@@ -260,10 +268,8 @@ def create_event(request, group_id=None):
                             body=f"You were mentioned in an event by @{request.user.username}"
                         )
 
-            # Clear relevant caches
             cache.delete_pattern('home_feed_*')
             cache.delete_pattern('event_list_*')
-            
             return redirect('group_profile', pk=group.id) if group else redirect('users:profile', pk=request.user.id)
     else:
         form = EventForm()
@@ -278,66 +284,121 @@ def edit_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if not post.can_edit(request.user):
         return redirect('users:profile', pk=request.user.id)
+    
     group = post.group if post.group_id else None
+    
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, instance=post, user=request.user, group=group)
         if form.is_valid():
-            # If a new image is uploaded, replace the old one
             if 'image' in request.FILES:
                 post.image = request.FILES['image']
             elif 'remove_image' in request.POST:
                 post.image = None
-            # If a new video is uploaded, replace the old one
+            
             if 'video' in request.FILES:
                 post.video = request.FILES['video']
             elif 'remove_video' in request.POST:
                 post.video = None
+                
             form.save()
             messages.success(request, 'Post updated!')
-            if post.group:
-                return redirect('group_profile', pk=post.group.id)
-            else:
-                return redirect('users:profile', pk=request.user.id)
+            cache.delete_pattern('home_feed_*')
+            return redirect('group_profile', pk=post.group.id) if post.group else redirect('users:profile', pk=request.user.id)
     else:
         form = PostForm(instance=post, user=request.user, group=group)
-    return render(request, 'activities/edit_post.html', {'form': form, 'post': post})
+        
+    return render(request, 'activities/edit_post.html', {
+        'form': form,
+        'post': post
+    })
 
 @login_required
 def delete_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if not post.can_delete(request.user):
         return redirect('users:profile', pk=request.user.id)
+        
     if request.method == 'POST':
         post.delete()
         messages.success(request, 'Post deleted!')
+        cache.delete_pattern('home_feed_*')
         return redirect('users:profile', pk=request.user.id)
-    return render(request, 'activities/delete_confirm.html', {'cancel_url': post.get_absolute_url() if hasattr(post, 'get_absolute_url') else '/'})
+        
+    return render(request, 'activities/delete_confirm.html', {
+        'cancel_url': post.get_absolute_url() if hasattr(post, 'get_absolute_url') else '/'
+    })
+
+# ======================
+# INTERACTION VIEWS
+# ======================
 
 @login_required
-def edit_event(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    if not event.can_edit(request.user):
-        return redirect('users:profile', pk=request.user.id)
-    if request.method == 'POST':
-        form = EventForm(request.POST, request.FILES, instance=event)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Event updated!')
-            return redirect('users:profile', pk=request.user.id)
-    else:
-        form = EventForm(instance=event)
-    return render(request, 'activities/edit_event.html', {'form': form, 'event': event})
+@require_POST
+def like_post(request, post_id):
+    post = get_object_or_404(
+        Post.objects.select_related('author'),
+        id=post_id
+    )
+    
+    like, created = Like.objects.get_or_create(
+        user=request.user,
+        post=post
+    )
+
+    response_data = {
+        'liked': created,
+        'count': post.likes.count()
+    }
+
+    if not created:
+        like.delete()
+    elif post.author != request.user:
+        create_notification(
+            sender=request.user,
+            recipient=post.author,
+            notification_type='like',
+            message=f'{request.user.username} liked your post',
+            related_object=post
+        )
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse(response_data)
+    
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required
-def delete_event(request, pk):
-    event = get_object_or_404(Event, pk=pk)
-    if not event.can_delete(request.user):
-        return redirect('users:profile', pk=request.user.id)
-    if request.method == 'POST':
-        event.delete()
-        messages.success(request, 'Event deleted!')
-        return redirect('users:profile', pk=request.user.id)
-    return render(request, 'activities/delete_confirm.html', {'cancel_url': event.get_absolute_url() if hasattr(event, 'get_absolute_url') else '/'})
+@require_POST
+def save_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    save, created = Save.objects.get_or_create(
+        user=request.user,
+        post=post
+    )
+
+    response_data = {
+        'saved': created,
+        'count': post.saves.count()
+    }
+
+    if not created:
+        save.delete()
+    elif post.author != request.user:
+        create_notification(
+            sender=request.user,
+            recipient=post.author,
+            notification_type='save',
+            message=f'{request.user} saved your post.',
+            related_object=post
+        )
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse(response_data)
+        
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+# ======================
+# DETAIL VIEWS
+# ======================
 
 def event_detail(request, pk):
     event = get_object_or_404(
@@ -346,7 +407,7 @@ def event_detail(request, pk):
         pk=pk
     )
     
-    # Single permission check instead of multiple
+    # Permission checks
     if request.user.is_authenticated:
         event.user_can_edit = event.creator_id == request.user.id
         event.user_can_delete = event.creator_id == request.user.id
@@ -362,280 +423,6 @@ def event_detail(request, pk):
         'event': event
     })
 
-@login_required
-def remove_user_from_group(request, group_id, user_id):
-    group = get_object_or_404(Group, id=group_id)
-    user = get_object_or_404(User, id=user_id)
-    # Only the group creator can remove users
-    if hasattr(group, 'profile') and group.profile.creator == request.user:
-        group.user_set.remove(user)
-    return redirect('group_admin', group_id=group.id)
-
-@login_required
-def add_user_to_group(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    group_profile = getattr(group, 'profile', None)
-    if not group_profile or group_profile.creator != request.user:
-        return redirect('group_admin', group_id=group.id)
-    query = request.GET.get('q', '')
-    users = []
-    if query:
-        users = User.objects.filter(username__icontains=query).exclude(id__in=group.user_set.values_list('id', flat=True))
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        if user_id:
-            user = get_object_or_404(User, id=user_id)
-            group.user_set.add(user)
-            # Notify user added to group
-            create_notification(
-                sender=request.user,
-                recipient=user,
-                notification_type='group',
-                message=f'You were added to the group {group.name}.',
-                related_object=group
-            )
-            return redirect('group_admin', group_id=group.id)
-    return render(request, 'activities/add_user_to_group.html', {
-        'group': group,
-        'query': query,
-        'users': users,
-    })
-
-@require_POST
-@login_required
-def attend_event(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    if request.user not in event.attendees.all():
-        event.attendees.add(request.user)
-        # Notify event creator
-        if event.creator != request.user:
-            create_notification(
-                sender=request.user,
-                recipient=event.creator,
-                notification_type='event',
-                message=f'{request.user} is attending your event: {event.title}',
-                related_object=event
-            )
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
-@login_required
-def register_event(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    if request.user not in event.registered_users.all():
-        event.registered_users.add(request.user)
-        # Notify event creator
-        if event.creator != request.user:
-            create_notification(
-                sender=request.user,
-                recipient=event.creator,
-                notification_type='event_registration',
-                message=f'{request.user.get_full_name() or request.user.username} registered for your event: {event.title}',
-                related_object=event
-            )
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
-@login_required
-def search_and_filter_feed(request):
-    user = request.user
-    query = request.GET.get('q', '')
-    filter_by = request.GET.get('filter', 'recent')
-    posts = Post.objects.all()
-    events = Event.objects.all()
-    # Filter by people you follow
-    if request.GET.get('following') == '1':
-        following_ids = user.following.values_list('following_user', flat=True)
-        posts = posts.filter(author__id__in=following_ids)
-        events = events.filter(creator__id__in=following_ids)
-    # Filter logic
-    if filter_by == 'most_seen':
-        posts = posts.order_by('-views') if hasattr(Post, 'views') else posts
-        events = events.order_by('-views') if hasattr(Event, 'views') else events
-    elif filter_by == 'most_comments':
-        posts = posts.annotate(num_comments=Count('comment')).order_by('-num_comments')
-        events = events.annotate(num_comments=Count('comment')).order_by('-num_comments')
-    else:  # recent
-        posts = posts.order_by('-created_at')
-        events = events.order_by('-start_time')
-    # Search logic
-    if query:
-        posts = posts.filter(Q(content__icontains=query) | Q(author__username__icontains=query))
-        events = events.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(creator__username__icontains=query))
-    return render(request, 'activities/search_feed.html', {
-        'posts': posts,
-        'events': events,
-        'query': query,
-        'filter_by': filter_by,
-    })
-
-@login_required
-@login_required
-@require_POST
-@transaction.atomic
-def add_comment(request, post_id):
-    post = get_object_or_404(
-        Post.objects.select_related('author'),
-        id=post_id
-    )
-    
-    form = CommentForm(request.POST)
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.author = request.user
-        comment.post = post
-        comment.save()
-
-        # Notify post author if different from commenter
-        if post.author != request.user:
-            create_notification(
-                sender=request.user,
-                recipient=post.author,
-                notification_type='comment',
-                message=f'{request.user.username} commented: {comment.content[:50]}',
-                related_object=comment
-            )
-
-        # Process mentions
-        mentioned_usernames = extract_mentions(comment.content)
-        if mentioned_usernames:
-            mentioned_users = User.objects.filter(
-                username__in=mentioned_usernames
-            ).exclude(id=request.user.id).select_related('profile')
-            
-            for user in mentioned_users:
-                create_notification(
-                    sender=request.user,
-                    recipient=user,
-                    notification_type='mention',
-                    message=f'You were mentioned in a comment by @{request.user.username}',
-                    related_object=comment
-                )
-                if hasattr(user, 'profile') and user.profile.fcm_token:
-                    send_push_notification_v1(
-                        user.profile.fcm_token,
-                        title="Comment Mention",
-                        body=f"You were mentioned by @{request.user.username}"
-                    )
-
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
-@login_required
-@require_POST
-@login_required
-def like_post(request, post_id):
-    post = get_object_or_404(
-        Post.objects.select_related('author'),
-        id=post_id
-    )
-    
-    like, created = Like.objects.get_or_create(
-        user=request.user,
-        post=post
-    )
-
-    if not created:
-        like.delete()
-        liked = False
-    else:
-        liked = True
-        if post.author != request.user:
-            create_notification(
-                sender=request.user,
-                recipient=post.author,
-                notification_type='like',
-                message=f'{request.user.username} liked your post',
-                related_object=post
-            )
-
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({
-            'liked': liked,
-            'count': post.likes.count()
-        })
-    
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
-@login_required
-def save_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    save, created = Save.objects.get_or_create(user=request.user, post=post)
-    if not created:
-        save.delete()
-        saved = False
-    else:
-        saved = True
-        # Notify post author (if not self)
-        if post.author != request.user:
-            create_notification(
-                sender=request.user,
-                recipient=post.author,
-                notification_type='save',
-                message=f'{request.user} saved your post.',
-                related_object=post
-            )
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({'saved': saved, 'count': post.saves.count()})
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
-@login_required
-def share_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    Share.objects.create(user=request.user, post=post)
-    # Notify post author (if not self)
-    if post.author != request.user:
-        create_notification(
-            sender=request.user,
-            recipient=post.author,
-            notification_type='share',
-            message=f'{request.user} shared your post.',
-            related_object=post
-        )
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({'shared': True, 'count': post.shares.count()})
-    messages.success(request, 'Post shared!')
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
-@login_required
-def repost_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    # Prevent reposting your own post
-    if post.author == request.user:
-        messages.error(request, "You can't repost your own post.")
-        return redirect(request.META.get('HTTP_REFERER', 'home'))
-    # Always reference the original post for reposts
-    original = post.repost_of if post.repost_of else post
-    # Prevent reposting the same post multiple times
-    if Post.objects.filter(author=request.user, repost_of=original).exists():
-        messages.info(request, "You've already reposted this post.")
-        return redirect(request.META.get('HTTP_REFERER', 'home'))
-    repost = Post.objects.create(author=request.user, repost_of=original)
-    # Notify original post author (if not self)
-    if original.author != request.user:
-        create_notification(
-            sender=request.user,
-            recipient=original.author,
-            notification_type='repost',
-            message=f'{request.user} reposted your post.',
-            related_object=repost
-        )
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
-@login_required
-def user_reposts(request, user_id=None):
-    from django.contrib.auth.models import User
-    if user_id:
-        user = get_object_or_404(User, id=user_id)
-    else:
-        user = request.user
-    reposts = Repost.objects.filter(user=user).select_related('post').order_by('-created_at')
-    posts = [r.post for r in reposts]
-    return render(request, 'activities/user_reposts.html', {'posts': posts, 'profile_user': user})
-
-@login_required
-def saved_posts(request):
-    saved = request.user.save_set.select_related('post').all()
-    posts = [s.post for s in saved]
-    return render(request, 'activities/saved_posts.html', {'posts': posts})
-
 def post_detail(request, pk):
     post = get_object_or_404(
         Post.objects.select_related('author', 'group')
@@ -648,32 +435,112 @@ def post_detail(request, pk):
     
     return render(request, 'activities/post_detail.html', {
         'post': post,
-        'comments': post.comments.all()[:100]  # Limit to 100 comments
+        'comments': post.comments.all()[:100]
     })
 
+# ======================
+# GROUP MANAGEMENT VIEWS
+# ======================
+
 @login_required
-def share_to_user(request):
+def remove_user_from_group(request, group_id, user_id):
+    group = get_object_or_404(Group, id=group_id)
+    user = get_object_or_404(User, id=user_id)
+    
+    if hasattr(group, 'profile') and group.profile.creator == request.user:
+        group.user_set.remove(user)
+        
+    return redirect('group_admin', group_id=group.id)
+
+@login_required
+def add_user_to_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    group_profile = getattr(group, 'profile', None)
+    
+    if not group_profile or group_profile.creator != request.user:
+        return redirect('group_admin', group_id=group.id)
+        
+    query = request.GET.get('q', '')
+    users = []
+    
+    if query:
+        users = User.objects.filter(username__icontains=query)\
+            .exclude(id__in=group.user_set.values_list('id', flat=True))
+            
     if request.method == 'POST':
-        username = request.POST.get('username')
-        post_id = request.POST.get('post_id')
-        User = get_user_model()
-        try:
-            recipient = User.objects.get(username=username)
-        except User.DoesNotExist:
-            messages.error(request, 'User not found.')
-            return redirect(request.META.get('HTTP_REFERER', 'home'))
-        post = get_object_or_404(Post, id=post_id)
-        # For demo: send as a private message (or notification)
-        # You can customize this to use your actual messaging system
-        from users.models_private_message import PrivateMessage
-        PrivateMessage.objects.create(
-            sender=request.user,
-            recipient=recipient,
-            content=f"Shared a post: {request.build_absolute_uri(post.get_absolute_url())}"
+        user_id = request.POST.get('user_id')
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+            group.user_set.add(user)
+            
+            create_notification(
+                sender=request.user,
+                recipient=user,
+                notification_type='group',
+                message=f'You were added to the group {group.name}.',
+                related_object=group
+            )
+            
+            return redirect('group_admin', group_id=group.id)
+            
+    return render(request, 'activities/add_user_to_group.html', {
+        'group': group,
+        'query': query,
+        'users': users,
+    })
+
+# ======================
+# SEARCH & FILTER VIEWS
+# ======================
+
+@login_required
+def search_and_filter_feed(request):
+    query = request.GET.get('q', '')
+    filter_by = request.GET.get('filter', 'recent')
+    
+    # Base queries
+    posts = Post.objects.all()
+    events = Event.objects.all()
+
+    # Following filter
+    if request.GET.get('following') == '1':
+        following_ids = request.user.following.values_list('following_user', flat=True)
+        posts = posts.filter(author__id__in=following_ids)
+        events = events.filter(creator__id__in=following_ids)
+
+    # Filter logic
+    if filter_by == 'most_seen':
+        posts = posts.order_by('-views') if hasattr(Post, 'views') else posts
+        events = events.order_by('-views') if hasattr(Event, 'views') else events
+    elif filter_by == 'most_comments':
+        posts = posts.annotate(num_comments=Count('comment')).order_by('-num_comments')
+        events = events.annotate(num_comments=Count('comment')).order_by('-num_comments')
+    else:  # recent
+        posts = posts.order_by('-created_at')
+        events = events.order_by('-start_time')
+
+    # Search logic
+    if query:
+        posts = posts.filter(
+            Q(content__icontains=query) | 
+            Q(author__username__icontains=query)
         )
-        messages.success(request, f'Post shared with {recipient.username}!')
-        return redirect(request.META.get('HTTP_REFERER', 'home'))
-    return redirect('home')
+        events = events.filter(
+            Q(title__icontains=query) | 
+            Q(description__icontains=query) | 
+            Q(creator__username__icontains=query)
+        )
+
+    return render(request, 'activities/search_feed.html', {
+        'posts': posts,
+        'events': events,
+        'query': query,
+        'filter_by': filter_by,
+    })
+
+# ======================
+# SHARING VIEWS
+# ======================
 
 @login_required
 def share_page(request, post_id):
@@ -681,22 +548,26 @@ def share_page(request, post_id):
     following = User.objects.filter(followers__user=request.user)
     followers = User.objects.filter(following__following_user=request.user)
     post_url = request.build_absolute_uri(post.get_absolute_url())
+    
     if request.method == 'POST':
         username = request.POST.get('username')
-        UserModel = get_user_model()
         try:
-            recipient = UserModel.objects.get(username=username)
-        except UserModel.DoesNotExist:
+            recipient = get_user_model().objects.get(username=username)
+        except User.DoesNotExist:
             messages.error(request, 'User not found.')
             return redirect(request.path)
+            
+        # In a real implementation, use your messaging system
         from users.models_private_message import PrivateMessage
         PrivateMessage.objects.create(
             sender=request.user,
             recipient=recipient,
             content=f"Shared a post: {post_url}"
         )
+        
         messages.success(request, f'Post shared with {recipient.username}!')
         return redirect(post.get_absolute_url())
+        
     return render(request, 'activities/share_page.html', {
         'post': post,
         'followers': followers,
@@ -704,15 +575,30 @@ def share_page(request, post_id):
         'post_url': post_url,
     })
 
+# ======================
+# SPECIALTY VIEWS
+# ======================
+
 @login_required
 def home_fellowship(request):
-    from fellowship.models import FellowshipPost, FellowshipEvent, FellowshipMember, fellowship_edit
+    from fellowship.models import FellowshipPost, FellowshipEvent, FellowshipMember
+    
     fellowship_id = 1  # The main fellowship ID
-    fellowship_posts = FellowshipPost.objects.filter(fellowship_id=fellowship_id).order_by('-created_at')
-    fellowship_events = FellowshipEvent.objects.filter(fellowship_id=fellowship_id).order_by('-start_time')
+    fellowship_posts = FellowshipPost.objects.filter(
+        fellowship_id=fellowship_id
+    ).order_by('-created_at')
+    
+    fellowship_events = FellowshipEvent.objects.filter(
+        fellowship_id=fellowship_id
+    ).order_by('-start_time')
+    
     is_fellowship_member = False
     if request.user.is_authenticated:
-        is_fellowship_member = FellowshipMember.objects.filter(fellowship_id=fellowship_id, user=request.user).exists()
+        is_fellowship_member = FellowshipMember.objects.filter(
+            fellowship_id=fellowship_id,
+            user=request.user
+        ).exists()
+        
     return render(request, 'activities/home_fellowship.html', {
         'fellowship_posts': fellowship_posts,
         'fellowship_events': fellowship_events,
