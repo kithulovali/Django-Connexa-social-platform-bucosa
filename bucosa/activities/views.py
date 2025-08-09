@@ -74,94 +74,57 @@ def home_activities(request):
         suggested_groups = list(Group.objects.all().order_by('?')[:10])
         cache.set(groups_cache_key, suggested_groups, 3600)  # 1 hour cache
 
+
     # --- 2. Interleave the content for the main feed ---
-    
-    combined_feed = []
-    
-    # Create a list of discovery item types to cycle through
-    discovery_types = []
-    if suggested_users:
-        discovery_types.append('users')
-    if suggested_groups:
-        discovery_types.append('groups')
-    if events:
-        discovery_types.append('events')
-    
-    random.shuffle(discovery_types)
-    discovery_cycler = cycle(discovery_types)
-    
-    post_index = 0
-    discovery_index = {
-        'users': 0,
-        'groups': 0,
-        'events': 0
-    }
-    
-    # Combine posts and discovery content
-    while post_index < len(posts):
-        # Add a discovery item first to ensure it's at the top on a small number of posts
-        if discovery_types:
-            try:
-                item_type = next(discovery_cycler)
-                if item_type == 'users' and discovery_index['users'] < len(suggested_users):
-                    # Take up to 3 users at once
-                    users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
-                    combined_feed.append(('users_batch', users_batch))
-                    discovery_index['users'] += len(users_batch)
-                elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
-                    # Take up to 3 groups at once
-                    groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
-            except StopIteration:
-                break
-        # Shuffle batches of suggestions for more randomness
-       
-        user_batches = [suggested_users[i:i+3] for i in range(0, len(suggested_users), 3)] if suggested_users else []
-        group_batches = [suggested_groups[i:i+3] for i in range(0, len(suggested_groups), 3)] if suggested_groups else []
-        event_items = events if events else []
-        random.shuffle(user_batches)
-        random.shuffle(group_batches)
-        random.shuffle(event_items)
+    # Batch suggestions for users, groups, and events
+    user_batches = [suggested_users[i:i+3] for i in range(0, len(suggested_users), 3)] if suggested_users else []
+    group_batches = [suggested_groups[i:i+3] for i in range(0, len(suggested_groups), 3)] if suggested_groups else []
+    event_items = events if events else []
 
-        # Combine all batches and posts into a single list
-        suggestion_items = []
-        suggestion_items += [('users_batch', batch) for batch in user_batches]
-        suggestion_items += [('groups_batch', batch) for batch in group_batches]
-        suggestion_items += [('events', event) for event in event_items]
-        random.shuffle(suggestion_items)
+    random.shuffle(user_batches)
+    random.shuffle(group_batches)
+    random.shuffle(event_items)
 
-        post_items = [('post', post) for post in posts]
-        combined_feed = suggestion_items + post_items
-        random.shuffle(combined_feed)
-    
+    # Combine all batches and posts into a single list
+    suggestion_items = []
+    suggestion_items += [('users_batch', batch) for batch in user_batches]
+    suggestion_items += [('groups_batch', batch) for batch in group_batches]
+    suggestion_items += [('events', event) for event in event_items]
+    random.shuffle(suggestion_items)
+
+    post_items = [('post', post) for post in posts]
+    combined_feed = suggestion_items + post_items
+    random.shuffle(combined_feed)
+
     # Batch permission checks
     if request.user.is_authenticated:
         for event in events:
             event.user_can_edit = event.creator_id == request.user.id
             event.user_can_delete = event.creator_id == request.user.id
-    
-        # Infinite scroll batch logic
-        start = int(request.GET.get('start', 0))
-        batch_size = 10
-        end = start + batch_size
-        feed_batch = combined_feed[start:end]
 
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
-            from django.template.loader import render_to_string
-            items_html = []
-            for item_type, item in feed_batch:
-                items_html.append(render_to_string('activities/_feed_item.html', {'item_type': item_type, 'item': item, 'user': request.user}))
-            has_more = end < len(combined_feed)
-            return JsonResponse({'items': items_html, 'has_more': has_more})
+    # Infinite scroll batch logic
+    start = int(request.GET.get('start', 0))
+    batch_size = 10
+    end = start + batch_size
+    feed_batch = combined_feed[start:end]
 
-        context = {
-            'combined_feed': combined_feed,
-            'query': query,
-            'filter_by': request.GET.get('filter', 'recent'),
-            'suggested_users': suggested_users,
-            'suggested_groups': suggested_groups,
-            'events': events,
-        }
-        return render(request, 'activities/home_feed.html', context)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+        from django.template.loader import render_to_string
+        items_html = []
+        for item_type, item in feed_batch:
+            items_html.append(render_to_string('activities/_feed_item.html', {'item_type': item_type, 'item': item, 'user': request.user}))
+        has_more = end < len(combined_feed)
+        return JsonResponse({'items': items_html, 'has_more': has_more})
+
+    context = {
+        'combined_feed': combined_feed,
+        'query': query,
+        'filter_by': request.GET.get('filter', 'recent'),
+        'suggested_users': suggested_users,
+        'suggested_groups': suggested_groups,
+        'events': events,
+    }
+    return render(request, 'activities/home_feed.html', context)
 
 def group_activities(request): 
     return render(request ,'activities/group_detail.html')
