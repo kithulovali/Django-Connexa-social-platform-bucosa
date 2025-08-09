@@ -9,11 +9,81 @@
       <div id="feed-container" class="w-full space-y-6">
         {% for item_type, item in combined_feed|slice:":10" %}
           {% if item_type == 'post' %}
-            {% include 'activities/_feed_item.html' with item_type=item_type item=item user=user %}
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
+              <div class="flex items-center gap-3 mb-3">
+              {% if item.author.profile and item.author.profile.profile_image %}
+              <a href="{% url 'users:profile' item.author.id %}">
+              <img src="{{ item.author.profile.profile_image.url }}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-200" alt="{{ item.author.username }}">
+              </a>
+              {% else %}
+              <a href="{% url 'users:profile' item.author.id %}">
+              <img src="{% static 'img/default.png' %}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-200" alt="{{ item.author.username }}">
+              </a>
+              {% endif %}
+              <div>
+              <a href="{% url 'users:profile' item.author.id %}" class="font-bold text-gray-800 hover:text-blue-600 text-sm">{{ item.author.username }}</a>
+              <div class="text-xs text-gray-500">@{{ item.author.username }}</div>
+              <div class="text-xs text-gray-400">{{ item.created_at|timesince }} ago</div>
+              </div>
+              </div>
+              <div class="mb-3">
+              <p class="text-gray-800 text-base whitespace-pre-line">{{ item.content }}</p>
+              {% if item.image %}
+              <img src="{{ item.image.url }}" class="mt-3 rounded-xl max-h-96 w-full object-cover border border-gray-200" alt="Post Image">
+              {% endif %}
+              </div>
+              <div class="flex items-center gap-4 mb-2">
+              <button class="like-btn flex items-center gap-1 text-base font-semibold {% if user in item.likes.all %}text-red-500{% else %}text-gray-600{% endif %}" data-post-id="{{ item.id }}" data-liked="{% if user in item.likes.all %}true{% else %}false{% endif %}">
+              <span class="material-icons like-icon">{% if user in item.likes.all %}favorite{% else %}favorite_border{% endif %}</span>
+              <span class="like-count">{{ item.likes.count }}</span>
+              </button>
+              <button class="toggle-comments-btn flex items-center gap-1 text-base font-semibold text-gray-600" data-post-id="{{ item.id }}">
+              <span class="material-icons">{% if item.comments.count > 0 %}chat_bubble{% else %}chat_bubble_outline{% endif %}</span>
+              <span>{{ item.comments.count }}</span>
+              </button>
+              <!-- Repost button -->
+              {% if user.is_authenticated %}
+              <form action="{% url 'activities:repost' item.id %}" method="post" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="flex items-center gap-1 text-base font-semibold text-gray-600 hover:text-blue-600">
+              <span class="material-icons">repeat</span>
+              <span>Repost</span>
+              </button>
+              </form>
+              {% endif %}
+              </div>
+              <div id="comments-section-{{ item.id }}" class="mt-3 {% if not item.comments.count %}hidden{% endif %}">
+              <div class="space-y-2 mb-2">
+              {% for comment in item.comments.all %}
+              <div class="flex items-start gap-2">
+                {% if comment.author.profile and comment.author.profile.profile_image %}
+                <img src="{{ comment.author.profile.profile_image.url }}" class="w-8 h-8 rounded-full object-cover border border-gray-200" alt="{{ comment.author.username }}">
+                {% else %}
+                <img src="{% static 'img/default.png' %}" class="w-8 h-8 rounded-full object-cover border border-gray-200" alt="{{ comment.author.username }}">
+                {% endif %}
+                <div class="bg-gray-50 rounded-xl px-3 py-2 flex-1">
+                <div class="font-semibold text-gray-800 text-xs">{{ comment.author.username }}</div>
+                <div class="text-gray-700 text-sm">{{ comment.content }}</div>
+                <div class="text-xs text-gray-400">{{ comment.created_at|timesince }} ago</div>
+                </div>
+              </div>
+              {% empty %}
+              <div class="text-gray-500 text-sm">No comments yet.</div>
+              {% endfor %}
+              </div>
+              {% if user.is_authenticated %}
+              <form action="{% url 'activities:add_comment' item.id %}" method="post" class="flex items-center gap-2 mt-2">
+              {% csrf_token %}
+              <textarea name="content" rows="1" placeholder="Add a comment..." class="w-full px-3 py-2 rounded-xl border border-gray-300 bg-gray-50 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-semibold text-sm">Post</button>
+              </form>
+              {% endif %}
+              </div>
+            </div>
+
           {% else %}
             {% if item_type == 'users_batch' %}
               <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
-                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
                   <span class="material-icons">person_add</span>
                   Suggested for you
                 </h3>
