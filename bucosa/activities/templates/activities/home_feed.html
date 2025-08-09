@@ -5,135 +5,32 @@
 <div class="min-h-screen w-full bg-white flex flex-col lg:flex-row">
   <!-- Main Content - comes first in mobile view -->
   <main class="flex flex-col items-center flex-1 min-h-screen px-4 py-6 w-full max-w-2xl mx-auto">
-   {% if combined_feed %}
+    {% if combined_feed %}
       <div id="feed-container" class="w-full space-y-6">
         {% for item_type, item in combined_feed|slice:":10" %}
-          {% include 'activities/_feed_item.html' with item_type=item_type item=item user=user %}
-        {% endfor %}
-      </div>
-      {% if combined_feed|length > 10 %}
-      <div class="flex justify-center py-6">
-        <button id="load-more-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all text-base">Load More</button>
-      </div>
-      {% endif %}
-    {% else %}
-    <div class="text-center py-12 sm:py-20">
-      <!-- ...existing code for empty feed... -->
-    </div>
-    {% endif %}
-                  <!-- Save Button -->
-                  <form action="{% if item.repost_of %}{% url 'activities:save_post' item.repost_of.id %}{% else %}{% url 'activities:save_post' item.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
-                    {% csrf_token %}
-                    <button type="submit" class="group flex flex-col items-center justify-center text-gray-600 hover:text-green-600 w-full py-1 rounded-xl hover:bg-green-50">
-                      <span class="material-icons text-lg mb-1">bookmark_border</span>
-                      <span class="font-medium text-xs sm:text-sm">{{ item.saves.count }}</span>
-                    </button>
-                  </form>
-                  
-                  <!-- Share Button -->
-                  <a href="{% if item.repost_of %}{% url 'activities:share_page' item.repost_of.id %}{% else %}{% url 'activities:share_page' item.id %}{% endif %}" 
-                     class="flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 py-1 rounded-xl hover:bg-blue-50">
-                    <span class="material-icons text-lg mb-1">share</span>
-                    <span class="font-medium text-xs sm:text-sm">Share</span>
-                  </a>
-                  
-                  <!-- Repost Button -->
-                  {% if not item.repost_of or item.repost_of.author != user %}
-                  <form action="{% if item.repost_of %}{% url 'activities:repost_post' item.repost_of.id %}{% else %}{% url 'activities:repost_post' item.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
-                    {% csrf_token %}
-                    <button type="submit" class="group flex flex-col items-center justify-center text-gray-600 hover:text-orange-500 w-full py-1 rounded-xl hover:bg-orange-50">
-                      <span class="material-icons text-lg mb-1">repeat</span>
-                      <span class="font-medium text-xs sm:text-sm">{{ item.repost_count }}</span>
-                    </button>
-                  </form>
-                  {% endif %}
-                  
-                  <!-- Comment Button -->
-                  <button type="button" 
-                          class="toggle-comments-btn flex flex-col items-center justify-center text-gray-600 hover:text-purple-600 py-1 rounded-xl hover:bg-purple-50" 
-                          data-post-id="{{ item.id }}">
-                    <span class="material-icons text-lg mb-1">chat_bubble_outline</span>
-                    <span class="font-medium text-xs sm:text-sm">{{ item.comments.count }}</span>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Comments section -->
-              <div class="comments-section hidden border-t border-gray-200" id="comments-section-{{ item.id }}">
-                <div class="px-4 sm:px-6 py-4 bg-gray-50">
-                  <div class="space-y-4 max-h-80 overflow-y-auto">
-                    {% for comment in item.comments.all %}
-                    <div class="flex gap-3 bg-white rounded-xl p-3 sm:p-4 border border-gray-200">
-                      {% if comment.author.profile and comment.author.profile.profile_image %}
-                      <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
-                        <img src="{{ comment.author.profile.profile_image.url }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">
+          {% if item_type == 'post' %}
+            {% include 'activities/_feed_item.html' with item_type=item_type item=item user=user %}
+          {% else %}
+            {% if item_type == 'users_batch' %}
+              <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                  <span class="material-icons">person_add</span>
+                  Suggested for you
+                </h3>
+                <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
+                  {% for u in item %}
+                    <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
+                      {% if u.profile and u.profile.profile_image %}
+                      <a href="{% url 'users:profile' u.id %}" class="block">
+                        <img src="{{ u.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
                       </a>
                       {% else %}
-                      <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
-                        <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">
+                      <a href="{% url 'users:profile' u.id %}" class="block">
+                        <img src="{% static 'img/default.png' %}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
                       </a>
                       {% endif %}
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                          <a href="{% url 'users:profile' comment.author.id %}" class="font-semibold text-gray-800 text-sm sm:text-base">{{ comment.author.username }}</a>
-                          <span class="text-gray-500 text-xs sm:text-sm">·</span>
-                          <time class="text-gray-500 text-xs sm:text-sm">{{ comment.created_at|timesince }} ago</time>
-                        </div>
-                        <div class="text-gray-700 break-words leading-relaxed text-sm sm:text-base">{{ comment.content }}</div>
-                      </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-center py-6">
-                      <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2">chat_bubble_outline</span>
-                      <p class="text-gray-500 text-sm sm:text-base">No comments yet. Be the first to comment!</p>
-                    </div>
-                    {% endfor %}
-                  </div>
-                  {% if user.is_authenticated %}
-                  <form action="{% url 'activities:add_comment' item.id %}" method="post" class="mt-4 flex gap-2 sm:gap-3 items-start">
-                    {% csrf_token %}
-                    {% if user.profile and user.profile.profile_image %}
-                    <img src="{{ user.profile.profile_image.url }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
-                    {% else %}
-                    <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
-                    {% endif %}
-                    <div class="flex-1 flex gap-2">
-                      <textarea name="content" rows="1" required placeholder="Add a comment..." class="flex-1 resize-none border border-gray-300 rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm sm:text-base comment-textarea"></textarea>
-                      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl shadow transition-all text-sm sm:text-base">Post</button>
-                    </div>
-                  </form>
-                  {% else %}
-                  <div class="text-center py-4">
-                    <p class="text-gray-500 text-sm sm:text-base">
-                      <a href="{% url 'account_login' %}" class="text-blue-600 hover:text-blue-500 underline">Log in</a> 
-                      to join the conversation
-                    </p>
-                  </div>
-                  {% endif %}
-                </div>
-              </div>
-            </article>
-
-          {% elif item_type == 'users_batch' %}
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
-              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <span class="material-icons">person_add</span>
-                Suggested for you
-              </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
-                {% for u in item %}
-                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
-                    {% if u.profile and u.profile.profile_image %}
-                    <a href="{% url 'users:profile' u.id %}" class="block">
-                      <img src="{{ u.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
-                    </a>
-                    {% else %}
-                    <a href="{% url 'users:profile' u.id %}" class="block">
-                      <img src="{% static 'img/default.png' %}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ u.username }}</a>
-                    <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">@{{ u.username }}</div>
+                      <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ u.username }}</a>
+                      <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">@{{ u.username }}</div>
                       {% if u.mutual_count and u.mutual_count > 0 %}
                       <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium mb-2">
                         <span class="material-icons text-xs">group</span>
@@ -143,114 +40,122 @@
                       {% if u.recent_activity %}
                       <div class="text-xs text-gray-400 mb-1">Active {{ u.recent_activity|timesince }} ago</div>
                       {% endif %}
-                    {% if user.is_authenticated and user not in u.followers.all %}
-                    <form action="{% url 'users:follow_user' u.id %}" method="post">
-                      {% csrf_token %}
-                      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
-                        Follow
-                      </button>
-                    </form>
-                    {% endif %}
-                  </div>
-                {% empty %}
-                <div class="text-center py-6 w-full">
-                  <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2 block">people_outline</span>
-                  <p class="text-gray-500 text-sm sm:text-base">No suggestions at this time.</p>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-
-          {% elif item_type == 'groups_batch' %}
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
-              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <span class="material-icons">groups</span>
-                Suggested Groups
-              </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
-                {% for group in item %}
-                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
-                    {% if group.profile and group.profile.profile_image %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="block">
-                      <img src="{{ group.profile.profile_image.url }}" 
-                          class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
-                    </a>
-                    {% else %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="block">
-                      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mx-auto mb-2 flex items-center justify-center border-2 border-white shadow-sm">
-                        <span class="material-icons text-green-600 text-3xl sm:text-4xl">group</span>
-                      </div>
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">
-                      {{ group.name }}
-                    </a>
-                      <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium mb-2">
-                        <span class="material-icons text-xs">groups</span>
-                        {{ group.member_count }} member{{ group.member_count|pluralize }}
-                      </div>
-                      {% if group.recent_post %}
-                      <div class="text-xs text-gray-400 mb-1">Active {{ group.recent_post|timesince }} ago</div>
-                      {% endif %}
-                    {% if user.is_authenticated and user not in group.user_set.all %}
-                    <form action="{% url 'users:join_group' group.id %}" method="post">
-                      {% csrf_token %}
-                      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
-                        Join Group
-                      </button>
-                    </form>
-                    {% endif %}
-                  </div>
-                {% empty %}
-                <div class="text-center py-6 w-full">
-                  <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2 block">group</span>
-                  <p class="text-gray-500 text-sm sm:text-base">No group suggestions at this time.</p>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-
-          {% elif item_type == 'events' %}
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
-              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <span class="material-icons">event</span>
-                Upcoming Events
-              </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
-                {% for event in events %}
-                  <a href="{% url 'activities:event_detail' event.id %}" class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
-                    <div class="relative w-full h-24 sm:h-32 mb-2 sm:mb-3 rounded-xl overflow-hidden border border-gray-200">
-                      {% if event.cover_image %}
-                      <img src="{{ event.cover_image.url }}" class="w-full h-full object-cover">
-                      {% else %}
-                      <div class="w-full h-full bg-blue-100 flex items-center justify-center">
-                        <span class="material-icons text-blue-600 text-4xl sm:text-6xl">event</span>
-                      </div>
+                      {% if user.is_authenticated and user not in u.followers.all %}
+                      <form action="{% url 'users:follow_user' u.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
+                          Follow
+                        </button>
+                      </form>
                       {% endif %}
                     </div>
-                    <h4 class="font-bold text-gray-800 hover:text-blue-600 truncate mb-1 text-sm sm:text-base">{{ event.title }}</h4>
-                    <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ event.start_time|date:"M d, Y H:i" }}</p>
-                    {% if event.location %}
-                    <p class="text-xs sm:text-sm text-gray-500 truncate">{{ event.location }}</p>
-                    {% endif %}
-                      {% if event.num_attendees and event.num_attendees > 0 %}
-                      <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium mt-2">
-                        <span class="material-icons text-xs">groups</span>
-                        {{ event.num_attendees }} attendee{{ event.num_attendees|pluralize }}
-                      </div>
-                      {% endif %}
-                  </a>
-                {% empty %}
-                <div class="text-center py-6 w-full">
-                  <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2 block">event_note</span>
-                  <p class="text-gray-500 text-sm sm:text-base">No events at this time.</p>
+                  {% empty %}
+                  <div class="text-center py-6 w-full">
+                    <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2 block">people_outline</span>
+                    <p class="text-gray-500 text-sm sm:text-base">No suggestions at this time.</p>
+                  </div>
+                  {% endfor %}
                 </div>
-                {% endfor %}
               </div>
-            </div>
+            {% else %}
+              {% if item_type == 'groups_batch' %}
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
+                  <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                    <span class="material-icons">groups</span>
+                    Suggested Groups
+                  </h3>
+                  <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
+                    {% for group in item %}
+                      <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
+                        {% if group.profile and group.profile.profile_image %}
+                        <a href="{% url 'users:group_profile' group.id %}" class="block">
+                          <img src="{{ group.profile.profile_image.url }}" 
+                              class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
+                        </a>
+                        {% else %}
+                        <a href="{% url 'users:group_profile' group.id %}" class="block">
+                          <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mx-auto mb-2 flex items-center justify-center border-2 border-white shadow-sm">
+                            <span class="material-icons text-green-600 text-3xl sm:text-4xl">group</span>
+                          </div>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">
+                          {{ group.name }}
+                        </a>
+                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium mb-2">
+                          <span class="material-icons text-xs">groups</span>
+                          {{ group.member_count }} member{{ group.member_count|pluralize }}
+                        </div>
+                        {% if group.recent_post %}
+                        <div class="text-xs text-gray-400 mb-1">Active {{ group.recent_post|timesince }} ago</div>
+                        {% endif %}
+                        {% if user.is_authenticated and user not in group.user_set.all %}
+                        <form action="{% url 'users:join_group' group.id %}" method="post">
+                          {% csrf_token %}
+                          <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
+                            Join Group
+                          </button>
+                        </form>
+                        {% endif %}
+                      </div>
+                    {% empty %}
+                    <div class="text-center py-6 w-full">
+                      <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2 block">group</span>
+                      <p class="text-gray-500 text-sm sm:text-base">No group suggestions at this time.</p>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% else %}
+                {% if item_type == 'events' %}
+                  <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                      <span class="material-icons">event</span>
+                      Upcoming Events
+                    </h3>
+                    <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
+                      {% for event in events %}
+                        <a href="{% url 'activities:event_detail' event.id %}" class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
+                          <div class="relative w-full h-24 sm:h-32 mb-2 sm:mb-3 rounded-xl overflow-hidden border border-gray-200">
+                            {% if event.cover_image %}
+                            <img src="{{ event.cover_image.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full bg-blue-100 flex items-center justify-center">
+                              <span class="material-icons text-blue-600 text-4xl sm:text-6xl">event</span>
+                            </div>
+                            {% endif %}
+                          </div>
+                          <h4 class="font-bold text-gray-800 hover:text-blue-600 truncate mb-1 text-sm sm:text-base">{{ event.title }}</h4>
+                          <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ event.start_time|date:"M d, Y H:i" }}</p>
+                          {% if event.location %}
+                          <p class="text-xs sm:text-sm text-gray-500 truncate">{{ event.location }}</p>
+                          {% endif %}
+                          {% if event.num_attendees and event.num_attendees > 0 %}
+                          <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium mt-2">
+                            <span class="material-icons text-xs">groups</span>
+                            {{ event.num_attendees }} attendee{{ event.num_attendees|pluralize }}
+                          </div>
+                          {% endif %}
+                        </a>
+                      {% empty %}
+                      <div class="text-center py-6 w-full">
+                        <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2 block">event_note</span>
+                        <p class="text-gray-500 text-sm sm:text-base">No events at this time.</p>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+              {% endif %}
+            {% endif %}
           {% endif %}
         {% endfor %}
       </div>
+      {% if combined_feed|length > 10 %}
+      <div class="flex justify-center py-6">
+        <button id="load-more-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all text-base">Load More</button>
+      </div>
+      {% endif %}
     {% else %}
     <div class="text-center py-12 sm:py-20">
         <div class="mb-6">
@@ -478,9 +383,9 @@ document.addEventListener('DOMContentLoaded', function() {
         icon.classList.remove('animate-pulse');
       }, 300);
 
-  // Send AJAX request in the background (optional)
-  // This is just for server-side tracking but doesn't affect UI
-  fetch(`/activities/post/${postId}/like/`, {
+      // Send AJAX request in the background (optional)
+      // This is just for server-side tracking but doesn't affect UI
+      fetch(`/activities/post/${postId}/like/`, {
         method: 'POST',
         headers: {
           'X-CSRFToken': '{{ csrf_token }}',
@@ -491,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }).catch(error => console.error('Error:', error));
     });
   });
-});
+
   // Load more functionality
   let currentIndex = 10;
   const feedContainer = document.getElementById('feed-container');
