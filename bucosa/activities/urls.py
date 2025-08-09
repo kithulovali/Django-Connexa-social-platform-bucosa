@@ -10,7 +10,6 @@ urlpatterns = [
 
     path('home/' , views.home_activities , name='home'),
     path('home/fellowship/', views.home_fellowship, name='home_fellowship'),
-    path('post/', views.post_activity , name = 'post'),
     path('event/', views.event_activity , name ='event'),
     path('group/' , views.group_activities , name='group'),
     # --- Added for full CRUD functionality ---
