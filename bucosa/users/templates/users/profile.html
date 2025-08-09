@@ -11,18 +11,18 @@
         <!-- Username and Actions -->
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
-            <h1 class="text-xl font-normal text-blue-900">{{ user.username }}</h1>
+            <h1 class="text-xl font-normal">{{ user.username }}</h1>
           </div>
           <div class="flex items-center gap-3">
             {% if request.user == user %}
-              <a href="{% url 'users:user_settings' %}" class="border border-blue-200 hover:bg-blue-50 px-4 py-1.5 rounded-lg text-sm font-semibold text-blue-700 transition">
+              <a href="{% url 'users:user_settings' %}" class="border border-gray-300 hover:bg-gray-50 px-4 py-1.5 rounded-lg text-sm font-semibold transition">
                  <span class="material-icons text-xl">settings</span>
               </a>
             {% else %}
-              <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1.5 rounded-lg text-sm font-semibold transition">
+              <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-lg text-sm font-semibold transition">
                 Follow
               </button>
-              <a href="{% url 'users:private_messages' user.id %}" class="border border-blue-200 hover:bg-blue-50 px-4 py-1.5 rounded-lg text-sm font-semibold text-blue-700 transition">
+              <a href="{% url 'users:private_messages' user.id %}" class="border border-gray-300 hover:bg-gray-50 px-4 py-1.5 rounded-lg text-sm font-semibold transition">
                 Message
               </a>
             {% endif %}
@@ -33,25 +33,25 @@
         <div class="flex items-start gap-6 mb-4">
           <div class="flex-shrink-0">
             {% if profile.profile_image %}
-              <img src="{{ profile.profile_image.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-full object-cover border border-blue-200">
+              <img src="{{ profile.profile_image.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-full object-cover border border-gray-200">
             {% else %}
-              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover border border-blue-200">
+              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover border border-gray-200">
             {% endif %}
           </div>
           
           <div class="flex-1 pt-2">
             <div class="flex justify-around text-center">
               <div>
-                <div class="font-semibold text-base text-blue-900">{{ posts.count|default:0 }}</div>
-                <div class="text-blue-600 text-sm">posts</div>
+                <div class="font-semibold text-base">{{ posts.count|default:0 }}</div>
+                <div class="text-gray-600 text-sm">posts</div>
               </div>
               <div>
-                <div class="font-semibold text-base text-blue-900">{{ followers_count|default:0 }}</div>
-                <div class="text-blue-600 text-sm">followers</div>
+                <div class="font-semibold text-base">{{ followers_count|default:0 }}</div>
+                <div class="text-gray-600 text-sm">followers</div>
               </div>
               <div>
-                <div class="font-semibold text-base text-blue-900">{{ following_count|default:0 }}</div>
-                <div class="text-blue-600 text-sm">following</div>
+                <div class="font-semibold text-base">{{ following_count|default:0 }}</div>
+                <div class="text-gray-600 text-sm">following</div>
               </div>
             </div>
           </div>
@@ -60,16 +60,16 @@
         <!-- Bio and Profile Info -->
         <div class="space-y-1">
           {% if user.get_full_name %}
-            <div class="font-semibold text-sm text-blue-900">{{ user.get_full_name }}</div>
+            <div class="font-semibold text-sm">{{ user.get_full_name }}</div>
           {% endif %}
           
           {% if profile.bio %}
-            <div class="text-sm leading-relaxed text-blue-800">{{ profile.bio }}</div>
+            <div class="text-sm leading-relaxed">{{ profile.bio }}</div>
           {% endif %}
           
           {% if profile.website %}
             <div class="text-sm">
-              <a href="{{ profile.website }}" class="text-blue-700 font-medium" target="_blank">
+              <a href="{{ profile.website }}" class="text-blue-900 font-medium" target="_blank">
                 {% if profile.website|length > 30 %}
                   {{ profile.website|slice:":30" }}...
                 {% else %}
@@ -80,17 +80,17 @@
           {% endif %}
           
           {% if profile.location %}
-            <div class="text-sm text-blue-600">{{ profile.location }}</div>
+            <div class="text-sm text-gray-500">{{ profile.location }}</div>
           {% endif %}
           
           {% if profile.department %}
-            <div class="text-sm text-blue-600">
+            <div class="text-sm text-gray-500">
               <span class="font-medium">Department:</span> {{ profile.department }}
             </div>
           {% endif %}
           
           {% if profile.graduation_year %}
-            <div class="text-sm text-blue-600">
+            <div class="text-sm text-gray-500">
               <span class="font-medium">Graduation:</span> {{ profile.graduation_year }}
             </div>
           {% endif %}
@@ -103,52 +103,26 @@
           <!-- Profile Picture -->
           <div class="flex-shrink-0">
             {% if profile.profile_image %}
-              <img src="{{ profile.profile_image.url }}" alt="{{ user.username }}" class="w-36 h-36 rounded-full object-cover border border-blue-300">
+              <img src="{{ profile.profile_image.url }}" alt="{{ user.username }}" class="w-36 h-36 rounded-full object-cover border border-gray-300">
             {% else %}
-              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-36 h-36 rounded-full object-cover border border-blue-300">
+              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-36 h-36 rounded-full object-cover border border-gray-300">
             {% endif %}
           </div>
           
           <!-- Profile Info -->
-          <div class="flex-1 space-y-6">
-            <!-- Username and Actions -->
-            <div class="flex items-center gap-4">
-              <div class="flex items-center gap-2">
-                <h1 class="text-2xl font-light text-blue-900">{{ user.username }}</h1>
-                {% if profile.user_type == 'alumni' %}
-                  <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
-                      <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
-                    </svg>
-                    Alumni
-                  </span>
-                {% else %}
-                  <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                    </svg>
-                    Undergraduate
-                  </span>
-                {% endif %}
-                {% if profile.verified %}
-                  <span class="material-icons text-blue-500 text-lg">verified</span>
-                {% endif %}
-              </div>
-              
               <div class="flex items-center gap-2">
                 {% if request.user == user %}
-                  <a href="{% url 'users:user_settings' %}" class="bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-md text-sm font-semibold text-blue-700 transition">
+                  <a href="{% url 'users:user_settings' %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
                     Edit profile
                   </a>
-                  <button class="bg-blue-50 hover:bg-blue-100 p-2 rounded-md text-blue-700 transition">
+                  <button class="bg-gray-100 hover:bg-gray-200 p-2 rounded-md transition">
                     <span class="material-icons text-lg">settings</span>
                   </button>
                 {% else %}
-                  <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1.5 rounded-md text-sm font-semibold transition">
+                  <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-md text-sm font-semibold transition">
                     Follow
                   </button>
-                  <a href="{% url 'users:private_messages' user.id %}" class="bg-blue-50 hover:bg-blue-100 px-4 py-1.5 rounded-md text-sm font-semibold text-blue-700 transition">
+                  <a href="{% url 'users:private_messages' user.id %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
                     Message
                   </a>
                 {% endif %}
@@ -158,32 +132,32 @@
             <!-- Stats -->
             <div class="flex gap-8">
               <div class="flex items-center gap-1">
-                <span class="font-semibold text-blue-900">{{ posts.count|default:0 }}</span>
-                <span class="text-blue-700">posts</span>
+                <span class="font-semibold">{{ posts.count|default:0 }}</span>
+                <span class="text-gray-700">posts</span>
               </div>
               <div class="flex items-center gap-1">
-                <span class="font-semibold text-blue-900">{{ followers_count|default:0 }}</span>
-                <span class="text-blue-700">followers</span>
+                <span class="font-semibold">{{ followers_count|default:0 }}</span>
+                <span class="text-gray-700">followers</span>
               </div>
               <div class="flex items-center gap-1">
-                <span class="font-semibold text-blue-900">{{ following_count|default:0 }}</span>
-                <span class="text-blue-700">following</span>
+                <span class="font-semibold">{{ following_count|default:0 }}</span>
+                <span class="text-gray-700">following</span>
               </div>
             </div>
             
             <!-- Bio and Profile Info -->
             <div class="space-y-2">
               {% if user.get_full_name %}
-                <div class="font-semibold text-blue-900">{{ user.get_full_name }}</div>
+                <div class="font-semibold">{{ user.get_full_name }}</div>
               {% endif %}
               
               {% if profile.bio %}
-                <div class="text-sm leading-relaxed text-blue-800">{{ profile.bio }}</div>
+                <div class="text-sm leading-relaxed">{{ profile.bio }}</div>
               {% endif %}
               
               {% if profile.website %}
                 <div class="text-sm">
-                  <a href="{{ profile.website }}" class="text-blue-700 font-semibold" target="_blank">
+                  <a href="{{ profile.website }}" class="text-blue-900 font-semibold" target="_blank">
                     {% if profile.website|length > 30 %}
                       {{ profile.website|slice:":30" }}...
                     {% else %}
@@ -194,25 +168,25 @@
               {% endif %}
               
               {% if profile.location %}
-                <div class="text-sm text-blue-600">
+                <div class="text-sm text-gray-500">
                   <span class="font-medium">Location:</span> {{ profile.location }}
                 </div>
               {% endif %}
               
               {% if profile.department %}
-                <div class="text-sm text-blue-600">
+                <div class="text-sm text-gray-500">
                   <span class="font-medium">Department:</span> {{ profile.department }}
                 </div>
               {% endif %}
               
               {% if profile.graduation_year %}
-                <div class="text-sm text-blue-600">
+                <div class="text-sm text-gray-500">
                   <span class="font-medium">Graduation Year:</span> {{ profile.graduation_year }}
                 </div>
               {% endif %}
               
               {% if profile.current_job %}
-                <div class="text-sm text-blue-600">
+                <div class="text-sm text-gray-500">
                   <span class="font-medium">Current Job:</span> {{ profile.current_job }}
                 </div>
               {% endif %}
@@ -223,23 +197,23 @@
     </div>
     
     <!-- Divider -->
-    <div class="border-t border-blue-200 mb-0"></div>
+    <div class="border-t border-gray-300 mb-0"></div>
     
     <!-- Tabs -->
     <div class="flex justify-center gap-12 mb-6">
-      <button id="tab-posts" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-blue-900 border-t-2 border-blue-600 transition-all tab-btn" onclick="showTab('posts');window.location.hash='posts';" type="button">
+      <button id="tab-posts" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-gray-900 border-t-2 border-black transition-all tab-btn" onclick="showTab('posts');window.location.hash='posts';" type="button">
         <span class="material-icons text-sm">grid_on</span>
         <span class="hidden md:inline">Posts</span>
       </button>
-      <button id="tab-reposts" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-blue-400 hover:text-blue-600 transition-all tab-btn" onclick="showTab('reposts');window.location.hash='reposts';" type="button">
+      <button id="tab-reposts" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 transition-all tab-btn" onclick="showTab('reposts');window.location.hash='reposts';" type="button">
         <span class="material-icons text-sm">repeat</span>
         <span class="hidden md:inline">Reposts</span>
       </button>
-      <button id="tab-saved" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-blue-400 hover:text-blue-600 transition-all tab-btn" onclick="showTab('saved');window.location.hash='saved';" type="button">
+      <button id="tab-saved" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 transition-all tab-btn" onclick="showTab('saved');window.location.hash='saved';" type="button">
         <span class="material-icons text-sm">bookmark_border</span>
         <span class="hidden md:inline">Saved</span>
       </button>
-      <button id="tab-events" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-blue-400 hover:text-blue-600 transition-all tab-btn" onclick="showTab('events');window.location.hash='events';" type="button">
+      <button id="tab-events" class="flex items-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 transition-all tab-btn" onclick="showTab('events');window.location.hash='events';" type="button">
         <span class="material-icons text-sm">event</span>
         <span class="hidden md:inline">Events</span>
       </button>
@@ -252,7 +226,7 @@
       {% if posts %}
         <div class="grid grid-cols-3 gap-1 md:gap-4">
           {% for post in posts %}
-            <div class="aspect-square bg-blue-50 relative group cursor-pointer overflow-hidden">
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
               {% if post.image %}
                 <img src="{{ post.image.url }}" alt="Post" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
@@ -287,10 +261,10 @@
                   </div>
                 </div>
               {% else %}
-                <div class="w-full h-full bg-blue-50 flex items-center justify-center">
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                   <div class="text-center p-4">
-                    <div class="text-blue-700 text-sm font-medium mb-2">{{ post.author.username }}</div>
-                    <div class="text-blue-900 text-xs leading-tight">{{ post.content|truncatechars:100 }}</div>
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ post.author.username }}</div>
+                    <div class="text-gray-800 text-xs leading-tight">{{ post.content|truncatechars:100 }}</div>
                   </div>
                 </div>
               {% endif %}
@@ -300,10 +274,10 @@
       {% else %}
         <div class="text-center py-16">
           <div class="mb-4">
-            <span class="material-icons text-6xl text-blue-200">photo_camera</span>
+            <span class="material-icons text-6xl text-gray-300">photo_camera</span>
           </div>
-          <div class="text-2xl font-light mb-2 text-blue-900">No Posts Yet</div>
-          <div class="text-blue-600">When {{ user.username }} shares photos, they'll appear here.</div>
+          <div class="text-2xl font-light mb-2">No Posts Yet</div>
+          <div class="text-gray-500">When {{ user.username }} shares photos, they'll appear here.</div>
         </div>
       {% endif %}
     </div>
@@ -313,17 +287,17 @@
       {% if reposts %}
         <div class="grid grid-cols-3 gap-1 md:gap-4">
           {% for repost in reposts %}
-            <div class="aspect-square bg-blue-50 relative group cursor-pointer overflow-hidden">
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
               {% if repost.post.image %}
                 <img src="{{ repost.post.image.url }}" alt="Repost" class="w-full h-full object-cover">
                 <div class="absolute top-2 right-2">
                   <span class="material-icons text-white text-lg drop-shadow">repeat</span>
                 </div>
               {% else %}
-                <div class="w-full h-full bg-blue-50 flex items-center justify-center">
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                   <div class="text-center p-4">
-                    <div class="text-blue-700 text-sm font-medium mb-2">{{ repost.post.author.username }}</div>
-                    <div class="text-blue-900 text-xs leading-tight">{{ repost.post.content|truncatechars:100 }}</div>
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ repost.post.author.username }}</div>
+                    <div class="text-gray-800 text-xs leading-tight">{{ repost.post.content|truncatechars:100 }}</div>
                   </div>
                 </div>
               {% endif %}
@@ -334,10 +308,10 @@
       {% else %}
         <div class="text-center py-16">
           <div class="mb-4">
-            <span class="material-icons text-6xl text-blue-200">repeat</span>
+            <span class="material-icons text-6xl text-gray-300">repeat</span>
           </div>
-          <div class="text-2xl font-light mb-2 text-blue-900">No Reposts Yet</div>
-          <div class="text-blue-600">When {{ user.username }} shares reposts, they'll appear here.</div>
+          <div class="text-2xl font-light mb-2">No Reposts Yet</div>
+          <div class="text-gray-500">When {{ user.username }} shares reposts, they'll appear here.</div>
         </div>
       {% endif %}
     </div>
@@ -347,17 +321,17 @@
       {% if saved %}
         <div class="grid grid-cols-3 gap-1 md:gap-4">
           {% for post in saved %}
-            <div class="aspect-square bg-blue-50 relative group cursor-pointer overflow-hidden">
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
               {% if post.image %}
                 <img src="{{ post.image.url }}" alt="Saved Post" class="w-full h-full object-cover">
                 <div class="absolute top-2 right-2">
                   <span class="material-icons text-white text-lg drop-shadow">bookmark</span>
                 </div>
               {% else %}
-                <div class="w-full h-full bg-blue-50 flex items-center justify-center">
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                   <div class="text-center p-4">
-                    <div class="text-blue-700 text-sm font-medium mb-2">{{ post.author.username }}</div>
-                    <div class="text-blue-900 text-xs leading-tight">{{ post.content|truncatechars:100 }}</div>
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ post.author.username }}</div>
+                    <div class="text-gray-800 text-xs leading-tight">{{ post.content|truncatechars:100 }}</div>
                   </div>
                 </div>
               {% endif %}
@@ -368,10 +342,10 @@
       {% else %}
         <div class="text-center py-16">
           <div class="mb-4">
-            <span class="material-icons text-6xl text-blue-200">bookmark_border</span>
+            <span class="material-icons text-6xl text-gray-300">bookmark_border</span>
           </div>
-          <div class="text-2xl font-light mb-2 text-blue-900">No Saved Posts</div>
-          <div class="text-blue-600">Save posts to see them here.</div>
+          <div class="text-2xl font-light mb-2">No Saved Posts</div>
+          <div class="text-gray-500">Save posts to see them here.</div>
         </div>
       {% endif %}
     </div>
@@ -381,11 +355,11 @@
       {% if events %}
         <div class="grid grid-cols-3 gap-1 md:gap-4">
           {% for event in events %}
-            <div class="aspect-square bg-blue-50 relative group cursor-pointer overflow-hidden">
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
               {% if event.cover_image %}
                 <img src="{{ event.cover_image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover">
               {% else %}
-                <div class="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                <div class="w-full h-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center">
                   <span class="material-icons text-white text-4xl">event</span>
                 </div>
               {% endif %}
@@ -401,10 +375,10 @@
       {% else %}
         <div class="text-center py-16">
           <div class="mb-4">
-            <span class="material-icons text-6xl text-blue-200">event</span>
+            <span class="material-icons text-6xl text-gray-300">event</span>
           </div>
-          <div class="text-2xl font-light mb-2 text-blue-900">No Events Yet</div>
-          <div class="text-blue-600">When {{ user.username }} creates events, they'll appear here.</div>
+          <div class="text-2xl font-light mb-2">No Events Yet</div>
+          <div class="text-gray-500">When {{ user.username }} creates events, they'll appear here.</div>
         </div>
       {% endif %}
     </div>
@@ -422,12 +396,12 @@ function showTab(tab) {
     
     if (t === tab) {
       section.classList.remove('hidden');
-      tabBtn.classList.remove('text-blue-400', 'hover:text-blue-600');
-      tabBtn.classList.add('text-blue-900', 'border-t-2', 'border-blue-600');
+      tabBtn.classList.remove('text-gray-400', 'hover:text-gray-600');
+      tabBtn.classList.add('text-gray-900', 'border-t-2', 'border-black');
     } else {
       section.classList.add('hidden');
-      tabBtn.classList.remove('text-blue-900', 'border-t-2', 'border-blue-600');
-      tabBtn.classList.add('text-blue-400', 'hover:text-blue-600');
+      tabBtn.classList.remove('text-gray-900', 'border-t-2', 'border-black');
+      tabBtn.classList.add('text-gray-400', 'hover:text-gray-600');
     }
   });
 }
