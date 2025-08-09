@@ -1,0 +1,10 @@
+{# Partial template for rendering a single feed item (post, users_batch, groups_batch, events) #}
+{% if item_type == 'post' %}
+  {% include 'activities/_post_item.html' with post=item %}
+{% elif item_type == 'users_batch' %}
+  {% include 'activities/_users_batch.html' with users=item %}
+{% elif item_type == 'groups_batch' %}
+  {% include 'activities/_groups_batch.html' with groups=item %}
+{% elif item_type == 'events' %}
+  {% include 'activities/_event_item.html' with event=item %}
+{% endif %}

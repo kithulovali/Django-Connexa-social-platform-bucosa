@@ -6,138 +6,21 @@
   <!-- Main Content - comes first in mobile view -->
   <main class="flex flex-col items-center flex-1 min-h-screen px-4 py-6 w-full max-w-2xl mx-auto">
    {% if combined_feed %}
-      <div class="w-full space-y-6">
-        {% for item_type, item in combined_feed %}
-          {% if item_type == 'post' %}
-            <article class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden mobile-post" id="post-{{ item.id }}">
-              {% if item.repost_of %}
-                <div class="px-4 sm:px-6 pt-4 pb-2">
-                  <div class="flex items-center gap-2 text-sm text-blue-600 mb-3">
-                    <span class="material-icons text-base">repeat</span>
-                    <span>Reposted from</span>
-                    <a href="{% url 'users:profile' item.repost_of.author.id %}" class="font-medium hover:text-blue-500">
-                      @{{ item.repost_of.author.username }}
-                    </a>
-                  </div>
-                  <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-5">
-                    <div class="flex items-center gap-3 mb-4">
-                      {% if item.repost_of.author.profile and item.repost_of.author.profile.profile_image %}
-                      <a href="{% url 'users:profile' item.repost_of.author.id %}" class="flex-shrink-0">
-                        <img src="{{ item.repost_of.author.profile.profile_image.url }}" 
-                             class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200">
-                      </a>
-                      {% else %}
-                      <a href="{% url 'users:profile' item.repost_of.author.id %}" class="flex-shrink-0">
-                        <img src="{% static 'img/default.png' %}" 
-                             class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200">
-                      </a>
-                      {% endif %}
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap">
-                          <a href="{% url 'users:profile' item.repost_of.author.id %}" 
-                             class="font-bold text-gray-800 hover:text-black truncate text-sm sm:text-base">
-                            @{{ item.repost_of.author.username }}
-                          </a>
-                          <span class="text-gray-500 text-sm">·</span>
-                          <time class="text-gray-500 text-xs sm:text-sm">{{ item.repost_of.created_at|timesince }} ago</time>
-                          {% if item.repost_of.group %}
-                          <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-medium">
-                            Group: <a href="{% url 'users:group_profile' item.repost_of.group.id %}" class="ml-1 hover:underline">{{ item.repost_of.group.name }}</a>
-                          </span>
-                          {% endif %}
-                        </div>
-                      </div>
-                    </div>
-                    {% if item.repost_of.content %}
-                    <div class="text-gray-800 mb-4 leading-relaxed text-sm sm:text-base">{{ item.repost_of.content }}</div>
-                    {% endif %}
-                    {% if item.repost_of.image %}
-                    <div class="mb-4">
-                      <img src="{{ item.repost_of.image.url }}" 
-                           class="rounded-xl w-full max-h-60 sm:max-h-80 object-cover border border-gray-200">
-                    </div>
-                    {% endif %}
-                    {% if item.repost_of.video %}
-                    <div class="mb-4">
-                      <video controls class="rounded-xl w-full max-h-60 sm:max-h-80 object-cover border border-gray-200">
-                        <source src="{{ item.repost_of.video.url }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                    {% endif %}
-                  </div>
-                </div>
-              {% endif %}
-              <div class="px-4 sm:px-6 {% if not item.repost_of %}pt-6{% else %}pt-2{% endif %}">
-                <div class="flex items-center gap-3 sm:gap-4 mb-4">
-                  {% if item.author.profile and item.author.profile.profile_image %}
-                  <a href="{% url 'users:profile' item.author.id %}" class="flex-shrink-0">
-                    <img src="{{ item.author.profile.profile_image.url }}" 
-                         class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200">
-                  </a>
-                  {% else %}
-                  <a href="{% url 'users:profile' item.author.id %}" class="flex-shrink-0">
-                    <img src="{% static 'img/default.png' %}" 
-                         class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200">
-                  </a>
-                  {% endif %}
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap mb-1">
-                      <a href="{% url 'users:profile' item.author.id %}" 
-                         class="font-bold text-gray-900 text-base sm:text-lg">
-                        @{{ item.author.username }}
-                      </a>
-                      <span class="text-gray-500">·</span>
-                      <time class="text-gray-500 text-xs sm:text-sm">{{ item.created_at|timesince }} ago</time>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                      {% if item.group %}
-                      <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">
-                        <span class="material-icons text-xs mr-1">group</span>
-                        <a href="{% url 'users:group_profile' item.group.id %}" class="hover:underline">{{ item.group.name }}</a>
-                      </span>
-                      {% endif %}
-                      <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
-                        {{ item.get_privacy_display }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                {% if item.content %}
-                <div class="text-gray-800 text-base sm:text-lg leading-relaxed mb-6 break-words">
-                  {{ item.content }}
-                </div>
-                {% endif %}
-                {% if item.image %}
-                <div class="mb-6 -mx-2 sm:mx-0">
-                  <img src="{{ item.image.url }}" 
-                       class="rounded-xl sm:rounded-2xl w-full max-h-80 sm:max-h-96 object-cover border border-gray-200">
-                </div>
-                {% endif %}
-                {% if item.video %}
-                <div class="mb-6 -mx-2 sm:mx-0">
-                  <video controls class="rounded-xl sm:rounded-2xl w-full max-h-80 sm:max-h-96 object-cover border border-gray-200">
-                    <source src="{{ item.video.url }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-                {% endif %}
-              </div>
-              
-              <!-- Action buttons -->
-              <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50">
-                <div class="grid grid-cols-5 gap-1">
-                  <!-- Like Button -->
-                  <button type="button" 
-                          class="like-btn group flex flex-col items-center justify-center text-gray-600 hover:text-red-500 py-1 rounded-xl hover:bg-red-50 transition-colors"
-                          data-post-id="{{ item.id }}"
-                          data-liked="{% if user in item.likes.all %}true{% else %}false{% endif %}">
-                    <span class="material-icons text-lg like-icon mb-1">
-                      {% if user in item.likes.all %}favorite{% else %}favorite_border{% endif %}
-                    </span>
-                    <span class="font-medium text-xs sm:text-sm like-count">{{ item.likes.count }}</span>
-                  </button>
-                  
+      <div id="feed-container" class="w-full space-y-6">
+        {% for item_type, item in combined_feed|slice:":10" %}
+          {% include 'activities/_feed_item.html' with item_type=item_type item=item user=user %}
+        {% endfor %}
+      </div>
+      {% if combined_feed|length > 10 %}
+      <div class="flex justify-center py-6">
+        <button id="load-more-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all text-base">Load More</button>
+      </div>
+      {% endif %}
+    {% else %}
+    <div class="text-center py-12 sm:py-20">
+      <!-- ...existing code for empty feed... -->
+    </div>
+    {% endif %}
                   <!-- Save Button -->
                   <form action="{% if item.repost_of %}{% url 'activities:save_post' item.repost_of.id %}{% else %}{% url 'activities:save_post' item.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
                     {% csrf_token %}
@@ -251,6 +134,15 @@
                     {% endif %}
                     <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ u.username }}</a>
                     <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">@{{ u.username }}</div>
+                      {% if u.mutual_count and u.mutual_count > 0 %}
+                      <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium mb-2">
+                        <span class="material-icons text-xs">group</span>
+                        {{ u.mutual_count }} mutual friend{{ u.mutual_count|pluralize }}
+                      </div>
+                      {% endif %}
+                      {% if u.recent_activity %}
+                      <div class="text-xs text-gray-400 mb-1">Active {{ u.recent_activity|timesince }} ago</div>
+                      {% endif %}
                     {% if user.is_authenticated and user not in u.followers.all %}
                     <form action="{% url 'users:follow_user' u.id %}" method="post">
                       {% csrf_token %}
@@ -293,7 +185,13 @@
                     <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">
                       {{ group.name }}
                     </a>
-                    <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ group.member_count }} Members</div>
+                      <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium mb-2">
+                        <span class="material-icons text-xs">groups</span>
+                        {{ group.member_count }} member{{ group.member_count|pluralize }}
+                      </div>
+                      {% if group.recent_post %}
+                      <div class="text-xs text-gray-400 mb-1">Active {{ group.recent_post|timesince }} ago</div>
+                      {% endif %}
                     {% if user.is_authenticated and user not in group.user_set.all %}
                     <form action="{% url 'users:join_group' group.id %}" method="post">
                       {% csrf_token %}
@@ -335,6 +233,12 @@
                     {% if event.location %}
                     <p class="text-xs sm:text-sm text-gray-500 truncate">{{ event.location }}</p>
                     {% endif %}
+                      {% if event.num_attendees and event.num_attendees > 0 %}
+                      <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium mt-2">
+                        <span class="material-icons text-xs">groups</span>
+                        {{ event.num_attendees }} attendee{{ event.num_attendees|pluralize }}
+                      </div>
+                      {% endif %}
                   </a>
                 {% empty %}
                 <div class="text-center py-6 w-full">
@@ -574,9 +478,9 @@ document.addEventListener('DOMContentLoaded', function() {
         icon.classList.remove('animate-pulse');
       }, 300);
 
-      // Send AJAX request in the background (optional)
-      // This is just for server-side tracking but doesn't affect UI
-      fetch(`/activities/like_post/${postId}/`, {
+  // Send AJAX request in the background (optional)
+  // This is just for server-side tracking but doesn't affect UI
+  fetch(`/activities/post/${postId}/like/`, {
         method: 'POST',
         headers: {
           'X-CSRFToken': '{{ csrf_token }}',
@@ -588,5 +492,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+  // Load more functionality
+  let currentIndex = 10;
+  const feedContainer = document.getElementById('feed-container');
+  const loadMoreBtn = document.getElementById('load-more-btn');
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', function() {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.textContent = 'Loading...';
+      fetch(window.location.pathname + '?start=' + currentIndex, {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+      })
+        .then(response => response.json())
+        .then(data => {
+          data.items.forEach(function(html) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            feedContainer.appendChild(tempDiv.firstElementChild);
+          });
+          currentIndex += data.items.length;
+          if (!data.has_more) {
+            loadMoreBtn.style.display = 'none';
+          } else {
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.textContent = 'Load More';
+          }
+        });
+    });
+  }
 </script>
 {% endblock content %}

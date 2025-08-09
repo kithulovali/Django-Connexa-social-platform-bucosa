@@ -18,7 +18,7 @@ from utils.mentions import extract_mentions
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Prefetch
-
+import random
 # Create your views here.
 from itertools import cycle
 def home_activities(request):
@@ -34,22 +34,28 @@ def home_activities(request):
     # Optimized base querysets
     posts = Post.objects.filter(group__isnull=True)\
                         .select_related('author', 'group')\
-                        .prefetch_related('likes', 'comments__author')\
-                        .order_by('-created_at')[:20] # Limit initial posts
-    
+                        .prefetch_related('likes', 'comments__author')
+    # Improved event discovery: upcoming and popular
     events = list(Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())\
                                .select_related('creator', 'group')\
-                               .order_by('start_time')[:10]) # Get a list of top 10 events
+                               .annotate(num_attendees=Count('attendees'))\
+                               .order_by('-num_attendees', 'start_time')[:10]) # Top 10 trending/upcoming events
 
     # Following filter
     if request.user.is_authenticated and request.GET.get('following') == '1':
         following_ids = request.user.following.values_list('following_user', flat=True)
+        events = list(Event.objects.filter(creator__id__in=following_ids, start_time__gte=timezone.now())
+                               .annotate(num_attendees=Count('attendees'))
+                               .order_by('-num_attendees', 'start_time')[:10])
         posts = posts.filter(author__id__in=following_ids)
         events = list(Event.objects.filter(creator__id__in=following_ids, start_time__gte=timezone.now()).order_by('start_time')[:10])
 
     # Search logic
     query = request.GET.get('q', '')
     if query:
+        events = list(Event.objects.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(creator__username__icontains=query), start_time__gte=timezone.now())
+                               .annotate(num_attendees=Count('attendees'))
+                               .order_by('-num_attendees', 'start_time')[:10])
         posts = posts.filter(Q(content__icontains=query) | Q(author__username__icontains=query))
         events = list(Event.objects.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(creator__username__icontains=query), start_time__gte=timezone.now()).order_by('start_time')[:10])
 
@@ -105,65 +111,27 @@ def home_activities(request):
                 elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
                     # Take up to 3 groups at once
                     groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
-                    combined_feed.append(('groups_batch', groups_batch))
-                    discovery_index['groups'] += len(groups_batch)
-                elif item_type == 'events' and discovery_index['events'] < len(events):
-                    combined_feed.append(('events', events[discovery_index['events']]))
-                    discovery_index['events'] += 1
             except StopIteration:
-                pass  # All discovery items have been added
+                break
+        # Shuffle batches of suggestions for more randomness
+       
+        user_batches = [suggested_users[i:i+3] for i in range(0, len(suggested_users), 3)] if suggested_users else []
+        group_batches = [suggested_groups[i:i+3] for i in range(0, len(suggested_groups), 3)] if suggested_groups else []
+        event_items = events if events else []
+        random.shuffle(user_batches)
+        random.shuffle(group_batches)
+        random.shuffle(event_items)
 
-        # Add two posts
-        for _ in range(2):
-            if post_index < len(posts):
-                combined_feed.append(('post', posts[post_index]))
-                post_index += 1
-    
-    # Handle remaining discovery items if there are few posts
-    while discovery_index['users'] < len(suggested_users) or \
-          discovery_index['groups'] < len(suggested_groups) or \
-          discovery_index['events'] < len(events):
-        
-        try:
-            item_type = next(discovery_cycler)
-            if item_type == 'users' and discovery_index['users'] < len(suggested_users):
-                users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
-                combined_feed.append(('users_batch', users_batch))
-                discovery_index['users'] += len(users_batch)
-            elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
-                groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
-                combined_feed.append(('groups_batch', groups_batch))
-                discovery_index['groups'] += len(groups_batch)
-            elif item_type == 'events' and discovery_index['events'] < len(events):
-                combined_feed.append(('events', events[discovery_index['events']]))
-                discovery_index['events'] += 1
-        except StopIteration:
-            pass
-            
-    context = {
-        'combined_feed': combined_feed,
-        'query': query,
-        'filter_by': request.GET.get('filter', 'recent'),
-        # Pass full discovery lists for the right sidebar (desktop only)
-        'suggested_users': suggested_users,
-        'suggested_groups': suggested_groups,
-        'events': events,
-    }
-    
-    response = render(request, 'activities/home_feed.html', context)
-    
-    cache.set(cache_key, response, 300) # Cache for 5 minutes
-    return response
+        # Combine all batches and posts into a single list
+        suggestion_items = []
+        suggestion_items += [('users_batch', batch) for batch in user_batches]
+        suggestion_items += [('groups_batch', batch) for batch in group_batches]
+        suggestion_items += [('events', event) for event in event_items]
+        random.shuffle(suggestion_items)
 
-def post_activity(request):
-    return render(request , 'activities/home_list.html')
-
-def event_activity(request):
-    events = Event.objects.select_related(
-        'creator', 'group'
-    ).prefetch_related(
-        'attendees', 'registered_users'
-    ).order_by('-start_time')
+        post_items = [('post', post) for post in posts]
+        combined_feed = suggestion_items + post_items
+        random.shuffle(combined_feed)
     
     # Batch permission checks
     if request.user.is_authenticated:
@@ -171,9 +139,29 @@ def event_activity(request):
             event.user_can_edit = event.creator_id == request.user.id
             event.user_can_delete = event.creator_id == request.user.id
     
-    return render(request, 'activities/event_list.html', {
-        'events': events[:50]  # Limit to 50 events
-    })
+        # Infinite scroll batch logic
+        start = int(request.GET.get('start', 0))
+        batch_size = 10
+        end = start + batch_size
+        feed_batch = combined_feed[start:end]
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+            from django.template.loader import render_to_string
+            items_html = []
+            for item_type, item in feed_batch:
+                items_html.append(render_to_string('activities/_feed_item.html', {'item_type': item_type, 'item': item, 'user': request.user}))
+            has_more = end < len(combined_feed)
+            return JsonResponse({'items': items_html, 'has_more': has_more})
+
+        context = {
+            'combined_feed': combined_feed,
+            'query': query,
+            'filter_by': request.GET.get('filter', 'recent'),
+            'suggested_users': suggested_users,
+            'suggested_groups': suggested_groups,
+            'events': events,
+        }
+        return render(request, 'activities/home_feed.html', context)
 
 def group_activities(request): 
     return render(request ,'activities/group_detail.html')
