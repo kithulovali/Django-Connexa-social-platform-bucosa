@@ -10,7 +10,7 @@ urlpatterns = [
 
     path('home/' , views.home_activities , name='home'),
     path('home/fellowship/', views.home_fellowship, name='home_fellowship'),
-    path('event/', views.event_activity , name ='event'),  # Removed: view does not exist
+   # path('event/', views.event_activity , name ='event'),  # Removed: view does not exist
     path('group/' , views.group_activities , name='group'),
     # --- Added for full CRUD functionality ---
     path('post/create/', views.create_post, name='create_post'),
@@ -19,8 +19,8 @@ urlpatterns = [
     path('event/create/group/<int:group_id>/', views.create_event, name='create_event_in_group'),
     path('post/<int:pk>/edit/', views.edit_post, name='edit_post'),
     path('post/<int:pk>/delete/', views.delete_post, name='delete_post'),
-    path('event/<int:pk>/edit/', views.edit_event, name='edit_event'),
-    path('event/<int:pk>/delete/', views.edit_event, name='delete_event'),
+   # path('event/<int:pk>/edit/', views.edit_event, name='edit_event'),
+    #path('event/<int:pk>/delete/', views.edit_event, name='delete_event'),
     path('event/<int:pk>/', views.event_detail, name='event_detail'),
     path('group_admin/<int:group_id>/', views.group_admin, name='group_admin'),
     path('remove_user_from_group/<int:group_id>/<int:user_id>/', views.remove_user_from_group, name='remove_user_from_group'),
