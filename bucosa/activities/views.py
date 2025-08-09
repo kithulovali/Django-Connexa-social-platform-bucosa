@@ -98,11 +98,15 @@ def home_activities(request):
             try:
                 item_type = next(discovery_cycler)
                 if item_type == 'users' and discovery_index['users'] < len(suggested_users):
-                    combined_feed.append(('users', suggested_users[discovery_index['users']]))
-                    discovery_index['users'] += 1
+                    # Take up to 3 users at once
+                    users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
+                    combined_feed.append(('users_batch', users_batch))
+                    discovery_index['users'] += len(users_batch)
                 elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
-                    combined_feed.append(('groups', suggested_groups[discovery_index['groups']]))
-                    discovery_index['groups'] += 1
+                    # Take up to 3 groups at once
+                    groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
+                    combined_feed.append(('groups_batch', groups_batch))
+                    discovery_index['groups'] += len(groups_batch)
                 elif item_type == 'events' and discovery_index['events'] < len(events):
                     combined_feed.append(('events', events[discovery_index['events']]))
                     discovery_index['events'] += 1
@@ -123,11 +127,13 @@ def home_activities(request):
         try:
             item_type = next(discovery_cycler)
             if item_type == 'users' and discovery_index['users'] < len(suggested_users):
-                combined_feed.append(('users', suggested_users[discovery_index['users']]))
-                discovery_index['users'] += 1
+                users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
+                combined_feed.append(('users_batch', users_batch))
+                discovery_index['users'] += len(users_batch)
             elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
-                combined_feed.append(('groups', suggested_groups[discovery_index['groups']]))
-                discovery_index['groups'] += 1
+                groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
+                combined_feed.append(('groups_batch', groups_batch))
+                discovery_index['groups'] += len(groups_batch)
             elif item_type == 'events' and discovery_index['events'] < len(events):
                 combined_feed.append(('events', events[discovery_index['events']]))
                 discovery_index['events'] += 1
