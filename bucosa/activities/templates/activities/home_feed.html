@@ -279,7 +279,8 @@
                   <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
                     {% if group.profile and group.profile.profile_image %}
                     <a href="{% url 'users:group_profile' group.id %}" class="block">
-                      <img src="{{ group.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
+                      <img src="{{ group.profile.profile_image.url }}" 
+                          class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
                     </a>
                     {% else %}
                     <a href="{% url 'users:group_profile' group.id %}" class="block">
@@ -288,7 +289,9 @@
                       </div>
                     </a>
                     {% endif %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ group.name }}</a>
+                    <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">
+                      {{ group.name }}
+                    </a>
                     <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ group.member_count }} Members</div>
                     {% if user.is_authenticated and user not in group.user_set.all %}
                     <form action="{% url 'users:join_group' group.id %}" method="post">

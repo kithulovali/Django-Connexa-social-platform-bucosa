@@ -61,11 +61,13 @@ def home_activities(request):
         suggested_users = list(User.objects.exclude(id__in=excluded_ids).order_by('?')[:10])
         cache.set(suggestions_cache_key, suggested_users, 3600)  # 1 hour cache
 
-    # Suggested groups (cached)
+    # Suggested groups (cached) - increased to 15
     groups_cache_key = 'suggested_groups'
     suggested_groups = cache.get(groups_cache_key, [])
     if not suggested_groups:
-        suggested_groups = list(Group.objects.all().order_by('?')[:10])
+        suggested_groups = list(Group.objects.annotate(
+            member_count=Count('user_set')
+        ).order_by('-member_count', '?')[:15])  # Get 15 most popular groups
         cache.set(groups_cache_key, suggested_groups, 3600)  # 1 hour cache
 
     # --- 2. Interleave the content for the main feed ---
@@ -139,38 +141,15 @@ def home_activities(request):
         'query': query,
         'filter_by': request.GET.get('filter', 'recent'),
         # Pass full discovery lists for the right sidebar (desktop only)
-        'suggested_users': suggested_users,
-        'suggested_groups': suggested_groups,
-        'events': events,
+        'suggested_users': suggested_users[:10],  # Limit to 10 for sidebar
+        'suggested_groups': suggested_groups[:10],  # Limit to 10 for sidebar
+        'events': events[:10],  # Limit to 10 for sidebar
     }
     
     response = render(request, 'activities/home_feed.html', context)
     
     cache.set(cache_key, response, 300) # Cache for 5 minutes
     return response
-
-def post_activity(request):
-    return render(request , 'activities/home_list.html')
-
-def event_activity(request):
-    events = Event.objects.select_related(
-        'creator', 'group'
-    ).prefetch_related(
-        'attendees', 'registered_users'
-    ).order_by('-start_time')
-    
-    # Batch permission checks
-    if request.user.is_authenticated:
-        for event in events:
-            event.user_can_edit = event.creator_id == request.user.id
-            event.user_can_delete = event.creator_id == request.user.id
-    
-    return render(request, 'activities/event_list.html', {
-        'events': events[:50]  # Limit to 50 events
-    })
-
-def group_activities(request): 
-    return render(request ,'activities/group_detail.html')
 
 @login_required
 @login_required
