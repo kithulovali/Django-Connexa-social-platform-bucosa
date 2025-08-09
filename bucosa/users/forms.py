@@ -6,7 +6,11 @@ from django.contrib.auth.models import Group
 MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
 def validate_image_size(image):
-    if image and image.size > MAX_IMAGE_SIZE:
+    # If it's a CloudinaryResource (existing image), return it without checking size
+    if hasattr(image, 'url') and not hasattr(image, 'size'):
+        return image
+    # If it's a new uploaded file, check its size
+    if image and hasattr(image, 'size') and image.size > MAX_IMAGE_SIZE:
         raise forms.ValidationError("Image file too large (max 10MB).")
     return image
 
@@ -28,6 +32,9 @@ class GroupProfileForm(forms.ModelForm):
         
     def clean_profile_image(self):
         image = self.cleaned_data.get('profile_image')
+        # If no file was uploaded and there's an existing image, keep the existing one
+        if image is None and self.instance.profile_image:
+            return self.instance.profile_image
         return validate_image_size(image)
 
 class ProfileUpdateForm(ModelForm):
@@ -46,8 +53,9 @@ class ProfileUpdateForm(ModelForm):
             
     def clean_profile_image(self):
         image = self.cleaned_data.get('profile_image')
-        if image is None:  # If no file was uploaded
-             return self.instance.profile_image  # Keep the existing image
+        # If no file was uploaded and there's an existing image, keep the existing one
+        if image is None and self.instance.profile_image:
+            return self.instance.profile_image
         return validate_image_size(image)
 
     def clean_cover_image(self):
