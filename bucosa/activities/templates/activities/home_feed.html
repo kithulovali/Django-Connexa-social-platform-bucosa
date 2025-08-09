@@ -239,9 +239,9 @@
                 <span class="material-icons">person_add</span>
                 Suggested for you
               </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
+              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-users-container">
                 {% for u in item.data %}
-                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
+                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
                     {% if u.profile and u.profile.profile_image %}
                     <a href="{% url 'users:profile' u.id %}" class="block">
                       <img src="{{ u.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
@@ -273,9 +273,9 @@
                 <span class="material-icons">groups</span>
                 Suggested Groups
               </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
+              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-groups-container">
                 {% for group in item.data %}
-                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
+                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
                     {% if group.profile and group.profile.profile_image %}
                     <a href="{% url 'users:group_profile' group.id %}" class="block">
                       <img src="{{ group.profile.profile_image.url }}" 
@@ -312,9 +312,9 @@
                 <span class="material-icons">event</span>
                 Upcoming Events
               </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar">
+              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-events-container">
                 {% for event in item.data %}
-                  <a href="{% url 'activities:event_detail' event.id %}" class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200">
+                  <a href="{% url 'activities:event_detail' event.id %}" class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
                     <div class="relative w-full h-24 sm:h-32 mb-2 sm:mb-3 rounded-xl overflow-hidden border border-gray-200">
                       {% if event.cover_image %}
                       <img src="{{ event.cover_image.url }}" class="w-full h-full object-cover">
@@ -373,9 +373,9 @@
         <span class="material-icons">people</span>
         You might like
       </h3>
-      <div class="space-y-3 sm:space-y-4">
+      <div class="space-y-3 sm:space-y-4 sidebar-suggested-users">
         {% for u in suggested_users %}
-        <div class="flex items-center justify-between p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all">
+        <div class="flex items-center justify-between p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
           <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             {% if u.profile and u.profile.profile_image %}
             <img src="{{ u.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u.username }}">
@@ -409,9 +409,9 @@
         <span class="material-icons">event</span>
         What's happening
       </h3>
-      <div class="space-y-2 sm:space-y-3">
+      <div class="space-y-2 sm:space-y-3 sidebar-suggested-events">
         {% for event in events %}
-        <a href="{% url 'activities:event_detail' event.id %}" class="group flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all">
+        <a href="{% url 'activities:event_detail' event.id %}" class="group flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
           {% if event.cover_image %}
           <img src="{{ event.cover_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-gray-200" alt="{{ event.title }}">
           {% else %}
@@ -445,9 +445,9 @@
         <span class="material-icons">groups</span>
         Suggested Groups
       </h3>
-      <div class="space-y-3 sm:space-y-4">
+      <div class="space-y-3 sm:space-y-4 sidebar-suggested-groups">
         {% for group in suggested_groups %}
-        <div class="p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all">
+        <div class="p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
           <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
             {% if group.profile and group.profile.profile_image %}
             <img src="{{ group.profile.profile_image.url }}" alt="{{ group.name }} Profile Image" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-xl border border-gray-200" />
@@ -489,6 +489,39 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Fisher-Yates shuffle algorithm
+  function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  // Function to shuffle elements in a container
+  function shuffleElements(containerSelector) {
+    const containers = document.querySelectorAll(containerSelector);
+    containers.forEach(container => {
+      const items = Array.from(container.children);
+      const shuffledItems = shuffleArray(items);
+      
+      // Clear container and append shuffled items
+      container.innerHTML = '';
+      shuffledItems.forEach(item => {
+        container.appendChild(item);
+      });
+    });
+  }
+
+  // Shuffle all suggestion containers
+  shuffleElements('.suggested-users-container');
+  shuffleElements('.suggested-groups-container');
+  shuffleElements('.suggested-events-container');
+  shuffleElements('.sidebar-suggested-users');
+  shuffleElements('.sidebar-suggested-groups');
+  shuffleElements('.sidebar-suggested-events');
+
   // Toggle comments functionality
   document.querySelectorAll('.toggle-comments-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -576,6 +609,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }).catch(error => console.error('Error:', error));
     });
   });
+
+  // Refresh suggestions periodically (optional enhancement)
+  setInterval(function() {
+    shuffleElements('.suggested-users-container');
+    shuffleElements('.suggested-groups-container');
+    shuffleElements('.suggested-events-container');
+    shuffleElements('.sidebar-suggested-users');
+    shuffleElements('.sidebar-suggested-groups');
+    shuffleElements('.sidebar-suggested-events');
+  }, 30000); // Reshuffle every 30 seconds
 });
 </script>
 {% endblock content %}
