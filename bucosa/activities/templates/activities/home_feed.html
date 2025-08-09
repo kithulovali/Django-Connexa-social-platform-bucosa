@@ -141,21 +141,10 @@
                   {% endfor %}
                 </div>
               </div>
-            {% else %}
-              {% include 'activities/_feed_item.html' with item_type=item_type item=item user=user %}
-            {% endif %}
+              {% else %}
+                {% include 'activities/_feed_item.html' with item_type=item_type item=item user=user %}
+              {% endif %}
           {% endfor %}
-      </div>
-      {% if combined_feed|length > 10 %}
-      <div class="flex justify-center py-6">
-        <button id="load-more-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow transition-all text-base">Load More</button>
-      </div>
-      {% endif %}
-      {% else %}
-        <div class="text-center py-12 sm:py-20">
-          <!-- ...existing code for empty feed... -->
-        </div>
-      {% endif %}
                   <!-- Save Button -->
                   <form action="{% if item.repost_of %}{% url 'activities:save_post' item.repost_of.id %}{% else %}{% url 'activities:save_post' item.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
                     {% csrf_token %}
