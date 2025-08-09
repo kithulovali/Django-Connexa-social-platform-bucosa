@@ -110,14 +110,18 @@
           </div>
           
           <!-- Profile Info -->
+          <div class="flex-1 space-y-6">
+            <!-- Username and Actions -->
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-light">{{ user.username }}</h1>
+              </div>
+              
               <div class="flex items-center gap-2">
                 {% if request.user == user %}
                   <a href="{% url 'users:user_settings' %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
                     Edit profile
                   </a>
-                  <button class="bg-gray-100 hover:bg-gray-200 p-2 rounded-md transition">
-                    <span class="material-icons text-lg">settings</span>
-                  </button>
                 {% else %}
                   <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-md text-sm font-semibold transition">
                     Follow
