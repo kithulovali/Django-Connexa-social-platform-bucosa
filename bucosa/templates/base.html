@@ -22,6 +22,8 @@
 
   <script>
     window.USER_IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
+    window.NOTIFICATION_COUNT = {{ request.user.notifications.unread.count|default:0 }};
+    window.CSRF_TOKEN = '{{ csrf_token }}';
   </script>
   <script src="{% static 'js/firebase-push.js' %}" defer></script>
 
@@ -77,10 +79,13 @@
           </div>
           <div class="nav-item-indicator"></div>
         </a>
+        <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">notifications_none</span>
             <span class="nav-label">Notifications</span>
-            <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
+            {% if request.user.notifications.unread.count > 0 %}
+            <span class="notification-badge">{{ request.user.notifications.unread.count }}</span>
+            {% endif %}
           </div>
           <div class="nav-item-indicator"></div>
         </a>
@@ -186,14 +191,13 @@
         </div>
       </a>
 
-      <a href="{% url 'notifications:notifications_list' %}" class="nav-item" id="mobile-notifications">
-        <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
-          <div class="nav-item-content flex items-center gap-2">
-            <span class="material-icons nav-icon text-blue-600 group-hover:text-blue-800 transition">notifications_none</span>
-            <span id="desktop-notification-badge" class="notification-badge ml-2" style="display:none;">0</span>
-          </div>
-          <div class="nav-item-indicator"></div>
-        </a>
+      <a href="{% url 'notifications:notifications_list' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="mobile-notifications">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">notifications_none</span>
+          {% if request.user.notifications.unread.count > 0 %}
+          <span class="notification-badge">{{ request.user.notifications.unread.count }}</span>
+          {% endif %}
+        </div>
       </a>
     </div>
   </nav>
@@ -255,28 +259,52 @@
         });
       });
 
-      // Notification handling
+      // Initialize notification badges
+      function initializeNotificationBadges() {
+        const count = window.NOTIFICATION_COUNT || 0;
+        updateNotificationBadges(count);
+      }
+      
+      // Update all notification badges
       function updateNotificationBadges(count) {
-        const badges = document.querySelectorAll('[id$="notification-badge"]');
+        const badges = document.querySelectorAll('.notification-badge');
         badges.forEach(badge => {
           if (count > 0) {
             badge.textContent = count;
-            badge.style.display = 'flex';
+            badge.style.display = 'inline-flex';
           } else {
             badge.style.display = 'none';
           }
         });
       }
+      
+      initializeNotificationBadges();
 
       // Handle notification clicks
-      document.getElementById('mobile-notifications')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Mobile notifications clicked');
+      document.getElementById('mobile-notifications')?.addEventListener('click', function() {
+        // Mark notifications as read when clicked
+        if (window.USER_IS_AUTHENTICATED) {
+          fetch("{% url 'notifications:mark_all_as_read' %}", {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': window.CSRF_TOKEN,
+              'Content-Type': 'application/json'
+            }
+          }).then(() => updateNotificationBadges(0));
+        }
       });
 
-      document.getElementById('desktop-notifications')?.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Desktop notifications clicked');
+      document.getElementById('desktop-notifications')?.addEventListener('click', function() {
+        // Mark notifications as read when clicked
+        if (window.USER_IS_AUTHENTICATED) {
+          fetch("{% url 'notifications:mark_all_as_read' %}", {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': window.CSRF_TOKEN,
+              'Content-Type': 'application/json'
+            }
+          }).then(() => updateNotificationBadges(0));
+        }
       });
 
       // Handle escape key to close expanded menu
@@ -291,28 +319,58 @@
 
     // === Real-time Notifications via WebSocket ===
     if (window.USER_IS_AUTHENTICATED) {
-      let protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      let wsPath = `${protocol}://${window.location.host}/ws/notifications/`;
-      let notificationSocket = new WebSocket(wsPath);
+      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const wsPath = `${protocol}://${window.location.host}/ws/notifications/`;
+      const notificationSocket = new WebSocket(wsPath);
 
       notificationSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        // Optionally, show a toast or popup here
-        // Increment badge count
-        let badges = document.querySelectorAll('[id$="notification-badge"]');
-        badges.forEach(badge => {
-          let count = parseInt(badge.textContent) || 0;
-          badge.textContent = count + 1;
-          badge.style.display = 'flex';
-        });
+        if (data.type === 'notification') {
+          // Show a toast notification
+          showToastNotification(data.message);
+          
+          // Update badge count
+          const badges = document.querySelectorAll('.notification-badge');
+          badges.forEach(badge => {
+            let count = parseInt(badge.textContent) || 0;
+            badge.textContent = count + 1;
+            badge.style.display = 'inline-flex';
+          });
+        }
       };
 
       notificationSocket.onclose = function(e) {
         console.warn('Notification socket closed unexpectedly');
+        // Attempt to reconnect after 5 seconds
+        setTimeout(() => {
+          if (window.USER_IS_AUTHENTICATED) {
+            new WebSocket(wsPath);
+          }
+        }, 5000);
       };
+
+      function showToastNotification(message) {
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast';
+        toast.innerHTML = `
+          <div class="toast-content">
+            <span class="material-icons">notifications</span>
+            <p>${message}</p>
+          </div>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.classList.add('show');
+        }, 100);
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, 5000);
+      }
     }
   </script>
-
   {% block extra_js %}{% endblock %}
 </body>
 </html>
