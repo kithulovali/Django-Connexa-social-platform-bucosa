@@ -284,7 +284,7 @@
       document.getElementById('mobile-notifications')?.addEventListener('click', function() {
         // Mark notifications as read when clicked
         if (window.USER_IS_AUTHENTICATED) {
-          fetch("{% url 'notifications:mark_all_as_read' %}", {
+          fetch("{% url 'notifications:mark_notifications_read' %}", {
             method: 'POST',
             headers: {
               'X-CSRFToken': window.CSRF_TOKEN,
@@ -297,7 +297,7 @@
       document.getElementById('desktop-notifications')?.addEventListener('click', function() {
         // Mark notifications as read when clicked
         if (window.USER_IS_AUTHENTICATED) {
-          fetch("{% url 'notifications:mark_all_as_read' %}", {
+          fetch("{% url 'notifications:mark_notifications_read' %}", {
             method: 'POST',
             headers: {
               'X-CSRFToken': window.CSRF_TOKEN,
