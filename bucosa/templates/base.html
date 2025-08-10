@@ -190,7 +190,6 @@
         <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
           <div class="nav-item-content flex items-center gap-2">
             <span class="material-icons nav-icon text-blue-600 group-hover:text-blue-800 transition">notifications_none</span>
-            <span class="nav-label font-semibold">Notifications</span>
             <span id="desktop-notification-badge" class="notification-badge ml-2" style="display:none;">0</span>
           </div>
           <div class="nav-item-indicator"></div>
