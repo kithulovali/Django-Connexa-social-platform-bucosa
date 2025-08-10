@@ -541,15 +541,15 @@ def add_comment(request, post_id):
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required
-@require_POST
-@login_required
 def like_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    # Get or create like
+    post = get_object_or_404(Post.objects.select_related('author'), id=post_id)
+    
     like, created = Like.objects.get_or_create(
         user=request.user,
-        post=post
+        post=post,
+        defaults={'created_at': timezone.now()}
     )
+
     if not created:
         like.delete()
         liked = False
@@ -563,11 +563,14 @@ def like_post(request, post_id):
                 message=f'{request.user.username} liked your post',
                 related_object=post
             )
+
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
             'liked': liked,
-            'count': post.likes.count()
+            'count': post.likes.count(),
+            'post_id': post_id  # Important for client-side verification
         })
+    
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required

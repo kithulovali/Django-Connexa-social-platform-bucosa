@@ -512,7 +512,6 @@
     </div>
   </aside>
 </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Fisher-Yates shuffle algorithm
@@ -592,65 +591,69 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // Get CSRF token
-    function getCSRFToken() {
-        return document.cookie.match(/csrftoken=([^;]+)/)[1];
-    }
+  // Get CSRF token function (improved)
+  function getCSRFToken() {
+    const cookieValue = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+    return cookieValue || '';
+  }
 
-    // Like button functionality
-    document.querySelectorAll('.like-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const postId = this.getAttribute('data-post-id');
-            const icon = this.querySelector('.like-icon');
-            const countElement = this.querySelector('.like-count');
-            const isLiked = this.getAttribute('data-liked') === 'true';
-            
-            // Optimistic UI update
-            const newLikedState = !isLiked;
-            icon.textContent = newLikedState ? 'favorite' : 'favorite_border';
-            countElement.textContent = newLikedState ? 
-                parseInt(countElement.textContent) + 1 : 
-                parseInt(countElement.textContent) - 1;
-            this.setAttribute('data-liked', newLikedState.toString());
+  // Like button functionality (optimized)
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const postId = this.dataset.postId;
+      const icon = this.querySelector('.like-icon');
+      const countElement = this.querySelector('.like-count');
+      const isLiked = this.dataset.liked === 'true';
+      
+      // Optimistic UI update
+      const newLikedState = !isLiked;
+      this.dataset.liked = newLikedState;
+      icon.textContent = newLikedState ? 'favorite' : 'favorite_border';
+      countElement.textContent = newLikedState ? 
+        parseInt(countElement.textContent) + 1 : 
+        parseInt(countElement.textContent) - 1;
 
-            // Animation
-            icon.classList.add('animate-pulse');
-            setTimeout(() => icon.classList.remove('animate-pulse'), 300);
+      // Animation
+      icon.classList.add('animate-pulse');
+      setTimeout(() => icon.classList.remove('animate-pulse'), 300);
 
-            // AJAX request
-            fetch(`/activities/post/${postId}/like/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to like');
-                return response.json();
-            })
-            .then(data => {
-                // Sync with server response
-                if (data.liked !== newLikedState) {
-                    icon.textContent = data.liked ? 'favorite' : 'favorite_border';
-                    countElement.textContent = data.count;
-                    this.setAttribute('data-liked', data.liked.toString());
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Revert on error
-                icon.textContent = isLiked ? 'favorite' : 'favorite_border';
-                countElement.textContent = isLiked ? 
-                    parseInt(countElement.textContent) + 1 : 
-                    parseInt(countElement.textContent) - 1;
-                this.setAttribute('data-liked', isLiked.toString());
-            });
+      try {
+        const response = await fetch(`/activities/post/${postId}/like/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'same-origin'
         });
+        
+        if (!response.ok) throw new Error('Like failed');
+        
+        const data = await response.json();
+        
+        // Verify response matches our post
+        if (data.post_id == postId) {
+          // Only update if server response differs
+          if (data.liked !== newLikedState) {
+            icon.textContent = data.liked ? 'favorite' : 'favorite_border';
+            countElement.textContent = data.count;
+            this.dataset.liked = data.liked;
+          }
+        }
+      } catch (error) {
+        console.error('Like error:', error);
+        // Revert on error
+        icon.textContent = isLiked ? 'favorite' : 'favorite_border';
+        countElement.textContent = isLiked ? 
+          parseInt(countElement.textContent) + 1 : 
+          parseInt(countElement.textContent) - 1;
+        this.dataset.liked = isLiked;
+      }
     });
-});
+  });
 
   // Refresh suggestions periodically (optional enhancement)
   setInterval(function() {
