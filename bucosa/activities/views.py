@@ -37,9 +37,10 @@ def home_activities(request):
                         .prefetch_related('likes', 'comments__author')\
                         .order_by('-created_at')[:20] # Limit initial posts
     
+    # Get all discovery items
     events = list(Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())\
                                .select_related('creator', 'group')\
-                               .order_by('start_time')[:10]) # Get a list of top 10 events
+                               .order_by('start_time')[:10])
 
     # Following filter
     if request.user.is_authenticated and request.GET.get('following') == '1':
@@ -72,94 +73,80 @@ def home_activities(request):
     
     combined_feed = []
     
-    # Create a list of discovery item types to cycle through
-    discovery_types = []
-    if suggested_users:
-        discovery_types.append('users')
-    if suggested_groups:
-        discovery_types.append('groups')
-    if events:
-        discovery_types.append('events')
+    # Convert all posts to a list
+    posts_list = list(posts)
     
-    random.shuffle(discovery_types)
-    discovery_cycler = cycle(discovery_types)
+    # Create batches of discovery items
+    discovery_items = []
     
+    # Users in batches of 3
+    for i in range(0, len(suggested_users), 3):
+        batch = suggested_users[i:i+3]
+        if batch:
+            discovery_items.append({
+                'type': 'suggested_users',
+                'data': batch,
+                'weight': random.random()  # Add random weight for sorting
+            })
+    
+    # Groups in batches of 3
+    for i in range(0, len(suggested_groups), 3):
+        batch = suggested_groups[i:i+3]
+        if batch:
+            discovery_items.append({
+                'type': 'suggested_groups',
+                'data': batch,
+                'weight': random.random()
+            })
+    
+    # Events as single items
+    for event in events:
+        discovery_items.append({
+            'type': 'suggested_events',
+            'data': [event],
+            'weight': random.random()
+        })
+    
+    # Shuffle the discovery items
+    random.shuffle(discovery_items)
+    
+    # Calculate the ratio of posts to discovery items (3:1)
+    post_ratio = 3
+    total_items = len(posts_list) + len(discovery_items)
+    discovery_spacing = max(1, len(posts_list) // (len(discovery_items) or 1))
+    
+    # Insert discovery items at random intervals
     post_index = 0
-    discovery_index = {
-        'users': 0,
-        'groups': 0,
-        'events': 0
-    }
+    discovery_index = 0
     
-    # Combine posts and discovery content
-    while post_index < len(posts):
-        # Add a discovery item first to ensure it's at the top on a small number of posts
-        if discovery_types:
-            try:
-                item_type = next(discovery_cycler)
-                if item_type == 'users' and discovery_index['users'] < len(suggested_users):
-                    # Take up to 3 users at once
-                    users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
-                    combined_feed.append({
-                        'type': 'suggested_users',
-                        'data': users_batch
-                    })
-                    discovery_index['users'] += len(users_batch)
-                elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
-                    # Take up to 3 groups at once
-                    groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
-                    combined_feed.append({
-                        'type': 'suggested_groups',
-                        'data': groups_batch
-                    })
-                    discovery_index['groups'] += len(groups_batch)
-                elif item_type == 'events' and discovery_index['events'] < len(events):
-                    combined_feed.append({
-                        'type': 'events',
-                        'data': [events[discovery_index['events']]]  # Wrap single event in list for consistency
-                    })
-                    discovery_index['events'] += 1
-            except StopIteration:
-                pass  # All discovery items have been added
-
-        # Add two posts
-        for _ in range(2):
-            if post_index < len(posts):
+    while post_index < len(posts_list) and discovery_index < len(discovery_items):
+        # Add 1-3 posts
+        posts_to_add = min(random.randint(1, 3), len(posts_list) - post_index)
+        for _ in range(posts_to_add):
+            if post_index < len(posts_list):
                 combined_feed.append({
                     'type': 'post',
-                    'data': posts[post_index]
+                    'data': posts_list[post_index]
                 })
                 post_index += 1
-    
-    # Handle remaining discovery items if there are few posts
-    while discovery_index['users'] < len(suggested_users) or \
-          discovery_index['groups'] < len(suggested_groups) or \
-          discovery_index['events'] < len(events):
         
-        try:
-            item_type = next(discovery_cycler)
-            if item_type == 'users' and discovery_index['users'] < len(suggested_users):
-                users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
-                combined_feed.append({
-                    'type': 'suggested_users',
-                    'data': users_batch
-                })
-                discovery_index['users'] += len(users_batch)
-            elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
-                groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
-                combined_feed.append({
-                    'type': 'suggested_groups',
-                    'data': groups_batch
-                })
-                discovery_index['groups'] += len(groups_batch)
-            elif item_type == 'events' and discovery_index['events'] < len(events):
-                combined_feed.append({
-                    'type': 'events',
-                    'data': [events[discovery_index['events']]]  # Wrap single event in list for consistency
-                })
-                discovery_index['events'] += 1
-        except StopIteration:
-            break  # Exit the loop when all items are processed
+        # Add a discovery item if available
+        if discovery_index < len(discovery_items):
+            combined_feed.append(discovery_items[discovery_index])
+            discovery_index += 1
+    
+    # Add any remaining posts
+    while post_index < len(posts_list):
+        combined_feed.append({
+            'type': 'post',
+            'data': posts_list[post_index]
+        })
+        post_index += 1
+    
+    # Add any remaining discovery items at the end if there were few posts
+    while discovery_index < len(discovery_items):
+        combined_feed.append(discovery_items[discovery_index])
+        discovery_index += 1
             
     context = {
         'combined_feed': combined_feed,
