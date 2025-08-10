@@ -1,3 +1,10 @@
+from django.contrib.auth.decorators import login_required
+
+# Notifications list page
+@login_required
+def notifications_list(request):
+    notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
+    return render(request, 'notifications/notifications_list.html', {'notifications': notifications})
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
@@ -26,7 +33,8 @@ def send_notification_view(request):
             return JsonResponse({'status': 'error', 'message': 'Recipient not found'}, status=404)
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
-@csrf_exempt
+
+# Mark all notifications as read (POST only)
 @login_required
 def mark_notifications_read(request):
     if request.method == 'POST':

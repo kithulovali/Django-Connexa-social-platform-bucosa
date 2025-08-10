@@ -77,7 +77,7 @@
           </div>
           <div class="nav-item-indicator"></div>
         </a>
-        <a href="#" class="sidebar-item" id="desktop-notifications">
+           <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">notifications_none</span>
             <span class="nav-label">Notifications</span>
@@ -286,6 +286,29 @@
         }
       });
     });
+
+    // === Real-time Notifications via WebSocket ===
+    if (window.USER_IS_AUTHENTICATED) {
+      let protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      let wsPath = `${protocol}://${window.location.host}/ws/notifications/`;
+      let notificationSocket = new WebSocket(wsPath);
+
+      notificationSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        // Optionally, show a toast or popup here
+        // Increment badge count
+        let badges = document.querySelectorAll('[id$="notification-badge"]');
+        badges.forEach(badge => {
+          let count = parseInt(badge.textContent) || 0;
+          badge.textContent = count + 1;
+          badge.style.display = 'flex';
+        });
+      };
+
+      notificationSocket.onclose = function(e) {
+        console.warn('Notification socket closed unexpectedly');
+      };
+    }
   </script>
 
   {% block extra_js %}{% endblock %}
