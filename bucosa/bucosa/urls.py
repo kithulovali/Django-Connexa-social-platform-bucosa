@@ -12,7 +12,7 @@ urlpatterns = [
     path('activities/', include(('activities.urls', 'activities'), namespace='activities')),
     path('accounts/', include('allauth.urls')),
     path('pwa/', include('pwa.urls')),
-    path('notifications/', include('notifications.urls')),
+    path('notifications/', include(('notifications.urls', 'notifications'), namespace='notifications')),
 
 ]
 
