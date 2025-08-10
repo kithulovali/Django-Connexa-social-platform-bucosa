@@ -1,15 +1,6 @@
 // static/js/firebase-push.js
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAsXHxxto0D-0nZ2I7sIhHFDjCAgurUoZM",
-  authDomain: "bucosa-5ccde.firebaseapp.com",
-  projectId: "bucosa-5ccde",
-  storageBucket: "bucosa-5ccde.appspot.com",
-  messagingSenderId: "981676237571",
-  appId: "1:981676237571:web:1a7445524217e5ae917f36",
-  measurementId: "G-XNJBM8KB53"
-};
-
+const firebaseConfig = window.FIREBASE_CONFIG;
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
@@ -41,7 +32,7 @@ function getAndSendToken() {
     if (permission === 'granted') {
       navigator.serviceWorker.ready.then((registration) => {
         messaging.getToken({
-          vapidKey: 'BIrGRQ1nsd0Cf7Fpmd-qMKhkqLMUaXXXpBUpkPc908eBgSN3ApVrSkQuLvS6Phz8UVLT3QlYSZ0RyIQBjbAuhFc',
+          vapidKey: window.FIREBASE_VAPID_KEY,
           serviceWorkerRegistration: registration
         })
         .then((token) => {

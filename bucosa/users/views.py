@@ -1,6 +1,7 @@
 # Django core imports
 import datetime
 from django.conf import settings
+import json
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -741,6 +742,9 @@ def analytics_dashboard(request):
 
 @login_required
 def private_messages(request, user_id=None):
+    # Inject FIREBASE_CONFIG into the context
+    firebase_config = json.dumps(settings.FIREBASE_CONFIG_PROD)
+
     # Optimize following users query
     following_ids = user_following.objects.filter(user=request.user).values_list('following_user', flat=True)
     users = User.objects.filter(id__in=following_ids).select_related()
@@ -840,13 +844,17 @@ def private_messages(request, user_id=None):
             except user_profile.DoesNotExist:
                 pass
 
-    return render(request, 'users/private_messages.html', {
+    context = {
         'other_user': other_user,
         'messages': messages_qs,
         'users': users,
         'search_query': search_query,
         'unread_counts': unread_counts,
-    })
+        'FIREBASE_CONFIG': firebase_config,
+        'FIREBASE_VAPID_KEY': settings.FIREBASE_VAPID_KEY,
+    }
+
+    return render(request, 'users/private_messages.html', context)
 
 @login_required
 def user_settings(request):

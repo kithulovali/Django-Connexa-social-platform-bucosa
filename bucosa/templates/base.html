@@ -2,6 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  {% if FIREBASE_VAPID_KEY %}
+  <script>
+    window.FIREBASE_VAPID_KEY = "{{ FIREBASE_VAPID_KEY }}";
+  </script>
+  {% endif %}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -13,12 +18,19 @@
   <link rel="manifest" href="{% static 'manifest.json' %}" />
   <meta name="theme-color" content="#22223b" />
 
+
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
 
   <script src="{% static 'js/theme-toggle.js' %}"></script>
   <script src="{% static 'js/pwa-install.js' %}"></script>
   <script src="{% static 'js/notifications.js' %}" defer></script>
+
+  {% if FIREBASE_CONFIG %}
+  <script>
+    window.FIREBASE_CONFIG = {{ FIREBASE_CONFIG|safe }};
+  </script>
+  {% endif %}
 
   <script>
     window.USER_IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
