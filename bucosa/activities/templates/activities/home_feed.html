@@ -622,7 +622,33 @@ document.addEventListener('DOMContentLoaded', function() {
         icon.classList.remove('animate-pulse');
       }, 300);
 
-  // No backend request; like is now frontend-only
+      // Send AJAX request to backend so likes persist
+      fetch(`/activities/post/${postId}/like/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.liked) {
+          icon.textContent = 'favorite';
+          countElement.textContent = data.count;
+          btn.setAttribute('data-liked', 'true');
+          btn.classList.add('text-red-500');
+          btn.classList.remove('text-gray-600');
+        } else {
+          icon.textContent = 'favorite_border';
+          countElement.textContent = data.count;
+          btn.setAttribute('data-liked', 'false');
+          btn.classList.remove('text-red-500');
+          btn.classList.add('text-gray-600');
+        }
+      })
+      .catch(error => console.error('Error:', error));
     });
   });
 
