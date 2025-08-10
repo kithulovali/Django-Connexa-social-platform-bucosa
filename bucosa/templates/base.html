@@ -4,68 +4,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#6366f1" />
 
-  <!-- Preconnect to external resources -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-
-  <!-- Modern font imports -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- Tailwind with modern config -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              200: '#bae6fd',
-              300: '#7dd3fc',
-              400: '#38bdf8',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-              800: '#075985',
-              900: '#0c4a6e',
-            },
-            secondary: {
-              50: '#f5f3ff',
-              100: '#ede9fe',
-              200: '#ddd6fe',
-              300: '#c4b5fd',
-              400: '#a78bfa',
-              500: '#8b5cf6',
-              600: '#7c3aed',
-              700: '#6d28d9',
-              800: '#5b21b6',
-              900: '#4c1d95',
-            }
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-        }
-      }
-    }
-  </script>
-
-  <!-- Local assets -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="manifest" href="{% static 'manifest.json' %}" />
+  <meta name="theme-color" content="#22223b" />
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
 
-  <!-- Scripts -->
   <script src="{% static 'js/theme-toggle.js' %}"></script>
   <script src="{% static 'js/pwa-install.js' %}"></script>
   <script src="{% static 'js/notifications.js' %}" defer></script>
@@ -77,7 +27,6 @@
 
   {% block extra_head %}{% endblock %}
 
-  <!-- Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
@@ -87,246 +36,261 @@
       });
     }
   </script>
-
-  <title>{% block title %}Bucosa{% endblock %}</title>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300 font-sans" id="body-root">
+<body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
 
   <!-- Loading Indicator -->
-  <div id="page-loader" class="fixed inset-0 z-50 flex items-center justify-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm transition-opacity duration-300">
-    <div class="text-center">
-      <div class="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p class="mt-4 text-gray-600 dark:text-gray-400 font-medium">Loading Bucosa...</p>
+  <div id="page-loader" class="page-loader">
+    <div class="loader-container">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Loading...</div>
     </div>
   </div>
 
   <!-- Navigation Loading Bar -->
-  <div id="nav-loading-bar" class="h-1 bg-gradient-to-r from-primary-500 to-secondary-500 fixed top-0 left-0 z-40 transition-all duration-300" style="width: 0%"></div>
+  <div id="nav-loading-bar" class="nav-loading-bar"></div>
 
-  <!-- PWA Install Prompt -->
-  <button id="pwa-install-btn" class="hidden fixed bottom-6 right-6 z-50 bg-gradient-to-r from-primary-600 to-secondary-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
-    <span class="material-symbols-rounded">install_mobile</span>
-    Install App
+  <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
+    Install Bucosa App
   </button>
 
-  <!-- Desktop Sidebar -->
-  <nav id="desktopSidebar" class="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-sm z-30 transition-all duration-300">    
-    <div class="flex flex-col h-full p-4">
-      <!-- Logo/Brand -->
-      <div class="flex items-center justify-center mb-8 p-4">
-        <img src="{% static 'img/logo.svg' %}" alt="Bucosa" class="h-10 w-auto">
+  <nav id="desktopSidebar" class="desktop-sidebar">    
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <a href="{% url 'activities:home' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
+          <div class="nav-item-content">
+            <img src="{% static 'img/more.png' %}" alt="Home" class="desktop-sidebar-icon">
+          </div>
+          <div class="nav-item-indicator"></div>
+        </a>
+        <a href="{% url 'users:search_users' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">search</span>
+            <span class="nav-label">Search</span>
+          </div>
+          <div class="nav-item-indicator"></div>
+        </a>
+        <a href="{% url 'users:private_messages' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">chat_bubble_outline</span>
+            <span class="nav-label">Messages</span>
+          </div>
+          <div class="nav-item-indicator"></div>
+        </a>
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">notifications_none</span>
+            <span class="nav-label">Notifications</span>
+            <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
+          </div>
+          <div class="nav-item-indicator"></div>
+        </a>
+        <a href="{% url 'users:profile' user.id %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">person_outline</span>
+            <span class="nav-label">Profile</span>
+          </div>
+          <div class="nav-item-indicator"></div>
+        </a>
       </div>
       
-      <!-- Main Navigation -->
-      <div class="flex-1 space-y-1">
-        <a href="{% url 'activities:home' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 {% if request.resolver_match.url_name == 'home' %}bg-primary-50 dark:bg-gray-700 text-primary-600 dark:text-primary-400 font-medium{% endif %}">
-          <span class="material-symbols-rounded text-2xl">home</span>
-          <span>Home</span>
-        </a>
-        
-        <a href="{% url 'users:search_users' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 {% if request.resolver_match.url_name == 'search_users' %}bg-primary-50 dark:bg-gray-700 text-primary-600 dark:text-primary-400 font-medium{% endif %}">
-          <span class="material-symbols-rounded text-2xl">search</span>
-          <span>Search</span>
-        </a>
-        
-        <a href="{% url 'users:private_messages' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 {% if request.resolver_match.url_name == 'private_messages' %}bg-primary-50 dark:bg-gray-700 text-primary-600 dark:text-primary-400 font-medium{% endif %}">
-          <span class="material-symbols-rounded text-2xl">chat_bubble</span>
-          <span>Messages</span>
-        </a>
-        
-        <a href="{% url 'notifications:notifications_list' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 {% if request.resolver_match.url_name == 'notifications_list' %}bg-primary-50 dark:bg-gray-700 text-primary-600 dark:text-primary-400 font-medium{% endif %}">
-          <span class="material-symbols-rounded text-2xl">notifications</span>
-          <span>Notifications</span>
-          <span id="desktop-notification-badge" class="ml-auto bg-primary-500 text-white text-xs font-bold px-2 py-1 rounded-full hidden">0</span>
-        </a>
-        
-        <a href="{% url 'users:profile' user.id %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 {% if request.resolver_match.url_name == 'profile' %}bg-primary-50 dark:bg-gray-700 text-primary-600 dark:text-primary-400 font-medium{% endif %}">
-          <span class="material-symbols-rounded text-2xl">person</span>
-          <span>Profile</span>
-        </a>
-      </div>
-      
-      <!-- Community Section -->
-      <div class="mt-8">
-        <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 mb-2">Community</h3>
-        <div class="space-y-1">
-          <a href="{% url 'fellowship_detail' 1 %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-primary-50 dark:bg-gray-700 text-primary-600 dark:text-primary-400 font-medium{% endif %}">
-            <span class="material-symbols-rounded text-2xl">church</span>
-            <span>Fellowship</span>
-          </a>
-          
-          <a href="{% url 'bucosa_main' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-            <span class="material-symbols-rounded text-2xl">groups</span>
-            <span>Bucosa Main</span>
-          </a>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">
+          <span class="material-icons section-icon">groups</span>
+          Community
         </div>
-      </div>
-      
-      <!-- Footer/Settings -->
-      <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-        <a href="{% url 'users:user_settings' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-          <span class="material-symbols-rounded text-2xl">settings</span>
-          <span>Settings</span>
+        <a href="{% url 'fellowship_detail' 1 %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
+          <div class="nav-item-content">
+            <span class="material-symbols-outlined nav-icon">church</span>
+            <span class="nav-label">Fellowship</span>
+          </div>
+          <div class="nav-item-indicator"></div>
         </a>
-        
-        <a href="{% url 'users:logout' %}" class="flex items-center gap-3 p-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200">
-          <span class="material-symbols-rounded text-2xl">logout</span>
-          <span>Logout</span>
+        <a href="{% url 'bucosa_main' %}" class="sidebar-item nav-link" data-page="bucosa-main">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">groups</span>
+            <span class="nav-label">Bucosa Main</span>
+          </div>
+          <div class="nav-item-indicator"></div>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="{% url 'users:logout' %}" class="sidebar-item logout-item">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">logout</span>
+            <span class="nav-label">Logout</span>
+          </div>
         </a>
       </div>
     </div>
   </nav>
 
-  <!-- Mobile Bottom Navigation -->
-  <nav id="mobileNav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-40">
-    <div class="flex justify-around items-center h-16">
-      <a href="{% url 'activities:home' %}" class="flex flex-col items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex-1 {% if request.resolver_match.url_name == 'home' %}text-primary-600 dark:text-primary-400{% endif %}">
-        <span class="material-symbols-rounded text-2xl">home</span>
-        <span class="text-xs mt-1">Home</span>
+  <nav id="mobileNav" class="mobile-nav">
+    <div class="nav-expanded" id="expandedMenu">
+      <div class="expanded-header">
+          <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded" id="closeExpanded">
+      </div>
+      <div class="nav-expanded-grid">
+        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">search</span>
+          </div>
+        </a>
+
+        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
+          <div class="nav-item-content">
+            <span class="material-symbols-outlined nav-icon">church</span>
+          </div>
+        </a>
+        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">groups</span>
+          </div>
+        </a>
+        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">settings</span>
+          </div>
+        </a>
+        <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
+          <div class="nav-item-content">
+            <span class="material-icons nav-icon">logout</span>
+            <span class="nav-label">Logout</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="nav-main-container">
+      <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">home</span>
+        </div>
       </a>
       
-      <a href="{% url 'users:profile' user.id %}" class="flex flex-col items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex-1 {% if request.resolver_match.url_name == 'profile' %}text-primary-600 dark:text-primary-400{% endif %}">
-        <span class="material-symbols-rounded text-2xl">person</span>
-        <span class="text-xs mt-1">Profile</span>
+      <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">person_outline</span>
+        </div>
       </a>
-      
-      <button id="moreButton" class="flex flex-col items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex-1">
-        <span class="material-symbols-rounded text-2xl">menu</span>
-        <span class="text-xs mt-1">More</span>
-      </button>
-      
-      <a href="{% url 'users:private_messages' %}" class="flex flex-col items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex-1 {% if request.resolver_match.url_name == 'private_messages' %}text-primary-600 dark:text-primary-400{% endif %}">
-        <span class="material-symbols-rounded text-2xl">chat_bubble</span>
-        <span class="text-xs mt-1">Messages</span>
+
+      <a href="#" class="nav-item nav-more-btn" id="moreButton">
+        <div class="nav-item-content">
+          <img src="{% static 'img/more.png' %}"  class="mobile-menu-icon">
+        </div>
       </a>
-      
-      <a href="{% url 'notifications:notifications_list' %}" class="flex flex-col items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex-1 relative {% if request.resolver_match.url_name == 'notifications_list' %}text-primary-600 dark:text-primary-400{% endif %}">
-        <span class="material-symbols-rounded text-2xl">notifications</span>
-        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold h-5 w-5 flex items-center justify-center rounded-full hidden">0</span>
-        <span class="text-xs mt-1">Alerts</span>
+
+      <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
+        <div class="nav-item-content">
+          <span class="material-icons nav-icon">chat_bubble_outline</span>
+        </div>
+      </a>
+
+      <a href="{% url 'notifications:notifications_list' %}" class="nav-item" id="mobile-notifications">
+        <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
+          <div class="nav-item-content flex items-center gap-2">
+            <span class="material-icons nav-icon text-blue-600 group-hover:text-blue-800 transition">notifications_none</span>
+            <span class="nav-label font-semibold">Notifications</span>
+            <span id="desktop-notification-badge" class="notification-badge ml-2" style="display:none;">0</span>
+          </div>
+          <div class="nav-item-indicator"></div>
+        </a>
       </a>
     </div>
   </nav>
 
-  <!-- Mobile Expanded Menu -->
-  <div id="expandedMenu" class="fixed inset-0 bg-white dark:bg-gray-800 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
-    <div class="h-full flex flex-col p-6">
-      <div class="flex justify-between items-center mb-8">
-        <h2 class="text-2xl font-bold">Menu</h2>
-        <button id="closeExpanded" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-          <span class="material-symbols-rounded text-2xl">close</span>
-        </button>
-      </div>
-      
-      <div class="grid grid-cols-3 gap-4">
-        <a href="{% url 'users:search_users' %}" class="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-          <span class="material-symbols-rounded text-3xl mb-2">search</span>
-          <span>Search</span>
-        </a>
-        
-        <a href="{% url 'fellowship_detail' 1 %}" class="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-          <span class="material-symbols-rounded text-3xl mb-2">church</span>
-          <span>Fellowship</span>
-        </a>
-        
-        <a href="{% url 'bucosa_main' %}" class="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-          <span class="material-symbols-rounded text-3xl mb-2">groups</span>
-          <span>Bucosa</span>
-        </a>
-        
-        <a href="{% url 'users:user_settings' %}" class="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-          <span class="material-symbols-rounded text-3xl mb-2">settings</span>
-          <span>Settings</span>
-        </a>
-        
-        <a href="#" class="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-          <span class="material-symbols-rounded text-3xl mb-2">help</span>
-          <span>Help</span>
-        </a>
-        
-        <a href="{% url 'users:logout' %}" class="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 text-red-600 dark:text-red-400">
-          <span class="material-symbols-rounded text-3xl mb-2">logout</span>
-          <span>Logout</span>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <main class="md:ml-64 pb-16 md:pb-0 min-h-screen">
-    <div class="max-w-4xl mx-auto p-4 md:p-6">
+  <main class="main-content">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       {% block content %}
-      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Welcome to Bucosa</h1>
-        <p class="text-gray-600 dark:text-gray-300">Your content goes here...</p>
-      </div>
+      <h1 class="text-2xl font-bold text-gray-900 mb-6">Welcome to Bucosa</h1>
+      <p class="text-gray-600">Your content goes here...</p>
       {% endblock %}
     </div>
   </main>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Mobile menu toggle
       const moreButton = document.getElementById('moreButton');
       const expandedMenu = document.getElementById('expandedMenu');
       const closeExpanded = document.getElementById('closeExpanded');
-      
+      let isExpanded = false;
+
+      // Toggle expanded menu
       moreButton.addEventListener('click', function(e) {
         e.preventDefault();
-        expandedMenu.classList.remove('translate-y-full');
+        isExpanded = !isExpanded;
+        
+        if (isExpanded) {
+          expandedMenu.classList.add('show');
+          moreButton.classList.add('active');
+        } else {
+          expandedMenu.classList.remove('show');
+          moreButton.classList.remove('active');
+        }
       });
-      
-      closeExpanded.addEventListener('click', function(e) {
+
+      // Close menu when clicking close button
+      closeExpanded?.addEventListener('click', function(e) {
         e.preventDefault();
-        expandedMenu.classList.add('translate-y-full');
+        expandedMenu.classList.remove('show');
+        moreButton.classList.remove('active');
+        isExpanded = false;
       });
-      
-      // Close menu when clicking outside
-      expandedMenu.addEventListener('click', function(e) {
-        if (e.target === expandedMenu) {
-          expandedMenu.classList.add('translate-y-full');
+
+      // Close expanded menu when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('#mobileNav') && isExpanded) {
+          expandedMenu.classList.remove('show');
+          moreButton.classList.remove('active');
+          isExpanded = false;
         }
       });
-      
-      // Close menu with escape key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          expandedMenu.classList.add('translate-y-full');
-        }
+
+      // Handle active states for main nav items
+      document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(item => {
+        item.addEventListener('click', function() {
+          document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(navItem => {
+            navItem.classList.remove('active');
+          });
+          this.classList.add('active');
+        });
       });
-      
-      // Active link highlighting
-      const currentPath = window.location.pathname;
-      document.querySelectorAll('a[href]').forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
-          link.classList.add('active');
-        }
-      });
-      
+
       // Notification handling
       function updateNotificationBadges(count) {
         const badges = document.querySelectorAll('[id$="notification-badge"]');
         badges.forEach(badge => {
           if (count > 0) {
-            badge.textContent = count > 9 ? '9+' : count;
-            badge.classList.remove('hidden');
+            badge.textContent = count;
+            badge.style.display = 'flex';
           } else {
-            badge.classList.add('hidden');
+            badge.style.display = 'none';
           }
         });
       }
-      
-      // Simulate notification count (replace with real data)
-      updateNotificationBadges(3);
-      
-      // Hide loading screen
-      setTimeout(() => {
-        document.getElementById('page-loader').style.opacity = '0';
-        document.getElementById('page-loader').style.pointerEvents = 'none';
-      }, 500);
+
+      // Handle notification clicks
+      document.getElementById('mobile-notifications')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Mobile notifications clicked');
+      });
+
+      document.getElementById('desktop-notifications')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Desktop notifications clicked');
+      });
+
+      // Handle escape key to close expanded menu
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isExpanded) {
+          expandedMenu.classList.remove('show');
+          moreButton.classList.remove('active');
+          isExpanded = false;
+        }
+      });
     });
 
-    // Real-time Notifications via WebSocket
+    // === Real-time Notifications via WebSocket ===
     if (window.USER_IS_AUTHENTICATED) {
       let protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
       let wsPath = `${protocol}://${window.location.host}/ws/notifications/`;
@@ -334,57 +298,19 @@
 
       notificationSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        // Show toast notification
-        showToast(data.message);
-        
-        // Update badge count
-        const badges = document.querySelectorAll('[id$="notification-badge"]');
+        // Optionally, show a toast or popup here
+        // Increment badge count
+        let badges = document.querySelectorAll('[id$="notification-badge"]');
         badges.forEach(badge => {
           let count = parseInt(badge.textContent) || 0;
-          badge.textContent = count + 1 > 9 ? '9+' : count + 1;
-          badge.classList.remove('hidden');
-          
-          // Add ping animation
-          badge.classList.add('animate-ping', 'duration-1000');
-          setTimeout(() => {
-            badge.classList.remove('animate-ping', 'duration-1000');
-          }, 1000);
+          badge.textContent = count + 1;
+          badge.style.display = 'flex';
         });
       };
 
       notificationSocket.onclose = function(e) {
         console.warn('Notification socket closed unexpectedly');
-        // Attempt to reconnect after 5 seconds
-        setTimeout(() => {
-          notificationSocket = new WebSocket(wsPath);
-        }, 5000);
       };
-      
-      function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'fixed top-4 right-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 border-l-4 border-primary-500 transform translate-x-full opacity-0 transition-all duration-300 z-50 max-w-xs';
-        toast.innerHTML = `
-          <div class="flex items-start">
-            <span class="material-symbols-rounded text-primary-500 mr-2">notifications</span>
-            <div>
-              <p class="font-medium">New notification</p>
-              <p class="text-sm text-gray-600 dark:text-gray-300">${message}</p>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-          toast.classList.remove('translate-x-full', 'opacity-0');
-          toast.classList.add('translate-x-0', 'opacity-100');
-        }, 10);
-        
-        setTimeout(() => {
-          toast.classList.remove('translate-x-0', 'opacity-100');
-          toast.classList.add('translate-x-full', 'opacity-0');
-          setTimeout(() => toast.remove(), 300);
-        }, 5000);
-      }
     }
   </script>
 
