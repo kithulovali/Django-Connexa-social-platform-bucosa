@@ -623,7 +623,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 300);
 
       // Send AJAX request in the background (optional)
-      fetch(`/activities/like_post/${postId}/`, {
+  fetch(`/activities/post/${postId}/like/`, {
         method: 'POST',
         headers: {
           'X-CSRFToken': '{{ csrf_token }}',
