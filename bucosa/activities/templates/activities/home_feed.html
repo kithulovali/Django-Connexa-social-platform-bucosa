@@ -622,16 +622,7 @@ document.addEventListener('DOMContentLoaded', function() {
         icon.classList.remove('animate-pulse');
       }, 300);
 
-      // Send AJAX request in the background (optional)
-  fetch(`/activities/post/${postId}/like/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        credentials: 'same-origin'
-      }).catch(error => console.error('Error:', error));
+  // No backend request; like is now frontend-only
     });
   });
 
