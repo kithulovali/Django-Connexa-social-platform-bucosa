@@ -100,15 +100,24 @@ def home_activities(request):
                 if item_type == 'users' and discovery_index['users'] < len(suggested_users):
                     # Take up to 3 users at once
                     users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
-                    combined_feed.append(('users_batch', users_batch))
+                    combined_feed.append({
+                        'type': 'suggested_users',
+                        'data': users_batch
+                    })
                     discovery_index['users'] += len(users_batch)
                 elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
                     # Take up to 3 groups at once
                     groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
-                    combined_feed.append(('groups_batch', groups_batch))
+                    combined_feed.append({
+                        'type': 'suggested_groups',
+                        'data': groups_batch
+                    })
                     discovery_index['groups'] += len(groups_batch)
                 elif item_type == 'events' and discovery_index['events'] < len(events):
-                    combined_feed.append(('events', events[discovery_index['events']]))
+                    combined_feed.append({
+                        'type': 'events',
+                        'data': [events[discovery_index['events']]]  # Wrap single event in list for consistency
+                    })
                     discovery_index['events'] += 1
             except StopIteration:
                 pass  # All discovery items have been added
@@ -116,7 +125,10 @@ def home_activities(request):
         # Add two posts
         for _ in range(2):
             if post_index < len(posts):
-                combined_feed.append(('post', posts[post_index]))
+                combined_feed.append({
+                    'type': 'post',
+                    'data': posts[post_index]
+                })
                 post_index += 1
     
     # Handle remaining discovery items if there are few posts
@@ -128,17 +140,26 @@ def home_activities(request):
             item_type = next(discovery_cycler)
             if item_type == 'users' and discovery_index['users'] < len(suggested_users):
                 users_batch = suggested_users[discovery_index['users']:discovery_index['users']+3]
-                combined_feed.append(('users_batch', users_batch))
+                combined_feed.append({
+                    'type': 'suggested_users',
+                    'data': users_batch
+                })
                 discovery_index['users'] += len(users_batch)
             elif item_type == 'groups' and discovery_index['groups'] < len(suggested_groups):
                 groups_batch = suggested_groups[discovery_index['groups']:discovery_index['groups']+3]
-                combined_feed.append(('groups_batch', groups_batch))
+                combined_feed.append({
+                    'type': 'suggested_groups',
+                    'data': groups_batch
+                })
                 discovery_index['groups'] += len(groups_batch)
             elif item_type == 'events' and discovery_index['events'] < len(events):
-                combined_feed.append(('events', events[discovery_index['events']]))
+                combined_feed.append({
+                    'type': 'events',
+                    'data': [events[discovery_index['events']]]  # Wrap single event in list for consistency
+                })
                 discovery_index['events'] += 1
         except StopIteration:
-            pass
+            break  # Exit the loop when all items are processed
             
     context = {
         'combined_feed': combined_feed,
@@ -152,7 +173,9 @@ def home_activities(request):
     
     response = render(request, 'activities/home_feed.html', context)
     
-    cache.set(cache_key, response, 300) # Cache for 5 minutes
+    # Cache the response for 5 minutes
+    cache.set(cache_key, response, 300)
+    
     return response
 
 def post_activity(request):

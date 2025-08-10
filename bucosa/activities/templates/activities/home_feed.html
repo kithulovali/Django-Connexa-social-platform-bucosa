@@ -12,6 +12,7 @@
             <!-- Post/Repost template -->
             <article class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden mobile-post" id="post-{{ item.data.id }}">
               {% if item.data.repost_of %}
+                <!-- Repost header -->
                 <div class="px-4 sm:px-6 pt-4 pb-2">
                   <div class="flex items-center gap-2 text-sm text-blue-600 mb-3">
                     <span class="material-icons text-base">repeat</span>
@@ -20,7 +21,9 @@
                       @{{ item.data.repost_of.author.username }}
                     </a>
                   </div>
+                  <!-- Original post content -->
                   <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-5">
+                    <!-- Author info -->
                     <div class="flex items-center gap-3 mb-4">
                       {% if item.data.repost_of.author.profile and item.data.repost_of.author.profile.profile_image %}
                       <a href="{% url 'users:profile' item.data.repost_of.author.id %}" class="flex-shrink-0">
@@ -49,15 +52,20 @@
                         </div>
                       </div>
                     </div>
+                    
+                    <!-- Post content -->
                     {% if item.data.repost_of.content %}
                     <div class="text-gray-800 mb-4 leading-relaxed text-sm sm:text-base">{{ item.data.repost_of.content }}</div>
                     {% endif %}
+                    
+                    <!-- Media -->
                     {% if item.data.repost_of.image %}
                     <div class="mb-4">
                       <img src="{{ item.data.repost_of.image.url }}" 
                            class="rounded-xl w-full max-h-60 sm:max-h-80 object-cover border border-gray-200">
                     </div>
                     {% endif %}
+                    
                     {% if item.data.repost_of.video %}
                     <div class="mb-4">
                       <video controls class="rounded-xl w-full max-h-60 sm:max-h-80 object-cover border border-gray-200">
@@ -69,7 +77,10 @@
                   </div>
                 </div>
               {% endif %}
+              
+              <!-- Main post content -->
               <div class="px-4 sm:px-6 {% if not item.data.repost_of %}pt-6{% else %}pt-2{% endif %}">
+                <!-- Author info -->
                 <div class="flex items-center gap-3 sm:gap-4 mb-4">
                   {% if item.data.author.profile and item.data.author.profile.profile_image %}
                   <a href="{% url 'users:profile' item.data.author.id %}" class="flex-shrink-0">
@@ -104,17 +115,22 @@
                     </div>
                   </div>
                 </div>
+                
+                <!-- Post content -->
                 {% if item.data.content %}
                 <div class="text-gray-800 text-base sm:text-lg leading-relaxed mb-6 break-words">
                   {{ item.data.content }}
                 </div>
                 {% endif %}
+                
+                <!-- Media -->
                 {% if item.data.image %}
                 <div class="mb-6 -mx-2 sm:mx-0">
                   <img src="{{ item.data.image.url }}" 
                        class="rounded-xl sm:rounded-2xl w-full max-h-80 sm:max-h-96 object-cover border border-gray-200">
                 </div>
                 {% endif %}
+                
                 {% if item.data.video %}
                 <div class="mb-6 -mx-2 sm:mx-0">
                   <video controls class="rounded-xl sm:rounded-2xl w-full max-h-80 sm:max-h-96 object-cover border border-gray-200">
@@ -207,6 +223,8 @@
                     </div>
                     {% endfor %}
                   </div>
+                  
+                  <!-- Comment form -->
                   {% if user.is_authenticated %}
                   <form action="{% url 'activities:add_comment' item.data.id %}" method="post" class="mt-4 flex gap-2 sm:gap-3 items-start">
                     {% csrf_token %}
@@ -252,45 +270,6 @@
                     </a>
                     {% endif %}
                     <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ u.username }}</a>
-                    <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">@{{ u.username }}</div>
-                    {% if user.is_authenticated and user not in u.followers.all %}
-                    <form action="{% url 'users:follow_user' u.id %}" method="post">
-                      {% csrf_token %}
-                      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
-                        Follow
-                      </button>
-                    </form>
-                    {% endif %}
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-
-          {% elif item.type == 'suggested_groups' %}
-            <!-- Suggested Groups Card -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5">
-              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <span class="material-icons">groups</span>
-                Suggested Groups
-              </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-groups-container">
-                {% for group in item.data %}
-                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
-                    {% if group.profile and group.profile.profile_image %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="block">
-                      <img src="{{ group.profile.profile_image.url }}" 
-                          class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
-                    </a>
-                    {% else %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="block">
-                      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mx-auto mb-2 flex items-center justify-center border-2 border-white shadow-sm">
-                        <span class="material-icons text-green-600 text-3xl sm:text-4xl">group</span>
-                      </div>
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">
-                      {{ group.name }}
-                    </a>
                     <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ group.member_count }} Members</div>
                     {% if user.is_authenticated and user not in group.user_set.all %}
                     <form action="{% url 'users:join_group' group.id %}" method="post">
@@ -337,6 +316,7 @@
         {% endfor %}
       </div>
     {% else %}
+      <!-- Empty feed state -->
       <div class="text-center py-12 sm:py-20">
         <div class="mb-6">
           <span class="material-icons text-4xl sm:text-6xl text-gray-400 mb-4 block">explore</span>
@@ -387,12 +367,14 @@
               <div class="text-gray-500 text-xs sm:text-sm truncate">@{{ u.username }}</div>
             </div>
           </div>
+          {% if user.is_authenticated and user not in u.followers.all %}
           <form action="{% url 'users:follow_user' u.id %}" method="post">
             {% csrf_token %}
             <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full border border-gray-300 transition-all shadow-sm text-xs sm:text-sm">
               Follow
             </button>
           </form>
+          {% endif %}
         </div>
         {% empty %}
         <div class="text-center py-4 sm:py-6">
