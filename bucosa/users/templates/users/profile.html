@@ -18,6 +18,11 @@
               <a href="{% url 'users:user_settings' %}" class="border border-gray-300 hover:bg-gray-50 px-4 py-1.5 rounded-lg text-sm font-semibold transition">
                  <span class="material-icons text-xl">settings</span>
               </a>
+              {% if request.user.is_superuser or request.user.is_staff %}
+                <a href="{% url 'activities:create_announcement' %}" class="ml-2 border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 px-4 py-1.5 rounded-lg text-sm font-semibold transition">
+                  Create Announcement
+                </a>
+              {% endif %}
             {% else %}
               <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-lg text-sm font-semibold transition">
                 Follow
@@ -122,6 +127,11 @@
                   <a href="{% url 'users:user_settings' %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
                     Edit profile
                   </a>
+                  {% if request.user.is_superuser or request.user.is_staff %}
+                    <a href="{% url 'activities:create_announcement' %}" class="ml-2 border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 px-4 py-1.5 rounded-md text-sm font-semibold transition">
+                      Create Announcement
+                    </a>
+                  {% endif %}
                 {% else %}
                   <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-md text-sm font-semibold transition">
                     Follow
