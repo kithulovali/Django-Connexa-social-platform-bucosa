@@ -255,7 +255,7 @@ CHANNEL_LAYERS = {
 FIREBASE_CREDENTIALS = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
 
 # Firebase config for frontend JS (production) - loaded from environment variables
-FIREBASE_CONFIG_PROD = {
+FIREBASE_CONFIG = {
     "apiKey": os.getenv("FIREBASE_API_KEY"),
     "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
     "projectId": os.getenv("FIREBASE_PROJECT_ID"),
