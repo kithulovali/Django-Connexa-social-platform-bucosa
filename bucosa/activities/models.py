@@ -5,7 +5,26 @@ from uuid import uuid4
 from django.utils.text import slugify
 from django_resized import ResizedImageField
 from cloudinary.models import CloudinaryField
+
 from django.utils.functional import cached_property
+
+# Announcement model for global messages
+class Announcement(models.Model):
+    ANNOUNCEMENT_TYPES = [
+        ('government', 'Government'),
+        ('fellowship', 'Fellowship'),
+    ]
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    type = models.CharField(max_length=20, choices=ANNOUNCEMENT_TYPES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.type})"
 
 class Event(models.Model):
     title = models.CharField(max_length=200, db_index=True)
