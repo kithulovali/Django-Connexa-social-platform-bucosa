@@ -97,13 +97,6 @@
           <span class="ml-2">Google</span>
         </a>
       </div>
-      <!-- Firebase FCM Token Setup -->
-      <script>
-        window.USER_IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:'true,false' }};
-        window.FIREBASE_CONFIG = {{ FIREBASE_CONFIG|safe }};
-        window.FIREBASE_VAPID_KEY = "{{ FIREBASE_VAPID_KEY }}";
-      </script>
-      <script src="{% static 'js/firebase-push.js' %}"></script>
     </div>
   </div>
 </div>

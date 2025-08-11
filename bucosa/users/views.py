@@ -151,8 +151,7 @@ def login_user(request):
             else :
                 messages.error(request ,'Incorrect password')
     return render(request , 'users/login.html', {
-        'FIREBASE_CONFIG': settings.FIREBASE_CONFIG,
-        'FIREBASE_VAPID_KEY': settings.FIREBASE_VAPID_KEY,
+
     })
 
 #=============logout view
@@ -753,8 +752,7 @@ def analytics_dashboard(request):
 
 @login_required
 def private_messages(request, user_id=None):
-    # Inject FIREBASE_CONFIG into the context
-    firebase_config = json.dumps(settings.FIREBASE_CONFIG)
+
 
     # Optimize following users query
     following_ids = user_following.objects.filter(user=request.user).values_list('following_user', flat=True)
@@ -870,8 +868,7 @@ def private_messages(request, user_id=None):
         'users': users,
         'search_query': search_query,
         'unread_counts': unread_counts,
-        'FIREBASE_CONFIG': firebase_config,
-        'FIREBASE_VAPID_KEY': settings.FIREBASE_VAPID_KEY,
+
         'error_message': error_message,
     }
 
