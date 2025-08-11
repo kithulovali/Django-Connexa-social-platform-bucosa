@@ -36,7 +36,6 @@ urlpatterns = [
     path('create_profile/<str:pk>/', create_user_profile, name='create_user_profile'),
     path('mark_messages_read/<int:user_id>/', views.mark_messages_read, name='mark_messages_read'),
     path('mark_group_messages_read/<int:group_id>/', views.mark_group_messages_read, name='mark_group_messages_read'),
-    path('save_fcm_token/', views.save_fcm_token, name='save_fcm_token'),
      path('api/unread_messages_count/', views.api_unread_messages_count, name='api_unread_messages_count'),
      path('password_reset/',
          views.PasswordResetView.as_view(template_name='users/password_reset_form.html'),
