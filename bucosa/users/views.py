@@ -103,17 +103,7 @@ def get_or_create_user_profile(user):
         except ObjectDoesNotExist:
             # Fallback: Create without email
             return user_profile.objects.create(user=user, email='')
-
-@csrf_exempt
-@require_POST
-@login_required
-def save_fcm_token(request):
-    token = request.POST.get('token')
-    if not token:
-        return JsonResponse({'status': 'error', 'message': 'No token provided'}, status=400)
-    try:
-
-
+        
 #=============login view
 def login_user(request):
     if request.user.is_authenticated:
