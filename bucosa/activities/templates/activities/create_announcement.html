@@ -1,9 +1,46 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Send Announcement</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Send</button>
-</form>
+<head>
+  <link rel="stylesheet" href="{% static 'css/anounce.css'%}">
+</head>
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+    <div class="p-8">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-blue-800">Send Announcement</h2>
+      </div>
+      
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="space-y-4">
+          {% for field in form %}
+          <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-blue-700 mb-1">
+              {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.help_text %}
+              <p class="mt-1 text-sm text-blue-500">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+        
+        <div class="flex justify-center">
+          <button type="submit" class="w-full md:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 shadow-md hover:shadow-lg flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+            </svg>
+            Send Announcement
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
