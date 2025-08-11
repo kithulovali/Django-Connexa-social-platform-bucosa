@@ -142,7 +142,10 @@ def login_user(request):
                 messages.error(request ,'Username does not exists!')
             else :
                 messages.error(request ,'Incorrect password')
-    return render(request , 'users/login.html')
+    return render(request , 'users/login.html', {
+        'FIREBASE_CONFIG': settings.FIREBASE_CONFIG,
+        'FIREBASE_VAPID_KEY': settings.FIREBASE_VAPID_KEY,
+    })
 
 #=============logout view
 @login_required(login_url='/login/')
@@ -835,7 +838,7 @@ def private_messages(request, user_id=None):
             # Push notification
             try:
                 profile = user_profile.objects.get(user=other_user)
-                if profile.fcm_token:
+                if profile.fcm_token and profile.fcm_token.strip():
                     send_push_notification_v1(
                         profile.fcm_token,
                         title="New Message",
