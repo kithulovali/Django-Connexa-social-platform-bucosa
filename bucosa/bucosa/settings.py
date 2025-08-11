@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 import json
+import ssl
 
 # Load environment variables
 load_dotenv()
@@ -251,12 +252,13 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
 # Celery SSL config for Redis (Upstash, Railway, etc.)
 CELERY_BROKER_USE_SSL = {
-    'ssl_cert_reqs': 'CERT_NONE'
+    'ssl_cert_reqs': ssl.CERT_REQUIRED
 }
 CELERY_REDIS_BACKEND_USE_SSL = {
-    'ssl_cert_reqs': 'CERT_NONE'
+    'ssl_cert_reqs': ssl.CERT_REQUIRED
 }
 
 # Celery configuration for Redis broker
