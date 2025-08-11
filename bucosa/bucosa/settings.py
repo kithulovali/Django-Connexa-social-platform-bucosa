@@ -1,5 +1,4 @@
-
-
+from kombu import SSL
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -252,6 +251,13 @@ CHANNEL_LAYERS = {
             "hosts": [os.environ.get("REDIS_URL")]
         },
     },
+}
+# Celery SSL config for Redis (Upstash, Railway, etc.)
+CELERY_BROKER_USE_SSL = {
+    'ssl_cert_reqs': 'CERT_NONE'
+}
+CELERY_REDIS_BACKEND_USE_SSL = {
+    'ssl_cert_reqs': 'CERT_NONE'
 }
 
 # Celery configuration for Redis broker
