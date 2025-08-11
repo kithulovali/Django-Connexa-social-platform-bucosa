@@ -1,11 +1,4 @@
-from django.views.decorators.http import require_GET
-# API endpoint for unread private message count
-@login_required
-@require_GET
-def api_unread_messages_count(request):
-    from .models_private_message import PrivateMessage
-    count = PrivateMessage.objects.filter(recipient=request.user, is_read=False).count()
-    return JsonResponse({'unread_messages_count': count})
+
 # Django core imports
 import datetime
 from django.conf import settings
@@ -28,7 +21,7 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.db import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -46,6 +39,13 @@ from .models_private_message import PrivateMessage
 from activities.models import Post, Event, Repost, Save
 from notifications.utils import create_notification, send_push_notification_v1
 from users.models import user_profile, user_following
+
+# API endpoint for unread private message count
+@login_required
+@require_GET
+def api_unread_messages_count(request):
+    count = PrivateMessage.objects.filter(recipient=request.user, is_read=False).count()
+    return JsonResponse({'unread_messages_count': count})
 
 # Create your views here.
 
