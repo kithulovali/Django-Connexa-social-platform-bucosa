@@ -13,7 +13,6 @@ from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from notifications.utils import create_notification
 from django.utils import timezone
-from notifications.utils import send_push_notification_v1
 from utils.mentions import extract_mentions
 from django.core.cache import cache
 from django.db import transaction
@@ -249,12 +248,7 @@ def create_post(request, group_id=None):
                         message=f'You were mentioned by @{request.user.username}',
                         related_object=post
                     )
-                    if hasattr(user, 'profile') and user.profile.fcm_token:
-                        send_push_notification_v1(
-                            user.profile.fcm_token,
-                            title="Mention",
-                            body=f"You were mentioned by @{request.user.username}"
-                        )
+
 
             # Clear cache
             cache.delete_pattern('home_feed_*')
@@ -302,12 +296,7 @@ def create_event(request, group_id=None):
                         message=f'You were mentioned in an event by @{request.user.username}',
                         related_object=event
                     )
-                    if hasattr(user, 'profile') and user.profile.fcm_token:
-                        send_push_notification_v1(
-                            user.profile.fcm_token,
-                            title="Event Mention",
-                            body=f"You were mentioned in an event by @{request.user.username}"
-                        )
+
 
             # Clear relevant caches
             cache.delete_pattern('home_feed_*')
@@ -558,12 +547,7 @@ def add_comment(request, post_id):
                     message=f'You were mentioned in a comment by @{request.user.username}',
                     related_object=comment
                 )
-                if hasattr(user, 'profile') and user.profile.fcm_token:
-                    send_push_notification_v1(
-                        user.profile.fcm_token,
-                        title="Comment Mention",
-                        body=f"You were mentioned by @{request.user.username}"
-                    )
+
 
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
