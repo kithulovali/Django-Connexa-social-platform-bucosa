@@ -25,7 +25,7 @@ function pollUnreadMessagesBadge() {
   }
 
   function fetchCount() {
-    fetch('/users/api/unread_messages_count/', { credentials: 'same-origin' })
+  fetch('/api/unread_messages_count/', { credentials: 'same-origin' })
       .then(r => r.json())
       .then(data => updateBadge(data.unread_messages_count))
       .catch(() => {});
