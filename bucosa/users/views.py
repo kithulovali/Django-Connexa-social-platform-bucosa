@@ -746,7 +746,7 @@ def analytics_dashboard(request):
 @login_required
 def private_messages(request, user_id=None):
     # Inject FIREBASE_CONFIG into the context
-    firebase_config = json.dumps(settings.FIREBASE_CONFIG_PROD)
+    firebase_config = json.dumps(settings.FIREBASE_CONFIG)
 
     # Optimize following users query
     following_ids = user_following.objects.filter(user=request.user).values_list('following_user', flat=True)
