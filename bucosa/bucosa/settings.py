@@ -252,7 +252,7 @@ CHANNEL_LAYERS = {
 
 # Firebase config for backend (admin SDK)
 
-#FIREBASE_CREDENTIALS = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
+FIREBASE_CREDENTIALS = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
 
 # Firebase config for frontend JS (production) - loaded from environment variables
 FIREBASE_CONFIG_PROD = {

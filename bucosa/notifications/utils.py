@@ -58,6 +58,9 @@ def send_push_notification_v1(token, title, body, data=None):
     if not firebase_creds_json:
         raise ValueError("FIREBASE_CREDENTIALS environment variable not set")
     firebase_creds_dict = json.loads(firebase_creds_json)
+    # Fix private_key formatting for PEM
+    if "private_key" in firebase_creds_dict:
+        firebase_creds_dict["private_key"] = firebase_creds_dict["private_key"].replace("\\n", "\n")
     credentials = service_account.Credentials.from_service_account_info(
         firebase_creds_dict,
         scopes=['https://www.googleapis.com/auth/firebase.messaging']
