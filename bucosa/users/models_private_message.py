@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class PrivateMessage(models.Model):
+    def get_absolute_url(self):
+        # Redirect to the conversation with the sender
+        return f"/users/messages/{self.sender.id}/"
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
     content = models.TextField(blank=True)

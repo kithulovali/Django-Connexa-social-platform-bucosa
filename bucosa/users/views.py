@@ -1,3 +1,11 @@
+from django.views.decorators.http import require_GET
+# API endpoint for unread private message count
+@login_required
+@require_GET
+def api_unread_messages_count(request):
+    from .models_private_message import PrivateMessage
+    count = PrivateMessage.objects.filter(recipient=request.user, is_read=False).count()
+    return JsonResponse({'unread_messages_count': count})
 # Django core imports
 import datetime
 from django.conf import settings

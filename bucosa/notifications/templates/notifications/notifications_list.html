@@ -12,7 +12,16 @@
   <ul class="divide-y divide-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
     {% for notification in notifications %}
       {% if notification.content_object %}
-        <a href="{% if notification.content_type.model == 'post' %}{% url 'activities:post_detail' notification.object_id %}{% elif notification.content_type.model == 'event' %}{% url 'activities:event_detail' notification.object_id %}{% else %}#{% endif %}" class="block focus:outline-none focus:bg-blue-50">
+        <a href="
+          {% if notification.content_type.model == 'post' %}
+            {% url 'activities:post_detail' notification.object_id %}
+          {% elif notification.content_type.model == 'event' %}
+            {% url 'activities:event_detail' notification.object_id %}
+          {% elif notification.content_type.model == 'privatemessage' %}
+            {{ notification.content_object.get_absolute_url }}
+          {% else %}#
+          {% endif %}"
+          class="block focus:outline-none focus:bg-blue-50">
       {% else %}
         <div>
       {% endif %}

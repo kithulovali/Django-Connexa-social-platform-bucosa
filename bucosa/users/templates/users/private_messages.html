@@ -242,6 +242,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// WebSocket functionality would remain the same as in your original code
+// WebSocket for real-time private messages
+document.addEventListener('DOMContentLoaded', function() {
+  const messagesContainer = document.getElementById('messages-container');
+  // Only connect if on a conversation page
+  if (messagesContainer && window.otherUserId) {
+    let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    let ws_path = ws_scheme + '://' + window.location.host + "/ws/private_" + window.otherUserId + "/";
+    let privateSocket = new WebSocket(ws_path);
+
+    privateSocket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      if (data.message) {
+        // Create a new message bubble
+        const div = document.createElement('div');
+        div.className = 'flex justify-start';
+        div.innerHTML = `<div class="message-bubble received"><p>${data.message.content}</p></div>`;
+        messagesContainer.appendChild(div);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    };
+  }
+});
 </script>
 {% endblock %}

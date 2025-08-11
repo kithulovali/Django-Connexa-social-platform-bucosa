@@ -88,6 +88,9 @@
           <div class="nav-item-content">
             <span class="material-icons nav-icon">chat_bubble_outline</span>
             <span class="nav-label">Messages</span>
+            {% if unread_messages_count > 0 %}
+            <span class="notification-badge">{{ unread_messages_count }}</span>
+            {% endif %}
           </div>
           <div class="nav-item-indicator"></div>
         </a>
