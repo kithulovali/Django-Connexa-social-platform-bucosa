@@ -3,8 +3,16 @@ from django.contrib.auth.models import User
 
 class PrivateMessage(models.Model):
     def get_absolute_url(self):
-        # Redirect to the conversation with the sender
-        return f"/users/messages/{self.sender.id}/"
+        # Always redirect to the chat with the other user (for the recipient)
+        return f"/users/messages/{self.sender.id}/" if self.recipient_id == self._get_request_user_id() else f"/users/messages/{self.recipient.id}/"
+
+    def _get_request_user_id(self):
+        # This is a workaround for Django context, will work for notification links
+        try:
+            from threading import local
+            return getattr(local(), 'request_user_id', self.recipient_id)
+        except Exception:
+            return self.recipient_id
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
     content = models.TextField(blank=True)

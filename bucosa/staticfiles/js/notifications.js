@@ -1,3 +1,42 @@
+// Poll unread messages count and update badge
+function pollUnreadMessagesBadge() {
+  function updateBadge(count) {
+    // Find the sidebar badge for messages (not notifications)
+    const sidebar = document.querySelector('.sidebar-nav');
+    if (!sidebar) return;
+    // Find the messages nav link
+    const msgLink = Array.from(sidebar.querySelectorAll('.nav-link')).find(link => link.dataset.page === 'messages');
+    if (!msgLink) return;
+    // Find or create the badge
+    let badge = msgLink.querySelector('.notification-badge');
+    if (!badge && count > 0) {
+      badge = document.createElement('span');
+      badge.className = 'notification-badge';
+      msgLink.querySelector('.nav-item-content').appendChild(badge);
+    }
+    if (badge) {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+
+  function fetchCount() {
+    fetch('/users/api/unread_messages_count/', { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(data => updateBadge(data.unread_messages_count))
+      .catch(() => {});
+  }
+  fetchCount();
+  setInterval(fetchCount, 10000); // every 10 seconds
+}
+
+if (window.USER_IS_AUTHENTICATED) {
+  document.addEventListener('DOMContentLoaded', pollUnreadMessagesBadge);
+}
 
       // Toast function
       function showToast(msg, type = 'info') {

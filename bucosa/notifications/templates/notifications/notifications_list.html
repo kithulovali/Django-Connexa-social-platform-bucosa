@@ -18,7 +18,11 @@
           {% elif notification.content_type.model == 'event' %}
             {% url 'activities:event_detail' notification.object_id %}
           {% elif notification.content_type.model == 'privatemessage' %}
-            {{ notification.content_object.get_absolute_url }}
+            {% if notification.recipient.id == user.id %}
+              /users/messages/{{ notification.content_object.sender.id }}/
+            {% else %}
+              /users/messages/{{ notification.content_object.recipient.id }}/
+            {% endif %}
           {% else %}#
           {% endif %}"
           class="block focus:outline-none focus:bg-blue-50">
