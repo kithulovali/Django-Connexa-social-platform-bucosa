@@ -80,7 +80,7 @@ pyOpenSSL==25.1.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 pywebpush==2.0.3
-redis==6.2.0
+redis==5.0.4
 requests==2.32.4
 rsa==4.9.1
 service-identity==24.2.0
