@@ -37,7 +37,7 @@ from .models_block_report import UserBlock, UserReport
 from .models_group_message import GroupMessage
 from .models_private_message import PrivateMessage
 from activities.models import Post, Event, Repost, Save
-from notifications.utils import create_notification, send_push_notification_v1
+from notifications.utils import create_notification
 from users.models import user_profile, user_following
 
 # API endpoint for unread private message count
@@ -112,25 +112,7 @@ def save_fcm_token(request):
     if not token:
         return JsonResponse({'status': 'error', 'message': 'No token provided'}, status=400)
     try:
-        # Use update_or_create to avoid race conditions
-        profile, created = user_profile.objects.update_or_create(
-            user=request.user,
-            defaults={'fcm_token': token}
-        )
-        return JsonResponse({'status': 'success'})
-    except Exception as e:
-        # Handle IntegrityError specifically for duplicate key violations
-        from django.db import IntegrityError
-        if isinstance(e, IntegrityError) and 'duplicate key' in str(e):
-            # Try to get existing profile and update it
-            try:
-                profile = user_profile.objects.get(user=request.user)
-                profile.fcm_token = token
-                profile.save(update_fields=['fcm_token'])
-                return JsonResponse({'status': 'success'})
-            except user_profile.DoesNotExist:
-                pass
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
 
 #=============login view
 def login_user(request):
@@ -405,17 +387,7 @@ def follow_user(request, pk):
                 message=f'{request.user} started following you.'
             )
             
-            # Push notification - use try/except for error handling
-            try:
-                profile = user_profile.objects.select_related('user').get(user=target_user)
-                if profile.fcm_token:
-                    send_push_notification_v1(
-                        profile.fcm_token,
-                        title="New Follower",
-                        body=f"{request.user.username} started following you."
-                    )
-            except user_profile.DoesNotExist:
-                pass
+
             
         # Clear relevant caches
         cache.delete(f'user_profile_setup_{pk}')
@@ -598,15 +570,7 @@ def group_chat(request, pk):
                 )
             
             # Push notifications
-            for profile in user_profile.objects.filter(user__in=members).exclude(fcm_token=''):
-                try:
-                    send_push_notification_v1(
-                        profile.fcm_token,
-                        title="New Group Message",
-                        body=f"{request.user.username}: {content[:50]}"
-                    )
-                except:
-                    pass
+
 
     return render(request, 'users/group_chat.html', {
         'group': group, 
@@ -846,20 +810,8 @@ def private_messages(request, user_id=None):
                 related_object=msg
             )
             
-            # Push notification
-            try:
-                profile = user_profile.objects.get(user=other_user)
-                if profile.fcm_token and profile.fcm_token.strip():
-                    try:
-                        send_push_notification_v1(
-                            profile.fcm_token,
-                            title="New Message",
-                            body=f"{request.user.username}: {content[:50]}"
-                        )
-                    except Exception as e:
-                        print(f"Push notification failed: {e}")
-            except user_profile.DoesNotExist:
-                pass
+
+
 
 
     context = {
