@@ -852,11 +852,14 @@ def private_messages(request, user_id=None):
             try:
                 profile = user_profile.objects.get(user=other_user)
                 if profile.fcm_token and profile.fcm_token.strip():
-                    send_push_notification_v1(
-                        profile.fcm_token,
-                        title="New Message",
-                        body=f"{request.user.username}: {content[:50]}"
-                    )
+                    try:
+                        send_push_notification_v1(
+                            profile.fcm_token,
+                            title="New Message",
+                            body=f"{request.user.username}: {content[:50]}"
+                        )
+                    except Exception as e:
+                        print(f"Push notification failed: {e}")
             except user_profile.DoesNotExist:
                 pass
 
