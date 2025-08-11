@@ -764,9 +764,14 @@ def private_messages(request, user_id=None):
     if search_query:
         users = users.filter(username__icontains=search_query)
 
+
     other_user = None
+    error_message = None
     if user_id:
-        other_user = get_object_or_404(User, id=user_id)
+        try:
+            other_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            error_message = "The user you are trying to message does not exist."
 
     # Optimize unread counts with single query
     from .models_private_message import PrivateMessage
@@ -778,13 +783,13 @@ def private_messages(request, user_id=None):
         ).values('sender').annotate(count=Count('id')).values_list('sender', 'count')
     )
 
+
     # Get messages efficiently
-    if other_user:
+    if other_user and not error_message:
         messages_qs = PrivateMessage.objects.filter(
             (Q(sender=request.user) & Q(recipient=other_user)) |
             (Q(sender=other_user) & Q(recipient=request.user))
         ).select_related('sender', 'recipient').order_by('created_at')
-        
         # Mark messages as read
         PrivateMessage.objects.filter(
             sender=other_user, 
@@ -855,6 +860,7 @@ def private_messages(request, user_id=None):
             except user_profile.DoesNotExist:
                 pass
 
+
     context = {
         'other_user': other_user,
         'messages': messages_qs,
@@ -863,6 +869,7 @@ def private_messages(request, user_id=None):
         'unread_counts': unread_counts,
         'FIREBASE_CONFIG': firebase_config,
         'FIREBASE_VAPID_KEY': settings.FIREBASE_VAPID_KEY,
+        'error_message': error_message,
     }
 
     return render(request, 'users/private_messages.html', context)

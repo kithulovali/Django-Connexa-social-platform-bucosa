@@ -13,7 +13,14 @@
     <div class="bg-blue-600 px-6 py-4">
       <div class="flex items-center justify-between">
         <h1 class="text-xl font-semibold text-white">Messages</h1>
-        {% if other_user %}
+        {% if error_message %}
+          <div class="flex flex-col items-center justify-center h-full text-red-500 py-8">
+            <svg class="w-20 h-20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 9v2m0 4h.01M21 12c0 4.418-3.582 8-8 8a8.96 8.96 0 01-4.906-1.526L3 21l2.526-5.094A8.96 8.96 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z"></path>
+            </svg>
+            <p class="text-lg font-semibold">{{ error_message }}</p>
+          </div>
+        {% elif other_user %}
           <button id="close-chat-mobile" class="md:hidden p-2 text-white hover:text-blue-100">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
