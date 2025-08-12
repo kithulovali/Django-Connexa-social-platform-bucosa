@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load display_name %}
 
 {% block content %}
 <h2 class="text-2xl font-bold mb-6">Explore</h2>
@@ -7,6 +8,28 @@
     <input type="text" name="q" placeholder="Search media, users, posts, events..." value="{{ query }}" class="px-4 py-2 border rounded-full w-72 focus:outline-none focus:ring-2 focus:ring-blue-400">
     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition font-bold">Search</button>
 </form>
+
+{# User Results #}
+{% if users %}
+<div class="mb-8">
+  <h3 class="text-lg font-semibold mb-3">Users</h3>
+  <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+    {% for user in users %}
+      <li class="bg-white rounded-xl shadow p-4 flex flex-col items-center">
+        <a href="{% url 'users:profile' user.id %}">
+          {% if user.profile.profile_image %}
+            <img src="{{ user.profile.profile_image.url }}" alt="{{ user|display_name }}" class="w-16 h-16 rounded-full object-cover mb-2">
+          {% else %}
+            <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-16 h-16 rounded-full object-cover mb-2">
+          {% endif %}
+        </a>
+        <a href="{% url 'users:profile' user.id %}" class="font-bold text-gray-900 hover:text-blue-600 truncate w-full text-center">{{ user|display_name }}</a>
+        <span class="text-xs text-gray-500 truncate w-full text-center">@{{ user.username }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
 
 <div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
   {# Fellowship Posts with Images/Videos #}
@@ -21,7 +44,7 @@
           </video>
         {% endif %}
         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
-          <span class="text-white font-bold text-lg">{{ post.author.username }}</span>
+          <span class="text-white font-bold text-lg">{{ post.author|display_name }}</span>
           <span class="text-gray-200 text-xs truncate">{{ post.content|truncatechars:40 }}</span>
         </div>
       </div>
@@ -51,7 +74,7 @@
       <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('event', {{ event.id }}, '{{ event.cover_image.url }}', '', `{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, '{{ event.creator.username }}')">
         <img src="{{ event.cover_image.url }}" alt="Event cover" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
-          <span class="text-white font-bold text-lg">{{ event.creator.username }}</span>
+          <span class="text-white font-bold text-lg">{{ event.creator|display_name }}</span>
           <span class="text-gray-200 text-xs truncate">{{ event.title|truncatechars:40 }}</span>
         </div>
       </div>
@@ -91,16 +114,16 @@
 const mediaItems = [];
 // Collect all media items in order
 {% for post in fellowship_posts %}{% if post.image or post.video %}
-mediaItems.push({type:'post', id:{{ post.id }}, img:'{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', vid:'{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', text:`{{ post.content|escapejs }}`, author:'{{ post.author.username }}'});
+mediaItems.push({type:'post', id:{{ post.id }}, img:'{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', vid:'{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', text:`{{ post.content|escapejs }}`, author:'{{ post.author|display_name|escapejs }}'});
 {% endif %}{% endfor %}
 {% for post in posts %}{% if post.image or post.video %}
-mediaItems.push({type:'post', id:{{ post.id }}, img:'{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', vid:'{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', text:`{{ post.content|escapejs }}`, author:'{{ post.author.username }}'});
+mediaItems.push({type:'post', id:{{ post.id }}, img:'{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', vid:'{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', text:`{{ post.content|escapejs }}`, author:'{{ post.author|display_name|escapejs }}'});
 {% endif %}{% endfor %}
 {% for event in fellowship_events %}{% if event.cover_image %}
-mediaItems.push({type:'event', id:{{ event.id }}, img:'{{ event.cover_image.url }}', vid:'', text:`{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, author:'{{ event.creator.username }}'});
+mediaItems.push({type:'event', id:{{ event.id }}, img:'{{ event.cover_image.url }}', vid:'', text:`{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, author:'{{ event.creator|display_name|escapejs }}'});
 {% endif %}{% endfor %}
 {% for event in events %}{% if event.cover_image %}
-mediaItems.push({type:'event', id:{{ event.id }}, img:'{{ event.cover_image.url }}', vid:'', text:`{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, author:'{{ event.creator.username }}'});
+mediaItems.push({type:'event', id:{{ event.id }}, img:'{{ event.cover_image.url }}', vid:'', text:`{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, author:'{{ event.creator|display_name|escapejs }}'});
 {% endif %}{% endfor %}
 
 let currentMediaIndex = 0;
