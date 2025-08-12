@@ -55,7 +55,7 @@
             </div>
         </div>
 
-        <!-- Posts Section -->
+        <!-- Posts Section (Horizontal Scroll) -->
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
             <h3 class="text-xl font-bold mb-4 text-indigo-700 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,10 +63,10 @@
                 </svg>
                 Fellowship Posts
             </h3>
-            
             {% if fellowship_posts %}
+            <div class="flex overflow-x-auto space-x-6 pb-4">
                 {% for post in fellowship_posts %}
-                <div class="border-b border-gray-200 py-6">
+                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 border border-indigo-100">
                     <div class="flex items-start gap-4">
                         <div class="flex-shrink-0">
                             {% if post.author.profile and post.author.profile.profile_image %}
@@ -82,13 +82,11 @@
                                 <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ post.fellowship.name }}</span>
                             </div>
                             <div class="mb-3 text-gray-700">{{ post.content|linebreaksbr }}</div>
-                            
                             {% if post.image %}
-                            <img src="{{ post.image.url }}" class="rounded-lg mb-3 max-w-full h-auto max-h-80 object-cover shadow-md" />
+                            <img src="{{ post.image.url }}" class="rounded-lg mb-3 max-w-full h-auto max-h-40 object-cover shadow-md" />
                             {% endif %}
-                            
                             {% if post.video %}
-                            <video controls class="rounded-lg mb-3 w-full max-h-80 shadow-md">
+                            <video controls class="rounded-lg mb-3 w-full max-h-40 shadow-md">
                                 <source src="{{ post.video.url }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -97,6 +95,7 @@
                     </div>
                 </div>
                 {% endfor %}
+            </div>
             {% else %}
                 <div class="text-center py-8 text-gray-500">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,7 +106,7 @@
             {% endif %}
         </div>
 
-        <!-- Events Section -->
+        <!-- Events Section (Horizontal Scroll) -->
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
             <h3 class="text-xl font-bold mb-4 text-indigo-700 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,10 +114,10 @@
                 </svg>
                 Fellowship Events
             </h3>
-            
             {% if fellowship_events %}
+            <div class="flex overflow-x-auto space-x-6 pb-4">
                 {% for event in fellowship_events %}
-                <div class="border-b border-gray-200 py-6">
+                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 border border-indigo-100">
                     <div class="flex items-start gap-4">
                         <div class="flex-shrink-0">
                             {% if event.creator.profile and event.creator.profile.profile_image %}
@@ -135,11 +134,9 @@
                             </div>
                             <h4 class="text-lg font-bold text-gray-800 mb-1">{{ event.title }}</h4>
                             <div class="mb-3 text-gray-700">{{ event.description|linebreaksbr }}</div>
-                            
                             {% if event.cover_image %}
-                            <img src="{{ event.cover_image.url }}" class="rounded-lg mb-3 max-w-full h-auto max-h-80 object-cover shadow-md" />
+                            <img src="{{ event.cover_image.url }}" class="rounded-lg mb-3 max-w-full h-auto max-h-40 object-cover shadow-md" />
                             {% endif %}
-                            
                             <div class="flex items-center text-sm text-gray-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -151,6 +148,7 @@
                     </div>
                 </div>
                 {% endfor %}
+            </div>
             {% else %}
                 <div class="text-center py-8 text-gray-500">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
