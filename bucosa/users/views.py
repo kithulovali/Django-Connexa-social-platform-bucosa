@@ -388,7 +388,20 @@ def follow_user(request, pk):
                 notification_type='follow',
                 message=f'{request.user} started following you.'
             )
-            
+            # Ensure the followed user appears in the follower's private messages list
+            from .models_private_message import PrivateMessage
+            from django.db.models import Q
+            exists = PrivateMessage.objects.filter(
+                (Q(sender=request.user) & Q(recipient=target_user)) |
+                (Q(sender=target_user) & Q(recipient=request.user))
+            ).exists()
+            if not exists:
+                PrivateMessage.objects.create(
+                    sender=request.user,
+                    recipient=target_user,
+                    content="",
+                    is_read=True
+                )
 
             
         # Clear relevant caches
