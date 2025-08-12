@@ -33,12 +33,12 @@
           {% for admin in group.admins.all %}
           <li class="flex items-center py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
             {% if admin.profile and admin.profile.profile_image %}
-              <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ admin.username }}">
+              <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ admin|display_name }}">
             {% else %}
-              <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ admin.username|first|upper }}</div>
+              <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ admin|display_name|first|upper }}</div>
             {% endif %}
             <div class="flex-1 min-w-0">
-              <span class="text-gray-800 text-sm font-medium truncate block">{{ admin.username }}</span>
+              <span class="text-gray-800 text-sm font-medium truncate block">{{ admin|display_name }}</span>
               <span class="text-xs text-blue-600 font-medium">Admin</span>
             </div>
           </li>

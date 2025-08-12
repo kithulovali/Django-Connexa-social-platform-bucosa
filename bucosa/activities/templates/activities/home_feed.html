@@ -406,13 +406,13 @@
         <div class="flex items-center justify-between p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
           <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             {% if u.profile and u.profile.profile_image %}
-            <img src="{{ u.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u.username }}">
+            <img src="{{ u.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u|display_name }}">
             {% else %}
-            <img src="{% static 'img/default.png' %}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u.username }}">
+            <img src="{% static 'img/default.png' %}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u|display_name }}">
             {% endif %}
             <div class="min-w-0 flex-1">
-              <div class="font-bold text-gray-800 truncate text-sm sm:text-base">{{ u.username }}</div>
-              <div class="text-gray-500 text-xs sm:text-sm truncate">@{{ u.username }}</div>
+              <div class="font-bold text-gray-800 truncate text-sm sm:text-base">{{ u|display_name }}</div>
+              <div class="text-gray-500 text-xs sm:text-sm truncate">{{ u.email }}</div>
             </div>
           </div>
           {% if user.is_authenticated and user not in u.followers.all %}
