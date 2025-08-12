@@ -278,7 +278,7 @@
                       <img src="{% static 'img/default.png' %}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
                     </a>
                     {% endif %}
-                    <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">@{{ u.username }}</a>
+                    <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ u|display_name }}</a>
                     <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ u.followers.count }} Followers</div>
                     {% if user.is_authenticated and user != u %}
                     <form action="{% url 'users:follow_user' u.id %}" method="post">
@@ -315,6 +315,9 @@
                     </a>
                     {% endif %}
                     <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ group.name }}</a>
+                    {% if group.creator %}
+                    <div class="text-xs text-gray-500 mt-1">By {{ group.creator|display_name }}</div>
+                    {% endif %}
                     <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ group.user_set.count }} Members</div>
                     {% if user.is_authenticated and user not in group.user_set.all %}
                     <form action="{% url 'users:join_group' group.id %}" method="post">
