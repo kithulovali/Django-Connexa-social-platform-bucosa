@@ -242,6 +242,10 @@ LOGGING = {
     },
 }
 
+# Site URL for absolute links in emails and notifications
+# Use environment variable for security on Railway; fallback to production URL for local dev
+SITE_URL = os.getenv('SITE_URL')
+
 # Channels/Redis config
 CHANNEL_LAYERS = {
     'default': {

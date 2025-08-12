@@ -28,6 +28,7 @@ def create_notification(sender, recipient, notification_type, message='', relate
             [recipient.email],
             fail_silently=True,
         )
+    return notification
 
 def send_custom_notification_email(notification, recipient):
     """
