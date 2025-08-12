@@ -57,7 +57,7 @@
             <!-- Profile Picture -->
             <div class="relative">
               <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                {{ u.username|first|upper }}
+                {{ u|display_name|first|upper }}
               </div>
               <div class="online-dot"></div>
             </div>
@@ -65,7 +65,7 @@
             <!-- Contact Info -->
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between">
-                <h3 class="font-medium text-gray-900 truncate">{{ u.username }}</h3>
+                <h3 class="font-medium text-gray-900 truncate">{{ u|display_name }}</h3>
                 <span class="text-xs text-gray-500">2:30 PM</span>
               </div>
               <div class="flex items-center justify-between mt-1">
