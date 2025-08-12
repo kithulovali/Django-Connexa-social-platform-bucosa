@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load display_name %}
 {% block content %}
 <div class="min-h-screen bg-gray-100">
   <!-- Mobile header with menu toggle -->
@@ -61,11 +62,11 @@
             {% for user in members %}
             <li class="flex items-center py-2 px-2 rounded-md hover:bg-gray-50">
               {% if user.profile and user.profile.profile_image %}
-                <img src="{{ user.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-3 flex-shrink-0" alt="{{ user.username }}">
+                <img src="{{ user.profile.profile_image.url }}" class="w-8 h-8 rounded-full mr-3 flex-shrink-0" alt="{{ user|display_name }}">
               {% else %}
-                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-3 flex-shrink-0">{{ user.username|first }}</div>
+                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold mr-3 flex-shrink-0">{{ user|display_name|first }}</div>
               {% endif %}
-              <span class="text-gray-800 text-sm truncate">{{ user.username }}</span>
+              <span class="text-gray-800 text-sm truncate">{{ user|display_name }}</span>
             </li>
             {% endfor %}
           </ul>

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load display_name %}
 {% block content %}
 <div class="container mx-auto py-8">
     <h2 class="text-2xl font-bold mb-2">Past Government: {{ gov.name }}</h2>
@@ -38,14 +39,14 @@
                     <td class="py-2 px-4 border-b text-center align-middle">
                         {% if member.user.profile.profile_image %}
                             <a href="{% url 'users:profile' member.user.id %}" target="_blank">
-                                <img src="{{ member.user.profile.profile_image.url }}" alt="{{ member.user.get_full_name|default:member.user.username }}" class="w-12 h-12 object-cover rounded-full border border-gray-300 shadow hover:scale-110 transition mx-auto">
+                                <img src="{{ member.user.profile.profile_image.url }}" alt="{{ member.user|display_name }}" class="w-12 h-12 object-cover rounded-full border border-gray-300 shadow hover:scale-110 transition mx-auto">
                             </a>
                         {% else %}
                             <span class="inline-block w-12 h-12 bg-gray-300 rounded-full mx-auto"></span>
                         {% endif %}
                     </td>
                     <td class="py-2 px-4 border-b text-center align-middle font-semibold text-blue-900">
-                        {{ member.user.get_full_name|default:member.user.username }}
+                        {{ member.user|display_name }}
                     </td>
                     <td class="py-2 px-4 border-b text-center align-middle text-gray-800">{{ member.ministry }}</td>
                     <td class="py-2 px-4 border-b text-center align-middle text-gray-800">{{ member.contact }}</td>

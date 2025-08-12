@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load display_name %}
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
   <div class="max-w-3xl mx-auto">
@@ -10,7 +11,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
           </svg>
-          <h2 class="text-xl font-bold text-white">Reposted Posts{% if profile_user %} by @{{ profile_user.username }}{% endif %}</h2>
+          <h2 class="text-xl font-bold text-white">Reposted Posts{% if profile_user %} by {{ profile_user|display_name }}{% endif %}</h2>
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@
       <tbody>
         {% for req in pending_requests %}
         <tr>
-          <td class="border px-4 py-2">{{ req.user.username }} ({{ req.user.email }})</td>
+          <td class="border px-4 py-2">{{ req.user|display_name }} ({{ req.user.email }})</td>
           <td class="border px-4 py-2">{{ req.requested_at }}</td>
           <td class="border px-4 py-2">
             <form method="post" style="display:inline;">

@@ -6,7 +6,7 @@
     <ul class="w-full">
       {% for user in suggestions %}
         <li class="flex items-center justify-between py-2 border-b">
-          <span class="font-semibold">{{ user.username }}</span>
+          <span class="font-semibold">{{ user|display_name }}</span>
           <a href="{% url 'users:follow_user' user.id %}" class="bg-sky-500 text-white px-4 py-2 rounded-full font-bold shadow hover:bg-sky-600 transition">Follow</a>
         </li>
       {% empty %}

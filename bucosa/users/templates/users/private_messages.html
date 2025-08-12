@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load display_name %}
 {% load user_extras %}
 {% block content %}
 <head>
@@ -103,10 +104,10 @@
         </button>
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center text-white font-semibold">
-            {{ other_user.username|first|upper }}
+            {{ other_user|display_name|first|upper }}
           </div>
           <div>
-            <h2 class="font-semibold text-white">{{ other_user.username }}</h2>
+            <h2 class="font-semibold text-white">{{ other_user|display_name }}</h2>
             <p class="text-xs text-blue-100">Online</p>
           </div>
         </div>

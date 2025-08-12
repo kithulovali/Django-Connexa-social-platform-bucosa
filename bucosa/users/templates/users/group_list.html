@@ -19,7 +19,7 @@
                 {% endif %}
                 <ul>
                     {% for user in group.user_set.all %}
-                        <li style="display: inline; margin-right: 8px;"><a href="{% url 'users:profile' user.id %}">{{ user.username }}</a></li>
+                        <li style="display: inline; margin-right: 8px;"><a href="{% url 'users:profile' user.id %}">{{ user|display_name }}</a></li>
                     {% endfor %}
                 </ul>
             </div>

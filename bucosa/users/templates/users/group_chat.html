@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load display_name %}
 
 {% block content %}
 <head>
@@ -94,14 +95,14 @@
           <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
             {% if msg.user != request.user %}
               {% if msg.user.profile and msg.user.profile.profile_image %}
-                <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end" alt="{{ msg.user.username }}">
+                <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end" alt="{{ msg.user|display_name }}">
               {% else %}
-                <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end">{{ msg.user.username|first|upper }}</div>
+                <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end">{{ msg.user|display_name|first|upper }}</div>
               {% endif %}
             {% endif %}
             <div class="flex-1 min-w-0">
               {% if msg.user != request.user %}
-                <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">{{ msg.user.username }}</div>
+                <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">{{ msg.user|display_name }}</div>
               {% endif %}
               <div class="{% if msg.user == request.user %}bg-blue-500 text-white ml-auto{% else %}bg-white border border-gray-200 text-gray-900{% endif %} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
                 <div class="message-content text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>

@@ -12,7 +12,7 @@
     <ul class="w-full">
       {% for user in users %}
         <li class="flex items-center justify-between py-2 border-b">
-          <span class="font-semibold">{{ user.username }}</span>
+          <span class="font-semibold">{{ user|display_name }}</span>
           <span class="text-xs text-gray-500">{{ user.profile.location }}</span>
           <a href="{% url 'users:profile' user.id %}" class="text-sky-600 underline font-semibold">View Profile</a>
         </li>

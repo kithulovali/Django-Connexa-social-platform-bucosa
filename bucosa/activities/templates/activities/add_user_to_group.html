@@ -9,7 +9,7 @@
     <ul>
         {% for user in users %}
             <li>
-                {{ user.username }}
+                {{ user|display_name }}
                 <form method="post" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="user_id" value="{{ user.id }}" />
@@ -22,4 +22,4 @@
     <p>No users found.</p>
 {% endif %}
 <a href="{% url 'group_admin' group.id %}">Back to Admin Panel</a>
-{% endblock %}
+                {{ user|display_name }}

@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% load display_name %}
+{% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <div class="container mx-auto py-8">
     <h2 class="text-2xl font-bold mb-4">Pending Join Requests</h2>
@@ -13,7 +16,7 @@
         <tbody>
             {% for req in join_requests %}
             <tr>
-                <td class="py-2 px-4 border-b">{{ req.user.get_full_name }} ({{ req.user.username }})</td>
+                <td class="py-2 px-4 border-b">{{ req.user|display_name }}</td>
                 <td class="py-2 px-4 border-b">{{ req.requested_at }}</td>
                 <td class="py-2 px-4 border-b">
                     <form method="post" class="inline">

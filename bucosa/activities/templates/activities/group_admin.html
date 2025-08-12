@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load display_name %}
 {% block content %}
 <div class="group-admin-container">
     <h2>Admin Panel for {{ group.name }}</h2>
@@ -11,7 +12,7 @@
     <ul>
         {% for admin in group_profile.admins.all %}
             <li>
-                <a href="{% url 'profile' admin.id %}">{{ admin.username }}</a>
+                    <a href="{% url 'profile' admin.id %}">{{ admin|display_name }}</a>
                 {% if admin != group_profile.creator and request.user == group_profile.creator %}
                     <form action="" method="post" style="display:inline;">
                         {% csrf_token %}
@@ -27,7 +28,7 @@
     <ul>
         {% for user in members %}
             <li>
-                <a href="{% url 'profile' user.id %}">{{ user.username }}</a>
+                <a href="{% url 'profile' user.id %}">{{ user|display_name }}</a>
                 {% if user != group_profile.creator %}
                     <a href="{% url 'remove_user_from_group' group.id user.id %}" style="color:red;">Remove</a>
                 {% endif %}

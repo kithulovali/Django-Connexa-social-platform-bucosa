@@ -14,7 +14,7 @@
     <h3 class="text-xl font-bold mb-2">Members ({{ members.count }})</h3>
     <div class="flex flex-wrap gap-2">
       {% for m in members %}
-        <span class="bg-gray-200 px-3 py-1 rounded-full text-gray-700">{{ m.user.username }}</span>
+  <span class="bg-gray-200 px-3 py-1 rounded-full text-gray-700">{{ m.user|display_name }}</span>
       {% endfor %}
     </div>
   </div>

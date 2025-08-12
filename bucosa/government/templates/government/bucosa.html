@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load display_name %}
 {% block content %}
 <!-- Banner Section -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -39,9 +40,9 @@
           <a href="{% url 'users:profile' req.user.id %}" target="_blank" class="group block">
             <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-indigo-200 shadow-lg group-hover:shadow-xl transition">
               {% if req.user.profile.profile_image %}
-                <img src="{{ req.user.profile.profile_image.url }}" alt="{{ req.user.get_full_name|default:req.user.username }}" class="w-full h-full object-cover" />
+                <img src="{{ req.user.profile.profile_image.url }}" alt="{{ req.user|display_name }}" class="w-full h-full object-cover" />
               {% else %}
-                <span class="text-2xl font-bold text-indigo-600">{{ req.user.get_full_name|default:req.user.username|slice:':1'|upper }}</span>
+                <span class="text-2xl font-bold text-indigo-600">{{ req.user|display_name|slice:':1'|upper }}</span>
               {% endif %}
             </div>
           </a>
@@ -108,14 +109,14 @@
                     <td class="py-2 px-4 border-b text-center align-middle">
                         {% if member.user.profile.profile_image %}
                             <a href="{% url 'users:profile' member.user.id %}" target="_blank">
-                                <img src="{{ member.user.profile.profile_image.url }}" alt="{{ member.name|default:member.user.get_full_name|default:member.user.username }}" class="w-12 h-12 object-cover rounded-full border border-gray-300 shadow hover:scale-110 transition mx-auto">
+                                <img src="{{ member.user.profile.profile_image.url }}" alt="{{ member.name|default:member.user|display_name }}" class="w-12 h-12 object-cover rounded-full border border-gray-300 shadow hover:scale-110 transition mx-auto">
                             </a>
                         {% else %}
                             <span class="inline-block w-12 h-12 bg-gray-300 rounded-full mx-auto"></span>
                         {% endif %}
                     </td>
                     <td class="py-2 px-4 border-b text-center align-middle font-semibold text-blue-900">
-                        {{ member.name|default:member.user.get_full_name|default:member.user.username }}
+                        {{ member.name|default:member.user|display_name }}
                     </td>
                     <td class="py-2 px-4 border-b text-center align-middle text-gray-800">{{ member.ministry }}</td>
                     <td class="py-2 px-4 border-b text-center align-middle text-gray-800">{{ member.contact }}</td>
