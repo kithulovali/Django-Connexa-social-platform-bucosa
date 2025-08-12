@@ -18,7 +18,8 @@ from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Prefetch
 from .models import Announcement
-from .tasks import send_announcement_notifications
+from django.core.mail import send_mail
+from django.conf import settings
 from django import forms
 
 # Announcement form
@@ -39,7 +40,26 @@ def create_announcement(request):
             announcement = form.save(commit=False)
             announcement.sender = request.user
             announcement.save()
-            send_announcement_notifications.delay(announcement.id)
+            # Send notifications and emails synchronously
+            users = User.objects.exclude(id=announcement.sender.id)
+            for user in users:
+                # In-app notification
+                create_notification(
+                    sender=announcement.sender,
+                    recipient=user,
+                    notification_type='other',
+                    message=f"{announcement.title}: {announcement.message}",
+                    related_object=announcement
+                )
+                # Email notification
+                if user.email:
+                    send_mail(
+                        f"New Announcement: {announcement.title}",
+                        announcement.message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                        fail_silently=True,
+                    )
             messages.success(request, 'Announcement sent to all users!')
             return redirect('home_activities')
     else:
