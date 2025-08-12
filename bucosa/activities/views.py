@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from notifications.utils import create_notification
+from notifications.utils import create_notification, send_custom_notification_email
 from django.utils import timezone
 from utils.mentions import extract_mentions
 from django.core.cache import cache
@@ -261,13 +261,15 @@ def create_post(request, group_id=None):
                 ).exclude(id=request.user.id).select_related('profile')
                 
                 for user in mentioned_users:
-                    create_notification(
+                    notification = create_notification(
                         sender=request.user,
                         recipient=user,
                         notification_type='mention',
                         message=f'You were mentioned by @{request.user.username}',
                         related_object=post
                     )
+                    if user.email:
+                        send_custom_notification_email(notification, user)
 
 
             # Clear cache
@@ -309,13 +311,15 @@ def create_event(request, group_id=None):
                 ).exclude(id=request.user.id).select_related('profile')
                 
                 for user in mentioned_users:
-                    create_notification(
+                    notification = create_notification(
                         sender=request.user,
                         recipient=user,
                         notification_type='mention',
                         message=f'You were mentioned in an event by @{request.user.username}',
                         related_object=event
                     )
+                    if user.email:
+                        send_custom_notification_email(notification, user)
 
 
             # Clear relevant caches
@@ -324,7 +328,7 @@ def create_event(request, group_id=None):
             
             return redirect('group_profile', pk=group.id) if group else redirect('users:profile', pk=request.user.id)
     else:
-        form = EventForm()
+        form
 
     return render(request, 'activities/create_event.html', {
         'form': form,
@@ -445,13 +449,15 @@ def add_user_to_group(request, group_id):
             user = get_object_or_404(User, id=user_id)
             group.user_set.add(user)
             # Notify user added to group
-            create_notification(
+            notification = create_notification(
                 sender=request.user,
                 recipient=user,
                 notification_type='group',
                 message=f'You were added to the group {group.name}.',
                 related_object=group
             )
+            if user.email:
+                send_custom_notification_email(notification, user)
             return redirect('group_admin', group_id=group.id)
     return render(request, 'activities/add_user_to_group.html', {
         'group': group,
@@ -467,13 +473,15 @@ def attend_event(request, event_id):
         event.attendees.add(request.user)
         # Notify event creator
         if event.creator != request.user:
-            create_notification(
+            notification = create_notification(
                 sender=request.user,
                 recipient=event.creator,
                 notification_type='event',
                 message=f'{request.user} is attending your event: {event.title}',
                 related_object=event
             )
+            if event.creator.email:
+                send_custom_notification_email(notification, event.creator)
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required
@@ -483,13 +491,15 @@ def register_event(request, event_id):
         event.registered_users.add(request.user)
         # Notify event creator
         if event.creator != request.user:
-            create_notification(
+            notification = create_notification(
                 sender=request.user,
                 recipient=event.creator,
                 notification_type='event_registration',
                 message=f'{request.user.get_full_name() or request.user.username} registered for your event: {event.title}',
                 related_object=event
             )
+            if event.creator.email:
+                send_custom_notification_email(notification, event.creator)
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required
@@ -544,13 +554,15 @@ def add_comment(request, post_id):
 
         # Notify post author if different from commenter
         if post.author != request.user:
-            create_notification(
+            notification = create_notification(
                 sender=request.user,
                 recipient=post.author,
                 notification_type='comment',
                 message=f'{request.user.username} commented: {comment.content[:50]}',
                 related_object=comment
             )
+            if post.author.email:
+                send_custom_notification_email(notification, post.author)
 
         # Process mentions
         mentioned_usernames = extract_mentions(comment.content)
@@ -560,13 +572,15 @@ def add_comment(request, post_id):
             ).exclude(id=request.user.id).select_related('profile')
             
             for user in mentioned_users:
-                create_notification(
+                notification = create_notification(
                     sender=request.user,
                     recipient=user,
                     notification_type='mention',
                     message=f'You were mentioned in a comment by @{request.user.username}',
                     related_object=comment
                 )
+                if user.email:
+                    send_custom_notification_email(notification, user)
 
 
     return redirect(request.META.get('HTTP_REFERER', 'home'))
@@ -587,13 +601,15 @@ def like_post(request, post_id):
     else:
         liked = True
         if post.author != request.user:
-            create_notification(
+            notification = create_notification(
                 sender=request.user,
                 recipient=post.author,
                 notification_type='like',
                 message=f'{request.user.username} liked your post',
                 related_object=post
             )
+            if post.author.email:
+                send_custom_notification_email(notification, post.author)
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
@@ -615,13 +631,15 @@ def save_post(request, post_id):
         saved = True
         # Notify post author (if not self)
         if post.author != request.user:
-            create_notification(
+            notification = create_notification(
                 sender=request.user,
                 recipient=post.author,
                 notification_type='save',
                 message=f'{request.user} saved your post.',
                 related_object=post
             )
+            if post.author.email:
+                send_custom_notification_email(notification, post.author)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'saved': saved, 'count': post.saves.count()})
     return redirect(request.META.get('HTTP_REFERER', 'home'))
@@ -632,13 +650,15 @@ def share_post(request, post_id):
     Share.objects.create(user=request.user, post=post)
     # Notify post author (if not self)
     if post.author != request.user:
-        create_notification(
+        notification = create_notification(
             sender=request.user,
             recipient=post.author,
             notification_type='share',
             message=f'{request.user} shared your post.',
             related_object=post
         )
+        if post.author.email:
+            send_custom_notification_email(notification, post.author)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'shared': True, 'count': post.shares.count()})
     messages.success(request, 'Post shared!')
@@ -660,13 +680,15 @@ def repost_post(request, post_id):
     repost = Post.objects.create(author=request.user, repost_of=original)
     # Notify original post author (if not self)
     if original.author != request.user:
-        create_notification(
+        notification = create_notification(
             sender=request.user,
             recipient=original.author,
             notification_type='repost',
             message=f'{request.user} reposted your post.',
             related_object=repost
         )
+        if original.author.email:
+            send_custom_notification_email(notification, original.author)
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 @login_required

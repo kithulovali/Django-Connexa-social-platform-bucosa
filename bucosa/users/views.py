@@ -35,6 +35,8 @@ from .forms import profileForm, ProfileUpdateForm, GroupCreateForm, GroupProfile
 from .models import user_profile, GroupProfile, user_following
 from .models_block_report import UserBlock, UserReport
 from .models_group_message import GroupMessage
+from notifications.utils import create_notification, send_custom_notification_email
+from django.core.mail import send_mail
 from .models_private_message import PrivateMessage
 from activities.models import Post, Event, Repost, Save
 
@@ -141,6 +143,16 @@ def register_user(request):
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
+            # Send welcome email
+            if user.email:
+                full_name = f"{user.first_name} {user.last_name}".strip() or user.username
+                send_mail(
+                    'Welcome to Bucosa!',
+                    f'{full_name}, welcome to Bucosa!',
+                    None,
+                    [user.email],
+                    fail_silently=True,
+                )
             return redirect('users:login')
         else :
             messages.error(request ,'Registration failed please try again!')
@@ -760,6 +772,16 @@ def private_messages(request, user_id=None):
                 file=file,
                 is_read=False
             )
+            # Send notification and email
+            notification = create_notification(
+                sender=request.user,
+                recipient=other_user,
+                notification_type='message',
+                message=f'New private message from {request.user.username}',
+                related_object=msg
+            )
+            if other_user.email:
+                send_custom_notification_email(notification, other_user)
             
             # WebSocket and notifications
             channel_layer = get_channel_layer()
