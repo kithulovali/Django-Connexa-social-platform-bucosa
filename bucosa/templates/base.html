@@ -95,12 +95,10 @@
           <div class="nav-item-indicator"></div>
         </a>
         <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">notifications_none</span>
+          <div class="nav-item-content" style="position:relative;">
+            <span class="material-icons nav-icon" id="notif-bell">notifications_none</span>
             <span class="nav-label">Notifications</span>
-            {% if request.user.notifications.unread.count > 0 %}
-            <span class="notification-badge">{{ request.user.notifications.unread.count }}</span>
-            {% endif %}
+            <span class="notification-badge" id="notif-badge" style="{% if request.user.notifications.unread.count == 0 %}display:none;{% endif %};position:absolute;top:0.5rem;right:0.5rem;">{{ request.user.notifications.unread.count }}</span>
           </div>
           <div class="nav-item-indicator"></div>
         </a>
@@ -379,6 +377,91 @@
           toast.classList.add('show');
         }, 100);
         
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, 5000);
+      }
+    }
+  </script>
+  <style>
+    .notification-badge {
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: bold;
+      border-radius: 9999px;
+      padding: 0.2em 0.6em;
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .notification-toast {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: #fff;
+      color: #22223b;
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 16px 0 rgba(0,0,0,0.12);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      transform: translateY(-20px);
+    }
+    .notification-toast.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .notification-toast .material-icons {
+      color: #2563eb;
+      font-size: 2rem;
+    }
+  </style>
+  <script>
+    // Real-time notification badge and toast
+    if (window.USER_IS_AUTHENTICATED && window.location.pathname !== '/notifications/') {
+      const userId = {{ request.user.id|default:'null' }};
+      const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const wsPath = `${wsScheme}://${window.location.host}/ws/notifications/${userId}/`;
+      const notificationSocket = new WebSocket(wsPath);
+      notificationSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        // Update badge
+        const badge = document.getElementById('notif-badge');
+        let count = parseInt(badge.textContent) || 0;
+        badge.textContent = count + 1;
+        badge.style.display = 'inline-flex';
+        // Show toast
+        showToastNotification(data.message || 'New notification');
+      };
+      notificationSocket.onclose = function(e) {
+        setTimeout(() => {
+          if (window.USER_IS_AUTHENTICATED) {
+            new WebSocket(wsPath);
+          }
+        }, 5000);
+      };
+      function showToastNotification(message) {
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast';
+        toast.innerHTML = `
+          <div class="toast-content">
+            <span class="material-icons">notifications</span>
+            <p>${message}</p>
+          </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.classList.add('show'); }, 100);
         setTimeout(() => {
           toast.classList.remove('show');
           setTimeout(() => toast.remove(), 300);
