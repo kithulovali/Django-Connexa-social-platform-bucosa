@@ -64,7 +64,7 @@
                         </video>
                     </div>
                 {% endif %}
-                <div style="color:#888;font-size:0.95em;">By <a href="{% url 'profile' post.author.id %}">{{ post.author.username }}</a> on {{ post.created_at|timesince }} ago</div>
+                <div style="color:#888;font-size:0.95em;">By <a href="{% url 'profile' post.author.id %}">{{ post.author|display_name }}</a> on {{ post.created_at|timesince }} ago</div>
                 <a href="{% url 'edit_post' post.id %}">Edit</a>
                 <a href="{% url 'delete_post' post.id %}" style="color:red;">Delete</a>
             </li>

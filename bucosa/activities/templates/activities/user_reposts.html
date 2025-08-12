@@ -25,14 +25,14 @@
             <div class="p-4 border-b border-gray-100 flex items-start gap-4">
               <div class="flex-shrink-0">
                 {% if post.author.profile and post.author.profile.profile_image %}
-                  <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
+                  <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author|display_name }}'s Profile" class="w-12 h-12 rounded-full object-cover">
                 {% else %}
                   <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-12 h-12 rounded-full object-cover">
                 {% endif %}
               </div>
               <div class="flex-1">
                 <div class="font-bold text-blue-800">
-                  <a href="{% url 'users:profile' post.author.id %}" class="hover:underline">@{{ post.author.username }}</a>
+                  <a href="{% url 'users:profile' post.author.id %}" class="hover:underline">{{ post.author|display_name }}</a>
                 </div>
                 {% if post.repost_of %}
                   <div class="text-xs text-gray-500 mt-1">
@@ -40,7 +40,7 @@
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                       </svg>
-                      Reposted from <a href="{% url 'users:profile' post.repost_of.author.id %}" class="text-blue-600 hover:underline ml-1">@{{ post.repost_of.author.username }}</a>
+                      Reposted from <a href="{% url 'users:profile' post.repost_of.author.id %}" class="text-blue-600 hover:underline ml-1">{{ post.repost_of.author|display_name }}</a>
                     </span>
                   </div>
                 {% endif %}

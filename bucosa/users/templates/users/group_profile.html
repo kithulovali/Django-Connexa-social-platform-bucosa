@@ -164,14 +164,14 @@
               <div class="border border-gray-200 rounded-lg p-4 lg:p-6">
                 <div class="flex items-start space-x-3">
                   {% if post.author.profile and post.author.profile.profile_image %}
-                    <img src="{{ post.author.profile.profile_image.url }}" class="w-10 h-10 rounded-full flex-shrink-0" alt="{{ post.author.username }}">
+                    <img src="{{ post.author.profile.profile_image.url }}" class="w-10 h-10 rounded-full flex-shrink-0" alt="{{ post.author|display_name }}">
                   {% else %}
-                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold flex-shrink-0">{{ post.author.username|first }}</div>
+                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold flex-shrink-0">{{ post.author|display_name|first }}</div>
                   {% endif %}
                   <div class="flex-1 min-w-0">
                     <div class="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                       <div class="flex items-center space-x-2">
-                        <a href="{% url 'users:profile' post.author.id %}" class="font-medium text-gray-900 hover:underline text-sm lg:text-base">{{ post.author.username }}</a>
+                        <a href="{% url 'users:profile' post.author.id %}" class="font-medium text-gray-900 hover:underline text-sm lg:text-base">{{ post.author|display_name }}</a>
                         <span class="text-xs text-gray-500">{{ post.created_at|timesince }} ago</span>
                       </div>
                       {% if request.user in group_profile.admins.all or request.user == post.author %}

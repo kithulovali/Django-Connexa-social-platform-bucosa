@@ -78,14 +78,14 @@
                 <div>
                     <a href="{% url 'users:profile' post.author.id %}" class="profile-link">
                         {% if post.author.profile and post.author.profile.profile_image %}
-                            <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="profile-image">
+                            <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author|display_name }}'s Profile" class="profile-image">
                         {% else %}
                             <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="profile-image">
                         {% endif %}
                     </a>
                 </div>
                 <div style="flex:1;">
-                    <div style="font-weight:bold; font-size:1.05em;"><a href="{% url 'users:profile' post.author.id %}" class="profile-link">{{ post.author.username }}</a></div>
+                    <div style="font-weight:bold; font-size:1.05em;"><a href="{% url 'users:profile' post.author.id %}" class="profile-link">{{ post.author|display_name }}</a></div>
                     <div>{{ post.content }}</div>
                     {% if post.image %}
                         <img src="{{ post.image.url }}" alt="Post Image" class="rounded mb-2" style="max-width:220px; max-height:180px;">
@@ -96,7 +96,7 @@
                             Your browser does not support the video tag.
                         </video>
                     {% endif %}
-                    <div style="color:#888;font-size:0.95em;">By <a href="{% url 'users:profile' post.author.id %}">{{ post.author.username }}</a> on {{ post.created_at|timesince }} ago</div>
+                    <div style="color:#888;font-size:0.95em;">By <a href="{% url 'users:profile' post.author.id %}">{{ post.author|display_name }}</a> on {{ post.created_at|timesince }} ago</div>
                     {% if post.can_edit %}
                         <a href="{% url 'activities:edit_post' post.id %}">Edit</a>
                         <a href="{% url 'activities:delete_post' post.id %}">Delete</a>

@@ -37,6 +37,7 @@ from .models_block_report import UserBlock, UserReport
 from .models_group_message import GroupMessage
 from notifications.utils import create_notification, send_custom_notification_email
 from django.core.mail import send_mail
+from .utils import get_display_name
 from .models_private_message import PrivateMessage
 from activities.models import Post, Event, Repost, Save
 
@@ -145,10 +146,10 @@ def register_user(request):
             user.save()
             # Send welcome email
             if user.email:
-                full_name = f"{user.first_name} {user.last_name}".strip() or user.username
+                display_name = get_display_name(user)
                 send_mail(
                     'Welcome to Bucosa!',
-                    f'{full_name}, welcome to Bucosa!',
+                    f'{display_name}, welcome to Bucosa!',
                     None,
                     [user.email],
                     fail_silently=True,

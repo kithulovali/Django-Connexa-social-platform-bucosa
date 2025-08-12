@@ -70,14 +70,14 @@
                     <div class="flex items-start gap-4">
                         <div class="flex-shrink-0">
                             {% if post.author.profile and post.author.profile.profile_image %}
-                                <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
+                                <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author|display_name }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
                             {% else %}
                                 <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
                             {% endif %}
                         </div>
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="font-semibold text-indigo-700">{{ post.author.username }}</span>
+                                <span class="font-semibold text-indigo-700">{{ post.author|display_name }}</span>
                                 <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
                                 <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ post.fellowship.name }}</span>
                             </div>

@@ -2,6 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Notification
+from users.utils import get_display_name
 
 def create_notification(sender, recipient, notification_type, message='', related_object=None):
     content_type = None
@@ -40,22 +41,22 @@ def send_custom_notification_email(notification, recipient):
     # Example: customize for different notification types and roles
     if notification.notification_type == 'comment':
         subject = f"New Comment on Your Post"
-        message = f"Hi {recipient.get_full_name() or recipient.username},\n\nYou have a new comment: {notification.message}\n\nView it here: {url}"
+        message = f"Hi {get_display_name(recipient)},\n\nYou have a new comment: {notification.message}\n\nView it here: {url}"
     elif notification.notification_type == 'like':
         subject = f"Your Post Was Liked!"
-        message = f"Hi {recipient.get_full_name() or recipient.username},\n\n{notification.sender.username} liked your post.\n\nView it here: {url}"
+        message = f"Hi {get_display_name(recipient)},\n\n{get_display_name(notification.sender)} liked your post.\n\nView it here: {url}"
     elif notification.notification_type == 'mention':
         subject = f"You Were Mentioned!"
-        message = f"Hi {recipient.get_full_name() or recipient.username},\n\nYou were mentioned: {notification.message}\n\nView it here: {url}"
+        message = f"Hi {get_display_name(recipient)},\n\nYou were mentioned: {notification.message}\n\nView it here: {url}"
     elif notification.notification_type == 'group':
         subject = f"Group Update"
-        message = f"Hi {recipient.get_full_name() or recipient.username},\n\n{notification.message}\n\nView group: {url}"
+        message = f"Hi {get_display_name(recipient)},\n\n{notification.message}\n\nView group: {url}"
     elif notification.notification_type == 'message':
         subject = f"New Private Message"
-        message = f"Hi {recipient.get_full_name() or recipient.username},\n\nYou have a new private message from {notification.sender.username}.\n\nView it here: {url}"
+        message = f"Hi {get_display_name(recipient)},\n\nYou have a new private message from {get_display_name(notification.sender)}.\n\nView it here: {url}"
     else:
         subject = f"Notification from Bucosa"
-        message = f"Hi {recipient.get_full_name() or recipient.username},\n\n{notification.message}\n\nView it here: {url}"
+        message = f"Hi {get_display_name(recipient)},\n\n{notification.message}\n\nView it here: {url}"
     # You can further customize based on recipient roles (e.g., is_superuser, is_staff)
     if hasattr(recipient, 'is_superuser') and recipient.is_superuser:
         subject = "[ADMIN] " + subject

@@ -19,7 +19,7 @@
                 <span class="material-icons text-base">repeat</span>
                 <span>Reposted from</span>
                 <a href="{% url 'users:profile' item.data.repost_of.author.id %}" class="font-medium hover:text-blue-500">
-                  @{{ item.data.repost_of.author.username }}
+                  {{ item.data.repost_of.author|display_name }}
                 </a>
               </div>
               <!-- Original post content -->
@@ -41,7 +41,7 @@
                     <div class="flex items-center gap-2 flex-wrap">
                       <a href="{% url 'users:profile' item.data.repost_of.author.id %}" 
                         class="font-bold text-gray-800 hover:text-black truncate text-sm sm:text-base">
-                        @{{ item.data.repost_of.author.username }}
+                        {{ item.data.repost_of.author|display_name }}
                       </a>
                       <span class="text-gray-500 text-sm">·</span>
                       <time class="text-gray-500 text-xs sm:text-sm">{{ item.data.repost_of.created_at|timesince }} ago</time>
@@ -98,7 +98,7 @@
                 <div class="flex items-center gap-2 flex-wrap mb-1">
                   <a href="{% url 'users:profile' item.data.author.id %}" 
                     class="font-bold text-gray-900 text-base sm:text-lg">
-                    @{{ item.data.author.username }}
+                    {{ item.data.author|display_name }}
                   </a>
                   <span class="text-gray-500">·</span>
                   <time class="text-gray-500 text-xs sm:text-sm">{{ item.data.created_at|timesince }} ago</time>
@@ -210,7 +210,7 @@
                   {% endif %}
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                      <a href="{% url 'users:profile' comment.author.id %}" class="font-semibold text-gray-800 text-sm sm:text-base">{{ comment.author.username }}</a>
+                      <a href="{% url 'users:profile' comment.author.id %}" class="font-semibold text-gray-800 text-sm sm:text-base">{{ comment.author|display_name }}</a>
                       <span class="text-gray-500 text-xs sm:text-sm">·</span>
                       <time class="text-gray-500 text-xs sm:text-sm">{{ comment.created_at|timesince }} ago</time>
                     </div>

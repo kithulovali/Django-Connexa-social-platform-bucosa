@@ -281,7 +281,7 @@
               {% else %}
                 <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                   <div class="text-center p-4">
-                    <div class="text-gray-600 text-sm font-medium mb-2">{{ post.author.username }}</div>
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ post.author|display_name }}</div>
                     <div class="text-gray-800 text-xs leading-tight">{{ post.content|truncatechars:100 }}</div>
                   </div>
                 </div>
@@ -314,7 +314,7 @@
               {% else %}
                 <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                   <div class="text-center p-4">
-                    <div class="text-gray-600 text-sm font-medium mb-2">{{ repost.post.author.username }}</div>
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ repost.post.author|display_name }}</div>
                     <div class="text-gray-800 text-xs leading-tight">{{ repost.post.content|truncatechars:100 }}</div>
                   </div>
                 </div>
@@ -348,7 +348,7 @@
               {% else %}
                 <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                   <div class="text-center p-4">
-                    <div class="text-gray-600 text-sm font-medium mb-2">{{ post.author.username }}</div>
+                    <div class="text-gray-600 text-sm font-medium mb-2">{{ post.author|display_name }}</div>
                     <div class="text-gray-800 text-xs leading-tight">{{ post.content|truncatechars:100 }}</div>
                   </div>
                 </div>

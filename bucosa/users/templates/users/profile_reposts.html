@@ -6,7 +6,7 @@
       <div class="flex items-center gap-4 mb-2">
         {% if repost.post.author.profile and repost.post.author.profile.profile_image %}
           <a href="{% url 'users:profile' repost.post.author.id %}">
-            <img src="{{ repost.post.author.profile.profile_image.url }}" alt="{{ repost.post.author.username }}'s Profile" class="w-12 h-12 rounded-full object-cover">
+            <img src="{{ repost.post.author.profile.profile_image.url }}" alt="{{ repost.post.author|display_name }}'s Profile" class="w-12 h-12 rounded-full object-cover">
           </a>
         {% else %}
           <a href="{% url 'users:profile' repost.post.author.id %}">
@@ -14,7 +14,7 @@
           </a>
         {% endif %}
         <div class="flex-1 min-w-0">
-          <a href="{% url 'users:profile' repost.post.author.id %}" class="font-bold text-white hover:underline">{{ repost.post.author.username }}</a>
+          <a href="{% url 'users:profile' repost.post.author.id %}" class="font-bold text-white hover:underline">{{ repost.post.author|display_name }}</a>
           <span class="text-xs text-gray-400">· {{ repost.created_at|timesince }} ago</span>
           <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold">Repost</span>
         </div>
