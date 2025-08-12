@@ -10,7 +10,7 @@
 </form>
 
 {# User Results #}
-{% if users %}
+{% if query and users %}
 <div class="mb-8">
   <h3 class="text-lg font-semibold mb-3">Users</h3>
   <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -31,11 +31,12 @@
 </div>
 {% endif %}
 
+{% if query %}
 <div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
   {# Fellowship Posts with Images/Videos #}
   {% for post in fellowship_posts %}
     {% if post.image or post.video %}
-      <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('post', {{ post.id }}, '{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', '{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', `{{ post.content|escapejs }}`, '{{ post.author.username }}')">
+  <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('post', {{ post.id }}, '{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', '{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', `{{ post.content|escapejs }}`, '{{ post.author|display_name|escapejs }}')">
         {% if post.image %}
           <img src="{{ post.image.url }}" alt="Post image" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
         {% elif post.video %}
@@ -62,7 +63,7 @@
           </video>
         {% endif %}
         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
-          <span class="text-white font-bold text-lg">{{ post.author.username }}</span>
+          <span class="text-white font-bold text-lg">{{ post.author|display_name }}</span>
           <span class="text-gray-200 text-xs truncate">{{ post.content|truncatechars:40 }}</span>
         </div>
       </div>
@@ -71,7 +72,7 @@
   {# Fellowship Events with Cover Images #}
   {% for event in fellowship_events %}
     {% if event.cover_image %}
-      <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('event', {{ event.id }}, '{{ event.cover_image.url }}', '', `{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, '{{ event.creator.username }}')">
+  <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('event', {{ event.id }}, '{{ event.cover_image.url }}', '', `{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, '{{ event.creator|display_name|escapejs }}')">
         <img src="{{ event.cover_image.url }}" alt="Event cover" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
           <span class="text-white font-bold text-lg">{{ event.creator|display_name }}</span>
@@ -86,13 +87,15 @@
       <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('event', {{ event.id }}, '{{ event.cover_image.url }}', '', `{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, '{{ event.creator.username }}')">
         <img src="{{ event.cover_image.url }}" alt="Event cover" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
-          <span class="text-white font-bold text-lg">{{ event.creator.username }}</span>
+          <span class="text-white font-bold text-lg">{{ event.creator|display_name }}</span>
           <span class="text-gray-200 text-xs truncate">{{ event.title|truncatechars:40 }}</span>
         </div>
       </div>
     {% endif %}
   {% endfor %}
+
 </div>
+{% endif %}
 
 <!-- Modal for media preview -->
 <div id="mediaModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 hidden">
