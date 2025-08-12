@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
-import json
-import ssl
+
 
 # Load environment variables
 load_dotenv()
@@ -201,13 +200,13 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 # Email configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT', 587)
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@connexa.com')
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # PWA Settings
 PWA_APP_NAME = 'Connexa'
@@ -255,20 +254,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-# Celery SSL config for Redis (Upstash, Railway, etc.)
-CELERY_BROKER_USE_SSL = {
-    'ssl_cert_reqs': ssl.CERT_REQUIRED
-}
-CELERY_REDIS_BACKEND_USE_SSL = {
-    'ssl_cert_reqs': ssl.CERT_REQUIRED
-}
 
 
-# Celery configuration for Railway Redis broker
-CELERY_BROKER_URL = os.environ.get('RAILWAY_REDIS_URL')
-CELERY_RESULT_BACKEND = os.environ.get('RAILWAY_REDIS_URL')
-print("CELERY_BROKER_URL (Railway):", CELERY_BROKER_URL)
-print("CELERY_RESULT_BACKEND (Railway):", CELERY_RESULT_BACKEND)
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+

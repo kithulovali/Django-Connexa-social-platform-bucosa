@@ -33,17 +33,22 @@ def create_announcement(request):
     if not request.user.is_superuser:
         messages.error(request, 'You do not have permission to send announcements.')
         return redirect('home_activities')
+
     if request.method == 'POST':
         form = AnnouncementForm(request.POST)
         if form.is_valid():
             announcement = form.save(commit=False)
             announcement.sender = request.user
             announcement.save()
-            send_announcement_notifications.delay(announcement.id)
+
+            # Send announcement emails synchronously
+            send_announcement_notifications(announcement.id)
+
             messages.success(request, 'Announcement sent to all users!')
             return redirect('home_activities')
     else:
         form = AnnouncementForm()
+
     return render(request, 'activities/create_announcement.html', {'form': form})
 # Create your views here.
 from itertools import cycle
