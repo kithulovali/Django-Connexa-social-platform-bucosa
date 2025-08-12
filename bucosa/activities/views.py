@@ -33,7 +33,7 @@ def create_announcement(request):
     # Only allow superusers
     if not request.user.is_superuser:
         messages.error(request, 'You do not have permission to send announcements.')
-        return redirect('home_activities')
+        return redirect('activities:home')
     if request.method == 'POST':
         form = AnnouncementForm(request.POST)
         if form.is_valid():
@@ -61,7 +61,7 @@ def create_announcement(request):
                         fail_silently=True,
                     )
             messages.success(request, 'Announcement sent to all users!')
-            return redirect('home_activities')
+            return redirect('activities:home')
     else:
         form = AnnouncementForm()
     return render(request, 'activities/create_announcement.html', {'form': form})
