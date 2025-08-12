@@ -4,7 +4,11 @@ from . forms import  donationForm , fellowship_editForm
 from . models import fellowship_edit , donation , FellowshipMember , FellowshipPost , FellowshipEvent
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
-
+from django.core.mail import send_mail
+from django.conf import settings
+from notifications.models import Notification
+from django.contrib.auth.models import User
+from fellowship.models import FellowshipMember
 # Create your views here.
 @login_required
 def fellowship_view(request):
@@ -71,16 +75,26 @@ def create_fellowship_post(request, fellowship_id):
         image = request.FILES.get('image')
         video = request.FILES.get('video')
         if content:
-            post = FellowshipPost.objects.create(fellowship=fellowship, author=request.user, content=content, image=image, video=video)
-            from fellowship.models import FellowshipMember
-            from notifications.models import Notification
+           
             members = FellowshipMember.objects.filter(fellowship=fellowship).exclude(user=request.user)
             for member in members:
-                notification = Notification.objects.create(
+                Notification.objects.create(
                     sender=request.user,
                     recipient=member.user,
                     notification_type='other',
                     message=f'New post in {fellowship.name}.'
+                )
+            # Email all users with an email address (except the creator)
+            all_users = User.objects.exclude(id=request.user.id).exclude(email='').exclude(email__isnull=True)
+            site_url = request.build_absolute_uri('/')[:-1]  # Remove trailing slash
+            fellowship_url = request.build_absolute_uri(f'/fellowship/{fellowship.id}/')
+            for user in all_users:
+                send_mail(
+                    'Bucosa Fellowship Posted',
+                    f'{request.user.username} posted in {fellowship.name}:\n\n{content}\n\nView on site: {fellowship_url}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=True,
                 )
             return redirect('fellowship_detail', fellowship_id=fellowship.id)
     return render(request, 'fellowship/create_post.html', {'fellowship': fellowship})
@@ -106,15 +120,26 @@ def create_fellowship_event(request, fellowship_id):
                 end_time=end_time,
                 cover_image=cover_image
             )
-            from fellowship.models import FellowshipMember
-            from notifications.models import Notification
+            
             members = FellowshipMember.objects.filter(fellowship=fellowship).exclude(user=request.user)
             for member in members:
-                notification = Notification.objects.create(
+                Notification.objects.create(
                     sender=request.user,
                     recipient=member.user,
                     notification_type='other',
                     message=f'New event "{event.title}" in {fellowship.name}.'
+                )
+            # Email all users with an email address (except the creator)
+            all_users = User.objects.exclude(id=request.user.id).exclude(email='').exclude(email__isnull=True)
+            site_url = request.build_absolute_uri('/')[:-1]
+            fellowship_url = request.build_absolute_uri(f'/fellowship/{fellowship.id}/')
+            for user in all_users:
+                send_mail(
+                    'Join the Fellowship Event',
+                    f'{request.user.username} created an event in {fellowship.name}: {title}\n\nDescription: {description}\nLocation: {location}\nStart: {start_time}\nEnd: {end_time}\n\nJoin or view event: {fellowship_url}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=True,
                 )
     return render(request, 'fellowship/create_event.html', {'fellowship': fellowship})
 
