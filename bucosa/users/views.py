@@ -37,7 +37,7 @@ from .models_block_report import UserBlock, UserReport
 from .models_group_message import GroupMessage
 from .models_private_message import PrivateMessage
 from activities.models import Post, Event, Repost, Save
-from notifications.utils import create_notification
+
 from users.models import user_profile, user_following
 
 # API endpoint for unread private message count
@@ -547,21 +547,6 @@ def group_chat(request, pk):
                         }
                     }
                 )
-            
-            # Notifications for members
-            members = group.user_set.exclude(id=request.user.id)
-            for member in members:
-                create_notification(
-                    sender=request.user,
-                    recipient=member,
-                    notification_type='message',
-                    message=f'New group message in {group.name}: {content[:50]}',
-                    related_object=msg
-                )
-            
-            # Push notifications
-
-
     return render(request, 'users/group_chat.html', {
         'group': group, 
         'messages': GroupMessage.objects.filter(group=group)
@@ -791,19 +776,6 @@ def private_messages(request, user_id=None):
                     }
                 }
             )
-            
-            create_notification(
-                sender=request.user,
-                recipient=other_user,
-                notification_type='message',
-                message=content or 'You have a new message',
-                related_object=msg
-            )
-            
-
-
-
-
     context = {
         'other_user': other_user,
         'messages': messages_qs,
