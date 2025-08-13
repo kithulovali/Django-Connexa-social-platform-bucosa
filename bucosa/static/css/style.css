@@ -16,9 +16,28 @@ body {
       padding: 20px;
       padding-bottom: 120px; /* Space for mobile nav */
       min-height: calc(100vh - 120px);
-    }
+      padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
 
-    /* Mobile Navigation Styles */
+.bg-white.rounded-2xl {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* If you use a wrapper/container, make it full width */
+.container, .wrapper, .post-container {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Mobile Navigation Styles */
 #mobileNav {
   position: fixed;
   bottom: 0;
