@@ -74,12 +74,15 @@ class Post(models.Model):
     repost_of = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, 
                                 related_name='repost_children', db_index=True)
     
+    is_welcome_post = models.BooleanField(default=False, db_index=True)
+
     class Meta:
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['author', 'created_at']),
             models.Index(fields=['group', 'created_at']),
             models.Index(fields=['privacy', 'created_at']),
+            models.Index(fields=['is_welcome_post', 'created_at']),
         ]
 
     def __str__(self):

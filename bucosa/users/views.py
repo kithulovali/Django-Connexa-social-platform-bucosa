@@ -168,6 +168,14 @@ def register_user(request):
                     [user.email],
                     fail_silently=True,
                 )
+            # Create default welcome post
+            from activities.models import Post
+            Post.objects.create(
+                author=user,
+                content="👋 Welcome to Bucosa! We're excited to have you join our community. Feel free to explore, connect, and share your first post!",
+                privacy="PUBLIC",
+                is_welcome_post=True
+            )
             return redirect('users:login')
         else :
             messages.error(request ,'Registration failed please try again!')
@@ -1007,7 +1015,7 @@ def friend_suggestions(request):
     following_ids = request.user.following.values_list('following_user_id', flat=True)
     blocked_ids = UserBlock.objects.filter(blocker=request.user).values_list('blocked_id', flat=True)
     
-    suggestions = User.objects.exclude(
+    suggestions = User.objects.filter(is_active=True).exclude(
         id__in=list(following_ids) + [request.user.id] + list(blocked_ids)
     ).select_related().order_by('?')[:10]  # Random order
     

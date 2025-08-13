@@ -7,8 +7,8 @@ from .views import analytics_dashboard, private_messages, create_user_profile
 app_name = 'users'
 
 urlpatterns = [
-     path('login/' , views.login_user , name = 'login'),
-          path('admin_delete_user/<str:username>/', views.admin_delete_user, name='admin_delete_user'),
+    path('login/' , views.login_user , name = 'login'),
+    path('admin_delete_user/<str:username>/', views.admin_delete_user, name='admin_delete_user'),
     path('logout/' ,views.logout_user , name = 'logout'),
     path('register/', views.register_user , name ='register'),
     path('profile/<str:pk>/' , views.profile_user , name ='profile'),

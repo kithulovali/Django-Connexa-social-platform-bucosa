@@ -78,9 +78,12 @@ def home_activities(request):
     # --- 1. Fetch all the necessary data ---
     
     # Optimized base querysets
+    from django.utils import timezone
+    now = timezone.now()
     posts = Post.objects.filter(group__isnull=True)\
                         .select_related('author', 'group')\
                         .prefetch_related('likes', 'comments__author')\
+                        .exclude(is_welcome_post=True, created_at__lt=now - timezone.timedelta(hours=24))\
                         .order_by('-created_at')[:20] # Limit initial posts
     
     # Get all discovery items
