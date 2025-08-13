@@ -183,7 +183,7 @@ def register_user(request):
             user.save()
             import logging
             logger = logging.getLogger(__name__)
-            # Send welcome email
+            # Send welcome email if user has email
             if user.email:
                 display_name = get_display_name(user)
                 try:
@@ -197,7 +197,7 @@ def register_user(request):
                     logger.info(f"Welcome email sent to {user.email}")
                 except Exception as e:
                     logger.error(f"Failed to send welcome email to {user.email}: {e}")
-            # Create default welcome post
+            # Always create default welcome post for every user
             from activities.models import Post
             try:
                 post = Post.objects.create(
