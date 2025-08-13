@@ -55,15 +55,15 @@
                 <div class="text-gray-600 text-sm">posts</div>
               </div>
               <div>
-                <a href="{% url 'users:followers_list' user.id %}" class="block px-2 py-1 rounded-lg transition hover:bg-blue-50 font-semibold text-base text-blue-700 hover:underline">
-                  <span class="font-semibold">{{ followers_count|default:0 }}</span>
-                  <span class="text-gray-600 text-sm ml-1">followers</span>
+                <a href="{% url 'users:followers_list' user.id %}" class="block hover:text-blue-700">
+                  <div class="font-semibold text-base">{{ followers_count|default:0 }}</div>
+                  <div class="text-gray-600 text-sm hover:text-blue-700">followers</div>
                 </a>
               </div>
               <div>
-                <a href="{% url 'users:following_list' user.id %}" class="block px-2 py-1 rounded-lg transition hover:bg-blue-50 font-semibold text-base text-blue-700 hover:underline">
-                  <span class="font-semibold">{{ following_count|default:0 }}</span>
-                  <span class="text-gray-600 text-sm ml-1">following</span>
+                <a href="{% url 'users:following_list' user.id %}" class="block hover:text-blue-700">
+                  <div class="font-semibold text-base">{{ following_count|default:0 }}</div>
+                  <div class="text-gray-600 text-sm hover:text-blue-700">following</div>
                 </a>
               </div>
             </div>
@@ -141,9 +141,12 @@
                     </a>
                   {% endif %}
                 {% else %}
-                  <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-md text-sm font-semibold transition">
-                    Follow
-                  </button>
+                  <form method="post" action="{% url 'users:follow_user' user.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-md text-sm font-semibold transition">
+                      Follow
+                    </button>
+                  </form>
                   <a href="{% url 'users:private_messages' user.id %}" class="bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-md text-sm font-semibold transition">
                     Message
                   </a>
@@ -157,14 +160,14 @@
                 <span class="font-semibold">{{ posts.count|default:0 }}</span>
                 <span class="text-gray-700">posts</span>
               </div>
-              <div class="flex items-center gap-1">
+              <a href="{% url 'users:followers_list' user.id %}" class="flex items-center gap-1 hover:text-blue-700">
                 <span class="font-semibold">{{ followers_count|default:0 }}</span>
-                <span class="text-gray-700">followers</span>
-              </div>
-              <div class="flex items-center gap-1">
+                <span class="text-gray-700 hover:text-blue-700">followers</span>
+              </a>
+              <a href="{% url 'users:following_list' user.id %}" class="flex items-center gap-1 hover:text-blue-700">
                 <span class="font-semibold">{{ following_count|default:0 }}</span>
-                <span class="text-gray-700">following</span>
-              </div>
+                <span class="text-gray-700 hover:text-blue-700">following</span>
+              </a>
             </div>
             
             <!-- Bio and Profile Info -->
