@@ -158,24 +158,34 @@ def register_user(request):
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
+            import logging
+            logger = logging.getLogger(__name__)
             # Send welcome email
             if user.email:
                 display_name = get_display_name(user)
-                send_mail(
-                    'Welcome to Bucosa!',
-                    f'{display_name}, welcome to Bucosa!',
-                    None,
-                    [user.email],
-                    fail_silently=True,
-                )
+                try:
+                    send_mail(
+                        'Welcome to Bucosa!',
+                        f'{display_name}, welcome to Bucosa!',
+                        None,
+                        [user.email],
+                        fail_silently=False,
+                    )
+                    logger.info(f"Welcome email sent to {user.email}")
+                except Exception as e:
+                    logger.error(f"Failed to send welcome email to {user.email}: {e}")
             # Create default welcome post
             from activities.models import Post
-            Post.objects.create(
-                author=user,
-                content="👋 Welcome to Bucosa! We're excited to have you join our community. Feel free to explore, connect, and share your first post!",
-                privacy="PUBLIC",
-                is_welcome_post=True
-            )
+            try:
+                post = Post.objects.create(
+                    author=user,
+                    content="👋 Welcome to Bucosa! We're excited to have you join our community. Feel free to explore, connect, and share your first post!",
+                    privacy="PUBLIC",
+                    is_welcome_post=True
+                )
+                logger.info(f"Welcome post created for user {user.username} (post id: {post.id})")
+            except Exception as e:
+                logger.error(f"Failed to create welcome post for user {user.username}: {e}")
             return redirect('users:login')
         else :
             messages.error(request ,'Registration failed please try again!')
