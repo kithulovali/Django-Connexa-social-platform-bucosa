@@ -55,13 +55,15 @@
                 <div class="text-gray-600 text-sm">posts</div>
               </div>
               <div>
-                <a href="{% url 'users:followers_list' user.id %}" class="font-semibold text-base text-blue-700 hover:underline">
-                  {{ followers_count|default:0 }} <span class="text-gray-600 text-sm">followers</span>
+                <a href="{% url 'users:followers_list' user.id %}" class="block px-2 py-1 rounded-lg transition hover:bg-blue-50 font-semibold text-base text-blue-700 hover:underline">
+                  <span class="font-semibold">{{ followers_count|default:0 }}</span>
+                  <span class="text-gray-600 text-sm ml-1">followers</span>
                 </a>
               </div>
               <div>
-                <a href="{% url 'users:following_list' user.id %}" class="font-semibold text-base text-blue-700 hover:underline">
-                  {{ following_count|default:0 }} <span class="text-gray-600 text-sm">following</span>
+                <a href="{% url 'users:following_list' user.id %}" class="block px-2 py-1 rounded-lg transition hover:bg-blue-50 font-semibold text-base text-blue-700 hover:underline">
+                  <span class="font-semibold">{{ following_count|default:0 }}</span>
+                  <span class="text-gray-600 text-sm ml-1">following</span>
                 </a>
               </div>
             </div>
