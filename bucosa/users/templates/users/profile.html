@@ -55,11 +55,11 @@
                 <div class="text-gray-600 text-sm">posts</div>
               </div>
               <div>
-                <div class="font-semibold text-base">{{ followers_count|default:0 }}</div>
+                <a href="{% url 'users:followers_list' user.id %}" class="font-semibold text-base text-blue-700 hover:underline">{{ followers_count|default:0 }}</a>
                 <div class="text-gray-600 text-sm">followers</div>
               </div>
               <div>
-                <div class="font-semibold text-base">{{ following_count|default:0 }}</div>
+                <a href="{% url 'users:following_list' user.id %}" class="font-semibold text-base text-blue-700 hover:underline">{{ following_count|default:0 }}</a>
                 <div class="text-gray-600 text-sm">following</div>
               </div>
             </div>

@@ -1,3 +1,17 @@
+# Show followers list
+from django.contrib.auth import get_user_model
+@login_required
+def followers_list(request, pk):
+    user = get_object_or_404(get_user_model(), id=pk)
+    followers = user.followers.all()
+    return render(request, 'users/followers_list.html', {'profile_user': user, 'followers': followers})
+
+# Show following list
+@login_required
+def following_list(request, pk):
+    user = get_object_or_404(get_user_model(), id=pk)
+    following = user.following.all()
+    return render(request, 'users/following_list.html', {'profile_user': user, 'following': following})
 # Admin-only delete user view
 from django.contrib.auth.decorators import user_passes_test
 
