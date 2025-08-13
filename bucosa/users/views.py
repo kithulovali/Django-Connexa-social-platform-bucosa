@@ -132,8 +132,10 @@ def followers_list(request, pk):
 @login_required
 def following_list(request, pk):
     user = get_object_or_404(get_user_model(), id=pk)
-    following = user.following.all()
-    return render(request, 'users/following_list.html', {'profile_user': user, 'following': following})
+    following_users = get_user_model().objects.filter(
+        id__in=user.following.values_list('following_user_id', flat=True)
+    ).distinct()
+    return render(request, 'users/following_list.html', {'profile_user': user, 'following': following_users})
 # Admin-only delete user view      
 #=============login view
 def login_user(request):
