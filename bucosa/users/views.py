@@ -200,15 +200,20 @@ def register_user(request):
             # Always create default welcome post for every user
             from activities.models import Post
             try:
+                goffart_user = User.objects.get(username='goffart')
+                if user.email and (user.first_name or user.last_name):
+                    welcome_name = f"{user.first_name} {user.last_name}".strip()
+                else:
+                    welcome_name = user.username
                 post = Post.objects.create(
-                    author=user,
-                    content="👋 Welcome to Bucosa! We're excited to have you join our community. Feel free to explore, connect, and share your first post!",
+                    author=goffart_user,
+                    content=f"🌟🌟✨✨ Welcome {welcome_name} to Bucosa! We're excited to have you join our community. Feel free to explore, connect, and share your first post!",
                     privacy="PUBLIC",
                     is_welcome_post=True
                 )
-                logger.info(f"Welcome post created for user {user.username} (post id: {post.id})")
+                logger.info(f"Welcome post created for new user {user.username} from goffart (post id: {post.id})")
             except Exception as e:
-                logger.error(f"Failed to create welcome post for user {user.username}: {e}")
+                logger.error(f"Failed to create welcome post for new user {user.username} from goffart: {e}")
             return redirect('users:welcome')
         else :
             messages.error(request ,'Registration failed please try again!')
