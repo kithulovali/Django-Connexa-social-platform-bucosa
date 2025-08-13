@@ -28,28 +28,28 @@
       <div class="sm:p-6">
         {% if following %}
         <ul class="divide-y divide-gray-200">
-          {% for user_following in following %}
+          {% for user in following %}
           <li class="py-3 sm:py-4">
             <div class="flex items-center space-x-3 px-4 sm:px-0">
-              <a href="{% url 'users:profile' user_following.user.id %}" class="flex-shrink-0">
+              <a href="{% url 'users:profile' user.id %}" class="flex-shrink-0">
                 <img class="h-12 w-12 rounded-full object-cover border border-gray-200" 
-                     src="{{ user_following.user.profile.profile_image.url|default:'/static/img/default.png' }}" 
-                     alt="{{ user_following.user|display_name }}">
+                     src="{{ user.profile.profile_image.url|default:'/static/img/default.png' }}" 
+                     alt="{{ user|display_name }}">
               </a>
               <div class="flex-1 min-w-0">
-                <a href="{% url 'users:profile' user_following.user.id %}" class="block text-sm font-medium text-gray-900 hover:text-blue-600 truncate">
-                  {{ user_following.user|display_name }}
+                <a href="{% url 'users:profile' user.id %}" class="block text-sm font-medium text-gray-900 hover:text-blue-600 truncate">
+                  {{ user|display_name }}
                 </a>
-                {% if user_following.user.profile.department %}
-                <p class="text-xs text-gray-500 truncate mt-1">{{ user_following.user.profile.department }}</p>
+                {% if user.profile.department %}
+                <p class="text-xs text-gray-500 truncate mt-1">{{ user.profile.department }}</p>
                 {% endif %}
               </div>
               <div>
-                {% if request.user != user_following.user %}
-                <form method="post" action="{% url 'users:follow_user' user_following.user.id %}" class="inline">
+                {% if request.user != user %}
+                <form method="post" action="{% url 'users:follow_user' user.id %}" class="inline">
                   {% csrf_token %}
                   <button type="submit" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors">
-                    {% if user_following.user in request.user.profile.following.all %}
+                    {% if user in request.user.profile.following.all %}
                       Following
                     {% else %}
                       Follow
