@@ -1,19 +1,10 @@
-# Welcome page for new users
 from django.views.decorators.http import require_http_methods
-# Handler for the Next button (if you want a separate view)
-@login_required
-@require_POST
-def welcome_next(request):
-    return redirect('home')  # Replace 'home' with your actual home page url name
-# Django core imports
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth import get_user_model, login, logout, authenticate, update_session_auth_hash
 import datetime
 from django.conf import settings
 import json
 from django.contrib import messages
-from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import (
@@ -22,6 +13,13 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView
 )
+
+# Welcome page for new users
+# Handler for the Next button (if you want a separate view)
+@login_required
+@require_http_methods(["POST"])
+def welcome_next(request):
+    return redirect('home')  # Replace 'home' with your actual home page url name
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q, Count, Max, Prefetch, Exists, OuterRef
