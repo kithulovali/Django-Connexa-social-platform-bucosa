@@ -1,4 +1,3 @@
-
 # Django core imports
 import datetime
 from django.conf import settings
@@ -849,6 +848,15 @@ def group_admin(request, pk):
         'members': members,
         'group_posts': group_posts,
     })
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()
+        messages.success(request, 'Your account has been deleted.')
+        return redirect('users:login')
+    return render(request, 'users/delete_account_confirm.html')
 
 #=========== create user profile view - OPTIMIZED
 @login_required
