@@ -180,31 +180,31 @@
       
       <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
         <div class="nav-item-content">
-          <span class="material-icons nav-icon">person_outline</span>
-          <span class="nav-label-mobile">Profile</span>
+          <span class="material-icons nav-icon" style="font-size: 22px;">person_outline</span>
+          <span class="nav-label-mobile">User</span>
         </div>
       </a>
 
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <div class="nav-item-content">
-          <img src="{% static 'img/more.png' %}"  class="mobile-menu-icon">
+          <img src="{% static 'img/more.png' %}"  class="mobile-menu-icon" style="width:22px;height:22px;">
           <span class="nav-label-mobile">More</span>
         </div>
       </a>
 
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
         <div class="nav-item-content" style="position:relative;">
-          <span class="material-icons nav-icon">chat_bubble_outline</span>
-          <span class="nav-label-mobile">Messages</span>
-          <span class="notification-badge message-badge-mobile" id="mobile-message-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
+          <span class="material-icons nav-icon" style="font-size: 22px;">chat_bubble_outline</span>
+          <span class="nav-label-mobile">Chats</span>
+          <span class="notification-badge message-badge-mobile" id="mobile-message-badge" style="display:none;position:absolute;top:-8px;right:-12px;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 7px;border-radius:999px;min-width:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:700;">0</span>
         </div>
       </a>
 
       <a href="{% url 'notifications:notifications_list' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="mobile-notifications">
         <div class="nav-item-content" style="position:relative;">
-          <span class="material-icons nav-icon">notifications_none</span>
+          <span class="material-icons nav-icon" style="font-size: 22px;">notifications_none</span>
           <span class="nav-label-mobile">Notifications</span>
-          <span class="notification-badge notif-badge-mobile" id="mobile-notif-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
+          <span class="notification-badge notif-badge-mobile" id="mobile-notif-badge" style="display:none;position:absolute;top:-8px;right:-12px;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 7px;border-radius:999px;min-width:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:700;">0</span>
         </div>
       </a>
     </div>

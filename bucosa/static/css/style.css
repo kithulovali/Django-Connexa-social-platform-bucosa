@@ -307,8 +307,8 @@ body {
 
     /* Mobile menu styles */
 .mobile-menu-icon {
-      width: 32px;
-      height: 32px;
+      width: 22px !important;
+      height: 22px !important;
       border-radius: 50%;
       object-fit: cover;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
