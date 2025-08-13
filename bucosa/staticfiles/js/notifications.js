@@ -36,6 +36,42 @@ function pollUnreadMessagesBadge() {
 
 if (window.USER_IS_AUTHENTICATED) {
   document.addEventListener('DOMContentLoaded', pollUnreadMessagesBadge);
+  document.addEventListener('DOMContentLoaded', pollUnreadNotificationsBadge);
+}
+
+// Poll unread notifications count and update badge
+function pollUnreadNotificationsBadge() {
+  function updateNotifBadge(count) {
+    // Desktop notification badge
+    const notifBadge = document.getElementById('notif-badge');
+    if (notifBadge) {
+      if (count > 0) {
+        notifBadge.textContent = count;
+        notifBadge.style.display = 'inline-block';
+      } else {
+        notifBadge.style.display = 'none';
+      }
+    }
+    // Mobile notification badge (if exists)
+    const mobileNotifBadge = document.getElementById('mobile-notif-badge');
+    if (mobileNotifBadge) {
+      if (count > 0) {
+        mobileNotifBadge.textContent = count;
+        mobileNotifBadge.style.display = 'inline-block';
+      } else {
+        mobileNotifBadge.style.display = 'none';
+      }
+    }
+  }
+
+  function fetchNotifCount() {
+    fetch('/notifications/api/unread_count/', { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(data => updateNotifBadge(data.unread_notifications_count))
+      .catch(() => {});
+  }
+  fetchNotifCount();
+  setInterval(fetchNotifCount, 10000); // every 10 seconds
 }
 
       // Toast function

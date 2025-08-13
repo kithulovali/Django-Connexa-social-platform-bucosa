@@ -98,7 +98,9 @@
           <div class="nav-item-content" style="position:relative;">
             <span class="material-icons nav-icon" id="notif-bell">notifications_none</span>
             <span class="nav-label">Notifications</span>
-            <span class="notification-badge" id="notif-badge" style="{% if request.user.notifications.unread.count == 0 %}display:none;{% endif %};position:absolute;top:0.5rem;right:0.5rem;">{{ request.user.notifications.unread.count }}</span>
+              <span class="notification-badge" id="notif-badge" style="{% if request.user.notifications.unread.count == 0 %}display:none;{% endif %};position:absolute;top:0.5rem;right:0.5rem;">{{ request.user.notifications.unread.count }}</span>
+              <!-- Mobile notification badge -->
+              <span class="notification-badge" id="mobile-notif-badge" style="display:none;position:absolute;top:0.5rem;left:1.5rem;">{{ request.user.notifications.unread.count }}</span>
           </div>
           <div class="nav-item-indicator"></div>
         </a>

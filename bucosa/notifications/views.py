@@ -36,6 +36,15 @@ def send_notification_view(request):
 
 # Mark all notifications as read (POST only)
 @login_required
+
+def api_unread_notifications_count(request):
+    """API endpoint to get unread notification count for the logged-in user."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'unread_notifications_count': 0})
+    count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+    return JsonResponse({'unread_notifications_count': count})
+
+@login_required
 def mark_notifications_read(request):
     if request.method == 'POST':
         request.user.notifications.filter(is_read=False).update(is_read=True)
