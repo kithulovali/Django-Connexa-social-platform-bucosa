@@ -1,33 +1,6 @@
-# Show followers list
-from django.contrib.auth import get_user_model
-@login_required
-def followers_list(request, pk):
-    user = get_object_or_404(get_user_model(), id=pk)
-    followers = user.followers.all()
-    return render(request, 'users/followers_list.html', {'profile_user': user, 'followers': followers})
-
-# Show following list
-@login_required
-def following_list(request, pk):
-    user = get_object_or_404(get_user_model(), id=pk)
-    following = user.following.all()
-    return render(request, 'users/following_list.html', {'profile_user': user, 'following': following})
-# Admin-only delete user view
-from django.contrib.auth.decorators import user_passes_test
-
-@user_passes_test(lambda u: u.is_superuser or u.is_staff)
-def admin_delete_user(request, username):
-    try:
-        target_user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        messages.error(request, f'No user found with username "{username}".')
-        return redirect('users:settings')
-    if request.method == 'POST':
-        target_user.delete()
-        messages.success(request, f'User {target_user.username} has been deleted.')
-        return redirect('users:settings')
-    return render(request, 'users/admin_delete_user_confirm.html', {'target_user': target_user})
 # Django core imports
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth import get_user_model
 import datetime
 from django.conf import settings
 import json
@@ -47,6 +20,7 @@ from django.db import transaction
 from django.db.models import Q, Count, Max, Prefetch, Exists, OuterRef
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
@@ -134,7 +108,33 @@ def get_or_create_user_profile(user):
         except ObjectDoesNotExist:
             # Fallback: Create without email
             return user_profile.objects.create(user=user, email='')
-        
+# Show followers list
+@user_passes_test(lambda u: u.is_superuser or u.is_staff)
+def admin_delete_user(request, username):
+    try:
+        target_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        messages.error(request, f'No user found with username "{username}".')
+        return redirect('users:settings')
+    if request.method == 'POST':
+        target_user.delete()
+        messages.success(request, f'User {target_user.username} has been deleted.')
+        return redirect('users:settings')
+    return render(request, 'users/admin_delete_user_confirm.html', {'target_user': target_user})
+
+@login_required
+def followers_list(request, pk):
+    user = get_object_or_404(get_user_model(), id=pk)
+    followers = user.followers.all()
+    return render(request, 'users/followers_list.html', {'profile_user': user, 'followers': followers})
+
+# Show following list
+@login_required
+def following_list(request, pk):
+    user = get_object_or_404(get_user_model(), id=pk)
+    following = user.following.all()
+    return render(request, 'users/following_list.html', {'profile_user': user, 'following': following})
+# Admin-only delete user view      
 #=============login view
 def login_user(request):
     if request.user.is_authenticated:
