@@ -1,3 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-blue-50">
+  <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+    <h1 class="text-3xl font-bold text-blue-700 mb-4">Welcome, {{ user.get_full_name|default:user.username }}!</h1>
+    <p class="text-lg text-gray-700 mb-6">We're excited to have you join Bucosa. Here you can connect, share, and discover amazing content with others.</p>
+    <div class="mb-6">
+      <p class="text-base text-gray-600">Some things you can do on Bucosa:</p>
+      <ul class="list-disc list-inside text-left text-gray-600 mt-2">
+        <li>Follow interesting people and groups</li>
+        <li>Share your thoughts and activities</li>
+        <li>Get real-time notifications</li>
+        <li>Discover trending posts and announcements</li>
+      </ul>
+    </div>
+    <form method="post" action="{% url 'users:welcome_next' %}">
+      {% csrf_token %}
+      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold text-lg hover:bg-blue-700 transition">Next</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
 <!DOCTYPE html>
 <html lang="en">
 <head>

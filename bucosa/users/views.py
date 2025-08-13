@@ -1,3 +1,18 @@
+# Welcome page for new users
+from django.views.decorators.http import require_http_methods
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def welcome(request):
+    if request.method == "POST":
+        return redirect('home')  # Replace 'home' with your actual home page url name
+    return render(request, 'users/welcome.html', {'user': request.user})
+
+# Handler for the Next button (if you want a separate view)
+@login_required
+@require_POST
+def welcome_next(request):
+    return redirect('home')  # Replace 'home' with your actual home page url name
 # Django core imports
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import get_user_model
@@ -202,7 +217,7 @@ def register_user(request):
                 logger.info(f"Welcome post created for user {user.username} (post id: {post.id})")
             except Exception as e:
                 logger.error(f"Failed to create welcome post for user {user.username}: {e}")
-            return redirect('users:login')
+            return redirect('users:welcome')
         else :
             messages.error(request ,'Registration failed please try again!')
     return render(request , 'users/register.html' , {'form': form})
