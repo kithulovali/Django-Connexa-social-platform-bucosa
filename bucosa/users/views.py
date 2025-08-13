@@ -201,14 +201,10 @@ def register_user(request):
             from activities.models import Post
             try:
                 goffart_user = User.objects.get(username='goffart')
-                if user.email and (user.first_name or user.last_name):
-                    welcome_name = f"{user.first_name} {user.last_name}".strip()
-                else:
-                    welcome_name = user.username
                 post = Post.objects.create(
                     author=goffart_user,
-                    content=f"🌟🌟✨✨ Welcome {welcome_name} to Bucosa! We're excited to have you join our community. Feel free to explore, connect, and share your first post!",
-                    privacy="PRIVATE",
+                    content=f"🌟🌟✨✨ Welcome {user.username} to Bucosa! We're excited to have you join our community. Feel free to explore, connect, and share your first post!",
+                    privacy="PUBLIC",
                     is_welcome_post=True
                 )
                 logger.info(f"Welcome post created for new user {user.username} from goffart (post id: {post.id})")
