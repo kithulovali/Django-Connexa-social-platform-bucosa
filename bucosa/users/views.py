@@ -208,7 +208,7 @@ def register_user(request):
                 post = Post.objects.create(
                     author=goffart_user,
                     content=f"🌟🌟✨✨ Welcome {welcome_name} to Bucosa! We're excited to have you join our community. Feel free to explore, connect, and share your first post!",
-                    privacy="PRIVATE",
+                    privacy="PUBLIC",
                     is_welcome_post=True
                 )
                 logger.info(f"Welcome post created for new user {user.username} from goffart (post id: {post.id})")
