@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white rounded-xl shadow-lg border border-red-200 p-8">
+    <h2 class="text-2xl font-bold text-red-700 mb-4">Delete User Account</h2>
+    <p class="mb-6 text-gray-700">Are you sure you want to delete the account for <span class="font-semibold">{{ target_user.username }}</span>? This action cannot be undone.</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow">Delete Account</button>
+      <a href="{% url 'users:settings' %}" class="block mt-4 text-center text-blue-600 hover:underline">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
