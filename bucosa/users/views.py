@@ -3,7 +3,11 @@ from django.contrib.auth.decorators import user_passes_test
 
 @user_passes_test(lambda u: u.is_superuser or u.is_staff)
 def admin_delete_user(request, username):
-    target_user = get_object_or_404(User, username=username)
+    try:
+        target_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        messages.error(request, f'No user found with username "{username}".')
+        return redirect('users:settings')
     if request.method == 'POST':
         target_user.delete()
         messages.success(request, f'User {target_user.username} has been deleted.')
