@@ -215,7 +215,7 @@ def register_user(request):
     return render(request , 'users/register.html' , {'form': form})
 
 #=============profile view - HEAVILY OPTIMIZED
-@login_required
+
 @require_http_methods(["GET", "POST"])
 def welcome(request):
     if request.method == "POST":
