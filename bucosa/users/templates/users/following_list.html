@@ -45,15 +45,11 @@
                 {% endif %}
               </div>
               <div>
-                {% if request.user != user %}
+                {% if request.user != user and user not in request.user.profile.following.all %}
                 <form method="post" action="{% url 'users:follow_user' user.id %}" class="inline">
                   {% csrf_token %}
                   <button type="submit" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors">
-                    {% if user in request.user.profile.following.all %}
-                      Following
-                    {% else %}
-                      Follow
-                    {% endif %}
+                    Follow
                   </button>
                 </form>
                 {% endif %}

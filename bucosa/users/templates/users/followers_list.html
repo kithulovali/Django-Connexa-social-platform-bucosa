@@ -48,13 +48,15 @@
                 {% if request.user != follower.user %}
                 <form method="post" action="{% url 'users:follow_user' follower.user.id %}" class="inline">
                   {% csrf_token %}
-                  <button type="submit" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors">
-                    {% if follower.user in request.user.profile.following.all %}
-                      Following
-                    {% else %}
-                      Follow
-                    {% endif %}
-                  </button>
+                   {% if request.user != follower.user and follower.user not in request.user.profile.following.all %}
+                     <button type="submit" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                       Follow
+                     </button>
+                   {% else %}
+                     <button type="button" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-300 bg-gray-200 cursor-not-allowed" disabled>
+                       Following
+                     </button>
+                   {% endif %}
                 </form>
                 {% endif %}
               </div>
