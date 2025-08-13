@@ -52,18 +52,7 @@
   </script>
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-300" id="body-root">
-
-  <!-- Loading Indicator -->
-  <div id="page-loader" class="page-loader">
-    <div class="loader-container">
-      <div class="loader-spinner"></div>
-      <div class="loader-text">Loading...</div>
-    </div>
-  </div>
-
-  <!-- Navigation Loading Bar -->
-  <div id="nav-loading-bar" class="nav-loading-bar"></div>
-
+  
   <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
     Install Bucosa App
   </button>
@@ -381,49 +370,7 @@
       }
     }
   </script>
-  <style>
-    .notification-badge {
-      background: #2563eb;
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: bold;
-      border-radius: 9999px;
-      padding: 0.2em 0.6em;
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-    .notification-toast {
-      position: fixed;
-      top: 1.5rem;
-      right: 1.5rem;
-      background: #fff;
-      color: #22223b;
-      border-radius: 0.75rem;
-      box-shadow: 0 2px 16px 0 rgba(0,0,0,0.12);
-      padding: 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s, transform 0.3s;
-      transform: translateY(-20px);
-    }
-    .notification-toast.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
-    }
-    .notification-toast .material-icons {
-      color: #2563eb;
-      font-size: 2rem;
-    }
-  </style>
+
   <script>
     // Real-time notification badge and toast
     if (window.USER_IS_AUTHENTICATED && window.location.pathname !== '/notifications/') {
