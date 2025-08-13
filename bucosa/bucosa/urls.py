@@ -6,7 +6,7 @@ from django.views.static import serve as static_serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('users.urls')),
+    path('', include(('users.urls', 'users'), namespace='users')),
     path('fellowship/', include('fellowship.urls')),
     path('government/', include('government.urls')),
     path('activities/', include(('activities.urls', 'activities'), namespace='activities')),
