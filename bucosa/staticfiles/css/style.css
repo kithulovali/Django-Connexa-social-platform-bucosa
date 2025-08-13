@@ -84,7 +84,23 @@ body {
       transition: all 0.3s ease;
     }
 
-    /* More button special styling */
+    /* Mobile navbar icon labels */
+.nav-label-mobile {
+  display: block;
+  font-size: 0.85rem;
+  color: #444;
+  text-align: center;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .nav-label-mobile {
+    display: none;
+  }
+}
+
+/* More button special styling */
 .nav-more-btn {
       background: #f8fafc;
       border: 2px solid #e2e8f0;

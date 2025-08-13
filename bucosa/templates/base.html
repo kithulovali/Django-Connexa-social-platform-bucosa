@@ -139,28 +139,32 @@
         <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">search</span>
+            <span class="nav-label-mobile">Search</span>
           </div>
         </a>
 
         <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
           <div class="nav-item-content">
             <span class="material-symbols-outlined nav-icon">church</span>
+            <span class="nav-label-mobile">Fellowship</span>
           </div>
         </a>
         <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">groups</span>
+            <span class="nav-label-mobile">Bucosa Main</span>
           </div>
         </a>
         <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">settings</span>
+            <span class="nav-label-mobile">Settings</span>
           </div>
         </a>
         <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">logout</span>
-            <span class="nav-label">Logout</span>
+            <span class="nav-label-mobile">Logout</span>
           </div>
         </a>
       </div>
@@ -170,24 +174,28 @@
       <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
         <div class="nav-item-content">
           <span class="material-icons nav-icon">home</span>
+          <span class="nav-label-mobile">Home</span>
         </div>
       </a>
       
       <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
         <div class="nav-item-content">
           <span class="material-icons nav-icon">person_outline</span>
+          <span class="nav-label-mobile">Profile</span>
         </div>
       </a>
 
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <div class="nav-item-content">
           <img src="{% static 'img/more.png' %}"  class="mobile-menu-icon">
+          <span class="nav-label-mobile">More</span>
         </div>
       </a>
 
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
         <div class="nav-item-content" style="position:relative;">
           <span class="material-icons nav-icon">chat_bubble_outline</span>
+          <span class="nav-label-mobile">Messages</span>
           <span class="notification-badge message-badge-mobile" id="mobile-message-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
         </div>
       </a>
@@ -195,6 +203,7 @@
       <a href="{% url 'notifications:notifications_list' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="mobile-notifications">
         <div class="nav-item-content" style="position:relative;">
           <span class="material-icons nav-icon">notifications_none</span>
+          <span class="nav-label-mobile">Notifications</span>
           <span class="notification-badge notif-badge-mobile" id="mobile-notif-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
         </div>
       </a>
