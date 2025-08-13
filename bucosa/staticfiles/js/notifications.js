@@ -1,37 +1,36 @@
 // Poll unread messages count and update badge
+
 function pollUnreadMessagesBadge() {
   function updateBadge(count) {
-    // Find the sidebar badge for messages (not notifications)
-    const sidebar = document.querySelector('.sidebar-nav');
-    if (!sidebar) return;
-    // Find the messages nav link
-    const msgLink = Array.from(sidebar.querySelectorAll('.nav-link')).find(link => link.dataset.page === 'messages');
-    if (!msgLink) return;
-    // Find or create the badge
-    let badge = msgLink.querySelector('.notification-badge');
-    if (!badge && count > 0) {
-      badge = document.createElement('span');
-      badge.className = 'notification-badge';
-      msgLink.querySelector('.nav-item-content').appendChild(badge);
-    }
-    if (badge) {
+    // Desktop
+    const desktopBadge = document.getElementById('desktop-message-badge');
+    if (desktopBadge) {
       if (count > 0) {
-        badge.textContent = count;
-        badge.style.display = 'inline-block';
+        desktopBadge.textContent = count;
+        desktopBadge.style.display = 'inline-flex';
       } else {
-        badge.style.display = 'none';
+        desktopBadge.style.display = 'none';
+      }
+    }
+    // Mobile
+    const mobileBadge = document.getElementById('mobile-message-badge');
+    if (mobileBadge) {
+      if (count > 0) {
+        mobileBadge.textContent = count;
+        mobileBadge.style.display = 'inline-flex';
+      } else {
+        mobileBadge.style.display = 'none';
       }
     }
   }
-
   function fetchCount() {
-  fetch('/api/unread_messages_count/', { credentials: 'same-origin' })
+    fetch('/api/unread_messages_count/', { credentials: 'same-origin' })
       .then(r => r.json())
       .then(data => updateBadge(data.unread_messages_count))
       .catch(() => {});
   }
   fetchCount();
-  setInterval(fetchCount, 10000); // every 10 seconds
+  setInterval(fetchCount, 10000);
 }
 
 if (window.USER_IS_AUTHENTICATED) {
@@ -40,30 +39,30 @@ if (window.USER_IS_AUTHENTICATED) {
 }
 
 // Poll unread notifications count and update badge
+
 function pollUnreadNotificationsBadge() {
   function updateNotifBadge(count) {
-    // Desktop notification badge
-    const notifBadge = document.getElementById('notif-badge');
-    if (notifBadge) {
+    // Desktop
+    const desktopBadge = document.getElementById('desktop-notif-badge');
+    if (desktopBadge) {
       if (count > 0) {
-        notifBadge.textContent = count;
-        notifBadge.style.display = 'inline-block';
+        desktopBadge.textContent = count;
+        desktopBadge.style.display = 'inline-flex';
       } else {
-        notifBadge.style.display = 'none';
+        desktopBadge.style.display = 'none';
       }
     }
-    // Mobile notification badge (if exists)
-    const mobileNotifBadge = document.getElementById('mobile-notif-badge');
-    if (mobileNotifBadge) {
+    // Mobile
+    const mobileBadge = document.getElementById('mobile-notif-badge');
+    if (mobileBadge) {
       if (count > 0) {
-        mobileNotifBadge.textContent = count;
-        mobileNotifBadge.style.display = 'inline-block';
+        mobileBadge.textContent = count;
+        mobileBadge.style.display = 'inline-flex';
       } else {
-        mobileNotifBadge.style.display = 'none';
+        mobileBadge.style.display = 'none';
       }
     }
   }
-
   function fetchNotifCount() {
     fetch('/notifications/api/unread_count/', { credentials: 'same-origin' })
       .then(r => r.json())
@@ -71,7 +70,7 @@ function pollUnreadNotificationsBadge() {
       .catch(() => {});
   }
   fetchNotifCount();
-  setInterval(fetchNotifCount, 10000); // every 10 seconds
+  setInterval(fetchNotifCount, 10000);
 }
 
       // Toast function

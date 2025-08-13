@@ -85,25 +85,21 @@
           <div class="nav-item-indicator"></div>
         </a>
         <a href="{% url 'users:private_messages' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">chat_bubble_outline</span>
-            <span class="nav-label">Messages</span>
-            {% if unread_messages_count > 0 %}
-            <span class="notification-badge">{{ unread_messages_count }}</span>
-            {% endif %}
-          </div>
-          <div class="nav-item-indicator"></div>
-        </a>
+           <div class="nav-item-content" style="position:relative;">
+             <span class="material-icons nav-icon">chat_bubble_outline</span>
+             <span class="nav-label">Messages</span>
+             <span class="notification-badge message-badge-desktop" id="desktop-message-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
+           </div>
+           <div class="nav-item-indicator"></div>
+         </a>
         <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
-          <div class="nav-item-content" style="position:relative;">
-            <span class="material-icons nav-icon" id="notif-bell">notifications_none</span>
-            <span class="nav-label">Notifications</span>
-              <span class="notification-badge" id="notif-badge" style="{% if request.user.notifications.unread.count == 0 %}display:none;{% endif %};position:absolute;top:0.5rem;right:0.5rem;">{{ request.user.notifications.unread.count }}</span>
-              <!-- Mobile notification badge -->
-              <span class="notification-badge" id="mobile-notif-badge" style="display:none;position:absolute;top:0.5rem;left:1.5rem;">{{ request.user.notifications.unread.count }}</span>
-          </div>
-          <div class="nav-item-indicator"></div>
-        </a>
+           <div class="nav-item-content" style="position:relative;">
+             <span class="material-icons nav-icon" id="notif-bell">notifications_none</span>
+             <span class="nav-label">Notifications</span>
+             <span class="notification-badge notif-badge-desktop" id="desktop-notif-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
+           </div>
+           <div class="nav-item-indicator"></div>
+         </a>
         <a href="{% url 'users:profile' user.id %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">person_outline</span>
@@ -201,17 +197,16 @@
       </a>
 
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
-        <div class="nav-item-content">
+        <div class="nav-item-content" style="position:relative;">
           <span class="material-icons nav-icon">chat_bubble_outline</span>
+          <span class="notification-badge message-badge-mobile" id="mobile-message-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
         </div>
       </a>
 
       <a href="{% url 'notifications:notifications_list' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="mobile-notifications">
-        <div class="nav-item-content">
+        <div class="nav-item-content" style="position:relative;">
           <span class="material-icons nav-icon">notifications_none</span>
-          {% if request.user.notifications.unread.count > 0 %}
-          <span class="notification-badge">{{ request.user.notifications.unread.count }}</span>
-          {% endif %}
+          <span class="notification-badge notif-badge-mobile" id="mobile-notif-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
         </div>
       </a>
     </div>
