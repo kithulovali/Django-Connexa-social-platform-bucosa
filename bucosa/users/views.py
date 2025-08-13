@@ -1,13 +1,5 @@
 # Welcome page for new users
 from django.views.decorators.http import require_http_methods
-
-@login_required
-@require_http_methods(["GET", "POST"])
-def welcome(request):
-    if request.method == "POST":
-        return redirect('home')  # Replace 'home' with your actual home page url name
-    return render(request, 'users/welcome.html', {'user': request.user})
-
 # Handler for the Next button (if you want a separate view)
 @login_required
 @require_POST
@@ -223,7 +215,12 @@ def register_user(request):
     return render(request , 'users/register.html' , {'form': form})
 
 #=============profile view - HEAVILY OPTIMIZED
-
+@login_required
+@require_http_methods(["GET", "POST"])
+def welcome(request):
+    if request.method == "POST":
+        return redirect('home')  # Replace 'home' with your actual home page url name
+    return render(request, 'users/welcome.html', {'user': request.user})
 
 def profile_user(request, pk):
     # Early validation
