@@ -8,8 +8,8 @@
     <ul class="space-y-4">
       {% for follower in followers %}
         <li class="flex items-center gap-4">
-          <img src="{{ follower.profile.profile_image.url|default:'/static/img/default.png' }}" class="w-10 h-10 rounded-full border" alt="{{ follower|display_name }}">
-          <a href="{% url 'users:profile' follower.id %}" class="font-semibold text-blue-700 hover:underline">{{ follower|display_name }}</a>
+          <img src="{{ follower.user.profile.profile_image.url|default:'/static/img/default.png' }}" class="w-10 h-10 rounded-full border" alt="{{ follower.user|display_name }}">
+          <a href="{% url 'users:profile' follower.user.id %}" class="font-semibold text-blue-700 hover:underline">{{ follower.user|display_name }}</a>
         </li>
       {% empty %}
         <li class="text-gray-500">No followers yet.</li>

@@ -6,10 +6,10 @@
   <div class="max-w-xl mx-auto">
     <h2 class="text-2xl font-bold mb-6">{{ profile_user|display_name }} is following</h2>
     <ul class="space-y-4">
-      {% for user in following %}
+      {% for user_following in following %}
         <li class="flex items-center gap-4">
-          <img src="{{ user.profile.profile_image.url|default:'/static/img/default.png' }}" class="w-10 h-10 rounded-full border" alt="{{ user|display_name }}">
-          <a href="{% url 'users:profile' user.id %}" class="font-semibold text-blue-700 hover:underline">{{ user|display_name }}</a>
+          <img src="{{ user_following.user.profile.profile_image.url|default:'/static/img/default.png' }}" class="w-10 h-10 rounded-full border" alt="{{ user_following.user|display_name }}">
+          <a href="{% url 'users:profile' user_following.user.id %}" class="font-semibold text-blue-700 hover:underline">{{ user_following.user|display_name }}</a>
         </li>
       {% empty %}
         <li class="text-gray-500">Not following anyone yet.</li>
