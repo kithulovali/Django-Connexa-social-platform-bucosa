@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.fellowship_detail, kwargs={'fellowship_id': 1}, name='fellowship'),  # Root page is fellowship_detail for id=1 (or change as needed)
     path('edit/<int:fellowship_id>/', views.edit_fellowship, name='edit_fellowship'),
     path('donate/',views.donate_view , name ='donate'),
+    path("fellowship_history/", views.fellowship_history, name="fellowship_history"),
     path('edit_fellowship_model/<int:fellowship_id>/', views.edit_fellowship_model , name='edit_fellowship_model'),
     path('<int:fellowship_id>/', views.fellowship_detail, name='fellowship_detail'),
     path('<int:fellowship_id>/join/', views.join_fellowship, name='join_fellowship'),
