@@ -11,106 +11,89 @@
         <div class="flex items-center justify-between">
             <h1 class="text-xl font-bold text-gray-800">Bucosa Fellowship</h1>
             <div class="flex items-center space-x-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell">
-                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.3-4.3"/>
-                </svg>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="pb-20">
-        <!-- Featured Story -->
-        <div class="bg-white p-4 mb-4 shadow-sm">
-            <div class="mb-2">
-                <span class="text-xs font-semibold text-red-600">FEATURED</span>
-                <span class="text-xs text-gray-500 ml-2">Today</span>
-            </div>
-            <h2 class="text-xl font-bold text-gray-900 mb-2">Weekly Fellowship Meeting</h2>
-            <p class="text-gray-700">Join us this Sunday for our weekly fellowship meeting with special worship and Bible study.</p>
-            <img src="{% static 'images/fellowship-meeting.jpg' %}" alt="Fellowship Meeting" class="w-full h-48 object-cover rounded-lg mt-3">
+        <!-- Join Fellowship Button (if not a member) -->
+        {% if user.is_authenticated and not is_member %}
+        <div class="flex justify-center mb-4">
+            <form method="post" action="{% url 'join_fellowship' fellowship.id %}">
+                {% csrf_token %}
+                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition">
+                    Request to Join Bucosa Fellowship
+                </button>
+            </form>
         </div>
+        {% endif %}
+
+        <!-- Featured: Latest Post by Admin -->
+        {% if latest_admin_post %}
+        <div class="bg-white p-4 mb-4 shadow-sm">
+            <div class="mb-2 flex items-center">
+                <span class="text-xs font-semibold text-red-600">FEATURED</span>
+                <span class="text-xs text-gray-500 ml-2">{{ latest_admin_post.created_at|date:'M d, H:i' }}</span>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">{{ latest_admin_post.title|default:'Weekly Fellowship Meeting' }}</h2>
+            <p class="text-gray-700">{{ latest_admin_post.content|linebreaksbr }}</p>
+            {% if latest_admin_post.image %}
+                <img src="{{ latest_admin_post.image.url }}" alt="Featured Fellowship Post" class="w-full h-48 object-cover rounded-lg mt-3">
+            {% else %}
+                <img src="{% static 'images/fellowship-meeting.jpg' %}" alt="Fellowship Meeting" class="w-full h-48 object-cover rounded-lg mt-3">
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Horizontal scroll of fellowship members -->
+        {% if fellowship_members %}
+        <div class="bg-white p-2 mb-4 shadow-sm rounded-lg">
+            <h3 class="text-sm font-semibold text-gray-700 mb-2 ml-2">Fellowship Members</h3>
+            <div class="flex overflow-x-auto space-x-4 pb-2">
+                {% for member in fellowship_members %}
+                <div class="flex-none flex flex-col items-center w-16">
+                    {% if member.profile and member.profile.profile_image %}
+                        <img src="{{ member.profile.profile_image.url }}" alt="{{ member.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
+                    {% else %}
+                        <img src="{% static 'images/default.jpg' %}" alt="Member" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
+                    {% endif %}
+                    <span class="text-xs text-gray-600 mt-1 truncate">{{ member.username }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Other posts (excluding latest_admin_post) -->
+        {% if other_posts %}
+        <div class="space-y-4 p-4">
+            {% for post in other_posts %}
+            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900">{{ post.title|default:'Fellowship Post' }}</h3>
+                        <p class="text-sm text-gray-600 mt-1">{{ post.content|linebreaksbr }}</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs text-gray-500">{{ post.created_at|date:'M d, H:i' }}</span>
+                            <span class="text-xs text-gray-500 mx-2">•</span>
+                            <span class="text-xs font-medium text-blue-600">Post</span>
+                        </div>
+                    </div>
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="Post Image" class="w-20 h-16 object-cover rounded ml-3">
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <!-- Category Tabs -->
         <div class="category-tabs bg-white px-4 py-2 shadow-sm sticky top-14 z-10">
-            <button class="px-3 py-1 text-sm font-medium text-blue-600 border-b-2 border-blue-600 mr-4">All</button>
-            <button class="px-3 py-1 text-sm font-medium text-gray-600 mr-4">Events</button>
-            <button class="px-3 py-1 text-sm font-medium text-gray-600 mr-4">Messages</button>
-            <button class="px-3 py-1 text-sm font-medium text-gray-600 mr-4">Community</button>
-            <button class="px-3 py-1 text-sm font-medium text-gray-600">Ministries</button>
+            <a href="{% url 'fellowship_detail' fellowship.id %}" class="px-3 py-1 text-sm font-medium text-blue-600 border-b-2 border-blue-600 mr-4">All</a>
+            <a href="{% url 'donate' %}" class="px-3 py-1 text-sm font-medium text-green-600 border-b-2 border-green-600">Donate</a>
         </div>
-
-        <!-- News Feed -->
-        <div class="space-y-4 p-4">
-            <!-- Bible Study Card -->
-            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                        <h3 class="text-lg font-bold text-gray-900">Wednesday Bible Study</h3>
-                        <p class="text-sm text-gray-600 mt-1">Deep dive into the Book of Acts with our fellowship leaders every Wednesday evening.</p>
-                        <div class="flex items-center mt-2">
-                            <span class="text-xs text-gray-500">Tomorrow</span>
-                            <span class="text-xs text-gray-500 mx-2">•</span>
-                            <span class="text-xs font-medium text-blue-600">Events</span>
-                        </div>
-                    </div>
-                    <img src="{% static 'images/bible-study.jpg' %}" alt="Bible Study" class="w-20 h-16 object-cover rounded ml-3">
-                </div>
-            </div>
-
-            <!-- Pastor's Message Card -->
-            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                        <h3 class="text-lg font-bold text-gray-900">Pastor's Weekly Reflection</h3>
-                        <p class="text-sm text-gray-600 mt-1">Read this week's reflection from our fellowship pastor on living out your faith on campus.</p>
-                        <div class="flex items-center mt-2">
-                            <span class="text-xs text-gray-500">2 days ago</span>
-                            <span class="text-xs text-gray-500 mx-2">•</span>
-                            <span class="text-xs font-medium text-blue-600">Messages</span>
-                        </div>
-                    </div>
-                    <img src="{% static 'images/pastor-message.jpg' %}" alt="Pastor's Message" class="w-20 h-16 object-cover rounded ml-3">
-                </div>
-            </div>
-
-            <!-- Community Service Card -->
-            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                        <h3 class="text-lg font-bold text-gray-900">Campus Outreach</h3>
-                        <p class="text-sm text-gray-600 mt-1">Join us as we serve our campus community through various outreach programs.</p>
-                        <div class="flex items-center mt-2">
-                            <span class="text-xs text-gray-500">Next week</span>
-                            <span class="text-xs text-gray-500 mx-2">•</span>
-                            <span class="text-xs font-medium text-blue-600">Community</span>
-                        </div>
-                    </div>
-                    <img src="{% static 'images/outreach.jpg' %}" alt="Campus Outreach" class="w-20 h-16 object-cover rounded ml-3">
-                </div>
-            </div>
-
-            <!-- Worship Team Card -->
-            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
-                <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                        <h3 class="text-lg font-bold text-gray-900">Worship Team Auditions</h3>
-                        <p class="text-sm text-gray-600 mt-1">Calling all musicians and singers! Auditions for the fellowship worship team are open.</p>
-                        <div class="flex items-center mt-2">
-                            <span class="text-xs text-gray-500">1 week ago</span>
-                            <span class="text-xs text-gray-500 mx-2">•</span>
-                            <span class="text-xs font-medium text-blue-600">Ministries</span>
-                        </div>
-                    </div>
-                    <img src="{% static 'images/worship-team.jpg' %}" alt="Worship Team" class="w-20 h-16 object-cover rounded ml-3">
-                </div>
-            </div>
-
             <!-- Membership Info -->
             {% if user.is_authenticated %}
                 {% if not is_fellowship_member %}
@@ -162,40 +145,6 @@
             {% endif %}
         </div>
     </main>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 z-20">
-        <div class="flex justify-around items-center max-w-xl mx-auto py-2">
-            <a href="#" class="text-center text-blue-600 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
-                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    <polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
-                <span class="text-xs font-medium mt-1 block">Home</span>
-            </a>
-            <a href="#" class="text-center text-gray-600 hover:text-blue-600 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-                <span class="text-xs font-medium mt-1 block">Events</span>
-            </a>
-            <a href="#" class="text-center text-gray-600 hover:text-blue-600 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
-                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                </svg>
-                <span class="text-xs font-medium mt-1 block">Community</span>
-            </a>
-            <a href="#" class="text-center text-gray-600 hover:text-blue-600 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                    <line x1="12" y1="19" x2="12" y2="22"/>
-                </svg>
-                <span class="text-xs font-medium mt-1 block">More</span>
-            </a>
-        </div>
-    </nav>
 </body>
 
 {% endblock %}
