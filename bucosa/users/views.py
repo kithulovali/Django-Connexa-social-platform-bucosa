@@ -223,9 +223,10 @@ def register_user(request):
 
 @require_http_methods(["GET", "POST"])
 def welcome(request):
-    if request.method == "POST":
-        return redirect('home')  # Replace 'home' with your actual home page url name
-    return render(request, 'users/welcome.html', {'user': request.user})
+    if request.user.is_authenticated:
+        return redirect('activities:home')
+    else:
+        return render(request, 'users/welcome.html', {'user': request.user})
 
 def profile_user(request, pk):
     # Early validation
