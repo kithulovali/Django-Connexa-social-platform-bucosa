@@ -1,4 +1,5 @@
-{% load socialaccount %}    
+{% load static %}
+{% load socialaccount %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
@@ -8,75 +9,96 @@
     <title>Register</title>
 </head>
 <body>
-   
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full space-y-8">
         <div class="text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-          </svg>
+          <div class="mx-auto h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
           <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600">
-            Or
-            <a href="{% url 'users:login' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
-              sign in to your existing account
+            Already have an account?
+            <a href="{% url 'users:login' %}" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-150">
+              Sign in here
             </a>
           </p>
         </div>
         
-        <div class="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
+        <div class="bg-white py-8 px-6 shadow-xl rounded-lg sm:px-10">
           {% if messages %}
-          <ul class="mb-4">
+          <div class="mb-4">
             {% for message in messages %}
-            <li class="text-red-500 text-sm">{{ message }}</li>
+            <div class="text-red-600 px-4 py-3 rounded relative bg-red-50 border border-red-200 text-sm">
+              {{ message }}
+            </div>
             {% endfor %}
-          </ul>
+          </div>
           {% endif %}
           
-          <form class="mb-6 space-y-6" action="" method="POST">
+          <form class="mb-6 space-y-5" action="" method="POST">
             {% csrf_token %}
             {% for field in form %}
               <div>
-                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                  {{ field.label }}
+                  {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
                 <div class="mt-1 relative">
                   {% if field.name == 'password' or field.name == 'password1' or field.name == 'password2' %}
-                    <input id="{{ field.id_for_label }}" name="{{ field.name }}" type="password" required
-                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm pr-10"
-                           onfocus="this.type='text'" onblur="this.type='password'">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
+                    <div class="relative">
+                      <input id="{{ field.id_for_label }}" name="{{ field.name }}" type="password" required
+                             class="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                             placeholder="••••••••">
+                      <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('{{ field.id_for_label }}')">
+                        <svg id="{{ field.id_for_label }}-icon" class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
                     </div>
                   {% else %}
                     <input id="{{ field.id_for_label }}" name="{{ field.name }}" type="{% if 'email' in field.name %}email{% else %}text{% endif %}" required
-                           class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                           class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           placeholder="Enter your {{ field.label|lower }}">
                   {% endif %}
                   {% if field.errors %}
-                    <span class="mt-1 text-sm text-red-600">{{ field.errors|striptags }}</span>
+                    <p class="mt-1 text-sm text-red-600">{{ field.errors|striptags }}</p>
+                  {% endif %}
+                  {% if field.help_text %}
+                    <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
                   {% endif %}
                 </div>
               </div>
             {% endfor %}
 
-            <div class="flex items-center">
-              <input id="terms" name="terms" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" required>
-              <label for="terms" class="ml-2 block text-sm text-gray-900">
-                I agree to the <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms</a> and <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
-              </label>
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
+                <input id="terms" name="terms" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" required>
+              </div>
+              <div class="ml-2">
+                <label for="terms" class="block text-sm text-gray-700">
+                  I agree to the <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-150">Terms</a> and <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500 transition duration-150">Privacy Policy</a>
+                </label>
+              </div>
             </div>
 
             <div>
-              <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150">
+                <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                  <svg class="h-5 w-5 text-indigo-300 group-hover:text-indigo-200 transition duration-150" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </span>
                 Register
               </button>
             </div>
           </form>
 
-          <div class="relative">
+          <div class="relative mt-6">
             <div class="absolute inset-0 flex items-center">
               <div class="w-full border-t border-gray-300"></div>
             </div>
@@ -88,51 +110,34 @@
           </div>
 
           <div class="mt-6 grid grid-cols-1 gap-3">
-            <a href="{% provider_login_url 'google' %}" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <a href="{% provider_login_url 'google' %}" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150">
               <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
                 <path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.22l6.85-6.85C35.62 2.7 30.13 0 24 0 14.73 0 6.62 5.48 2.44 13.44l8.44 6.56C12.98 13.36 17.08 9.5 24 9.5z"/>
                 <path fill="#34A853" d="M46.1 24.5c0-1.64-.15-3.22-.43-4.75H24v9.02h12.44c-.54 2.9-2.16 5.36-4.6 7.02l7.19 5.59C43.98 37.36 46.1 31.36 46.1 24.5z"/>
                 <path fill="#FBBC05" d="M10.88 28.5c-.54-1.62-.85-3.34-.85-5.02s.31-3.4.85-5.02l-8.44-6.56C1.16 15.62 0 19.92 0 24.5c0 4.58 1.16 8.88 2.44 12.1l8.44-6.56z"/>
                 <path fill="#EA4335" d="M24 46c6.13 0 11.62-2.02 15.79-5.5l-7.19-5.59c-2.01 1.36-4.59 2.16-8.6 2.16-6.92 0-11.02-3.86-13.12-7.5l-8.44 6.56C6.62 42.52 14.73 48 24 48z"/>
               </svg>
-              <span class="ml-2">Google</span>
+              <span class="ml-2">Continue with Google</span>
             </a>
           </div>
         </div>
       </div>
     </div>
-    {% endblock content %}
+
     <script>
-    // Ensure this script runs after the DOM and Django template rendering
-    (function() {
-      function showPwdOnFocus(e) {
-        if (e.target.type === 'password') e.target.type = 'text';
-      }
-      function hidePwdOnBlur(e) {
-        // Only revert if the field is a password field (by name or id)
-        if (
-          e.target.type === 'text' &&
-          (e.target.name.toLowerCase().includes('password') || e.target.id.toLowerCase().includes('password'))
-        ) {
-          e.target.type = 'password';
+      function togglePasswordVisibility(fieldId) {
+        const passwordInput = document.getElementById(fieldId);
+        const eyeIcon = document.getElementById(fieldId + '-icon');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />';
+        } else {
+          passwordInput.type = 'password';
+          eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
         }
       }
-      // Attach directly to all password fields (covers most Django forms)
-      document.querySelectorAll('input[type="password"]').forEach(function(pwd) {
-        pwd.addEventListener('focus', showPwdOnFocus);
-        pwd.addEventListener('blur', hidePwdOnBlur);
-      });
-      // Also use event delegation for any dynamically added fields
-      document.body.addEventListener('focusin', function(e) {
-        if (e.target.matches('input[type="password"]')) showPwdOnFocus(e);
-      });
-      document.body.addEventListener('focusout', function(e) {
-        if (
-          e.target.matches('input[type="text"]') &&
-          (e.target.name.toLowerCase().includes('password') || e.target.id.toLowerCase().includes('password'))
-        ) hidePwdOnBlur(e);
-      });
-    })();
     </script>
 </body>
 </html>
+{% endblock content %}
