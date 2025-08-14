@@ -252,3 +252,7 @@ def delete_fellowship_event(request, fellowship_id, event_id):
 def donation_list_view(request):
     donations = donation.objects.all().order_by('-time_send')
     return render(request, 'fellowship/donation_list.html', {'donations': donations})
+
+def fellowship_history(request):
+    
+    return render(request, 'fellowship/fellowship_history.html')

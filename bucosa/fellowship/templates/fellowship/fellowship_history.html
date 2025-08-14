@@ -1,15 +1,194 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/fellowship_history.css' %}">
+    <title>History</title>
 </head>
-<body>
-    {% block content %}
-    <h1>hello world</h1>
-    {% endblock content %}
 
-</body>
-</html>
+    {% block content %}
+
+<body class="bg-gradient-to-br from-blue-100 to-purple-200 min-h-screen flex flex-col text-gray-800">
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto p-4 md:p-8 flex flex-col items-center justify-center">
+
+        <!-- Pastor's Story Section -->
+        <section class="w-full max-w-4xl mt-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-indigo-700 mb-6 text-center">Pastor's Stories</h2>
+            <div class="flex overflow-x-auto pb-4 space-x-6 px-2 scroll-container">
+                <!-- Story Card 1 -->
+                <div class="flex-none w-80 bg-white rounded-2xl shadow-lg p-6 transform hover:scale-105 transition duration-300 ease-in-out">
+                    <!-- CHANGE THIS IMAGE URL FOR STORY 1 -->
+                    <img src="connexa/images/Shepherd Elosha Kapata..jpg" alt="Pastor's Story 1" class="rounded-xl mb-4 w-full h-40 object-cover">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">The Journey of Faith</h3>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Pastor:</span> Elosha Kapata.
+                    </p>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Dates:</span> 2023 - 2024
+                    </p>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        Pastor John shares his personal journey of discovering faith and how it transformed his life. A testament to divine guidance and unwavering hope.
+                    </p>
+                </div>
+                <!-- Story Card 2 -->
+                <div class="flex-none w-80 bg-white rounded-2xl shadow-lg p-6 transform hover:scale-105 transition duration-300 ease-in-out">
+                    <!-- CHANGE THIS IMAGE URL FOR STORY 2 -->
+                    <img src="connexa/images/Shepherd Lydia Satira.jpg" alt="Pastor's Story 2" class="rounded-xl mb-4 w-full h-40 object-cover">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Building Community</h3>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Pastor:</span> Lydia Satira
+                    </p>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Dates:</span> 2022 - 2023
+                    </p>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        Learn about the challenges and triumphs of building a vibrant and supportive community within the church, fostering love and fellowship.
+                    </p>
+                </div>
+                <!-- Story Card 3 -->
+                <div class="flex-none w-80 bg-white rounded-2xl shadow-lg p-6 transform hover:scale-105 transition duration-300 ease-in-out">
+                    <!-- CHANGE THIS IMAGE URL FOR STORY 3 -->
+                    <img src="connexa/images/Shepherd Philippe Batezi.jpg" alt="Pastor's Story 3" class="rounded-xl mb-4 w-full h-40 object-cover">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Moments of Grace</h3>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Pastor:</span> Philippe Batezi 
+                    </p>
+                    <p class="text-gray-700 text-sm mb-2">
+                        <span class="font-semibold">Dates:</span>2019 - 2021
+                    </p>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        Heartwarming anecdotes of parishioners experiencing profound moments of grace and divine intervention in their lives.
+                    </p>
+                </div>
+        </section>
+
+        <!-- Our Mission Section -->
+        <section class="bg-white p-6 md:p-10 rounded-2xl shadow-xl max-w-4xl w-full mt-8 transform hover:scale-105 transition duration-500 ease-in-out">
+            <h2 class="text-3xl md:text-4xl font-bold text-indigo-700 mb-4 text-center">Our Mission</h2>
+            <div class="border-t-2 border-indigo-300 pt-4 mt-4 text-center">
+                <p class="text-lg md:text-xl text-gray-700 leading-relaxed">
+                    Leading students to a personal relationship with God while equipping them for leadership 
+                    and service through the transforming power of the Gospel to impact the University Campus, the country and subsequently the entire world.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase initialization
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let auth;
+        let db;
+        let userId;
+
+        async function initializeFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                console.log("Firebase initialized. User ID:", userId);
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                // Fallback for userId if Firebase fails
+                userId = crypto.randomUUID();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeFirebase);
+
+        const getReflectionBtn = document.getElementById('get-reflection-btn');
+        const verseTextElement = document.getElementById('verse-text');
+        const verseReferenceElement = document.getElementById('verse-reference');
+        const reflectionOutput = document.getElementById('reflection-output');
+        const reflectionText = document.getElementById('reflection-text');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        getReflectionBtn.addEventListener('click', async () => {
+            const verse = verseTextElement.textContent.trim();
+            const reference = verseReferenceElement.textContent.trim();
+            const prompt = `Provide a short, uplifting spiritual reflection on the following Bible verse: ${verse} ${reference}. Focus on its practical application for daily life.`;
+
+            reflectionOutput.classList.add('hidden'); // Hide previous reflection
+            reflectionText.textContent = ''; // Clear previous text
+            loadingIndicator.classList.remove('hidden'); // Show loading indicator
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // Canvas will automatically provide the API key
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            let retries = 0;
+            const maxRetries = 5;
+            const baseDelay = 1000; // 1 second
+
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429) { // Too Many Requests
+                            const delay = baseDelay * Math.pow(2, retries) + Math.random() * 1000; // Exponential backoff with jitter
+                            console.warn(`Rate limit hit. Retrying in ${delay / 1000} seconds...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            retries++;
+                            continue;
+                        } else {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                    }
+
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        reflectionText.textContent = text;
+                        reflectionOutput.classList.remove('hidden'); // Show the reflection
+                    } else {
+                        reflectionText.textContent = "Could not generate a reflection. Please try again.";
+                        reflectionOutput.classList.remove('hidden');
+                        console.error("Unexpected API response structure:", result);
+                    }
+                    break; // Exit loop on success
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    reflectionText.textContent = "Failed to generate reflection. Please check your connection or try again later.";
+                    reflectionOutput.classList.remove('hidden');
+                    break; // Exit loop on unrecoverable error
+                } finally {
+                    loadingIndicator.classList.add('hidden'); // Hide loading indicator
+                }
+            }
+            if (retries === maxRetries) {
+                console.error("Max retries reached. Failed to get reflection.");
+                reflectionText.textContent = "Failed to generate reflection after multiple attempts. Please try again later.";
+                reflectionOutput.classList.remove('hidden');
+            }
+        });
+    </script>
+    {% endblock content %}
