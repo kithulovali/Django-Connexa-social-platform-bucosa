@@ -1,0 +1,15 @@
+.category-tabs {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+.category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+.news-card {
+            transition: transform 0.2s;
+        }
+.news-card:hover {
+            transform: translateY(-2px);
+        }

@@ -1,0 +1,18 @@
+body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for the story section */
+.scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+.scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+.scroll-container::-webkit-scrollbar-thumb {
+            background: #a78bfa; /* purple-400 */
+            border-radius: 10px;
+        }
+.scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #8b5cf6; /* purple-500 */
+        }
