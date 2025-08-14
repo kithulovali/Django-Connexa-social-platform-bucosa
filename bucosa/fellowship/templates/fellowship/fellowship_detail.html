@@ -1,22 +1,65 @@
+{% extends 'base.html' %}
 {% load static %}
 {% load display_name %}
-{% extends 'base.html' %}
-<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen text-gray-800">
+{% block content %}
+
+<body class="bg-gray-100 min-h-screen text-gray-800">
     <!-- Header Section -->
-    <header class="bg-white shadow-lg p-4 md:p-6 rounded-b-xl text-center">
+    <header class="bg-white shadow-md p-4 text-center">
         <div class="container mx-auto">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-700">
-                <span class="inline-block transform rotate-6 text-yellow-500 mr-2">✨</span>Bucosa Fellowship
+            <h1 class="text-2xl font-bold text-gray-800">
+                Bucosa Fellowship
             </h1>
         </div>
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-grow container mx-auto p-4 md:p-8 md:ml-64"> <!-- Added md:ml-64 for sidebar space -->
+    <main class="flex-grow container mx-auto p-4">
+        <!-- Service Times Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Service Times</h2>
+            <ul class="space-y-3">
+                <li class="flex justify-between items-center">
+                    <span>Jobs up on Sunday</span>
+                    <span class="font-bold">$1,000</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- FAGS Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">FAGS</h2>
+            <ul class="space-y-3">
+                <li class="flex justify-between items-center">
+                    <span>A number of jobs in the field and a number of jobs in the workplace</span>
+                    <span class="font-bold">$1,000</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- More Info Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">More Info</h2>
+            <ul class="space-y-3">
+                <li class="flex justify-between items-center">
+                    <span>I am not sure if you want to be able to do this for me</span>
+                    <span class="font-bold">$1,000</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Original Fellowship Content -->
         <!-- Today's Message Card -->
-        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+        <div class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
+            <div class="flex items-center mb-4">
+                <img src="{% static 'images/default.jpg' %}" alt="Admin Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-indigo-400">
+                <div>
+                    <p class="font-bold text-indigo-700">Fellowship Updates</p>
+                    <p class="text-sm text-gray-500">@BucosaFellowship • Today</p>
+                </div>
+            </div>
             <div class="border-t-2 border-indigo-300 pt-4 mt-4">
-                <h2 class="text-2xl font-bold mb-6 text-indigo-800">Fellowship Posts & Events</h2>
+                <h2 class="text-xl font-bold mb-6 text-indigo-800">Fellowship Posts & Events</h2>
                 
                 {% if request.user.is_superuser %}
                 <div class="flex gap-4 mb-6">
@@ -47,8 +90,8 @@
             </div>
         </div>
 
-        <!-- Posts Section (Horizontal Scroll) -->
-        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+        <!-- Posts Section -->
+        <div class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
             <h3 class="text-xl font-bold mb-4 text-indigo-700 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -58,7 +101,7 @@
             {% if fellowship_posts %}
             <div class="flex overflow-x-auto space-x-6 pb-4">
                 {% for post in fellowship_posts %}
-                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 border border-indigo-100">
+                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
                     <div class="flex items-start gap-4">
                         <div class="flex-shrink-0">
                             {% if post.author.profile and post.author.profile.profile_image %}
@@ -98,8 +141,8 @@
             {% endif %}
         </div>
 
-        <!-- Events Section (Horizontal Scroll) -->
-        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+        <!-- Events Section -->
+        <div class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
             <h3 class="text-xl font-bold mb-4 text-indigo-700 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -109,7 +152,7 @@
             {% if fellowship_events %}
             <div class="flex overflow-x-auto space-x-6 pb-4">
                 {% for event in fellowship_events %}
-                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 border border-indigo-100">
+                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
                     <div class="flex items-start gap-4">
                         <div class="flex-shrink-0">
                             {% if event.creator.profile and event.creator.profile.profile_image %}
@@ -152,12 +195,12 @@
         </div>
 
         <!-- Pastor's Stories Section -->
-        <section class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
             <h2 class="text-2xl font-bold text-indigo-700 mb-6 text-center">Pastor's Stories</h2>
             <div class="flex overflow-x-auto pb-4 space-x-6 px-2 scroll-container">
                 <!-- Story Card 1 -->
-                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 transform hover:scale-105 transition duration-300 ease-in-out border border-indigo-100">
-                    <img src="{% static 'img/Kapata.jpg' %}" alt="Pastor Elosha Kapata" class="rounded-xl mb-4 w-full h-40 object-cover shadow-sm">
+                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
+                    <img src="{% static 'img/Kapata.jpg' %}" alt="Pastor Elosha Kapata" class="rounded-lg mb-4 w-full h-40 object-cover shadow-sm">
                     <h3 class="text-xl font-bold text-indigo-700 mb-2">The Journey of Faith</h3>
                     <p class="text-gray-700 text-sm mb-2">
                         <span class="font-semibold">Pastor:</span> Elosha Kapata
@@ -171,8 +214,8 @@
                 </div>
                 
                 <!-- Story Card 2 -->
-                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 transform hover:scale-105 transition duration-300 ease-in-out border border-indigo-100">
-                    <img src="{% static 'img/Lydia.jpg' %}" alt="Pastor Lydia Satira" class="rounded-xl mb-4 w-full h-40 object-cover shadow-sm">
+                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
+                    <img src="{% static 'img/Lydia.jpg' %}" alt="Pastor Lydia Satira" class="rounded-lg mb-4 w-full h-40 object-cover shadow-sm">
                     <h3 class="text-xl font-bold text-indigo-700 mb-2">Building Community</h3>
                     <p class="text-gray-700 text-sm mb-2">
                         <span class="font-semibold">Pastor:</span> Lydia Satira
@@ -186,8 +229,8 @@
                 </div>
                 
                 <!-- Story Card 3 -->
-                <div class="flex-none w-80 bg-white rounded-2xl shadow-md p-6 transform hover:scale-105 transition duration-300 ease-in-out border border-indigo-100">
-                    <img src="{% static 'img/Philippe.jpg' %}" alt="Pastor Philippe Batezi" class="rounded-xl mb-4 w-full h-40 object-cover shadow-sm">
+                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
+                    <img src="{% static 'img/Philippe.jpg' %}" alt="Pastor Philippe Batezi" class="rounded-lg mb-4 w-full h-40 object-cover shadow-sm">
                     <h3 class="text-xl font-bold text-indigo-700 mb-2">Moments of Grace</h3>
                     <p class="text-gray-700 text-sm mb-2">
                         <span class="font-semibold">Pastor:</span> Philippe Batezi
@@ -203,7 +246,7 @@
         </section>
 
         <!-- Our Mission Section -->
-        <section class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
             <h2 class="text-2xl font-bold text-indigo-700 mb-4 text-center">Our Mission</h2>
             <div class="border-t-2 border-indigo-300 pt-4 mt-4 text-center">
                 <p class="text-lg md:text-xl text-gray-700 leading-relaxed">
@@ -215,7 +258,7 @@
         </section>
 
         <!-- Daily Verse Section -->
-        <section class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
             <div class="flex items-center mb-4">
                 <img src="{% static 'images/default.jpg' %}" alt="Admin Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-indigo-400">
                 <div>
@@ -233,7 +276,7 @@
                 </p>
             </div>
             <!-- Gemini API powered button -->
-            <button id="get-reflection-btn" class="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-full shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out">
+            <button id="get-reflection-btn" class="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out">
                 Get Reflection ✨
             </button>
             <div id="reflection-output" class="mt-6 p-4 bg-blue-50 rounded-lg text-left hidden">
@@ -247,7 +290,7 @@
         </section>
 
         <!-- Our Goals Section -->
-        <section class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
+        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
             <h2 class="text-2xl font-bold text-indigo-700 mb-4 text-center">Our Goals</h2>
             <div class="border-t-2 border-indigo-300 pt-4 mt-4">
                 <ul class="list-disc list-inside text-lg md:text-xl text-gray-700 leading-relaxed space-y-2">
@@ -261,66 +304,16 @@
         </section>
     </main>
 
-    <!-- Desktop Sidebar Navigation -->
-    <nav class="hidden md:flex fixed left-0 top-0 h-full w-64 bg-white border-r border-indigo-200 shadow-lg flex-col py-8 px-4 z-40">
-        <div class="mb-8 text-center">
-            <h2 class="text-xl font-bold text-indigo-700">Bucosa Fellowship</h2>
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white p-4 rounded-t-xl">
+        <div class="container mx-auto text-center text-sm md:text-base">
+            <p>&copy; 2025 Bucosa Fellowship. All rights reserved.</p>
+            <p class="mt-2">
+                <a href="#" class="text-blue-300 hover:underline">Privacy Policy</a> |
+                <a href="#" class="text-blue-300 hover:underline">Terms of Service</a>
+            </p>
         </div>
-        <div class="flex flex-col space-y-4">
-            <a href="/fellowship/" class="flex items-center p-3 text-indigo-700 hover:bg-indigo-50 rounded-lg transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
-                </svg>
-                <span class="font-medium">Home</span>
-            </a>
-            <a href="/fellowship/events/" class="flex items-center p-3 text-indigo-700 hover:bg-indigo-50 rounded-lg transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span class="font-medium">Events</span>
-            </a>
-            <a href="/fellowship/posts/" class="flex items-center p-3 text-indigo-700 hover:bg-indigo-50 rounded-lg transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-                <span class="font-medium">Posts</span>
-            </a>
-            <a href="/fellowship/profile/" class="flex items-center p-3 text-indigo-700 hover:bg-indigo-50 rounded-lg transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.657 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span class="font-medium">Profile</span>
-            </a>
-        </div>
-    </nav>
-
-    <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-indigo-200 shadow-lg z-50 flex justify-around items-center py-2">
-        <a href="/fellowship/" class="flex flex-col items-center text-indigo-700 hover:text-indigo-900 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
-            </svg>
-            <span class="text-xs font-semibold">Home</span>
-        </a>
-        <a href="/fellowship/events/" class="flex flex-col items-center text-indigo-700 hover:text-indigo-900 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span class="text-xs font-semibold">Events</span>
-        </a>
-        <a href="/fellowship/posts/" class="flex flex-col items-center text-indigo-700 hover:text-indigo-900 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
-            <span class="text-xs font-semibold">Posts</span>
-        </a>
-        <a href="/fellowship/profile/" class="flex flex-col items-center text-indigo-700 hover:text-indigo-900 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.657 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span class="text-xs font-semibold">Profile</span>
-        </a>
-    </nav>
+    </footer>
 
     <script>
         const getReflectionBtn = document.getElementById('get-reflection-btn');
@@ -357,3 +350,5 @@
         });
     </script>
 </body>
+
+{% endblock %}
