@@ -1,7 +1,6 @@
-{% extends 'base.html' %}
+
 {% load static %}
 {% load display_name %}
-{% block content %}
 
 <body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen text-gray-800">
     <!-- Header Section -->
@@ -17,13 +16,6 @@
     <main class="flex-grow container mx-auto p-4 md:p-8">
         <!-- Today's Message Card -->
         <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl mb-8 transform hover:scale-[1.01] transition duration-300 ease-in-out">
-            <div class="flex items-center mb-4">
-                <img src="{% static 'images/default.jpg' %}" alt="Admin Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-indigo-400">
-                <div>
-                    <p class="font-bold text-indigo-700">Fellowship Updates</p>
-                    <p class="text-sm text-gray-500">@BucosaFellowship • Today</p>
-                </div>
-            </div>
             <div class="border-t-2 border-indigo-300 pt-4 mt-4">
                 <h2 class="text-2xl font-bold mb-6 text-indigo-800">Fellowship Posts & Events</h2>
                 
@@ -271,15 +263,34 @@
     </main>
 
     <!-- Footer Section -->
-    <footer class="bg-gray-800 text-white p-4 md:p-6 rounded-t-xl">
-        <div class="container mx-auto text-center text-sm md:text-base">
-            <p>&copy; 2025 Bucosa Fellowship. All rights reserved.</p>
-            <p class="mt-2">
-                <a href="#" class="text-blue-300 hover:underline">Privacy Policy</a> |
-                <a href="#" class="text-blue-300 hover:underline">Terms of Service</a>
-            </p>
-        </div>
-    </footer>
+
+    <!-- Fellowship Bottom Navbar -->
+    <nav class="fixed bottom-0 left-0 w-full bg-white border-t border-indigo-200 shadow-lg z-50 flex justify-around items-center py-2 md:py-3">
+        <a href="/fellowship/" class="flex flex-col items-center text-indigo-700 hover:text-indigo-900 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
+            </svg>
+            <span class="text-xs font-semibold">Home</span>
+        </a>
+        <a href="/fellowship/events/" class="flex flex-col items-center text-indigo-700 hover:text-indigo-900 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="text-xs font-semibold">Events</span>
+        </a>
+        <a href="/fellowship/posts/" class="flex flex-col items-center text-indigo-700 hover:text-indigo-900 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            <span class="text-xs font-semibold">Posts</span>
+        </a>
+        <a href="/fellowship/profile/" class="flex flex-col items-center text-indigo-700 hover:text-indigo-900 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.657 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-xs font-semibold">Profile</span>
+        </a>
+    </nav>
 
     <script>
         const getReflectionBtn = document.getElementById('get-reflection-btn');
