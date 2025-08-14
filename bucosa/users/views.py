@@ -181,6 +181,21 @@ def register_user(request):
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
+            # Update user info from social account if available
+            try:
+                social = SocialAccount.objects.filter(user=user).first()
+                if social:
+                    extra = social.extra_data
+                    # Update first_name, last_name, email if present
+                    if extra.get('given_name'):
+                        user.first_name = extra['given_name']
+                    if extra.get('family_name'):
+                        user.last_name = extra['family_name']
+                    if extra.get('email'):
+                        user.email = extra['email']
+                    user.save()
+            except Exception:
+                pass
             import logging
             logger = logging.getLogger(__name__)
             # Send welcome email if user has email
