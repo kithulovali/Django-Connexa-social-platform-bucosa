@@ -2,353 +2,200 @@
 {% load static %}
 {% load display_name %}
 {% block content %}
-
-<body class="bg-gray-100 min-h-screen text-gray-800">
-    <!-- Header Section -->
-    <header class="bg-white shadow-md p-4 text-center">
-        <div class="container mx-auto">
-            <h1 class="text-2xl font-bold text-gray-800">
-                Bucosa Fellowship
-            </h1>
+<head>
+    <link rel="stylesheet" href="{% static 'css/fellowship.css' %}">
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Header -->
+    <header class="sticky top-0 z-10 bg-white shadow-sm p-4">
+        <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800">Bucosa Fellowship</h1>
+            <div class="flex items-center space-x-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                </svg>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow container mx-auto p-4">
-        <!-- Service Times Section -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Service Times</h2>
-            <ul class="space-y-3">
-                <li class="flex justify-between items-center">
-                    <span>Jobs up on Sunday</span>
-                    <span class="font-bold">$1,000</span>
-                </li>
-            </ul>
+    <!-- Main Content -->
+    <main class="pb-20">
+        <!-- Featured Story -->
+        <div class="bg-white p-4 mb-4 shadow-sm">
+            <div class="mb-2">
+                <span class="text-xs font-semibold text-red-600">FEATURED</span>
+                <span class="text-xs text-gray-500 ml-2">Today</span>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Weekly Fellowship Meeting</h2>
+            <p class="text-gray-700">Join us this Sunday for our weekly fellowship meeting with special worship and Bible study.</p>
+            <img src="{% static 'images/fellowship-meeting.jpg' %}" alt="Fellowship Meeting" class="w-full h-48 object-cover rounded-lg mt-3">
         </div>
 
-        <!-- FAGS Section -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">FAGS</h2>
-            <ul class="space-y-3">
-                <li class="flex justify-between items-center">
-                    <span>A number of jobs in the field and a number of jobs in the workplace</span>
-                    <span class="font-bold">$1,000</span>
-                </li>
-            </ul>
+        <!-- Category Tabs -->
+        <div class="category-tabs bg-white px-4 py-2 shadow-sm sticky top-14 z-10">
+            <button class="px-3 py-1 text-sm font-medium text-blue-600 border-b-2 border-blue-600 mr-4">All</button>
+            <button class="px-3 py-1 text-sm font-medium text-gray-600 mr-4">Events</button>
+            <button class="px-3 py-1 text-sm font-medium text-gray-600 mr-4">Messages</button>
+            <button class="px-3 py-1 text-sm font-medium text-gray-600 mr-4">Community</button>
+            <button class="px-3 py-1 text-sm font-medium text-gray-600">Ministries</button>
         </div>
 
-        <!-- More Info Section -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">More Info</h2>
-            <ul class="space-y-3">
-                <li class="flex justify-between items-center">
-                    <span>I am not sure if you want to be able to do this for me</span>
-                    <span class="font-bold">$1,000</span>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Original Fellowship Content -->
-        <!-- Today's Message Card -->
-        <div class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
-            <div class="flex items-center mb-4">
-                <img src="{% static 'images/default.jpg' %}" alt="Admin Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-indigo-400">
-                <div>
-                    <p class="font-bold text-indigo-700">Fellowship Updates</p>
-                    <p class="text-sm text-gray-500">@BucosaFellowship • Today</p>
+        <!-- News Feed -->
+        <div class="space-y-4 p-4">
+            <!-- Bible Study Card -->
+            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900">Wednesday Bible Study</h3>
+                        <p class="text-sm text-gray-600 mt-1">Deep dive into the Book of Acts with our fellowship leaders every Wednesday evening.</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs text-gray-500">Tomorrow</span>
+                            <span class="text-xs text-gray-500 mx-2">•</span>
+                            <span class="text-xs font-medium text-blue-600">Events</span>
+                        </div>
+                    </div>
+                    <img src="{% static 'images/bible-study.jpg' %}" alt="Bible Study" class="w-20 h-16 object-cover rounded ml-3">
                 </div>
             </div>
-            <div class="border-t-2 border-indigo-300 pt-4 mt-4">
-                <h2 class="text-xl font-bold mb-6 text-indigo-800">Fellowship Posts & Events</h2>
-                
-                {% if request.user.is_superuser %}
-                <div class="flex gap-4 mb-6">
-                    <a href="{% url 'fellowship' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">Go to Fellowship Home</a>
-                    <a href="{% url 'fellowship_admin' 1 %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">Fellowship Admin</a>
-                </div>
-                {% endif %}
-                
-                {% if user.is_authenticated %}
-                    {% if not is_fellowship_member %}
-                    <form method="post" action="{% url 'join_fellowship' 1 %}" class="mb-6">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">Join Fellowship</button>
-                    </form>
-                    {% else %}
-                    <div class="mb-6 text-green-600 font-semibold flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
-                        You are a member of the fellowship.
+
+            <!-- Pastor's Message Card -->
+            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900">Pastor's Weekly Reflection</h3>
+                        <p class="text-sm text-gray-600 mt-1">Read this week's reflection from our fellowship pastor on living out your faith on campus.</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs text-gray-500">2 days ago</span>
+                            <span class="text-xs text-gray-500 mx-2">•</span>
+                            <span class="text-xs font-medium text-blue-600">Messages</span>
+                        </div>
                     </div>
-                    {% endif %}
+                    <img src="{% static 'images/pastor-message.jpg' %}" alt="Pastor's Message" class="w-20 h-16 object-cover rounded ml-3">
+                </div>
+            </div>
+
+            <!-- Community Service Card -->
+            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900">Campus Outreach</h3>
+                        <p class="text-sm text-gray-600 mt-1">Join us as we serve our campus community through various outreach programs.</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs text-gray-500">Next week</span>
+                            <span class="text-xs text-gray-500 mx-2">•</span>
+                            <span class="text-xs font-medium text-blue-600">Community</span>
+                        </div>
+                    </div>
+                    <img src="{% static 'images/outreach.jpg' %}" alt="Campus Outreach" class="w-20 h-16 object-cover rounded ml-3">
+                </div>
+            </div>
+
+            <!-- Worship Team Card -->
+            <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900">Worship Team Auditions</h3>
+                        <p class="text-sm text-gray-600 mt-1">Calling all musicians and singers! Auditions for the fellowship worship team are open.</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs text-gray-500">1 week ago</span>
+                            <span class="text-xs text-gray-500 mx-2">•</span>
+                            <span class="text-xs font-medium text-blue-600">Ministries</span>
+                        </div>
+                    </div>
+                    <img src="{% static 'images/worship-team.jpg' %}" alt="Worship Team" class="w-20 h-16 object-cover rounded ml-3">
+                </div>
+            </div>
+
+            <!-- Membership Info -->
+            {% if user.is_authenticated %}
+                {% if not is_fellowship_member %}
+                <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900">Join Our Fellowship</h3>
+                            <p class="text-sm text-gray-600 mt-1">Become an official member of Bucosa Fellowship to access all our programs and resources.</p>
+                            <form method="post" action="{% url 'join_fellowship' 1 %}" class="mt-3">
+                                {% csrf_token %}
+                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition duration-300">
+                                    Join Now
+                                </button>
+                            </form>
+                        </div>
+                        <img src="{% static 'images/fellowship-group.jpg' %}" alt="Fellowship Group" class="w-20 h-16 object-cover rounded ml-3">
+                    </div>
+                </div>
                 {% else %}
-                    <div class="mb-6 text-gray-600">
-                        Please <a href="{% url 'login' %}" class="text-blue-600 underline hover:text-blue-800">log in</a> to join the fellowship.
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Posts Section -->
-        <div class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
-            <h3 class="text-xl font-bold mb-4 text-indigo-700 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-                Fellowship Posts
-            </h3>
-            {% if fellowship_posts %}
-            <div class="flex overflow-x-auto space-x-6 pb-4">
-                {% for post in fellowship_posts %}
-                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0">
-                            {% if post.author.profile and post.author.profile.profile_image %}
-                                <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author|display_name }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
-                            {% else %}
-                                <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
-                            {% endif %}
-                        </div>
+                <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-start">
                         <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="font-semibold text-indigo-700">{{ post.author|display_name }}</span>
-                                <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
-                                <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ post.fellowship.name }}</span>
-                            </div>
-                            <div class="mb-3 text-gray-700">{{ post.content|linebreaksbr }}</div>
-                            {% if post.image %}
-                            <img src="{{ post.image.url }}" class="rounded-lg mb-3 max-w-full h-auto max-h-40 object-cover shadow-md" />
-                            {% endif %}
-                            {% if post.video %}
-                            <video controls class="rounded-lg mb-3 w-full max-h-40 shadow-md">
-                                <source src="{{ post.video.url }}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-                <div class="text-center py-8 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    No fellowship posts yet.
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Events Section -->
-        <div class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
-            <h3 class="text-xl font-bold mb-4 text-indigo-700 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Fellowship Events
-            </h3>
-            {% if fellowship_events %}
-            <div class="flex overflow-x-auto space-x-6 pb-4">
-                {% for event in fellowship_events %}
-                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0">
-                            {% if event.creator.profile and event.creator.profile.profile_image %}
-                                <img src="{{ event.creator.profile.profile_image.url }}" alt="{{ event.creator.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
-                            {% else %}
-                                <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
-                            {% endif %}
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="font-semibold text-indigo-700">{{ event.creator.username }}</span>
-                                <span class="text-xs text-gray-400">{{ event.start_time|date:'M d, H:i' }}</span>
-                                <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ event.fellowship.name }}</span>
-                            </div>
-                            <h4 class="text-lg font-bold text-gray-800 mb-1">{{ event.title }}</h4>
-                            <div class="mb-3 text-gray-700">{{ event.description|linebreaksbr }}</div>
-                            {% if event.cover_image %}
-                            <img src="{{ event.cover_image.url }}" class="rounded-lg mb-3 max-w-full h-auto max-h-40 object-cover shadow-md" />
-                            {% endif %}
-                            <div class="flex items-center text-sm text-gray-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <h3 class="text-lg font-bold text-gray-900">Fellowship Member</h3>
+                            <p class="text-sm text-gray-600 mt-1">You are an active member of Bucosa Fellowship. Thank you for being part of our community!</p>
+                            <div class="flex items-center mt-2 text-green-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
-                                {{ event.location }}
+                                <span class="text-xs font-medium">Member</span>
                             </div>
                         </div>
+                        <img src="{% static 'images/fellowship-group.jpg' %}" alt="Fellowship Group" class="w-20 h-16 object-cover rounded ml-3">
                     </div>
                 </div>
-                {% endfor %}
-            </div>
+                {% endif %}
             {% else %}
-                <div class="text-center py-8 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    No fellowship events scheduled yet.
+                <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900">Join Our Fellowship</h3>
+                            <p class="text-sm text-gray-600 mt-1">Please log in to join Bucosa Fellowship and access all our programs and resources.</p>
+                            <a href="{% url 'login' %}" class="inline-block mt-3 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition duration-300">
+                                Log In
+                            </a>
+                        </div>
+                        <img src="{% static 'images/fellowship-group.jpg' %}" alt="Fellowship Group" class="w-20 h-16 object-cover rounded ml-3">
+                    </div>
                 </div>
             {% endif %}
         </div>
-
-        <!-- Pastor's Stories Section -->
-        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
-            <h2 class="text-2xl font-bold text-indigo-700 mb-6 text-center">Pastor's Stories</h2>
-            <div class="flex overflow-x-auto pb-4 space-x-6 px-2 scroll-container">
-                <!-- Story Card 1 -->
-                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
-                    <img src="{% static 'img/Kapata.jpg' %}" alt="Pastor Elosha Kapata" class="rounded-lg mb-4 w-full h-40 object-cover shadow-sm">
-                    <h3 class="text-xl font-bold text-indigo-700 mb-2">The Journey of Faith</h3>
-                    <p class="text-gray-700 text-sm mb-2">
-                        <span class="font-semibold">Pastor:</span> Elosha Kapata
-                    </p>
-                    <p class="text-gray-700 text-sm mb-2">
-                        <span class="font-semibold">Dates:</span> 2023 - 2024
-                    </p>
-                    <p class="text-gray-700 text-sm leading-relaxed">
-                        Pastor Elosha shares his personal journey of discovering faith and how it transformed his life. A testament to divine guidance and unwavering hope.
-                    </p>
-                </div>
-                
-                <!-- Story Card 2 -->
-                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
-                    <img src="{% static 'img/Lydia.jpg' %}" alt="Pastor Lydia Satira" class="rounded-lg mb-4 w-full h-40 object-cover shadow-sm">
-                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Building Community</h3>
-                    <p class="text-gray-700 text-sm mb-2">
-                        <span class="font-semibold">Pastor:</span> Lydia Satira
-                    </p>
-                    <p class="text-gray-700 text-sm mb-2">
-                        <span class="font-semibold">Dates:</span> 2022 - 2023
-                    </p>
-                    <p class="text-gray-700 text-sm leading-relaxed">
-                        Learn about the challenges and triumphs of building a vibrant and supportive community within the church, fostering love and fellowship.
-                    </p>
-                </div>
-                
-                <!-- Story Card 3 -->
-                <div class="flex-none w-80 bg-white rounded-lg shadow-md p-6 border border-indigo-100">
-                    <img src="{% static 'img/Philippe.jpg' %}" alt="Pastor Philippe Batezi" class="rounded-lg mb-4 w-full h-40 object-cover shadow-sm">
-                    <h3 class="text-xl font-bold text-indigo-700 mb-2">Moments of Grace</h3>
-                    <p class="text-gray-700 text-sm mb-2">
-                        <span class="font-semibold">Pastor:</span> Philippe Batezi
-                    </p>
-                    <p class="text-gray-700 text-sm mb-2">
-                        <span class="font-semibold">Dates:</span> 2019 - 2021
-                    </p>
-                    <p class="text-gray-700 text-sm leading-relaxed">
-                        Heartwarming anecdotes of parishioners experiencing profound moments of grace and divine intervention in their lives.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Our Mission Section -->
-        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
-            <h2 class="text-2xl font-bold text-indigo-700 mb-4 text-center">Our Mission</h2>
-            <div class="border-t-2 border-indigo-300 pt-4 mt-4 text-center">
-                <p class="text-lg md:text-xl text-gray-700 leading-relaxed">
-                    Leading students to a personal relationship with God while equipping them for leadership 
-                    and service through the transforming power of the Gospel to impact the University Campus, 
-                    the country and subsequently the entire world.
-                </p>
-            </div>
-        </section>
-
-        <!-- Daily Verse Section -->
-        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
-            <div class="flex items-center mb-4">
-                <img src="{% static 'images/default.jpg' %}" alt="Admin Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-indigo-400">
-                <div>
-                    <p class="font-bold text-indigo-700">Bucosa Fellowship Admin</p>
-                    <p class="text-sm text-gray-500">@BucosaFellowship • Just now</p>
-                </div>
-            </div>
-            <div class="border-t-2 border-indigo-300 pt-4 mt-4">
-                <p id="verse-text" class="text-xl md:text-2xl italic text-gray-700 leading-relaxed mb-4">
-                    "For where two or three are gathered in my name, there am I among them."
-                </p>
-                <p id="verse-reference" class="text-lg md:text-xl font-semibold text-indigo-600">- Matthew 18:20 (ESV)</p>
-                <p class="text-sm text-gray-500 mt-4">
-                    <span class="font-medium">Admin's Note:</span> This verse reminds us of the power of community and the presence of the divine when we come together in faith.
-                </p>
-            </div>
-            <!-- Gemini API powered button -->
-            <button id="get-reflection-btn" class="mt-6 px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-300 ease-in-out">
-                Get Reflection ✨
-            </button>
-            <div id="reflection-output" class="mt-6 p-4 bg-blue-50 rounded-lg text-left hidden">
-                <h3 class="text-xl font-semibold text-blue-800 mb-2">Reflection:</h3>
-                <p id="reflection-text" class="text-gray-700"></p>
-                <div id="loading-indicator" class="hidden text-center mt-4">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                    <p class="text-blue-600 mt-2">Generating reflection...</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Our Goals Section -->
-        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md mb-8">
-            <h2 class="text-2xl font-bold text-indigo-700 mb-4 text-center">Our Goals</h2>
-            <div class="border-t-2 border-indigo-300 pt-4 mt-4">
-                <ul class="list-disc list-inside text-lg md:text-xl text-gray-700 leading-relaxed space-y-2">
-                    <li>To provide daily spiritual nourishment through curated verses and reflections.</li>
-                    <li>To share authentic and uplifting stories that inspire faith and perseverance.</li>
-                    <li>To build a global online community united by shared values and spiritual growth.</li>
-                    <li>To offer resources that support personal devotion and understanding of scripture.</li>
-                    <li>To continuously adapt and innovate our platform to better serve our community.</li>
-                </ul>
-            </div>
-        </section>
     </main>
 
-    <!-- Footer Section -->
-    <footer class="bg-gray-800 text-white p-4 rounded-t-xl">
-        <div class="container mx-auto text-center text-sm md:text-base">
-            <p>&copy; 2025 Bucosa Fellowship. All rights reserved.</p>
-            <p class="mt-2">
-                <a href="#" class="text-blue-300 hover:underline">Privacy Policy</a> |
-                <a href="#" class="text-blue-300 hover:underline">Terms of Service</a>
-            </p>
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 z-20">
+        <div class="flex justify-around items-center max-w-xl mx-auto py-2">
+            <a href="#" class="text-center text-blue-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span class="text-xs font-medium mt-1 block">Home</span>
+            </a>
+            <a href="#" class="text-center text-gray-600 hover:text-blue-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span class="text-xs font-medium mt-1 block">Events</span>
+            </a>
+            <a href="#" class="text-center text-gray-600 hover:text-blue-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span class="text-xs font-medium mt-1 block">Community</span>
+            </a>
+            <a href="#" class="text-center text-gray-600 hover:text-blue-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                    <line x1="12" y1="19" x2="12" y2="22"/>
+                </svg>
+                <span class="text-xs font-medium mt-1 block">More</span>
+            </a>
         </div>
-    </footer>
-
-    <script>
-        const getReflectionBtn = document.getElementById('get-reflection-btn');
-        const verseTextElement = document.getElementById('verse-text');
-        const verseReferenceElement = document.getElementById('verse-reference');
-        const reflectionOutput = document.getElementById('reflection-output');
-        const reflectionText = document.getElementById('reflection-text');
-        const loadingIndicator = document.getElementById('loading-indicator');
-
-        getReflectionBtn.addEventListener('click', async () => {
-            const verse = verseTextElement.textContent.trim();
-            const reference = verseReferenceElement.textContent.trim();
-            const prompt = `Provide a short, uplifting spiritual reflection on the following Bible verse: ${verse} ${reference}. Focus on its practical application for daily life.`;
-
-            reflectionOutput.classList.add('hidden');
-            reflectionText.textContent = '';
-            loadingIndicator.classList.remove('hidden');
-
-            try {
-                // Simulate API call (replace with actual Gemini API implementation)
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                // Sample reflection (replace with actual API response)
-                reflectionText.textContent = "This beautiful verse reminds us that even in small gatherings of believers, Christ is present. It's not about the size of the group but the sincerity of worship. In our daily lives, we can find comfort knowing that when we come together in prayer or fellowship, no matter how small the group, God is with us. This truth should encourage us to value every opportunity for Christian fellowship, whether in large church services or small Bible study groups.";
-                
-                reflectionOutput.classList.remove('hidden');
-            } catch (error) {
-                reflectionText.textContent = "Failed to generate reflection. Please try again later.";
-                reflectionOutput.classList.remove('hidden');
-                console.error("Error:", error);
-            } finally {
-                loadingIndicator.classList.add('hidden');
-            }
-        });
-    </script>
+    </nav>
 </body>
 
 {% endblock %}
