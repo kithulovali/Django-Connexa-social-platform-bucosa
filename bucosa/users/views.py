@@ -202,10 +202,19 @@ def register_user(request):
             if user.email:
                 display_name = get_display_name(user)
                 try:
+                    subject = 'Welcome to Bucosa!'
+                    message = (
+                        f"Hi {display_name},\n\n"
+                        "Welcome to Bucosa, your new social platform for faith, fellowship, and community!\n\n"
+                        "We're excited to have you join us. Here you can connect with others, share your journey, and grow together.\n\n"
+                        "If you have any questions or need help, reply to this email or visit our help center.\n\n"
+                        "Blessings,\nThe Bucosa Team"
+                    )
+                    from_email = settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else ""
                     send_mail(
-                        'Welcome to Bucosa!',
-                        f'{display_name}, welcome to Bucosa!',
-                        None,
+                        subject,
+                        message,
+                        from_email,
                         [user.email],
                         fail_silently=False,
                     )
