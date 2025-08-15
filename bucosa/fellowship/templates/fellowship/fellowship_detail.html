@@ -61,6 +61,32 @@
                   <span class="text-xs text-gray-600 mt-1 truncate">
                    {{ m.user|display_name }}
                   </span>
+                    <!-- List of Created Posts -->
+                    {% if posts %}
+                    <div class="space-y-4 p-4">
+                        {% for post in posts %}
+                        <div class="news-card bg-white p-4 rounded-lg shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-semibold">{{ post.author.username }}</span>
+                                        <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mt-1">{{ post.content|linebreaksbr }}</p>
+                                    {% if post.image %}
+                                        <img src="{{ post.image.url }}" alt="Post Image" class="w-20 h-16 object-cover rounded mt-2">
+                                    {% endif %}
+                                    {% if post.video %}
+                                        <video controls class="w-32 h-20 rounded mt-2"><source src="{{ post.video.url }}"></video>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-gray-500">No posts have been created yet.</div>
+                    {% endif %}
               </div>
          {% endfor %}
         </div>
