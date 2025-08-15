@@ -87,7 +87,13 @@ def create_fellowship_post(request, fellowship_id):
         image = request.FILES.get('image')
         video = request.FILES.get('video')
         if content:
-           
+            FellowshipPost.objects.create(
+                fellowship=fellowship,
+                author=request.user,
+                content=content,
+                image=image,
+                video=video
+            )
             members = FellowshipMember.objects.filter(fellowship=fellowship).exclude(user=request.user)
             for member in members:
                 Notification.objects.create(
