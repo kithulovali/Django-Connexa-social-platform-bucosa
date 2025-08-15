@@ -124,18 +124,19 @@ class Invitation(models.Model):
     def __str__(self):
         return f"Invitation from {self.inviter} to {self.email or self.phone or self.link_token}"
 
-    # Model for group join requests
-    class GroupJoinRequest(models.Model):
-        user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group_join_requests')
-        group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='join_requests')
-        created_at = models.DateTimeField(auto_now_add=True)
-        approved = models.BooleanField(default=False)
-        rejected = models.BooleanField(default=False)
-        reviewed_at = models.DateTimeField(blank=True, null=True)
 
-        class Meta:
-            unique_together = ('user', 'group')
+# Model for group join requests
+class GroupJoinRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group_join_requests')
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='join_requests')
+    created_at = models.DateTimeField(auto_now_add=True)
+    approved = models.BooleanField(default=False)
+    rejected = models.BooleanField(default=False)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
 
-        def __str__(self):
-            status = 'approved' if self.approved else 'rejected' if self.rejected else 'pending'
-            return f"{self.user} request to join {self.group} ({status})"
+    class Meta:
+        unique_together = ('user', 'group')
+
+    def __str__(self):
+        status = 'approved' if self.approved else 'rejected' if self.rejected else 'pending'
+        return f"{self.user} request to join {self.group} ({status})"
