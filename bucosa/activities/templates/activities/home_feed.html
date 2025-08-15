@@ -320,13 +320,39 @@
                     {% endif %}
                     <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ group.user_set.count }} Members</div>
                     {% if user.is_authenticated and user not in group.user_set.all %}
-                    <form action="{% url 'users:request_join_group' group.id %}" method="post">
+                    <form class="request-join-form" data-group-id="{{ group.id }}" method="post" action="{% url 'users:request_join_group' group.id %}">
                       {% csrf_token %}
                       <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
                         Request to Join Group
                       </button>
                     </form>
                     {% endif %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.request-join-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var groupId = form.getAttribute('data-group-id');
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', form.action, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      var formData = new FormData(form);
+      xhr.onload = function() {
+        if (xhr.status === 200 || xhr.status === 302) {
+          // Remove the group card from suggestions
+          var card = form.closest('.suggestion-item');
+          if (card) card.remove();
+        } else {
+          alert('Failed to send join request.');
+        }
+      };
+      xhr.send(formData);
+    });
+  });
+});
+</script>
+{% endblock %}
                   </div>
                 {% endfor %}
               </div>
@@ -498,10 +524,10 @@
             </div>
           </div>
           {% if user.is_authenticated and user not in group.user_set.all %}
-          <form action="{% url 'users:join_group' group.id %}" method="post">
+          <form class="request-join-form" data-group-id="{{ group.id }}" method="post" action="{% url 'users:request_join_group' group.id %}">
             {% csrf_token %}
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-xl font-semibold transition-all shadow-sm text-xs sm:text-sm">
-              Join Group
+            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-xl font-semibold transition-all shadow-sm text-xs sm:text-sm">
+              Request to Join Group
             </button>
           </form>
           {% endif %}
@@ -518,6 +544,28 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // AJAX for request to join group (main feed and sidebar)
+  document.querySelectorAll('.request-join-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var groupId = form.getAttribute('data-group-id');
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', form.action, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      var formData = new FormData(form);
+      xhr.onload = function() {
+        if (xhr.status === 200 || xhr.status === 302) {
+          // Remove the group card from suggestions
+          var card = form.closest('.suggestion-item');
+          if (card) card.remove();
+        } else {
+          alert('Failed to send join request.');
+        }
+      };
+      xhr.send(formData);
+    });
+  });
+
   // Fisher-Yates shuffle algorithm
   function shuffleArray(array) {
     const shuffled = [...array];
@@ -534,8 +582,6 @@ document.addEventListener('DOMContentLoaded', function() {
     containers.forEach(container => {
       const items = Array.from(container.children);
       const shuffledItems = shuffleArray(items);
-      
-      // Clear container and append shuffled items
       container.innerHTML = '';
       shuffledItems.forEach(item => {
         container.appendChild(item);
@@ -557,8 +603,6 @@ document.addEventListener('DOMContentLoaded', function() {
       var postId = btn.getAttribute('data-post-id');
       var section = document.getElementById('comments-section-' + postId);
       section.classList.toggle('hidden');
-      
-      // Update button appearance
       var icon = btn.querySelector('.material-icons');
       if (section.classList.contains('hidden')) {
         icon.textContent = 'chat_bubble_outline';
@@ -567,25 +611,20 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
-  
+
   // Auto-resize comment textareas with mobile consideration
   document.querySelectorAll('textarea[name="content"]').forEach(function(textarea) {
-    // Set initial height
     textarea.style.height = 'auto';
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-    
-    // Add input listener
     textarea.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
-    
-    // Add mobile-specific class
     if ('ontouchstart' in window || navigator.maxTouchPoints) {
       textarea.classList.add('comment-textarea');
     }
   });
-  
+
   // Prevent zooming on focus for mobile devices
   if ('ontouchstart' in window || navigator.maxTouchPoints) {
     document.querySelectorAll('input, textarea, select').forEach(function(el) {
@@ -611,19 +650,14 @@ document.addEventListener('DOMContentLoaded', function() {
       const icon = this.querySelector('.like-icon');
       const countElement = this.querySelector('.like-count');
       const isLiked = this.dataset.liked === 'true';
-      
-      // Optimistic UI update
       const newLikedState = !isLiked;
       this.dataset.liked = newLikedState;
       icon.textContent = newLikedState ? 'favorite' : 'favorite_border';
       countElement.textContent = newLikedState ? 
         parseInt(countElement.textContent) + 1 : 
         parseInt(countElement.textContent) - 1;
-
-      // Animation
       icon.classList.add('animate-pulse');
       setTimeout(() => icon.classList.remove('animate-pulse'), 300);
-
       try {
         const response = await fetch(`/activities/post/${postId}/like/`, {
           method: 'POST',
@@ -633,14 +667,9 @@ document.addEventListener('DOMContentLoaded', function() {
           },
           credentials: 'same-origin'
         });
-        
         if (!response.ok) throw new Error('Like failed');
-        
         const data = await response.json();
-        
-        // Verify response matches our post
         if (data.post_id == postId) {
-          // Only update if server response differs
           if (data.liked !== newLikedState) {
             icon.textContent = data.liked ? 'favorite' : 'favorite_border';
             countElement.textContent = data.count;
@@ -649,7 +678,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       } catch (error) {
         console.error('Like error:', error);
-        // Revert on error
         icon.textContent = isLiked ? 'favorite' : 'favorite_border';
         countElement.textContent = isLiked ? 
           parseInt(countElement.textContent) + 1 : 
@@ -659,7 +687,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Refresh suggestions periodically (optional enhancement)
   setInterval(function() {
     shuffleElements('.suggested-users-container');
     shuffleElements('.suggested-groups-container');
@@ -667,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
     shuffleElements('.sidebar-suggested-users');
     shuffleElements('.sidebar-suggested-groups');
     shuffleElements('.sidebar-suggested-events');
-  }, 30000); // Reshuffle every 30 seconds
+  }, 30000);
 });
 </script>
 {% endblock content %}

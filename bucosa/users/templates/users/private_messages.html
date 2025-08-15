@@ -89,6 +89,31 @@
           <p class="text-sm">No conversations yet</p>
         </div>
       {% endfor %}
+
+      <!-- Group Chats List -->
+      {% if user_groups %}
+      <div class="px-4 py-2 text-xs text-gray-500 font-semibold uppercase tracking-wider">Group Chats</div>
+      {% for group in user_groups %}
+        <a href="{% url 'users:group_chat' group.id %}"
+           class="block px-4 py-3 hover:bg-green-50 transition-colors border-b border-gray-100">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold">
+              {{ group.name|first|upper }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <h3 class="font-medium text-gray-900 truncate">{{ group.name }}</h3>
+                <span class="text-xs text-gray-500">Group</span>
+              </div>
+              <div class="flex items-center justify-between mt-1">
+                <p class="text-sm text-gray-600 truncate">Group chat</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+      {% endif %}
+      <!-- End Group Chats List -->
     </div>
   </div>
 

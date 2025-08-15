@@ -108,6 +108,18 @@ def manage_group_requests(request, group_id):
             join_request.reviewed_at = timezone.now()
             join_request.save()
             group.user_set.add(join_request.user)
+            # Send email notification to user
+            if join_request.user.email:
+                from django.core.mail import send_mail
+                subject = f"Your request to join '{group.name}' was approved!"
+                message = (
+                    f"Hi {join_request.user.username},\n\n"
+                    f"Your request to join the group '{group.name}' has been approved.\n"
+                    f"You can now access the group and participate in the chat!\n\n"
+                    f"Go to the group: https://{request.get_host()}{group.get_absolute_url()}\n\n"
+                    f"Blessings,\nThe Bucosa Team"
+                )
+                send_mail(subject, message, None, [join_request.user.email], fail_silently=True)
             messages.success(request, f"Approved {join_request.user.username}.")
         elif action == 'reject':
             join_request.rejected = True
@@ -917,6 +929,10 @@ def private_messages(request, user_id=None):
     # Optimize following users query
     following_ids = user_following.objects.filter(user=request.user).values_list('following_user', flat=True)
     users = User.objects.filter(id__in=following_ids).select_related()
+
+    # Get groups where user is a member
+    from django.contrib.auth.models import Group
+    user_groups = Group.objects.filter(user=request.user)
     
     search_query = request.GET.get('search', '')
     if search_query:
@@ -1013,7 +1029,7 @@ def private_messages(request, user_id=None):
         'users': users,
         'search_query': search_query,
         'unread_counts': unread_counts,
-
+        'user_groups': user_groups,
         'error_message': error_message,
     }
 
