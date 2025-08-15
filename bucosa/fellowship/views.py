@@ -166,7 +166,7 @@ def fellowship_detail(request, fellowship_id):
     followers_count = members.count()
     return render(request, 'fellowship/fellowship_detail.html', {
         'fellowship': fellowship,
-        'posts': posts,
+        'fellowship_posts': posts,
         'events': events,
         'members': members,
         'is_member': is_member,
