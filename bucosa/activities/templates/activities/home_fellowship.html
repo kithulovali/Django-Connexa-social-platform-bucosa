@@ -20,23 +20,7 @@
   {% else %}
     <div class="mb-6 text-gray-600">Please <a href="{% url 'login' %}" class="text-blue-600 underline">log in</a> to join the fellowship.</div>
   {% endif %}
-  <div class="mb-8">
-    <h3 class="text-xl font-bold mb-2">Fellowship Posts</h3>
-    {% for post in fellowship_posts %}
-      <div class="border-b py-4">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="font-semibold">{{ post.author.username }}</span>
-          <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
-          <span class="text-xs text-blue-500">({{ post.fellowship.name }})</span>
-        </div>
-        <div class="mb-2">{{ post.content|linebreaksbr }}</div>
-        {% if post.image %}<img src="{{ post.image.url }}" class="max-w-xs rounded mb-2" />{% endif %}
-        {% if post.video %}<video controls class="max-w-xs rounded mb-2"><source src="{{ post.video.url }}"></video>{% endif %}
-      </div>
-    {% empty %}
-      <div class="text-gray-400">No fellowship posts yet.</div>
-    {% endfor %}
-  </div>
+ 
   <div>
     <h3 class="text-xl font-bold mb-2">Fellowship Events</h3>
     {% for event in fellowship_events %}
