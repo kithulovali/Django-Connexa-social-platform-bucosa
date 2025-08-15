@@ -164,7 +164,7 @@ def create_fellowship_event(request, fellowship_id):
 @login_required
 def fellowship_detail(request, fellowship_id):
     fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
-    posts = FellowshipPost.objects.filter(fellowship=fellowship).order_by('-created_at')
+    posts = FellowshipPost.objects.filter(fellowship=fellowship, author=fellowship.admin).order_by('-created_at')
     events = FellowshipEvent.objects.filter(fellowship=fellowship).order_by('-start_time')
     members = FellowshipMember.objects.filter(fellowship=fellowship)
     is_member = members.filter(user=request.user).exists()

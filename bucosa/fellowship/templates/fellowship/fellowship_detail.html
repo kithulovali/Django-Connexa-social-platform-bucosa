@@ -75,8 +75,8 @@
             <a href="{% url 'fellowship_events' fellowship.id %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">Events</a>
         </div>
          <div class="mb-8">
-        <h3 class="text-xl font-bold mb-2">Fellowship Posts</h3>
-        {% for post in fellowship_posts %}
+    <h3 class="text-xl font-bold mb-2">Admin's Fellowship Posts</h3>
+    {% for post in fellowship_posts %}
         <div class="border-b py-4">
             <div class="flex items-center gap-2 mb-1">
             <span class="font-semibold">{{ post.author.username }}</span>
