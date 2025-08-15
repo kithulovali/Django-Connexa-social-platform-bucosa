@@ -71,18 +71,23 @@ from django.urls import reverse
 def invite(request):
     invite_link = None
     if request.method == 'POST':
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        invitation = Invitation.objects.create(
-            inviter=request.user,
-            email=email if email else None,
-            phone=phone if phone else None
-        )
-        invite_link = request.build_absolute_uri(invitation.get_invite_link())
-        if email:
-            send_invitation_email(email, invite_link)
-        if phone:
-            send_invitation_sms(phone, invite_link)
+        if request.POST.get('generate_link'):
+            # Generate link without email or phone
+            invitation = Invitation.objects.create(inviter=request.user)
+            invite_link = request.build_absolute_uri(invitation.get_invite_link())
+        else:
+            email = request.POST.get('email')
+            phone = request.POST.get('phone')
+            invitation = Invitation.objects.create(
+                inviter=request.user,
+                email=email if email else None,
+                phone=phone if phone else None
+            )
+            invite_link = request.build_absolute_uri(invitation.get_invite_link())
+            if email:
+                send_invitation_email(email, invite_link)
+            if phone:
+                send_invitation_sms(phone, invite_link)
     return render(request, 'users/invite.html', {'invite_link': invite_link})
 
 # users/utils.py
