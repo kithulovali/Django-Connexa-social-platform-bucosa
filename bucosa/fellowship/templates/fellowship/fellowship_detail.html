@@ -16,7 +16,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="pb-20">
+    
         <!-- Admin Controls: Only visible to superusers -->
         {% if user.is_superuser %}
         <div class="bg-white p-4 mb-4 shadow border border-indigo-200 rounded-lg">
@@ -68,12 +68,11 @@
 
         <!-- Category Tabs -->
         <div class="category-tabs bg-white px-4 py-2 shadow-sm sticky top-14 z-10">
-            <a href="{% url 'fellowship_detail' fellowship.id %}" class="px-3 py-1 text-sm font-medium text-blue-600 border-b-2 border-blue-600 mr-4">All</a>
             <a href="{% url 'donate' %}" class="px-3 py-1 text-sm font-medium text-green-600 border-b-2 border-green-600">Donate</a>
             <a href="{% url 'fellowship_history' %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">History</a>
-            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-4 py-2 bg-green-600 text-white rounded-full font-semibold ">Events</a>
+            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-4 py-2 text-white rounded-full font-semibold ">Events</a>
         </div>
-    </main>
+
 
 
 {% endblock %}
