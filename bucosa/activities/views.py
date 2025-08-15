@@ -111,12 +111,22 @@ def home_activities(request):
         suggested_users = list(User.objects.exclude(id__in=excluded_ids).order_by('?')[:10])
         cache.set(suggestions_cache_key, suggested_users, 3600)  # 1 hour cache
 
-    # Suggested groups (cached)
-    groups_cache_key = 'suggested_groups'
-    suggested_groups = cache.get(groups_cache_key, [])
-    if not suggested_groups:
-        suggested_groups = list(Group.objects.all().order_by('?')[:10])
-        cache.set(groups_cache_key, suggested_groups, 3600)  # 1 hour cache
+    # Suggested groups (cached per user)
+    suggested_groups = []
+    if request.user.is_authenticated:
+        user_groups = set(request.user.groups.values_list('id', flat=True))
+        groups_cache_key = f'suggested_groups_{request.user.id}'
+        suggested_groups = cache.get(groups_cache_key, [])
+        if not suggested_groups:
+            # Exclude groups the user is already a member of
+            suggested_groups = list(Group.objects.exclude(id__in=user_groups).order_by('?')[:5])
+            cache.set(groups_cache_key, suggested_groups, 3600)  # 1 hour cache
+    else:
+        groups_cache_key = 'suggested_groups_anon'
+        suggested_groups = cache.get(groups_cache_key, [])
+        if not suggested_groups:
+            suggested_groups = list(Group.objects.all().order_by('?')[:5])
+            cache.set(groups_cache_key, suggested_groups, 3600)  # 1 hour cache
 
     # --- 2. Interleave the content for the main feed ---
     
