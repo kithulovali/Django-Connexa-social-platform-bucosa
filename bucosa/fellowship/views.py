@@ -1,28 +1,6 @@
-from .models import MembershipRequest
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def membership_requests_page(request, fellowship_id):
-    fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
-    membership_requests = MembershipRequest.objects.filter(fellowship=fellowship, accepted=False)
-    return render(request, 'fellowship/membership_requests.html', {
-        'fellowship': fellowship,
-        'membership_requests': membership_requests,
-    })
-@require_POST
-def refuse_membership_request(request, request_id):
-    from .models import MembershipRequest
-    req = get_object_or_404(MembershipRequest, id=request_id, accepted=False)
-    req.delete()
-    messages.success(request, f"{req.user.username}'s request has been refused.")
-    return redirect('membership_requests_page', fellowship_id=req.fellowship.id)
-def fellowship_events(request, fellowship_id):
-    fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
-    events = FellowshipEvent.objects.filter(fellowship=fellowship).order_by('-start_time')
-    return render(request, 'fellowship/fellowship_events.html', {
-        'fellowship': fellowship,
-        'events': events,
-    })
+from django.contrib.auth.decorators import login_required
+from .models import MembershipRequest
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -305,3 +283,26 @@ def accept_membership_request(request, request_id):
     req.save()
     messages.success(request, f"{req.user.username} has been accepted into the fellowship.")
     return redirect('fellowship_admin', fellowship_id=req.fellowship.id)
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def membership_requests_page(request, fellowship_id):
+    fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
+    membership_requests = MembershipRequest.objects.filter(fellowship=fellowship, accepted=False)
+    return render(request, 'fellowship/membership_requests.html', {
+        'fellowship': fellowship,
+        'membership_requests': membership_requests,
+    })
+@require_POST
+def refuse_membership_request(request, request_id):
+    from .models import MembershipRequest
+    req = get_object_or_404(MembershipRequest, id=request_id, accepted=False)
+    req.delete()
+    messages.success(request, f"{req.user.username}'s request has been refused.")
+    return redirect('membership_requests_page', fellowship_id=req.fellowship.id)
+def fellowship_events(request, fellowship_id):
+    fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
+    events = FellowshipEvent.objects.filter(fellowship=fellowship).order_by('-start_time')
+    return render(request, 'fellowship/fellowship_events.html', {
+        'fellowship': fellowship,
+        'events': events,
+    })
