@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Accept Invitation</h2>
+{% if invitation and not invitation.accepted %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Accept Invitation</button>
+    </form>
+{% elif invitation and invitation.accepted %}
+    <p>This invitation has already been accepted.</p>
+{% else %}
+    <p>Invalid or expired invitation link.</p>
+{% endif %}
+{% endblock %}

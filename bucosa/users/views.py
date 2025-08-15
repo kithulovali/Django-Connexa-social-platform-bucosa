@@ -1,3 +1,6 @@
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth import get_user_model, login, logout, authenticate, update_session_auth_hash
@@ -41,7 +44,7 @@ from channels.layers import get_channel_layer
 
 # Local imports
 from .forms import profileForm, ProfileUpdateForm, GroupCreateForm, GroupProfileForm
-from .models import user_profile, GroupProfile, user_following
+from .models import user_profile, GroupProfile, user_following, Invitation
 from .models_block_report import UserBlock, UserReport
 from .models_group_message import GroupMessage
 from notifications.utils import create_notification, send_custom_notification_email
@@ -59,7 +62,28 @@ def api_unread_messages_count(request):
     count = PrivateMessage.objects.filter(recipient=request.user, is_read=False).count()
     return JsonResponse({'unread_messages_count': count})
 
+
 # Create your views here.
+
+from django.urls import reverse
+
+@login_required
+def invite(request):
+    invite_link = None
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        invitation = Invitation.objects.create(
+            inviter=request.user,
+            email=email if email else None,
+            phone=phone if phone else None
+        )
+        invite_link = request.build_absolute_uri(invitation.get_invite_link())
+        if email:
+            send_invitation_email(email, invite_link)
+        if phone:
+            send_invitation_sms(phone, invite_link)
+    return render(request, 'users/invite.html', {'invite_link': invite_link})
 
 # users/utils.py
 def safe_get_or_create_profile(user, defaults=None):
@@ -1113,3 +1137,24 @@ def advanced_search(request):
         'location': location, 
         'group': group
     })
+
+def send_invitation_email(email, invite_link):
+    subject = "You're invited!"
+    message = f"You have been invited. Click the link to join: {invite_link}"
+    send_mail(subject, message, None, [email])
+
+def send_invitation_sms(phone, invite_link):
+    # Integrate with SMS provider here
+    pass
+
+@login_required
+def accept_invite(request, token):
+    invitation = Invitation.objects.filter(link_token=token).first()
+    if not invitation:
+        return render(request, 'users/accept_invite.html', {'invitation': None})
+    if request.method == 'POST' and not invitation.accepted:
+        invitation.accepted = True
+        invitation.accepted_at = timezone.now()
+        invitation.save()
+        # Optionally, add user to group or perform other actions
+    return render(request, 'users/accept_invite.html', {'invitation': invitation})

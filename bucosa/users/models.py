@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, Group
 from django.utils.encoding import force_str
 from django_resized import ResizedImageField
 from cloudinary.models import CloudinaryField
-
+import uuid
 class user_profile(models.Model):
     user = models.OneToOneField(
         User, 
@@ -68,6 +68,7 @@ class user_following(models.Model):
         ]
         ordering = ['-created_at']
 
+class GroupProfile(models.Model):
     group = models.OneToOneField(
         Group, 
         on_delete=models.CASCADE, 
@@ -106,7 +107,7 @@ class user_following(models.Model):
         return self.group.name
 
 # Invitation model for inviting via contact or link
-import uuid
+
 class Invitation(models.Model):
     inviter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
     email = models.EmailField(blank=True, null=True)

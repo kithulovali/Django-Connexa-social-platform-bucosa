@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Invite Someone</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email">
+    <br>
+    <label for="phone">Phone:</label>
+    <input type="text" name="phone" id="phone">
+    <br>
+    <button type="submit">Send Invitation</button>
+</form>
+{% if invite_link %}
+    <h3>Or share this invitation link:</h3>
+    <input type="text" value="{{ invite_link }}" readonly style="width:100%">
+{% endif %}
+{% endblock %}
