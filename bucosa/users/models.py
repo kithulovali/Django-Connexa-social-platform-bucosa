@@ -68,7 +68,6 @@ class user_following(models.Model):
         ]
         ordering = ['-created_at']
 
-class GroupProfile(models.Model):
     group = models.OneToOneField(
         Group, 
         on_delete=models.CASCADE, 
@@ -105,3 +104,21 @@ class GroupProfile(models.Model):
 
     def __str__(self):
         return self.group.name
+
+# Invitation model for inviting via contact or link
+import uuid
+class Invitation(models.Model):
+    inviter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    link_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    accepted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    accepted_at = models.DateTimeField(blank=True, null=True)
+
+    def get_invite_link(self):
+        from django.urls import reverse
+        return reverse('users:accept_invite', args=[str(self.link_token)])
+
+    def __str__(self):
+        return f"Invitation from {self.inviter} to {self.email or self.phone or self.link_token}"
