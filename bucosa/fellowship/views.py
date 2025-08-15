@@ -1,4 +1,5 @@
-
+from django.contrib.contenttypes.models import ContentType
+from activities.models import GenericLike, GenericComment, GenericShare
 from django.contrib.auth.decorators import login_required
 from .models import MembershipRequest
 from django.views.decorators.http import require_POST
@@ -323,3 +324,44 @@ def fellowship_events(request, fellowship_id):
         'fellowship': fellowship,
         'events': events,
     })
+    # Like FellowshipPost
+@login_required
+@require_POST
+def like_fellowship_post(request, fellowship_id, post_id):
+    post = get_object_or_404(FellowshipPost, id=post_id, fellowship_id=fellowship_id)
+    content_type = ContentType.objects.get_for_model(FellowshipPost)
+    like, created = GenericLike.objects.get_or_create(
+        user=request.user,
+        content_type=content_type,
+        object_id=post.id
+    )
+    return redirect('fellowship_detail', fellowship_id=fellowship_id)
+
+# Comment FellowshipPost
+@login_required
+@require_POST
+def comment_fellowship_post(request, fellowship_id, post_id):
+    post = get_object_or_404(FellowshipPost, id=post_id, fellowship_id=fellowship_id)
+    content_type = ContentType.objects.get_for_model(FellowshipPost)
+    content = request.POST.get('content', '').strip()
+    if content:
+        GenericComment.objects.create(
+            content_type=content_type,
+            object_id=post.id,
+            author=request.user,
+            content=content
+        )
+    return redirect('fellowship_detail', fellowship_id=fellowship_id)
+
+# Share FellowshipPost
+@login_required
+@require_POST
+def share_fellowship_post(request, fellowship_id, post_id):
+    post = get_object_or_404(FellowshipPost, id=post_id, fellowship_id=fellowship_id)
+    content_type = ContentType.objects.get_for_model(FellowshipPost)
+    GenericShare.objects.get_or_create(
+        user=request.user,
+        content_type=content_type,
+        object_id=post.id
+    )
+    return redirect('fellowship_detail', fellowship_id=fellowship_id)

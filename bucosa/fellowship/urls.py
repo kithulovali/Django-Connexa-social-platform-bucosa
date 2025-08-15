@@ -1,4 +1,5 @@
-from django.urls import path 
+  
+from django.urls import path
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
@@ -6,9 +7,12 @@ from django.conf import settings
 urlpatterns = [
     path('', views.fellowship_detail, kwargs={'fellowship_id': 1}, name='fellowship'),  # Root page is fellowship_detail for id=1 (or change as needed)
     path('edit/<int:fellowship_id>/', views.edit_fellowship, name='edit_fellowship'),
-    path('donate/',views.donate_view , name ='donate'),
+    path('donate/', views.donate_view, name='donate'),
+    path('<int:fellowship_id>/post/<int:post_id>/like/', views.like_fellowship_post, name='like_fellowship_post'),
+    path('<int:fellowship_id>/post/<int:post_id>/comment/', views.comment_fellowship_post, name='comment_fellowship_post'),
+    path('<int:fellowship_id>/post/<int:post_id>/share/', views.share_fellowship_post, name='share_fellowship_post'),
     path("fellowship_history/", views.fellowship_history, name="fellowship_history"),
-    path('edit_fellowship_model/<int:fellowship_id>/', views.edit_fellowship_model , name='edit_fellowship_model'),
+    path('edit_fellowship_model/<int:fellowship_id>/', views.edit_fellowship_model, name='edit_fellowship_model'),
     path('<int:fellowship_id>/', views.fellowship_detail, name='fellowship_detail'),
     path('<int:fellowship_id>/join/', views.join_fellowship, name='join_fellowship'),
     path('<int:fellowship_id>/post/', views.create_fellowship_post, name='create_fellowship_post'),
@@ -24,6 +28,9 @@ urlpatterns = [
     path('<int:fellowship_id>/event/<int:event_id>/edit/', views.edit_fellowship_event, name='edit_fellowship_event'),
     path('<int:fellowship_id>/event/<int:event_id>/delete/', views.delete_fellowship_event, name='delete_fellowship_event'),
     path('donations/', views.donation_list_view, name='donation_list'),
+    path('<int:fellowship_id>/post/<int:post_id>/like/', views.like_fellowship_post, name='like_fellowship_post'),
+    path('<int:fellowship_id>/post/<int:post_id>/comment/', views.comment_fellowship_post, name='comment_fellowship_post'),
+    path('<int:fellowship_id>/post/<int:post_id>/share/', views.share_fellowship_post, name='share_fellowship_post'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

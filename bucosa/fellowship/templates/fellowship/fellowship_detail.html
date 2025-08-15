@@ -77,15 +77,79 @@
          <div class="mb-8">
     <h3 class="text-xl font-bold mb-2">Admin's Fellowship Posts</h3>
     {% for post in fellowship_posts %}
-        <div class="border-b py-4">
-            <div class="flex items-center gap-2 mb-1">
-            <span class="font-semibold">{{ post.author.username }}</span>
-            <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
-            <span class="text-xs text-blue-500">({{ post.fellowship.name }})</span>
+        <article class="max-w-2xl mx-auto mb-10 bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
+            <header class="px-8 pt-8 pb-4 border-b border-gray-100 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <span class="font-bold text-indigo-700 text-2xl">{{ post.author.username|slice:":1"|upper }}</span>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Fellowship News</h2>
+                    <div class="text-sm text-gray-500">
+                        By <span class="font-semibold text-indigo-700">{{ post.author.username }}</span>
+                        &bull; {{ post.created_at|date:'M d, Y H:i' }}
+                        <span class="ml-2 text-xs text-indigo-500">({{ post.fellowship.name }})</span>
+                    </div>
+                </div>
+            </header>
+            <section class="px-8 py-6">
+                <div class="mb-4 text-lg text-gray-800 font-medium leading-relaxed">{{ post.content|linebreaksbr }}</div>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="w-full max-w-lg rounded-xl shadow mb-4 border-2 border-indigo-200" />
+                {% endif %}
+                {% if post.video %}
+                    <video controls class="w-full max-w-lg rounded-xl shadow mb-4 border-2 border-indigo-200"><source src="{{ post.video.url }}"></video>
+                {% endif %}
+            </section>
+            <footer class="px-8 pb-6 border-t border-gray-100">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-12 h-12 rounded-full bg-indigo-200 flex items-center justify-center">
+                    <span class="font-bold text-indigo-700 text-lg">{{ post.author.username|slice:":1"|upper }}</span>
+                </div>
+                <div>
+                    <span class="font-semibold text-indigo-700">{{ post.author.username }}</span>
+                    <span class="text-xs text-gray-400 ml-2">{{ post.created_at|date:'M d, H:i' }}</span>
+                    <span class="text-xs text-indigo-500 ml-2">({{ post.fellowship.name }})</span>
+                </div>
             </div>
-            <div class="mb-2">{{ post.content|linebreaksbr }}</div>
-            {% if post.image %}<img src="{{ post.image.url }}" class="max-w-xs rounded mb-2" />{% endif %}
-            {% if post.video %}<video controls class="max-w-xs rounded mb-2"><source src="{{ post.video.url }}"></video>{% endif %}
+            <div class="mb-4 text-lg text-gray-800 font-medium">{{ post.content|linebreaksbr }}</div>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" class="w-full max-w-md rounded-xl shadow mb-4 border-2 border-indigo-200" />
+            {% endif %}
+            {% if post.video %}
+                <video controls class="w-full max-w-md rounded-xl shadow mb-4 border-2 border-indigo-200"><source src="{{ post.video.url }}"></video>
+            {% endif %}
+
+            <!-- Like, Comment, Share Actions -->
+            <div class="flex gap-4 mt-2">
+                <form method="post" action="{% url 'like_fellowship_post' fellowship.id post.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-blue-600 hover:underline">Like</button>
+                </form>
+                <span class="text-sm text-gray-600">Likes: {{ post.like_count|default:0 }}</span>
+                <form method="post" action="{% url 'share_fellowship_post' fellowship.id post.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-green-600 hover:underline">Share</button>
+                </form>
+            </div>
+            <div class="mt-2">
+                <form method="post" action="{% url 'comment_fellowship_post' fellowship.id post.id %}">
+                    {% csrf_token %}
+                    <input type="text" name="content" placeholder="Add a comment..." class="border rounded px-2 py-1 w-64" required>
+                    <button type="submit" class="text-indigo-600 hover:underline">Comment</button>
+                </form>
+                <div class="mt-2">
+                    <span class="text-sm text-gray-600">Comments: {{ post.comment_count|default:0 }}</span>
+                    {% for comment in post.comments %}
+                        <div class="border-t pt-2 mt-2">
+                            <span class="font-semibold text-xs">{{ comment.author.username }}</span>
+                            <span class="text-xs text-gray-400">{{ comment.created_at|date:'M d, H:i' }}</span>
+                            <div class="text-sm">{{ comment.content }}</div>
+                        </div>
+                    {% empty %}
+                        <div class="text-xs text-gray-400">No comments yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
         {% empty %}
         <div class="text-gray-400">No fellowship posts yet.</div>
