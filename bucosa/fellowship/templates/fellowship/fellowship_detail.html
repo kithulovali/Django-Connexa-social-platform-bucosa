@@ -24,17 +24,18 @@
             <div class="news-card bg-white p-4 rounded-lg shadow-sm">
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
-                        <h3 class="text-lg font-bold text-gray-900">{{ post.title|default:'Fellowship Post' }}</h3>
-                        <p class="text-sm text-gray-600 mt-1">{{ post.content|linebreaksbr }}</p>
-                        <div class="flex items-center mt-2">
-                            <span class="text-xs text-gray-500">{{ post.created_at|date:'M d, H:i' }}</span>
-                            <span class="text-xs text-gray-500 mx-2">•</span>
-                            <span class="text-xs font-medium text-blue-600">Post</span>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-semibold">{{ post.author.username }}</span>
+                            <span class="text-xs text-gray-400">{{ post.created_at|date:'M d, H:i' }}</span>
                         </div>
+                        <p class="text-sm text-gray-700 mt-1">{{ post.content|linebreaksbr }}</p>
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" alt="Post Image" class="w-20 h-16 object-cover rounded mt-2">
+                        {% endif %}
+                        {% if post.video %}
+                            <video controls class="w-32 h-20 rounded mt-2"><source src="{{ post.video.url }}"></video>
+                        {% endif %}
                     </div>
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" alt="Post Image" class="w-20 h-16 object-cover rounded ml-3">
-                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -66,16 +67,24 @@
        <div class="overflow-x-auto">
            <div class="flex space-x-4 p-4">
                {% for member in fellowship.members.all %}
-                <div class="flex-none flex flex-col items-center w-16">
-                    <a href="{% url 'users:profile' member.id %}">
-                        {% if member.profile and member.profile.profile_image %}
-                            <img src="{{ member.profile.profile_image.url }}" alt="{{ member.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
-                        {% else %}
-                            <img src="{% static 'images/default.png' %}" alt="Member" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
-                        {% endif %}
-                    </a>
-                    <span class="text-xs text-gray-600 mt-1 truncate">{{ member.username }}</span>
-                </div>
+                   {% if member.is_active %}
+                       <div class="flex-none flex flex-col items-center w-16">
+                           <a href="{% url 'users:profile' member.id %}">
+                               {% if member.profile and member.profile.profile_image %}
+                                   <img src="{{ member.profile.profile_image.url }}" alt="{{ member.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
+                               {% else %}
+                                   <img src="{% static 'images/default.png' %}" alt="Member" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
+                               {% endif %}
+                           </a>
+                           <span class="text-xs text-gray-600 mt-1 truncate">
+                               {% if member.socialaccount_set.exists %}
+                                   {{ member.first_name|default:member.username }}
+                               {% else %}
+                                   {{ member.username }}
+                               {% endif %}
+                           </span>
+                       </div>
+                   {% endif %}
                {% endfor %}
            </div>
        </div>

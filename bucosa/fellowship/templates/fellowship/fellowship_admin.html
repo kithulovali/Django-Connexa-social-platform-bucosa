@@ -2,7 +2,7 @@
 {% load display_name %}
 {% block content %}
   <div class="flex justify-end mb-6">
-    <a href="#membership-requests" class="px-4 py-2 bg-red-600 text-white rounded-full font-semibold shadow hover:bg-red-700 transition">
+    <a href="{% url 'membership_requests_page' fellowship.id %}" class="px-4 py-2 bg-red-600 text-white rounded-full font-semibold shadow hover:bg-red-700 transition">
       Manage Membership Requests
     </a>
   </div>
@@ -35,9 +35,26 @@
   </div>
   <div class="mb-8">
     <h3 class="text-xl font-bold mb-2">Members ({{ members.count }})</h3>
-    <div class="flex flex-wrap gap-2">
+    <div class="flex flex-wrap gap-4 p-2">
       {% for m in members %}
-  <span class="bg-gray-200 px-3 py-1 rounded-full text-gray-700">{{ m.user|display_name }}</span>
+        {% if m.is_active %}
+          <div class="flex-none flex flex-col items-center w-16">
+            <a href="{% url 'users:profile' m.id %}">
+              {% if m.profile and m.profile.profile_image %}
+                <img src="{{ m.profile.profile_image.url }}" alt="{{ m.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
+              {% else %}
+                <img src="{% static 'images/default.png' %}" alt="Member" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
+              {% endif %}
+            </a>
+            <span class="text-xs text-gray-600 mt-1 truncate">
+              {% if m.socialaccount_set.exists %}
+                {{ m.first_name|default:m.username }}
+              {% else %}
+                {{ m.username }}
+              {% endif %}
+            </span>
+          </div>
+        {% endif %}
       {% endfor %}
     </div>
   </div>
