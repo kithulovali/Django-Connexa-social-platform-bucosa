@@ -76,7 +76,6 @@
         <div class="flex space-x-4 p-4">
          {# Show only accepted and active members horizontally #}
          {% for m in members %}
-             {% if m.is_active %}
               <div class="flex-none flex flex-col items-center w-16">
                   <a href="{% url 'users:profile' m.user.id %}">
                    {% if m.user.profile and m.user.profile.profile_image %}
@@ -89,7 +88,6 @@
                    {{ m.user|display_name }}
                   </span>
               </div>
-             {% endif %}
          {% endfor %}
         </div>
        </div>
