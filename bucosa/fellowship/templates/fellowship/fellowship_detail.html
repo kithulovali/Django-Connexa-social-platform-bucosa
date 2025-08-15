@@ -62,7 +62,19 @@
                    {{ m.user|display_name }}
                   </span>
                     <!-- List of Created Posts -->
-                    {% if posts %}
+                 
+              </div>
+         {% endfor %}
+        </div>
+    </div>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs bg-white px-4 py-2 shadow-sm sticky top-14 z-10">
+            <a href="{% url 'donate' %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">Donate</a>
+            <a href="{% url 'fellowship_history' %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">History</a>
+            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">Events</a>
+        </div>
+           {% if posts %}
                     <div class="space-y-4 p-4">
                         {% for post in posts %}
                         <div class="news-card bg-white p-4 rounded-lg shadow-sm">
@@ -87,17 +99,6 @@
                     {% else %}
                     <div class="p-4 text-gray-500">No posts have been created yet.</div>
                     {% endif %}
-              </div>
-         {% endfor %}
-        </div>
-       </div>
-
-        <!-- Category Tabs -->
-        <div class="category-tabs bg-white px-4 py-2 shadow-sm sticky top-14 z-10">
-            <a href="{% url 'donate' %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">Donate</a>
-            <a href="{% url 'fellowship_history' %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">History</a>
-            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">Events</a>
-        </div>
 
 
 
