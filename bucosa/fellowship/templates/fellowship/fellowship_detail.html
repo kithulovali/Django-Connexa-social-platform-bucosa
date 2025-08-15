@@ -69,7 +69,7 @@
             </svg>
             Members ({{ members.count }})
         </h2>
-        <div class="flex flex-wrap gap-4">
+    <div class="flex gap-4 overflow-x-auto scrollbar-hide py-2">
             {% for m in members %}
             <a href="{% url 'users:profile' m.user.id %}" class="flex flex-col items-center group">
                 <div class="relative">
@@ -258,4 +258,94 @@
         {% endif %}
     </div>
 </div>
+<script>
+// Helper to get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Like
+    document.querySelectorAll('form[action*="like_fellowship_post"]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = form.action;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+            }).then(resp => {
+                if (resp.ok) {
+                    // Find count span and increment
+                    const span = form.querySelector('span');
+                    if (span) {
+                        let count = parseInt(span.textContent.match(/\d+/));
+                        span.textContent = `Like (${count + 1})`;
+                    }
+                }
+            });
+        });
+    });
+    // Share
+    document.querySelectorAll('form[action*="share_fellowship_post"]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = form.action;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+            }).then(resp => {
+                if (resp.ok) {
+                    form.querySelector('span').textContent = 'Shared!';
+                    setTimeout(() => {
+                        form.querySelector('span').textContent = 'Share';
+                    }, 1200);
+                }
+            });
+        });
+    });
+    // Comment
+    document.querySelectorAll('form[action*="comment_fellowship_post"]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = form.action;
+            const content = form.querySelector('input[name="content"]').value;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: `content=${encodeURIComponent(content)}`
+            }).then(resp => {
+                if (resp.ok) {
+                    // Add comment visually (simple, not full info)
+                    const commentsDiv = form.parentElement.querySelector('.mt-4.space-y-3');
+                    if (commentsDiv) {
+                        const newComment = document.createElement('div');
+                        newComment.className = 'flex items-start space-x-2 pt-3';
+                        newComment.innerHTML = `<div class='bg-gray-50 rounded-lg px-3 py-2 flex-grow'><span class='font-medium text-sm text-gray-900'>You</span><p class='text-sm text-gray-800'>${content}</p><div class='text-xs text-gray-500 mt-1'>Just now</div></div>`;
+                        commentsDiv.appendChild(newComment);
+                        form.querySelector('input[name="content"]').value = '';
+                    }
+                }
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

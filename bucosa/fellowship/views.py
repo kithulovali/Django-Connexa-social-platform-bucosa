@@ -171,9 +171,26 @@ def fellowship_detail(request, fellowship_id):
     is_member = members.filter(user=request.user).exists()
     is_admin = fellowship.admin == request.user
     followers_count = members.count()
+
+    # Annotate posts with like_count, comment_count, and comments
+    from activities.models import GenericLike, GenericComment
+    from django.contrib.contenttypes.models import ContentType
+    post_ct = ContentType.objects.get_for_model(FellowshipPost)
+    annotated_posts = []
+    for post in posts:
+        like_count = GenericLike.objects.filter(content_type=post_ct, object_id=post.id).count()
+        comment_qs = GenericComment.objects.filter(content_type=post_ct, object_id=post.id).order_by('created_at')
+        comment_count = comment_qs.count()
+        comments = list(comment_qs)
+        # Optionally, you can annotate if the user has liked/shared
+        post.like_count = like_count
+        post.comment_count = comment_count
+        post.comments = comments
+        annotated_posts.append(post)
+
     return render(request, 'fellowship/fellowship_detail.html', {
         'fellowship': fellowship,
-        'fellowship_posts': posts,
+        'fellowship_posts': annotated_posts,
         'events': events,
         'members': members,
         'is_member': is_member,
