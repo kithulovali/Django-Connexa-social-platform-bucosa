@@ -74,23 +74,22 @@
 
        <div class="overflow-x-auto">
            <div class="flex space-x-4 p-4">
-               {# Loop through all fellowship members #}
-               {% for member in fellowship.members.all %}
-                   {# Only show active members #}
-                   {% if member.is_active %}
+               {# Show only accepted and active members horizontally #}
+               {% for m in members %}
+                   {% if m.is_active %}
                        <div class="flex-none flex flex-col items-center w-16">
-                           <a href="{% url 'users:profile' member.id %}">
-                               {% if member.profile and member.profile.profile_image %}
-                                   <img src="{{ member.profile.profile_image.url }}" alt="{{ member.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
+                           <a href="{% url 'users:profile' m.user.id %}">
+                               {% if m.user.profile and m.user.profile.profile_image %}
+                                   <img src="{{ m.user.profile.profile_image.url }}" alt="{{ m.user.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
                                {% else %}
                                    <img src="{% static 'images/default.png' %}" alt="Member" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
                                {% endif %}
                            </a>
                            <span class="text-xs text-gray-600 mt-1 truncate">
-                               {% if member.socialaccount_set.exists %}
-                                   {{ member.first_name|default:member.username }}
+                               {% if m.user.socialaccount_set.exists %}
+                                   {{ m.user.first_name|default:m.user.username }}
                                {% else %}
-                                   {{ member.username }}
+                                   {{ m.user.username }}
                                {% endif %}
                            </span>
                        </div>

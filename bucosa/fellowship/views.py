@@ -281,6 +281,17 @@ def accept_membership_request(request, request_id):
     FellowshipMember.objects.get_or_create(fellowship=req.fellowship, user=req.user)
     req.accepted = True
     req.save()
+    # Send welcome email to the user
+    from django.core.mail import send_mail
+    from django.conf import settings
+    user_name = req.user.get_full_name() or req.user.username
+    send_mail(
+        'Welcome to Bucosa Fellowship!',
+        f'Dear {user_name},\n\nYour request to join {req.fellowship.name} has been accepted!\n\nWelcome to Bucosa Fellowship!\n\nYou can now login to view posts, events, and connect with other members.\n\nBest regards,\nBucosa Fellowship Team',
+        settings.DEFAULT_FROM_EMAIL,
+        [req.user.email],
+        fail_silently=True,
+    )
     messages.success(request, f"{req.user.username} has been accepted into the fellowship.")
     return redirect('fellowship_admin', fellowship_id=req.fellowship.id)
 @login_required
