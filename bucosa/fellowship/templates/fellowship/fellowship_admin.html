@@ -2,6 +2,14 @@
 {% load static %}
 {% load display_name %}
 {% block content %}
+  <div class="p-2 bg-yellow-50 border-b border-yellow-200 text-yellow-800 text-xs mb-4">
+    Debug: Pending membership requests: {{ membership_requests|length }}<br>
+    {% for req in membership_requests|slice:":5" %}
+      - {{ req.user.username }} requested at {{ req.requested_at }}<br>
+    {% empty %}
+      No pending requests found.
+    {% endfor %}
+  </div>
   <div class="flex justify-end mb-6">
     <a href="{% url 'membership_requests_page' fellowship.id %}" class="px-4 py-2 bg-red-600 text-white rounded-full font-semibold shadow hover:bg-red-700 transition">
       Manage Membership Requests
