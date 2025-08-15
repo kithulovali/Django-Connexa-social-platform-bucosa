@@ -86,7 +86,7 @@
                    {% endif %}
                   </a>
                   <span class="text-xs text-gray-600 mt-1 truncate">
-                   {% display_name m.user %}
+                   {{ m.user|display_name }}
                   </span>
               </div>
              {% endif %}
