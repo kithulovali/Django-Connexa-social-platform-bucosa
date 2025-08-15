@@ -666,8 +666,14 @@ def group_profile_view(request, pk):
     is_member = request.user in members
     is_admin = group_profile and request.user in group_profile.admins.all()
     # Check invitation
+    # Safely check for user.profile and phone
+    user_phone = None
+    try:
+        user_phone = request.user.profile.phone
+    except Exception:
+        user_phone = None
     invited = Invitation.objects.filter(
-        (Q(email=request.user.email) | Q(phone=getattr(request.user.profile, 'phone', None))),
+        (Q(email=request.user.email) | Q(phone=user_phone)),
         accepted=False
     ).exists()
     # Check approved join request
