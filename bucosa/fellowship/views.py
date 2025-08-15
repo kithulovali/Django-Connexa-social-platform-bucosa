@@ -1,3 +1,11 @@
+def fellowship_events(request, fellowship_id):
+    fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
+    events = FellowshipEvent.objects.filter(fellowship=fellowship).order_by('-start_time')
+    return render(request, 'fellowship/fellowship_events.html', {
+        'fellowship': fellowship,
+        'events': events,
+    })
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from . forms import  donationForm , fellowship_editForm
@@ -60,7 +68,15 @@ def  donate_view(request):
 @login_required
 def join_fellowship(request, fellowship_id):
     fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
-    FellowshipMember.objects.get_or_create(fellowship=fellowship, user=request.user)
+    from .models import MembershipRequest, FellowshipMember
+    if not FellowshipMember.objects.filter(fellowship=fellowship, user=request.user).exists():
+        if not MembershipRequest.objects.filter(fellowship=fellowship, user=request.user, accepted=False).exists():
+            MembershipRequest.objects.create(fellowship=fellowship, user=request.user)
+            messages.success(request, "Your request to join has been sent to the admin.")
+        else:
+            messages.info(request, "You have already requested to join.")
+    else:
+        messages.info(request, "You are already a member.")
     return redirect('fellowship_detail', fellowship_id=fellowship.id)
 
 def superuser_required(view_func):
@@ -184,11 +200,14 @@ def fellowship_admin_dashboard(request, fellowship_id):
     members = FellowshipMember.objects.filter(fellowship=fellowship)
     posts = FellowshipPost.objects.filter(fellowship=fellowship)
     events = FellowshipEvent.objects.filter(fellowship=fellowship)
+    from .models import MembershipRequest
+    membership_requests = MembershipRequest.objects.filter(fellowship=fellowship, accepted=False)
     return render(request, 'fellowship/fellowship_admin.html', {
         'fellowship': fellowship,
         'members': members,
         'posts': posts,
         'events': events,
+        'membership_requests': membership_requests,
     })
 
 @login_required
@@ -256,3 +275,15 @@ def donation_list_view(request):
 def fellowship_history(request):
     
     return render(request, 'fellowship/fellowship_history.html')
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
+def accept_membership_request(request, request_id):
+    from .models import MembershipRequest, FellowshipMember
+    req = get_object_or_404(MembershipRequest, id=request_id, accepted=False)
+    FellowshipMember.objects.get_or_create(fellowship=req.fellowship, user=req.user)
+    req.accepted = True
+    req.save()
+    messages.success(request, f"{req.user.username} has been accepted into the fellowship.")
+    return redirect('fellowship_admin', fellowship_id=req.fellowship.id)

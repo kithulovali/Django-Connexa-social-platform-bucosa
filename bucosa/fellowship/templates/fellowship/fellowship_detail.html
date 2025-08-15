@@ -17,67 +17,10 @@
 
     <!-- Main Content -->
     <main class="pb-20">
-        <!-- Admin Controls: Only visible to superusers -->
-        {% if user.is_superuser %}
-        <div class="bg-white p-4 mb-4 shadow border border-indigo-200 rounded-lg">
-            <h3 class="text-lg font-bold text-indigo-700 mb-2">Admin Controls</h3>
-            <div class="flex flex-wrap gap-3">
-                <a href="{% url 'fellowship_admin' fellowship.id %}" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 font-semibold">Admin Dashboard</a>
-            </div>
-        </div>
-        {% endif %}
-        <!-- Join Fellowship Button (if not a member) -->
-        {% if user.is_authenticated and not is_member %}
-        <div class="flex justify-center mb-4">
-            <form method="post" action="{% url 'join_fellowship' fellowship.id %}">
-                {% csrf_token %}
-                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition">
-                    Request to Join Bucosa Fellowship
-                </button>
-            </form>
-        </div>
-        {% endif %}
-
-        <!-- Featured: Latest Post by Admin -->
-        {% if latest_admin_post %}
-        <div class="bg-white p-4 mb-4 shadow-sm">
-            <div class="mb-2 flex items-center">
-                <span class="text-xs font-semibold text-red-600">FEATURED</span>
-                <span class="text-xs text-gray-500 ml-2">{{ latest_admin_post.created_at|date:'M d, H:i' }}</span>
-            </div>
-            <h2 class="text-xl font-bold text-gray-900 mb-2">{{ latest_admin_post.title|default:'Weekly Fellowship Meeting' }}</h2>
-            <p class="text-gray-700">{{ latest_admin_post.content|linebreaksbr }}</p>
-            {% if latest_admin_post.image %}
-                <img src="{{ latest_admin_post.image.url }}" alt="Featured Fellowship Post" class="w-full h-48 object-cover rounded-lg mt-3">
-            {% else %}
-                <img src="{% static 'images/fellowship-meeting.jpg' %}" alt="Fellowship Meeting" class="w-full h-48 object-cover rounded-lg mt-3">
-            {% endif %}
-        </div>
-        {% endif %}
-
-        <!-- Horizontal scroll of fellowship members -->
-        {% if fellowship_members %}
-        <div class="bg-white p-2 mb-4 shadow-sm rounded-lg">
-            <h3 class="text-sm font-semibold text-gray-700 mb-2 ml-2">Fellowship Members</h3>
-            <div class="flex overflow-x-auto space-x-4 pb-2">
-                {% for member in fellowship_members %}
-                <div class="flex-none flex flex-col items-center w-16">
-                    {% if member.profile and member.profile.profile_image %}
-                        <img src="{{ member.profile.profile_image.url }}" alt="{{ member.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
-                    {% else %}
-                        <img src="{% static 'images/default.jpg' %}" alt="Member" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200">
-                    {% endif %}
-                    <span class="text-xs text-gray-600 mt-1 truncate">{{ member.username }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Other posts (excluding latest_admin_post) -->
-        {% if other_posts %}
+        <!-- List of Created Posts -->
+        {% if posts %}
         <div class="space-y-4 p-4">
-            {% for post in other_posts %}
+            {% for post in posts %}
             <div class="news-card bg-white p-4 rounded-lg shadow-sm">
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
@@ -96,63 +39,48 @@
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="p-4 text-gray-500">No posts have been created yet.</div>
         {% endif %}
+        <!-- Admin Controls: Only visible to superusers -->
+        {% if user.is_superuser %}
+        <div class="bg-white p-4 mb-4 shadow border border-indigo-200 rounded-lg">
+            <h3 class="text-lg font-bold text-indigo-700 mb-2">Admin Controls</h3>
+            <div class="flex flex-wrap gap-3">
+                <a href="{% url 'fellowship_admin' fellowship.id %}" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 font-semibold">Admin Dashboard</a>
+            </div>
+        </div>
+        {% endif %}
+        <!-- Join Fellowship Button -->
+        {% if user.is_authenticated and not is_member %}
+        <div class="flex justify-center mb-4">
+            <form method="post" action="{% url 'join_fellowship' fellowship.id %}">
+                {% csrf_token %}
+                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition">
+                    Request to Join Bucosa Fellowship
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Featured: Latest Post by Admin -->
+       <div class="overflow-x-auto">
+           <div class="flex space-x-4 p-4">
+               {% for member in fellowship.members.all %}
+               <div class="flex-shrink-0 w-24">
+                   <img src="{{ member.profile_picture.url }}" alt="{{ member.username }}" class="w-full h-24 object-cover rounded">
+                   <span class="block text-center text-sm font-medium text-gray-700">{{ member.username }}</span>
+               </div>
+               {% endfor %}
+           </div>
+       </div>
 
         <!-- Category Tabs -->
         <div class="category-tabs bg-white px-4 py-2 shadow-sm sticky top-14 z-10">
             <a href="{% url 'fellowship_detail' fellowship.id %}" class="px-3 py-1 text-sm font-medium text-blue-600 border-b-2 border-blue-600 mr-4">All</a>
             <a href="{% url 'donate' %}" class="px-3 py-1 text-sm font-medium text-green-600 border-b-2 border-green-600">Donate</a>
             <a href="{% url 'fellowship_history' %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">History</a>
-        </div>
-            <!-- Membership Info -->
-            {% if user.is_authenticated %}
-                {% if not is_fellowship_member %}
-                <div class="news-card bg-white p-4 rounded-lg shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900">Join Our Fellowship</h3>
-                            <p class="text-sm text-gray-600 mt-1">Become an official member of Bucosa Fellowship to access all our programs and resources.</p>
-                            <form method="post" action="{% url 'join_fellowship' 1 %}" class="mt-3">
-                                {% csrf_token %}
-                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition duration-300">
-                                    Join Now
-                                </button>
-                            </form>
-                        </div>
-                        <img src="{% static 'images/fellowship-group.jpg' %}" alt="Fellowship Group" class="w-20 h-16 object-cover rounded ml-3">
-                    </div>
-                </div>
-                {% else %}
-                <div class="news-card bg-white p-4 rounded-lg shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900">Fellowship Member</h3>
-                            <p class="text-sm text-gray-600 mt-1">You are an active member of Bucosa Fellowship. Thank you for being part of our community!</p>
-                            <div class="flex items-center mt-2 text-green-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                </svg>
-                                <span class="text-xs font-medium">Member</span>
-                            </div>
-                        </div>
-                        <img src="{% static 'images/fellowship-group.jpg' %}" alt="Fellowship Group" class="w-20 h-16 object-cover rounded ml-3">
-                    </div>
-                </div>
-                {% endif %}
-            {% else %}
-                <div class="news-card bg-white p-4 rounded-lg shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900">Join Our Fellowship</h3>
-                            <p class="text-sm text-gray-600 mt-1">Please log in to join Bucosa Fellowship and access all our programs and resources.</p>
-                            <a href="{% url 'login' %}" class="inline-block mt-3 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition duration-300">
-                                Log In
-                            </a>
-                        </div>
-                        <img src="{% static 'images/fellowship-group.jpg' %}" alt="Fellowship Group" class="w-20 h-16 object-cover rounded ml-3">
-                    </div>
-                </div>
-            {% endif %}
+            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-4 py-2 bg-green-600 text-white rounded-full font-semibold shadow hover:bg-green-700 transition">Events</a>
         </div>
     </main>
 </body>
