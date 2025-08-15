@@ -6,185 +6,256 @@
     <link rel="stylesheet" href="{% static 'css/fellowship.css' %}">
 </head>
 
-    <!-- Header -->
-    <header class="sticky top-0 z-10 bg-white shadow-sm p-4">
-        <div class="flex items-center justify-between">
-            <h1 class="text-xl font-bold text-gray-800">Bucosa Fellowship</h1>
-            <div class="flex items-center space-x-4">
-            </div>
-        </div>
-    </header>
+<!-- Main Container -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-    <!-- Main Content -->
-    
-        <!-- Admin Controls: Only visible to superusers -->
-        {% if user.is_superuser %}
-        <div class="bg-white p-4 mb-4 shadow border border-indigo-200 rounded-lg">
-            <h3 class="text-lg font-bold text-indigo-700 mb-2">Admin Controls</h3>
-            <div class="flex flex-wrap gap-3">
-                <a href="{% url 'fellowship_admin' fellowship.id %}" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 font-semibold">Admin Dashboard</a>
+    <!-- Header Section -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">{{ fellowship.name }}</h1>
+                <p class="text-gray-600 mt-1">{{ fellowship.description|default:"A community of believers growing together in faith." }}</p>
             </div>
-        </div>
-        {% endif %}
-        <!-- Join Fellowship Button or Pending Message -->
-        {% if user.is_authenticated and not is_member %}
-            {% if membership_request_pending %}
-                <div class="flex justify-center mb-4">
-                    <span class="bg-yellow-100 text-yellow-800 px-6 py-2 rounded-full font-semibold shadow border border-yellow-300">
-                        Your request to join is pending for approval.
-                    </span>
-                </div>
-            {% else %}
-                <div class="flex justify-center mb-4">
+            
+            <!-- Join Button or Status -->
+            {% if user.is_authenticated and not is_member %}
+                {% if membership_request_pending %}
+                    <div class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-2 rounded-lg flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                        Request pending approval
+                    </div>
+                {% else %}
                     <form method="post" action="{% url 'join_fellowship' fellowship.id %}">
                         {% csrf_token %}
-                        <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition">
-                         Join Bucosa Fellowship
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                            Join Fellowship
                         </button>
                     </form>
-                </div>
+                {% endif %}
             {% endif %}
-        {% endif %}
-
-    <div class="overflow-x-auto">
-        <div class="flex space-x-4 p-4">
-         {# Show only accepted and active members horizontally #}
-         {% for m in members %}
-              <div class="flex-none flex flex-col items-center w-16">
-                  <a href="{% url 'users:profile' m.user.id %}">
-                   {% if m.user.profile and m.user.profile.profile_image %}
-                    <img src="{{ m.user.profile.profile_image.url }}" alt="{{ m.user.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
-                   {% else %}
-                    <img src="{% static 'images/default.png' %}" alt="Member" class="w-10 h-10 rounded-full object-cover border-2 border-indigo-200 hover:ring-2 hover:ring-indigo-400 transition">
-                   {% endif %}
-                  </a>
-                  <span class="text-xs text-gray-600 mt-1 truncate">
-                   {{ m.user|display_name }}
-                  </span>
-                    <!-- List of Created Posts -->
-                 
-              </div>
-         {% endfor %}
         </div>
     </div>
 
-        <!-- Category Tabs -->
-        <div class="category-tabs bg-white px-4 py-2 shadow-sm sticky top-14 z-10">
-            <a href="{% url 'donate' %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">Donate</a>
-            <a href="{% url 'fellowship_history' %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">History</a>
-            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-3 py-1 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:border-gray-600">Events</a>
+    <!-- Admin Controls -->
+    {% if user.is_superuser %}
+    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
+        <h3 class="text-lg font-semibold text-indigo-800 mb-3 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+            </svg>
+            Admin Controls
+        </h3>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'fellowship_admin' fellowship.id %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                </svg>
+                Admin Dashboard
+            </a>
         </div>
-         <div class="mb-8">
-    <h3 class="text-xl font-bold mb-2">Admin's Fellowship Posts</h3>
-    {% for post in fellowship_posts %}
-        <article class="max-w-3xl mx-auto mb-10 bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row">
-            {% if post.image %}
-                <div class="w-full md:w-1/2 flex items-center justify-center bg-gray-50">
-                    <img src="{{ post.image.url }}" class="object-cover w-full h-48 md:h-full max-h-64 rounded-none" />
+    </div>
+    {% endif %}
+
+    <!-- Members Section -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z" />
+            </svg>
+            Members ({{ members.count }})
+        </h2>
+        <div class="flex flex-wrap gap-4">
+            {% for m in members %}
+            <a href="{% url 'users:profile' m.user.id %}" class="flex flex-col items-center group">
+                <div class="relative">
+                    {% if m.user.profile and m.user.profile.profile_image %}
+                    <img src="{{ m.user.profile.profile_image.url }}" alt="{{ m.user.username }}" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md group-hover:border-indigo-300 transition">
+                    {% else %}
+                    <img src="{% static 'images/default.png' %}" alt="Member" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md group-hover:border-indigo-300 transition">
+                    {% endif %}
+                    {% if m.user == fellowship.created_by %}
+                    <span class="absolute -bottom-1 -right-1 bg-indigo-500 text-white text-xs rounded-full p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                    {% endif %}
                 </div>
-            {% endif %}
-            <div class="w-full md:w-1/2 p-4 md:p-8 flex flex-col justify-between">
-                <div>
-                    <div class="mb-2">
-                        <span class="text-xs text-pink-500 font-semibold">Fellowship, News</span>
+                <span class="text-xs text-gray-600 mt-2 font-medium group-hover:text-indigo-600 transition">{{ m.user|display_name|truncatechars:12 }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
+        <div class="flex overflow-x-auto scrollbar-hide">
+            <a href="{% url 'fellowship_detail' fellowship.id %}" class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-indigo-600 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                </svg>
+                Fellowship
+            </a>
+            <a href="{% url 'donate' %}" class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-indigo-600 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                </svg>
+                Donate
+            </a>
+            <a href="{% url 'fellowship_history' %}" class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-indigo-600 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                </svg>
+                History
+            </a>
+            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-indigo-600 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                Events
+            </a>
+            <a href="#" class="px-6 py-3 text-sm font-medium text-indigo-600 whitespace-nowrap border-b-2 border-indigo-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                    <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+                </svg>
+                Posts
+            </a>
+        </div>
+    </div>
+
+    <!-- Fellowship Posts Section -->
+    <div class="space-y-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Posts</h2>
+        
+        {% if fellowship_posts %}
+            {% for post in fellowship_posts %}
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <!-- Post Header -->
+                <div class="p-4 border-b border-gray-100">
+                    <div class="flex items-center space-x-3">
+                        <a href="{% url 'users:profile' post.author.id %}" class="flex-shrink-0">
+                            {% if post.author.profile and post.author.profile.profile_image %}
+                            <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}" class="w-10 h-10 rounded-full object-cover">
+                            {% else %}
+                            <img src="{% static 'images/default.png' %}" alt="Member" class="w-10 h-10 rounded-full object-cover">
+                            {% endif %}
+                        </a>
+                        <div>
+                            <a href="{% url 'users:profile' post.author.id %}" class="font-medium text-gray-900 hover:text-indigo-600">{{ post.author|display_name }}</a>
+                            <div class="flex items-center text-xs text-gray-500">
+                                <span>{{ post.created_at|date:"M d, Y" }}</span>
+                                <span class="mx-1">•</span>
+                                <span>{{ post.created_at|timesince }} ago</span>
+                            </div>
+                        </div>
                     </div>
-                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-2">{{ post.content|truncatewords:8 }}</h2>
-                    <div class="text-xs md:text-sm text-gray-500 mb-4">
-                        {{ post.created_at|date:'F d, Y' }} &bull; By <span class="font-semibold text-indigo-700">{{ post.author.username }}</span>
-                        <span class="ml-2 text-xs text-indigo-500">({{ post.fellowship.name }})</span>
+                </div>
+                
+                <!-- Post Content -->
+                <div class="p-4">
+                    <p class="text-gray-800 mb-4">{{ post.content|linebreaksbr }}</p>
+                    
+                    {% if post.image %}
+                    <div class="mb-4 rounded-lg overflow-hidden">
+                        <img src="{{ post.image.url }}" alt="Post image" class="w-full max-h-96 object-cover">
                     </div>
-                    <div class="mb-4 text-sm md:text-base text-gray-700 leading-relaxed">{{ post.content|linebreaksbr }}</div>
-                </div>
-                <div>
-                    <a href="#" class="text-indigo-600 font-semibold hover:underline text-sm md:text-base">Continue Reading &rarr;</a>
-                </div>
-                <div class="mt-6">
-                    <!-- Like, Comment, Share Actions -->
-                    <div class="flex flex-col md:flex-row gap-2 md:gap-4 mb-2">
-                        <form method="post" action="{% url 'like_fellowship_post' fellowship.id post.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="text-blue-600 hover:underline text-sm md:text-base">Like</button>
-                        </form>
-                        <span class="text-xs md:text-sm text-gray-600">Likes: {{ post.like_count|default:0 }}</span>
+                    {% endif %}
+                    
+                    {% if post.video %}
+                    <div class="mb-4 rounded-lg overflow-hidden">
+                        <video controls class="w-full">
+                            <source src="{{ post.video.url }}">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Post Actions -->
+                    <div class="flex items-center justify-between text-sm text-gray-500 border-t border-b border-gray-100 py-2 my-2">
+                        <div class="flex items-center space-x-4">
+                            <form method="post" action="{% url 'like_fellowship_post' fellowship.id post.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="flex items-center space-x-1 hover:text-indigo-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                    </svg>
+                                    <span>Like ({{ post.like_count|default:0 }})</span>
+                                </button>
+                            </form>
+                            <button class="flex items-center space-x-1 hover:text-indigo-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                <span>Comment ({{ post.comment_count|default:0 }})</span>
+                            </button>
+                        </div>
                         <form method="post" action="{% url 'share_fellowship_post' fellowship.id post.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="text-green-600 hover:underline text-sm md:text-base">Share</button>
+                            <button type="submit" class="flex items-center space-x-1 hover:text-indigo-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                </svg>
+                                <span>Share</span>
+                            </button>
                         </form>
                     </div>
-                    <form method="post" action="{% url 'comment_fellowship_post' fellowship.id post.id %}">
-                        {% csrf_token %}
-                        <input type="text" name="content" placeholder="Add a comment..." class="border rounded px-2 py-1 w-full md:w-64 text-xs md:text-base" required>
-                        <button type="submit" class="text-indigo-600 hover:underline text-xs md:text-base">Comment</button>
-                    </form>
-                    <div class="mt-2">
-                        <span class="text-xs md:text-sm text-gray-600">Comments: {{ post.comment_count|default:0 }}</span>
-                        {% for comment in post.comments %}
-                            <div class="border-t pt-2 mt-2">
-                                <span class="font-semibold text-xs">{{ comment.author.username }}</span>
-                                <span class="text-xs text-gray-400">{{ comment.created_at|date:'M d, H:i' }}</span>
-                                <div class="text-xs md:text-sm">{{ comment.content }}</div>
+                    
+                    <!-- Comments Section -->
+                    <div class="mt-4 space-y-3">
+                        <!-- Comment Form -->
+                        <form method="post" action="{% url 'comment_fellowship_post' fellowship.id post.id %}" class="flex items-start space-x-2">
+                            {% csrf_token %}
+                            <div class="flex-grow">
+                                <input type="text" name="content" placeholder="Write a comment..." class="w-full px-3 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                             </div>
+                            <button type="submit" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">Post</button>
+                        </form>
+                        
+                        <!-- Comments List -->
+                        {% for comment in post.comments %}
+                        <div class="flex items-start space-x-2 pt-3">
+                            <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
+                                {% if comment.author.profile and comment.author.profile.profile_image %}
+                                <img src="{{ comment.author.profile.profile_image.url }}" alt="{{ comment.author.username }}" class="w-8 h-8 rounded-full object-cover">
+                                {% else %}
+                                <img src="{% static 'images/default.png' %}" alt="Member" class="w-8 h-8 rounded-full object-cover">
+                                {% endif %}
+                            </a>
+                            <div class="bg-gray-50 rounded-lg px-3 py-2 flex-grow">
+                                <a href="{% url 'users:profile' comment.author.id %}" class="font-medium text-sm text-gray-900 hover:text-indigo-600">{{ comment.author|display_name }}</a>
+                                <p class="text-sm text-gray-800">{{ comment.content }}</p>
+                                <div class="text-xs text-gray-500 mt-1">{{ comment.created_at|timesince }} ago</div>
+                            </div>
+                        </div>
                         {% empty %}
-                            <div class="text-xs text-gray-400">No comments yet.</div>
+                        <div class="text-center text-sm text-gray-500 py-2">No comments yet</div>
                         {% endfor %}
                     </div>
                 </div>
             </div>
-        </article>
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-12 h-12 rounded-full bg-indigo-200 flex items-center justify-center">
-                    <span class="font-bold text-indigo-700 text-lg">{{ post.author.username|slice:":1"|upper }}</span>
+            {% endfor %}
+        {% else %}
+            <div class="bg-white rounded-xl shadow-md p-8 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">No posts yet</h3>
+                <p class="mt-1 text-sm text-gray-500">Be the first to share something with your fellowship!</p>
+                {% if is_member %}
+                <div class="mt-6">
+                    <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Create Post
+                    </a>
                 </div>
-                <div>
-                    <span class="font-semibold text-indigo-700">{{ post.author.username }}</span>
-                    <span class="text-xs text-gray-400 ml-2">{{ post.created_at|date:'M d, H:i' }}</span>
-                    <span class="text-xs text-indigo-500 ml-2">({{ post.fellowship.name }})</span>
-                </div>
+                {% endif %}
             </div>
-            <div class="mb-4 text-lg text-gray-800 font-medium">{{ post.content|linebreaksbr }}</div>
-            {% if post.image %}
-                <img src="{{ post.image.url }}" class="w-full max-w-md rounded-xl shadow mb-4 border-2 border-indigo-200" />
-            {% endif %}
-            {% if post.video %}
-                <video controls class="w-full max-w-md rounded-xl shadow mb-4 border-2 border-indigo-200"><source src="{{ post.video.url }}"></video>
-            {% endif %}
-
-            <!-- Like, Comment, Share Actions -->
-            <div class="flex gap-4 mt-2">
-                <form method="post" action="{% url 'like_fellowship_post' fellowship.id post.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="text-blue-600 hover:underline">Like</button>
-                </form>
-                <span class="text-sm text-gray-600">Likes: {{ post.like_count|default:0 }}</span>
-                <form method="post" action="{% url 'share_fellowship_post' fellowship.id post.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="text-green-600 hover:underline">Share</button>
-                </form>
-            </div>
-            <div class="mt-2">
-                <form method="post" action="{% url 'comment_fellowship_post' fellowship.id post.id %}">
-                    {% csrf_token %}
-                    <input type="text" name="content" placeholder="Add a comment..." class="border rounded px-2 py-1 w-64" required>
-                    <button type="submit" class="text-indigo-600 hover:underline">Comment</button>
-                </form>
-                <div class="mt-2">
-                    <span class="text-sm text-gray-600">Comments: {{ post.comment_count|default:0 }}</span>
-                    {% for comment in post.comments %}
-                        <div class="border-t pt-2 mt-2">
-                            <span class="font-semibold text-xs">{{ comment.author.username }}</span>
-                            <span class="text-xs text-gray-400">{{ comment.created_at|date:'M d, H:i' }}</span>
-                            <div class="text-sm">{{ comment.content }}</div>
-                        </div>
-                    {% empty %}
-                        <div class="text-xs text-gray-400">No comments yet.</div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="text-gray-400">No fellowship posts yet.</div>
-        {% endfor %}
+        {% endif %}
     </div>
-
-
+</div>
 {% endblock %}
