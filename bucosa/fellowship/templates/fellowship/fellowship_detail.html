@@ -79,50 +79,50 @@
     {% for post in fellowship_posts %}
         <article class="max-w-3xl mx-auto mb-10 bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row">
             {% if post.image %}
-                <div class="md:w-1/2 w-full h-full flex items-center justify-center bg-gray-50">
-                    <img src="{{ post.image.url }}" class="object-cover w-full h-full max-h-64 rounded-none" />
+                <div class="w-full md:w-1/2 flex items-center justify-center bg-gray-50">
+                    <img src="{{ post.image.url }}" class="object-cover w-full h-48 md:h-full max-h-64 rounded-none" />
                 </div>
             {% endif %}
-            <div class="md:w-1/2 w-full p-8 flex flex-col justify-between">
+            <div class="w-full md:w-1/2 p-4 md:p-8 flex flex-col justify-between">
                 <div>
                     <div class="mb-2">
                         <span class="text-xs text-pink-500 font-semibold">Fellowship, News</span>
                     </div>
-                    <h2 class="text-2xl font-extrabold text-gray-900 mb-2">{{ post.content|truncatewords:8 }}</h2>
-                    <div class="text-sm text-gray-500 mb-4">
+                    <h2 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-2">{{ post.content|truncatewords:8 }}</h2>
+                    <div class="text-xs md:text-sm text-gray-500 mb-4">
                         {{ post.created_at|date:'F d, Y' }} &bull; By <span class="font-semibold text-indigo-700">{{ post.author.username }}</span>
                         <span class="ml-2 text-xs text-indigo-500">({{ post.fellowship.name }})</span>
                     </div>
-                    <div class="mb-4 text-base text-gray-700 leading-relaxed">{{ post.content|linebreaksbr }}</div>
+                    <div class="mb-4 text-sm md:text-base text-gray-700 leading-relaxed">{{ post.content|linebreaksbr }}</div>
                 </div>
                 <div>
-                    <a href="#" class="text-indigo-600 font-semibold hover:underline">Continue Reading &rarr;</a>
+                    <a href="#" class="text-indigo-600 font-semibold hover:underline text-sm md:text-base">Continue Reading &rarr;</a>
                 </div>
                 <div class="mt-6">
                     <!-- Like, Comment, Share Actions -->
-                    <div class="flex gap-4 mb-2">
+                    <div class="flex flex-col md:flex-row gap-2 md:gap-4 mb-2">
                         <form method="post" action="{% url 'like_fellowship_post' fellowship.id post.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="text-blue-600 hover:underline">Like</button>
+                            <button type="submit" class="text-blue-600 hover:underline text-sm md:text-base">Like</button>
                         </form>
-                        <span class="text-sm text-gray-600">Likes: {{ post.like_count|default:0 }}</span>
+                        <span class="text-xs md:text-sm text-gray-600">Likes: {{ post.like_count|default:0 }}</span>
                         <form method="post" action="{% url 'share_fellowship_post' fellowship.id post.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="text-green-600 hover:underline">Share</button>
+                            <button type="submit" class="text-green-600 hover:underline text-sm md:text-base">Share</button>
                         </form>
                     </div>
                     <form method="post" action="{% url 'comment_fellowship_post' fellowship.id post.id %}">
                         {% csrf_token %}
-                        <input type="text" name="content" placeholder="Add a comment..." class="border rounded px-2 py-1 w-64" required>
-                        <button type="submit" class="text-indigo-600 hover:underline">Comment</button>
+                        <input type="text" name="content" placeholder="Add a comment..." class="border rounded px-2 py-1 w-full md:w-64 text-xs md:text-base" required>
+                        <button type="submit" class="text-indigo-600 hover:underline text-xs md:text-base">Comment</button>
                     </form>
                     <div class="mt-2">
-                        <span class="text-sm text-gray-600">Comments: {{ post.comment_count|default:0 }}</span>
+                        <span class="text-xs md:text-sm text-gray-600">Comments: {{ post.comment_count|default:0 }}</span>
                         {% for comment in post.comments %}
                             <div class="border-t pt-2 mt-2">
                                 <span class="font-semibold text-xs">{{ comment.author.username }}</span>
                                 <span class="text-xs text-gray-400">{{ comment.created_at|date:'M d, H:i' }}</span>
-                                <div class="text-sm">{{ comment.content }}</div>
+                                <div class="text-xs md:text-sm">{{ comment.content }}</div>
                             </div>
                         {% empty %}
                             <div class="text-xs text-gray-400">No comments yet.</div>
