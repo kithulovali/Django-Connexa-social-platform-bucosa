@@ -320,10 +320,10 @@
                     {% endif %}
                     <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ group.user_set.count }} Members</div>
                     {% if user.is_authenticated and user not in group.user_set.all %}
-                    <form action="{% url 'users:join_group' group.id %}" method="post">
+                    <form action="{% url 'users:request_join_group' group.id %}" method="post">
                       {% csrf_token %}
                       <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
-                        Join Group
+                        Request to Join Group
                       </button>
                     </form>
                     {% endif %}

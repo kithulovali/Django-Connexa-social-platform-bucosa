@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="group-access-limited">
+  <h2>{{ group.name }}</h2>
+  <p>You do not have access to this group.</p>
+  {% if show_request_to_join %}
+    <form method="post" action="{% url 'users:request_join_group' group.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Request to Join Group</button>
+    </form>
+  {% elif show_pending %}
+    <p>Your request to join this group is pending admin approval.</p>
+  {% else %}
+    <p>Only invited or approved users can access this group.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -45,6 +45,8 @@ from channels.layers import get_channel_layer
 # Local imports
 from .forms import profileForm, ProfileUpdateForm, GroupCreateForm, GroupProfileForm
 from .models import user_profile, GroupProfile, user_following, Invitation
+from django.db.models import Q
+from .models import GroupJoinRequest
 from .models_block_report import UserBlock, UserReport
 from .models_group_message import GroupMessage
 from notifications.utils import create_notification, send_custom_notification_email
@@ -64,6 +66,56 @@ def api_unread_messages_count(request):
 
 
 # Create your views here.
+from django.urls import reverse
+
+# Request to join a group
+from django.views.decorators.http import require_POST
+
+@login_required
+@require_POST
+def request_join_group(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    if request.user in group.user_set.all():
+        messages.info(request, "You are already a member of this group.")
+        return redirect('users:group_profile', pk=group_id)
+    existing_request = GroupJoinRequest.objects.filter(user=request.user, group=group).first()
+    if existing_request:
+        if existing_request.approved:
+            messages.info(request, "Your request has already been approved.")
+        elif existing_request.rejected:
+            messages.warning(request, "Your previous request was rejected.")
+        else:
+            messages.info(request, "You have already requested to join. Please wait for admin approval.")
+        return redirect('users:group_profile', pk=group_id)
+    GroupJoinRequest.objects.create(user=request.user, group=group)
+    messages.success(request, "Your request to join the group has been sent.")
+    return redirect('users:group_profile', pk=group_id)
+
+# Admin view to manage join requests
+@login_required
+def manage_group_requests(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    group_profile = getattr(group, 'profile', None)
+    if not group_profile or request.user not in group_profile.admins.all():
+        return HttpResponseForbidden("Only group admins can manage join requests.")
+    requests = GroupJoinRequest.objects.filter(group=group, approved=False, rejected=False)
+    if request.method == 'POST':
+        req_id = request.POST.get('request_id')
+        action = request.POST.get('action')
+        join_request = get_object_or_404(GroupJoinRequest, pk=req_id, group=group)
+        if action == 'approve':
+            join_request.approved = True
+            join_request.reviewed_at = timezone.now()
+            join_request.save()
+            group.user_set.add(join_request.user)
+            messages.success(request, f"Approved {join_request.user.username}.")
+        elif action == 'reject':
+            join_request.rejected = True
+            join_request.reviewed_at = timezone.now()
+            join_request.save()
+            messages.info(request, f"Rejected {join_request.user.username}.")
+        return redirect('users:manage_group_requests', group_id=group_id)
+    return render(request, 'users/manage_group_requests.html', {'group': group, 'requests': requests})
 
 from django.urls import reverse
 
@@ -586,19 +638,30 @@ def group_list(request):
 
 @login_required
 def group_profile_view(request, pk):
+
     # Use select_related and prefetch_related for efficiency
     group = get_object_or_404(
         Group.objects.select_related('profile').prefetch_related('user_set'),
         pk=pk
     )
-    
     group_profile = getattr(group, 'profile', None)
-    
     # Ensure creator is in admins
     if group_profile and group_profile.creator and group_profile.creator not in group_profile.admins.all():
         group_profile.admins.add(group_profile.creator)
-
     members = group.user_set.all()
+
+    # Access control logic
+    is_member = request.user in members
+    is_admin = group_profile and request.user in group_profile.admins.all()
+    # Check invitation
+    invited = Invitation.objects.filter(
+        (Q(email=request.user.email) | Q(phone=getattr(request.user.profile, 'phone', None))),
+        accepted=False
+    ).exists()
+    # Check approved join request
+    from .models import GroupJoinRequest
+    approved_request = GroupJoinRequest.objects.filter(user=request.user, group=group, approved=True).exists()
+    can_access = is_member or invited or approved_request or is_admin
 
     # Optimize content queries
     from activities.models import Post, Event
@@ -609,10 +672,21 @@ def group_profile_view(request, pk):
     for post in group_posts:
         post.can_edit = post.author == request.user
         post.can_delete = post.author == request.user
-        
     for event in group_events:
         event.can_edit = event.creator == request.user
         event.can_delete = event.creator == request.user
+
+    # If not allowed, show join/invite/request options
+    show_request_to_join = not can_access and not GroupJoinRequest.objects.filter(user=request.user, group=group, approved=False, rejected=False).exists()
+    show_pending = not can_access and GroupJoinRequest.objects.filter(user=request.user, group=group, approved=False, rejected=False).exists()
+
+    if not can_access:
+        return render(request, 'users/group_access_limited.html', {
+            'group': group,
+            'group_profile': group_profile,
+            'show_request_to_join': show_request_to_join,
+            'show_pending': show_pending,
+        })
 
     return render(request, 'users/group_profile.html', {
         'group': group,
@@ -620,6 +694,7 @@ def group_profile_view(request, pk):
         'members': members,
         'group_posts': group_posts,
         'group_events': group_events,
+        'is_admin': is_admin,
     })
 
 @login_required

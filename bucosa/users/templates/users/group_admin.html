@@ -19,6 +19,9 @@
             <a href="{% url 'users:group_chat' group.id %}" class="inline-flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition shadow">
                 <span class="material-icons">chat</span> <span>Group Chat</span>
             </a>
+            <a href="{% url 'users:manage_group_requests' group.id %}" class="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition shadow">
+                <span class="material-icons">person_add</span> <span>Manage Join Requests</span>
+            </a>
         </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
