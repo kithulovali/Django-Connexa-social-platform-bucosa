@@ -52,16 +52,24 @@
             </div>
         </div>
         {% endif %}
-        <!-- Join Fellowship Button -->
+        <!-- Join Fellowship Button or Pending Message -->
         {% if user.is_authenticated and not is_member %}
-        <div class="flex justify-center mb-4">
-            <form method="post" action="{% url 'join_fellowship' fellowship.id %}">
-                {% csrf_token %}
-                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition">
-                    Request to Join Bucosa Fellowship
-                </button>
-            </form>
-        </div>
+            {% if membership_request_pending %}
+                <div class="flex justify-center mb-4">
+                    <span class="bg-yellow-100 text-yellow-800 px-6 py-2 rounded-full font-semibold shadow border border-yellow-300">
+                        Your request to join is pending for approval.
+                    </span>
+                </div>
+            {% else %}
+                <div class="flex justify-center mb-4">
+                    <form method="post" action="{% url 'join_fellowship' fellowship.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-semibold shadow hover:bg-indigo-700 transition">
+                         Join Bucosa Fellowship
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
         {% endif %}
 
        <div class="overflow-x-auto">
