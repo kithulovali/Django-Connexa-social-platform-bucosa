@@ -50,6 +50,7 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  alert('Settings JS loaded');
   document.querySelectorAll('.group-admin-list').forEach(function(list) {
     list.style.display = 'none';
   });
