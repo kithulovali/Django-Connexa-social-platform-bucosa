@@ -56,14 +56,23 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   document.querySelectorAll('.toggle-groups-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      var list = btn.parentElement.querySelector('.group-admin-list');
+      // Try to find the next sibling with the class
+      var list = btn.nextElementSibling;
+      if (!list || !list.classList.contains('group-admin-list')) {
+        // Fallback: search in parent
+        list = btn.parentElement.querySelector('.group-admin-list');
+      }
       var icon = btn.querySelector('.toggle-groups-icon');
-      if (list.style.display === 'none' || list.style.display === '') {
-        list.style.display = 'block';
-        if (icon) icon.textContent = 'expand_less';
+      if (list) {
+        if (list.style.display === 'none' || list.style.display === '') {
+          list.style.display = 'block';
+          if (icon) icon.textContent = 'expand_less';
+        } else {
+          list.style.display = 'none';
+          if (icon) icon.textContent = 'expand_more';
+        }
       } else {
-        list.style.display = 'none';
-        if (icon) icon.textContent = 'expand_more';
+        alert('Could not find group-admin-list element to toggle.');
       }
     });
   });
