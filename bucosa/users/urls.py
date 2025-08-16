@@ -1,3 +1,4 @@
+     path('your-groups/', views.your_groups_list, name='your_groups_list'),
 from django.urls import path 
 from . import views
 from django.conf.urls.static import static
@@ -8,6 +9,7 @@ app_name = 'users'
 
 urlpatterns = [
      path('profile/<str:pk>/followers/', views.followers_list, name='followers_list'),
+     path('your-groups/', views.your_groups_list, name='your_groups_list'),
      path('profile/<str:pk>/following/', views.following_list, name='following_list'),
      path('login/', views.login_user , name = 'login'),
     path('admin_delete_user/<str:username>/', views.admin_delete_user, name='admin_delete_user'),

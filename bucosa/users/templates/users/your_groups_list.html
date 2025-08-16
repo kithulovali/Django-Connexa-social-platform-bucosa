@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto p-6">
+  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+    <span class="material-icons text-green-600">groups</span>
+    Your Groups
+  </h2>
+  {% if groups %}
+    <ul class="divide-y divide-gray-200">
+      {% for group in groups %}
+        <li class="py-4 flex items-center gap-4">
+          {% if group.profile and group.profile.profile_image %}
+            <img src="{{ group.profile.profile_image.url }}" alt="{{ group.name }}" class="w-12 h-12 rounded border object-cover" />
+          {% else %}
+            <div class="w-12 h-12 rounded border bg-gray-100 flex items-center justify-center text-gray-400">
+              <span class="material-icons">group</span>
+            </div>
+          {% endif %}
+          <div class="flex-1">
+            <a href="{% url 'users:group_admin' group.id %}" class="text-lg font-semibold text-green-800 hover:underline">{{ group.name }}</a>
+            {% if group.profile and group.profile.description %}
+              <div class="text-sm text-gray-600 mt-1">{{ group.profile.description|truncatewords:15 }}</div>
+            {% endif %}
+          </div>
+          <a href="{% url 'users:group_profile' group.id %}" class="ml-2 text-blue-600 hover:underline text-sm">View</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="text-gray-600">You are not an admin or creator of any groups yet.</div>
+  {% endif %}
+  <div class="mt-6">
+    <a href="{% url 'users:create_group' %}" class="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold">Create a new group</a>
+  </div>
+</div>
+{% endblock %}
