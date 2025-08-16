@@ -28,10 +28,10 @@
             <span class="material-icons transition-transform" id="toggle-groups-icon">expand_more</span>
           </button>
           <div id="group-admin-list" class="mt-2" style="display: none;">
-            {% if user.admin_groups.all %}
-              {% if user.admin_groups.count > 0 %}
+            {% with admin_groups=user.admin_groups.all %}
+              {% if admin_groups|length > 0 %}
                 <ul class="space-y-2">
-                  {% for group in user.admin_groups.all %}
+                  {% for group in admin_groups %}
                     <li>
                       <a href="{% url 'users:group_admin' group.id %}" class="text-green-800 hover:text-green-900 font-semibold underline">
                         {{ group.name }}
@@ -42,11 +42,10 @@
               {% else %}
                 <div class="text-gray-600">No created groups yet.</div>
               {% endif %}
-            {% else %}
-              <div class="text-gray-600">No created groups yet.</div>
-            {% endif %}
+            {% endwith %}
           </div>
         </div>
+
 
 {% block extra_js %}
 <script>
