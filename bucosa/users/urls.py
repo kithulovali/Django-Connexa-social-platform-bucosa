@@ -1,4 +1,3 @@
-     path('your-groups/', views.your_groups_list, name='your_groups_list'),
 from django.urls import path 
 from . import views
 from django.conf.urls.static import static
