@@ -11,21 +11,22 @@
   <meta name="mobile-web-app-capable" content="yes">
 </head>
 
-<div class="flex h-screen bg-gray-100 relative overflow-hidden">  <!-- Overlay for mobile -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
+<div class="flex h-screen bg-gray-50 relative overflow-hidden">
+  <!-- Overlay for mobile -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden transition-opacity duration-300"></div>
 
   <!-- Main chat area -->
   <div class="flex-1 flex flex-col lg:ml-0 min-w-0">
     <!-- Group profile header with members carousel -->
-    <div class="bg-white border-b border-gray-200">
+    <div class="bg-white border-b border-gray-200 shadow-sm">
       <div class="p-3 sm:p-4 pl-14 sm:pl-16 lg:pl-4">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
-            <h1 class="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
-            <p class="text-gray-500 text-xs sm:text-sm truncate mt-0.5">{{ group.description|default:"No description" }}</p>
+            <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
+            <p class="text-gray-500 text-sm sm:text-base truncate mt-1">{{ group.description|default:"No description" }}</p>
           </div>
           <div class="flex-shrink-0 ml-4">
-            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 shadow-sm">
               {{ group.user_set.count }} member{{ group.user_set.count|pluralize }}
             </span>
           </div>
@@ -33,60 +34,99 @@
       </div>
       
       <!-- Members carousel -->
-      <div class="border-t border-gray-100 px-3 py-2 bg-gray-50">
-        <div class="flex items-center space-x-2 overflow-x-auto pb-2 custom-scrollbar" id="members-carousel">
+      <div class="border-t border-gray-100 px-4 py-3 bg-gray-50">
+        <div class="flex items-center space-x-3 overflow-x-auto pb-1 custom-scrollbar" id="members-carousel">
           {% for member in group.user_set.all %}
-              {% if member.profile and member.profile.profile_image %}
-                <img src="{{ member.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white shadow-sm object-cover group-hover:border-blue-300 transition-colors" alt="{{ member.username }}">
-              {% else %}
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white bg-gradient-to-br from-gray-300 to-gray-400 shadow-sm flex items-center justify-center text-white text-sm font-bold group-hover:border-blue-300 transition-colors">
-                  {{ member.username|first|upper }}
+            <div class="relative group">
+              <a href="{% url 'view_profile' member.username %}" data-member-id="{{ member.id }}" class="block">
+                {% if member.profile and member.profile.profile_image %}
+                  <img src="{{ member.profile.profile_image.url }}" 
+                       class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white shadow-md object-cover transition-all duration-200 group-hover:border-blue-400 group-hover:scale-105" 
+                       alt="{{ member.username }}"
+                       loading="lazy">
+                {% else %}
+                  <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white bg-gradient-to-br from-blue-400 to-blue-600 shadow-md flex items-center justify-center text-white text-sm font-bold transition-all duration-200 group-hover:border-blue-400 group-hover:scale-105">
+                    {{ member.username|first|upper }}
+                  </div>
+                {% endif %}
+                <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                  <div class="w-3 h-3 bg-green-500 rounded-full border border-white"></div>
                 </div>
-              {% endif %}
+              </a>
+            </div>
           {% endfor %}
         </div>
       </div>
     </div>
 
     <!-- Messages area -->
-    <div class="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4 bg-gray-50 custom-scrollbar" id="chat-messages">
-      <div class="max-w-4xl mx-auto">
+    <div class="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-5 bg-gradient-to-b from-gray-50 to-gray-100 custom-scrollbar" id="chat-messages">
+      <div class="max-w-4xl mx-auto space-y-4">
         {% for msg in messages %}
-        <div class="flex mb-3 sm:mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
-          <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
+        <div class="flex {% if msg.user == request.user %}justify-end{% else %}justify-start{% endif %}" data-message-id="{{ msg.id }}">
+          <div class="flex message-bubble max-w-[90%] sm:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
             {% if msg.user != request.user %}
-                {% if msg.user.profile and msg.user.profile.profile_image %}
-                  <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all" alt="{{ msg.user|display_name }}">
-                {% else %}
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all">{{ msg.user|display_name|first|upper }}</div>
-                {% endif %}
+              <div class="flex-shrink-0 self-end {% if msg.user == request.user %}ml-3{% else %}mr-3{% endif %}">
+                <a href="{% url 'view_profile' msg.user.username %}" data-member-id="{{ msg.user.id }}">
+                  {% if msg.user.profile and msg.user.profile.profile_image %}
+                    <img src="{{ msg.user.profile.profile_image.url }}" 
+                         class="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full shadow-md object-cover hover:ring-2 hover:ring-blue-400 transition-all duration-200"
+                         alt="{{ msg.user|display_name }}"
+                         loading="lazy">
+                  {% else %}
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-md flex items-center justify-center text-white text-sm font-bold hover:ring-2 hover:ring-blue-400 transition-all duration-200">
+                      {{ msg.user|display_name|first|upper }}
+                    </div>
+                  {% endif %}
+                </a>
+              </div>
             {% endif %}
+            
             <div class="flex-1 min-w-0">
               {% if msg.user != request.user %}
-                <p class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1 hover:text-blue-600 transition-colors">{{ msg.user|display_name }}</p>
+                <p class="text-sm sm:text-base font-semibold text-gray-800 mb-1 px-1 hover:text-blue-600 transition-colors duration-200">
+                  <a href="{% url 'view_profile' msg.user.username %}" data-member-id="{{ msg.user.id }}">
+                    {{ msg.user|display_name }}
+                  </a>
+                </p>
               {% endif %}
-              <div class="{% if msg.user == request.user %}bg-blue-500 text-white ml-auto{% else %}bg-white border border-gray-200 text-gray-900{% endif %} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
+              
+              <div class="relative {% if msg.user == request.user %}bg-blue-600 text-white ml-auto{% else %}bg-white text-gray-900{% endif %} rounded-2xl px-4 py-3 sm:px-5 sm:py-4 shadow-md hover:shadow-lg transition-all duration-200">
                 <div class="message-content text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>
+                
                 {% if msg.file %}
                   {% with msg.file.url|lower as file_url %}
                     {% if '.jpg' in file_url or '.jpeg' in file_url or '.png' in file_url or '.gif' in file_url %}
-                      <img src="{{ msg.file.url }}" class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" onclick="window.open(this.src, '_blank')" />
+                      <div class="mt-3 overflow-hidden rounded-xl border border-gray-200/50">
+                        <img src="{{ msg.file.url }}" 
+                             class="w-full h-auto max-h-64 object-contain cursor-zoom-in hover:opacity-90 transition-opacity duration-200"
+                             onclick="window.open(this.src, '_blank')"
+                             loading="lazy" />
+                      </div>
                     {% elif '.mp4' in file_url or '.webm' in file_url or '.ogg' in file_url %}
-                      <video controls class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm">
-                        <source src="{{ msg.file.url }}">
-                        Your browser does not support the video tag.
-                      </video>
+                      <div class="mt-3 overflow-hidden rounded-xl border border-gray-200/50">
+                        <video controls class="w-full h-auto max-h-64">
+                          <source src="{{ msg.file.url }}" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
                     {% else %}
-                      <a href="{{ msg.file.url }}" target="_blank" class="{% if msg.user == request.user %}text-blue-200 hover:text-white{% else %}text-blue-600 hover:text-blue-800{% endif %} underline block mt-2 text-sm font-medium">📎 Download file</a>
+                      <a href="{{ msg.file.url }}" target="_blank" class="{% if msg.user == request.user %}text-blue-200 hover:text-white{% else %}text-blue-600 hover:text-blue-800{% endif %} flex items-center mt-3 text-sm font-medium transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        {{ msg.file.name|truncatechars:30 }}
+                      </a>
                     {% endif %}
                   {% endwith %}
                 {% endif %}
-              </div>
-              <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 {% if msg.user == request.user %}justify-end{% endif %} px-1">
-                <span>{{ msg.timestamp|timesince }} ago</span>
-                {% if msg.edited %}
-                  <span class="text-gray-400">(edited)</span>
-                {% endif %}
+                
+                <div class="flex items-center mt-2 space-x-2 text-xs {% if msg.user == request.user %}text-blue-200 justify-end{% else %}text-gray-500 justify-start{% endif %} px-1">
+                  <span>{{ msg.timestamp|timesince }} ago</span>
+                  {% if msg.edited %}
+                    <span class="text-xs opacity-80">(edited)</span>
+                  {% endif %}
+                </div>
               </div>
             </div>
           </div>
@@ -96,20 +136,20 @@
     </div>
 
     <!-- Message input -->
-    <div class="bg-white border-t border-gray-200 p-2 sm:p-3 lg:p-4 safe-area-inset-bottom mobile-keyboard-adjust" id="message-input-container">
+    <div class="bg-white border-t border-gray-200 p-3 sm:p-4 safe-area-inset-bottom mobile-keyboard-adjust" id="message-input-container">
       <form method="post" enctype="multipart/form-data" class="max-w-4xl mx-auto mobile-input-container" id="message-form">
         {% csrf_token %}
         <!-- File preview area -->
-        <div id="file-preview" class="hidden mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div id="file-preview" class="hidden mb-3 p-3 bg-gray-50 rounded-xl border border-gray-200 shadow-inner transition-all duration-300">
           <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center space-x-3">
+              <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
-              <span id="file-name" class="text-sm text-gray-700 truncate"></span>
+              <span id="file-name" class="text-sm font-medium text-gray-700 truncate flex-1"></span>
             </div>
-            <button type="button" id="remove-file" class="text-gray-400 hover:text-gray-600 p-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" id="remove-file" class="text-gray-500 hover:text-red-500 p-1 transition-colors duration-200">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
@@ -117,32 +157,34 @@
         </div>
         
         <div class="flex items-end space-x-2 sm:space-x-3">
-          <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-blue-500 p-2 sm:p-3 rounded-full hover:bg-gray-100 transition-colors duration-150 touch-manipulation">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-blue-500 p-2 rounded-full hover:bg-blue-50 transition-colors duration-200 active:scale-95 touch-manipulation">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
             </svg>
             <input id="group-file-input" type="file" name="file" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt">
           </label>
+          
           <div class="flex-1 relative">
             <textarea
               name="content"
               rows="1"
-              class="w-full border border-gray-300 rounded-2xl px-4 py-3 sm:px-5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none max-h-32 leading-relaxed touch-manipulation"
+              class="w-full border border-gray-300 rounded-2xl px-4 py-3 sm:px-5 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none max-h-32 leading-relaxed touch-manipulation shadow-sm transition-all duration-200"
               placeholder="Type a message..."
               id="message-input"
-              style="min-height: 44px;"
+              style="min-height: 48px;"
               autocomplete="off"
               autocorrect="on"
               autocapitalize="sentences"
               spellcheck="true"
             ></textarea>
           </div>
+          
           <button
             type="submit"
-            class="px-4 py-3 sm:px-5 sm:py-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base font-medium transition-colors duration-150 touch-manipulation min-w-[60px] sm:min-w-[70px]"
+            class="px-4 py-3 sm:px-5 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-base font-medium transition-all duration-200 touch-manipulation min-w-[70px] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
             id="send-button"
           >
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
             </svg>
           </button>
@@ -151,20 +193,20 @@
     </div>
   </div>
 
-  <!-- Profile Modal (hidden by default) -->
+  <!-- Profile Modal -->
   <div id="profile-modal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
     <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl transform transition-transform duration-300 ease-out max-h-[90vh] overflow-hidden">
-      <div class="p-4">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold">Profile</h3>
-          <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
+      <div class="p-5">
+        <div class="flex justify-between items-center mb-5">
+          <h3 class="text-xl font-bold text-gray-900">Profile</h3>
+          <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
         </div>
-        <div id="profile-modal-content" class="overflow-y-auto max-h-[80vh] pb-4">
+        <div id="profile-modal-content" class="overflow-y-auto max-h-[75vh] pb-5">
           <!-- Profile content will be loaded here -->
         </div>
       </div>
@@ -174,9 +216,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const chatMessages = document.getElementById('chat-messages');
   const messageForm = document.getElementById('message-form');
   const messageInput = document.getElementById('message-input');
@@ -190,126 +230,121 @@ document.addEventListener('DOMContentLoaded', function() {
   const profileModalContent = document.getElementById('profile-modal-content');
   const closeProfileModal = document.getElementById('close-profile-modal');
   
-  // Mobile menu functionality
-  function openSidebar() {
-    sidebar.classList.remove('-translate-x-full');
-    overlay.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-  
-  function closeSidebar() {
-    sidebar.classList.add('-translate-x-full');
-    overlay.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-  
-  mobileMenuBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (sidebar.classList.contains('-translate-x-full')) {
-      openSidebar();
-    } else {
-      closeSidebar();
-    }
-  });
-  
-  overlay.addEventListener('click', closeSidebar);
-  
-  // Enhanced swipe gestures for sidebar
-  let sidebarTouchStartX = 0;
-  let sidebarTouchStartY = 0;
-  let sidebarIsSwiping = false;
-  let sidebarSwipeThreshold = 50;
-  
-  document.addEventListener('touchstart', function(e) {
-    sidebarTouchStartX = e.touches[0].clientX;
-    sidebarTouchStartY = e.touches[0].clientY;
-    sidebarIsSwiping = false;
-  }, { passive: true });
-  
-  document.addEventListener('touchmove', function(e) {
-    if (!sidebarTouchStartX || !sidebarTouchStartY) return;
-    
-    const touchX = e.touches[0].clientX;
-    const touchY = e.touches[0].clientY;
-    const diffX = sidebarTouchStartX - touchX;
-    const diffY = sidebarTouchStartY - touchY;
-    
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-      sidebarIsSwiping = true;
-      
-      if (sidebarTouchStartX < 20 && diffX < -sidebarSwipeThreshold && sidebar.classList.contains('-translate-x-full')) {
-        e.preventDefault();
-        openSidebar();
-      }
-      
-      if (!sidebar.classList.contains('-translate-x-full') && diffX < -sidebarSwipeThreshold) {
-        e.preventDefault();
-        closeSidebar();
-      }
-    }
-  }, { passive: false });
-  
-  document.addEventListener('touchend', function() {
-    sidebarTouchStartX = 0;
-    sidebarTouchStartY = 0;
-    sidebarIsSwiping = false;
-  }, { passive: true });
-  
-  // Close sidebar on escape key
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
-      closeSidebar();
-    }
-  });
-  
-  // Auto-resize textarea
+  // Enhanced auto-resize textarea with debounce
   function adjustTextareaHeight() {
     messageInput.style.height = 'auto';
     const newHeight = Math.min(messageInput.scrollHeight, 128);
     messageInput.style.height = newHeight + 'px';
   }
   
-  messageInput.addEventListener('input', adjustTextareaHeight);
-  messageInput.addEventListener('paste', function() {
-    setTimeout(adjustTextareaHeight, 10);
+  let resizeTimeout;
+  messageInput.addEventListener('input', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(adjustTextareaHeight, 100);
   });
   
-  // File handling
+  // Improved file handling with preview for images
   fileInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
       fileName.textContent = file.name;
       filePreview.classList.remove('hidden');
+      
+      // If it's an image, show thumbnail preview
+      if (file.type.match('image.*')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (filePreview.querySelector('img')) {
+            filePreview.querySelector('img').src = e.target.result;
+          } else {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'mt-2 max-h-32 rounded-lg border border-gray-200';
+            filePreview.appendChild(img);
+          }
+        };
+        reader.readAsDataURL(file);
+      } else if (filePreview.querySelector('img')) {
+        filePreview.querySelector('img').remove();
+      }
     }
   });
   
   removeFileBtn.addEventListener('click', function() {
     fileInput.value = '';
     filePreview.classList.add('hidden');
+    if (filePreview.querySelector('img')) {
+      filePreview.querySelector('img').remove();
+    }
   });
   
-  // Form submission
+  // AJAX form submission
   messageForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
     const content = messageInput.value.trim();
     const file = fileInput.files[0];
     
     if (!content && !file) {
-      e.preventDefault();
-      alert('Please enter a message or select a file.');
+      showToast('Please enter a message or select a file', 'error');
       return;
     }
     
-    sendButton.disabled = true;
-    sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    const formData = new FormData(this);
+    const submitBtnOriginal = sendButton.innerHTML;
     
-    setTimeout(() => {
+    // Disable button and show loading
+    sendButton.disabled = true;
+    sendButton.innerHTML = `
+      <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    `;
+    
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Clear form
+        messageInput.value = '';
+        adjustTextareaHeight();
+        fileInput.value = '';
+        filePreview.classList.add('hidden');
+        if (filePreview.querySelector('img')) {
+          filePreview.querySelector('img').remove();
+        }
+        
+        // Add new message to chat (you would implement this based on your response)
+        // appendNewMessage(data.message);
+        
+        // Scroll to bottom
+        scrollToBottom(true);
+        
+        // Show success feedback
+        showToast('Message sent', 'success');
+      } else {
+        showToast(data.error || 'Error sending message', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showToast('Network error. Please try again.', 'error');
+    })
+    .finally(() => {
       sendButton.disabled = false;
-      sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
-    }, 2000);
+      sendButton.innerHTML = submitBtnOriginal;
+    });
   });
   
-  // Keyboard shortcuts
+  // Improved keyboard shortcuts
   messageInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -319,85 +354,199 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Mobile input focus handling
-  messageInput.addEventListener('focus', function() {
-    if (window.innerWidth < 768) {
-      setTimeout(() => {
-        messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
+  // Enhanced scroll to bottom with smooth animation
+  function scrollToBottom(smooth = true) {
+    if (chatMessages) {
+      chatMessages.scrollTo({
+        top: chatMessages.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
     }
-  });
-  
-  // Scroll to bottom
-  function scrollToBottom(smooth = false) {
-    const scrollOptions = {
-      top: chatMessages.scrollHeight,
-      behavior: smooth ? 'smooth' : 'auto'
-    };
-    chatMessages.scrollTo(scrollOptions);
   }
   
-  // Members carousel horizontal scrolling
+  // Members carousel horizontal scrolling with momentum
   if (membersCarousel) {
-    membersCarousel.addEventListener('wheel', function(e) {
-      if (e.deltaY === 0) return;
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let velocity;
+    let animationFrame;
+    
+    membersCarousel.addEventListener('mousedown', (e) => {
+      isDown = true;
+      startX = e.pageX - membersCarousel.offsetLeft;
+      scrollLeft = membersCarousel.scrollLeft;
+      cancelAnimationFrame(animationFrame);
+    });
+    
+    membersCarousel.addEventListener('mouseleave', () => {
+      isDown = false;
+    });
+    
+    membersCarousel.addEventListener('mouseup', () => {
+      isDown = false;
+      // Apply momentum
+      if (Math.abs(velocity) > 2) {
+        const decay = 0.95;
+        const animate = () => {
+          velocity *= decay;
+          membersCarousel.scrollLeft += velocity;
+          if (Math.abs(velocity) > 0.5) {
+            animationFrame = requestAnimationFrame(animate);
+          }
+        };
+        animate();
+      }
+    });
+    
+    membersCarousel.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
       e.preventDefault();
-      this.scrollLeft += e.deltaY + e.deltaX;
+      const x = e.pageX - membersCarousel.offsetLeft;
+      const walk = (x - startX) * 2;
+      velocity = walk - (membersCarousel.scrollLeft - scrollLeft);
+      membersCarousel.scrollLeft = scrollLeft - walk;
+    });
+    
+    // Touch support
+    membersCarousel.addEventListener('touchstart', (e) => {
+      isDown = true;
+      startX = e.touches[0].pageX - membersCarousel.offsetLeft;
+      scrollLeft = membersCarousel.scrollLeft;
+      cancelAnimationFrame(animationFrame);
+    }, { passive: true });
+    
+    membersCarousel.addEventListener('touchend', () => {
+      isDown = false;
+      // Apply momentum for touch
+      if (Math.abs(velocity) > 2) {
+        const decay = 0.92;
+        const animate = () => {
+          velocity *= decay;
+          membersCarousel.scrollLeft += velocity;
+          if (Math.abs(velocity) > 0.5) {
+            animationFrame = requestAnimationFrame(animate);
+          }
+        };
+        animate();
+      }
+    });
+    
+    membersCarousel.addEventListener('touchmove', (e) => {
+      if (!isDown) return;
+      const x = e.touches[0].pageX - membersCarousel.offsetLeft;
+      const walk = (x - startX) * 2;
+      velocity = walk - (membersCarousel.scrollLeft - scrollLeft);
+      membersCarousel.scrollLeft = scrollLeft - walk;
     }, { passive: false });
   }
   
-  // Profile modal functionality
+  // Improved profile modal with AJAX loading
   function showProfileModal(profileUrl) {
-    fetch(profileUrl)
-      .then(response => response.text())
-      .then(html => {
-        // Extract the profile content from the response
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const profileContent = doc.querySelector('.profile-content') || doc.createElement('div');
-        
-        profileModalContent.innerHTML = profileContent.innerHTML;
-        profileModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-      })
-      .catch(error => {
-        console.error('Error loading profile:', error);
-        profileModalContent.innerHTML = '<div class="p-4 text-center text-gray-500">Could not load profile</div>';
-        profileModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-      });
+    // Show loading state
+    profileModalContent.innerHTML = `
+      <div class="flex justify-center items-center h-64">
+        <svg class="w-12 h-12 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    `;
+    
+    profileModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    fetch(profileUrl, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const profileContent = doc.querySelector('.profile-content') || doc.createElement('div');
+      
+      // Add fade-in animation
+      profileModalContent.innerHTML = profileContent.innerHTML;
+      profileModalContent.style.opacity = 0;
+      setTimeout(() => {
+        profileModalContent.style.transition = 'opacity 0.3s ease';
+        profileModalContent.style.opacity = 1;
+      }, 10);
+    })
+    .catch(error => {
+      console.error('Error loading profile:', error);
+      profileModalContent.innerHTML = `
+        <div class="p-6 text-center">
+          <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h4 class="mt-4 text-lg font-medium text-gray-900">Could not load profile</h4>
+          <p class="mt-2 text-gray-500">Please try again later</p>
+          <button onclick="hideProfileModal()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+            Close
+          </button>
+        </div>
+      `;
+    });
   }
   
   function hideProfileModal() {
-    profileModal.classList.add('hidden');
-    document.body.style.overflow = '';
+    profileModalContent.style.transition = 'none';
+    profileModalContent.style.opacity = 0;
+    setTimeout(() => {
+      profileModal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }, 300);
   }
   
-  // Handle profile link clicks
-  document.querySelectorAll('[data-member-id]').forEach(link => {
-    link.addEventListener('click', function(e) {
-      if (window.innerWidth < 768) {
-        e.preventDefault();
-        const profileUrl = this.getAttribute('href');
-        showProfileModal(profileUrl);
-      }
-    });
-  });
+  // Handle profile link clicks with better touch support
+  document.addEventListener('click', function(e) {
+    const profileLink = e.target.closest('[data-member-id]');
+    if (profileLink && window.innerWidth < 768) {
+      e.preventDefault();
+      const profileUrl = profileLink.getAttribute('href');
+      showProfileModal(profileUrl);
+    }
+  }, { passive: true });
   
   closeProfileModal.addEventListener('click', hideProfileModal);
-  overlay.addEventListener('click', function() {
-    if (!profileModal.classList.contains('hidden')) {
-      hideProfileModal();
-    }
-  });
+  overlay.addEventListener('click', hideProfileModal);
   
-  // Initial scroll to bottom
-  scrollToBottom();
+  // Toast notification function
+  function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    const colors = {
+      success: 'bg-green-500',
+      error: 'bg-red-500',
+      info: 'bg-blue-500'
+    };
+    
+    toast.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${colors[type]} transition-all duration-300 opacity-0 translate-y-4`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translate(-50%, 0)';
+    }, 10);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translate(-50%, 4px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+  
+  // Initial scroll to bottom with slight delay
+  setTimeout(() => scrollToBottom(false), 300);
   
   // Focus input on desktop
   if (window.innerWidth >= 1024) {
     messageInput.focus();
   }
+  
 });
 </script>
 
