@@ -69,6 +69,10 @@ class user_following(models.Model):
         ordering = ['-created_at']
 
 class GroupProfile(models.Model):
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('users:group_profile', args=[str(self.group.id)])
     group = models.OneToOneField(
         Group, 
         on_delete=models.CASCADE, 

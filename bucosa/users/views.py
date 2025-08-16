@@ -114,11 +114,12 @@ def manage_group_requests(request, group_id):
             if join_request.user.email:
                 from django.core.mail import send_mail
                 subject = f"Your request to join '{group.name}' was approved!"
+                group_url = group.profile.get_absolute_url() if hasattr(group, 'profile') else f"/groups/{group.id}/"
                 message = (
                     f"Hi {join_request.user.username},\n\n"
                     f"Your request to join the group '{group.name}' has been approved.\n"
                     f"You can now access the group and participate in the chat!\n\n"
-                    f"Go to the group: https://{request.get_host()}{group.get_absolute_url()}\n\n"
+                    f"Go to the group: https://{request.get_host()}{group_url}\n\n"
                     f"Blessings,\nThe Bucosa Team"
                 )
                 send_mail(subject, message, None, [join_request.user.email], fail_silently=True)
