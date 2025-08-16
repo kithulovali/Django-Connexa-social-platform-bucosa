@@ -36,7 +36,6 @@
       <div class="border-t border-gray-100 px-3 py-2 bg-gray-50">
         <div class="flex items-center space-x-2 overflow-x-auto pb-2 custom-scrollbar" id="members-carousel">
           {% for member in group.user_set.all %}
-            <a href="{% url 'users:profile' member.username %}" class="flex flex-col items-center flex-shrink-0 group" data-member-id="{{ member.id }}">
               {% if member.profile and member.profile.profile_image %}
                 <img src="{{ member.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white shadow-sm object-cover group-hover:border-blue-300 transition-colors" alt="{{ member.username }}">
               {% else %}
@@ -44,8 +43,8 @@
                   {{ member.username|first|upper }}
                 </div>
               {% endif %}
-              <span class="text-xs text-gray-600 mt-1 truncate max-w-[60px] sm:max-w-[80px]">{{ member.username|truncatechars:10 }}</span>
-            </a>
+              <span class="text-xs text-gray-600 mt-1 truncate max-w-[60px] sm:max-w-[80px]">{{ member|display_name|first|upper }}</span>
+            </class=>
           {% endfor %}
         </div>
       </div>
@@ -58,13 +57,11 @@
         <div class="flex mb-3 sm:mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
           <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
             {% if msg.user != request.user %}
-              <a href="{% url 'users:profile' msg.user.username %}" class="flex-shrink-0">
                 {% if msg.user.profile and msg.user.profile.profile_image %}
                   <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all" alt="{{ msg.user|display_name }}">
                 {% else %}
                   <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all">{{ msg.user|display_name|first|upper }}</div>
                 {% endif %}
-              </a>
             {% endif %}
             <div class="flex-1 min-w-0">
               {% if msg.user != request.user %}
