@@ -47,24 +47,29 @@
             {% endif %}
           </div>
         </div>
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          var btn = document.getElementById('toggle-groups-btn');
-          var list = document.getElementById('group-admin-list');
-          var icon = document.getElementById('toggle-groups-icon');
-          if (btn && list && icon) {
-            btn.addEventListener('click', function() {
-              if (list.style.display === 'none') {
-                list.style.display = 'block';
-                icon.textContent = 'expand_less';
-              } else {
-                list.style.display = 'none';
-                icon.textContent = 'expand_more';
-              }
-            });
-          }
-        });
-        </script>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('toggle-groups-btn');
+  var list = document.getElementById('group-admin-list');
+  var icon = document.getElementById('toggle-groups-icon');
+  // Always hide the list on load
+  if (list) list.style.display = 'none';
+  if (btn && list && icon) {
+    btn.addEventListener('click', function() {
+      if (list.style.display === 'none' || list.style.display === '') {
+        list.style.display = 'block';
+        icon.textContent = 'expand_less';
+      } else {
+        list.style.display = 'none';
+        icon.textContent = 'expand_more';
+      }
+    });
+  }
+});
+</script>
+{% endblock %}
 
         {% if user.is_superuser or user.is_staff %}
         <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
