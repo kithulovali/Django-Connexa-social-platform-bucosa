@@ -32,15 +32,17 @@
         <ul class="space-y-1">
           {% for admin in group.admins.all %}
           <li class="flex items-center py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
-            {% if admin.profile and admin.profile.profile_image %}
-              <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ admin|display_name }}">
-            {% else %}
-              <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ admin|display_name|first|upper }}</div>
-            {% endif %}
-            <div class="flex-1 min-w-0">
-              <span class="text-gray-800 text-sm font-medium truncate block">{{ admin|display_name }}</span>
-              <span class="text-xs text-blue-600 font-medium">Admin</span>
-            </div>
+            <a href="{% url 'users:profile' admin.username %}" class="flex items-center w-full">
+              {% if admin.profile and admin.profile.profile_image %}
+                <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ admin|display_name }}">
+              {% else %}
+                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ admin|display_name|first|upper }}</div>
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <span class="text-gray-800 text-sm font-medium truncate block">{{ admin|display_name }}</span>
+                <span class="text-xs text-blue-600 font-medium">Admin</span>
+              </div>
+            </a>
           </li>
           {% endfor %}
         </ul>
@@ -52,14 +54,16 @@
         <ul class="space-y-1">
           {% for member in group.user_set.all %}
           <li class="flex items-center py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
-            {% if member.profile and member.profile.profile_image %}
-              <img src="{{ member.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ member.username }}">
-            {% else %}
-              <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ member.username|first|upper }}</div>
-            {% endif %}
-            <div class="flex-1 min-w-0">
-              <span class="text-gray-800 text-sm truncate block">{{ member.username }}</span>
-            </div>
+            <a href="{% url 'users:profile' member.username %}" class="flex items-center w-full">
+              {% if member.profile and member.profile.profile_image %}
+                <img src="{{ member.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ member.username }}">
+              {% else %}
+                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ member.username|first|upper }}</div>
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <span class="text-gray-800 text-sm truncate block">{{ member.username }}</span>
+              </div>
+            </a>
           </li>
           {% endfor %}
         </ul>
@@ -72,17 +76,37 @@
 
   <!-- Main chat area -->
   <div class="flex-1 flex flex-col lg:ml-0 min-w-0">
-    <!-- Group profile header -->
-    <div class="bg-white border-b border-gray-200 p-3 sm:p-4 pl-14 sm:pl-16 lg:pl-4">
-      <div class="flex items-center justify-between">
-        <div class="flex-1 min-w-0">
-          <h1 class="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
-          <p class="text-gray-500 text-xs sm:text-sm truncate mt-0.5">{{ group.description|default:"No description" }}</p>
+    <!-- Group profile header with members carousel -->
+    <div class="bg-white border-b border-gray-200">
+      <div class="p-3 sm:p-4 pl-14 sm:pl-16 lg:pl-4">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 min-w-0">
+            <h1 class="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
+            <p class="text-gray-500 text-xs sm:text-sm truncate mt-0.5">{{ group.description|default:"No description" }}</p>
+          </div>
+          <div class="flex-shrink-0 ml-4">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              {{ group.user_set.count }} member{{ group.user_set.count|pluralize }}
+            </span>
+          </div>
         </div>
-        <div class="flex-shrink-0 ml-4">
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            {{ group.user_set.count }} member{{ group.user_set.count|pluralize }}
-          </span>
+      </div>
+      
+      <!-- Members carousel -->
+      <div class="border-t border-gray-100 px-3 py-2 bg-gray-50">
+        <div class="flex items-center space-x-2 overflow-x-auto pb-2 custom-scrollbar" id="members-carousel">
+          {% for member in group.user_set.all %}
+            <a href="{% url 'users:profile' member.username %}" class="flex flex-col items-center flex-shrink-0 group" data-member-id="{{ member.id }}">
+              {% if member.profile and member.profile.profile_image %}
+                <img src="{{ member.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white shadow-sm object-cover group-hover:border-blue-300 transition-colors" alt="{{ member.username }}">
+              {% else %}
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white bg-gradient-to-br from-gray-300 to-gray-400 shadow-sm flex items-center justify-center text-white text-sm font-bold group-hover:border-blue-300 transition-colors">
+                  {{ member.username|first|upper }}
+                </div>
+              {% endif %}
+              <span class="text-xs text-gray-600 mt-1 truncate max-w-[60px] sm:max-w-[80px]">{{ member.username|truncatechars:10 }}</span>
+            </a>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -94,15 +118,17 @@
         <div class="flex mb-3 sm:mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
           <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
             {% if msg.user != request.user %}
-              {% if msg.user.profile and msg.user.profile.profile_image %}
-                <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end" alt="{{ msg.user|display_name }}">
-              {% else %}
-                <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end">{{ msg.user|display_name|first|upper }}</div>
-              {% endif %}
+              <a href="{% url 'users:profile' msg.user.username %}" class="flex-shrink-0">
+                {% if msg.user.profile and msg.user.profile.profile_image %}
+                  <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all" alt="{{ msg.user|display_name }}">
+                {% else %}
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all">{{ msg.user|display_name|first|upper }}</div>
+                {% endif %}
+              </a>
             {% endif %}
             <div class="flex-1 min-w-0">
               {% if msg.user != request.user %}
-                <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">{{ msg.user|display_name }}</div>
+                <a href="{% url 'users:profile' msg.user.username %}" class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1 hover:text-blue-600 transition-colors">{{ msg.user|display_name }}</a>
               {% endif %}
               <div class="{% if msg.user == request.user %}bg-blue-500 text-white ml-auto{% else %}bg-white border border-gray-200 text-gray-900{% endif %} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
                 <div class="message-content text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>
@@ -189,6 +215,26 @@
       </form>
     </div>
   </div>
+
+  <!-- Profile Modal (hidden by default) -->
+  <div id="profile-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl transform transition-transform duration-300 ease-out max-h-[90vh] overflow-hidden">
+      <div class="p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold">Profile</h3>
+          <button id="close-profile-modal" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div id="profile-modal-content" class="overflow-y-auto max-h-[80vh] pb-4">
+          <!-- Profile content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -204,25 +250,22 @@ document.addEventListener('DOMContentLoaded', function() {
   const fileName = document.getElementById('file-name');
   const removeFileBtn = document.getElementById('remove-file');
   const sendButton = document.getElementById('send-button');
+  const membersCarousel = document.getElementById('members-carousel');
+  const profileModal = document.getElementById('profile-modal');
+  const profileModalContent = document.getElementById('profile-modal-content');
+  const closeProfileModal = document.getElementById('close-profile-modal');
   
-  // Enhanced mobile menu with swipe gestures
-  let sidebarTouchStartX = 0;
-  let sidebarTouchStartY = 0;
-  let sidebarIsSwiping = false;
-  let sidebarSwipeThreshold = 50;
-  
+  // Mobile menu functionality
   function openSidebar() {
     sidebar.classList.remove('-translate-x-full');
     overlay.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    sidebar.setAttribute('aria-hidden', 'false');
   }
   
   function closeSidebar() {
     sidebar.classList.add('-translate-x-full');
     overlay.classList.add('hidden');
     document.body.style.overflow = '';
-    sidebar.setAttribute('aria-hidden', 'true');
   }
   
   mobileMenuBtn.addEventListener('click', function(e) {
@@ -238,6 +281,11 @@ document.addEventListener('DOMContentLoaded', function() {
   overlay.addEventListener('click', closeSidebar);
   
   // Enhanced swipe gestures for sidebar
+  let sidebarTouchStartX = 0;
+  let sidebarTouchStartY = 0;
+  let sidebarIsSwiping = false;
+  let sidebarSwipeThreshold = 50;
+  
   document.addEventListener('touchstart', function(e) {
     sidebarTouchStartX = e.touches[0].clientX;
     sidebarTouchStartY = e.touches[0].clientY;
@@ -252,17 +300,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const diffX = sidebarTouchStartX - touchX;
     const diffY = sidebarTouchStartY - touchY;
     
-    // Only handle horizontal swipes
     if (Math.abs(diffX) > Math.abs(diffY)) {
       sidebarIsSwiping = true;
       
-      // Swipe from left edge to open sidebar
       if (sidebarTouchStartX < 20 && diffX < -sidebarSwipeThreshold && sidebar.classList.contains('-translate-x-full')) {
         e.preventDefault();
         openSidebar();
       }
       
-      // Swipe right to close sidebar when open
       if (!sidebar.classList.contains('-translate-x-full') && diffX < -sidebarSwipeThreshold) {
         e.preventDefault();
         closeSidebar();
@@ -283,18 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Handle sidebar focus management
-  sidebar.addEventListener('transitionend', function() {
-    if (!sidebar.classList.contains('-translate-x-full')) {
-      // Sidebar is open, focus first focusable element
-      const firstFocusable = sidebar.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (firstFocusable) {
-        firstFocusable.focus();
-      }
-    }
-  });
-  
-  // Auto-resize textarea with better mobile handling
+  // Auto-resize textarea
   function adjustTextareaHeight() {
     messageInput.style.height = 'auto';
     const newHeight = Math.min(messageInput.scrollHeight, 128);
@@ -320,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
     filePreview.classList.add('hidden');
   });
   
-  // Enhanced form submission
+  // Form submission
   messageForm.addEventListener('submit', function(e) {
     const content = messageInput.value.trim();
     const file = fileInput.files[0];
@@ -331,18 +365,16 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
-    // Disable send button to prevent double submission
     sendButton.disabled = true;
     sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
     
-    // Re-enable after a delay
     setTimeout(() => {
       sendButton.disabled = false;
       sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
     }, 2000);
   });
   
-  // Enhanced keyboard shortcuts and mobile input handling
+  // Keyboard shortcuts
   messageInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -352,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Better mobile input focus handling
+  // Mobile input focus handling
   messageInput.addEventListener('focus', function() {
     if (window.innerWidth < 768) {
       setTimeout(() => {
@@ -361,17 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Prevent zoom on double tap for message input
-  let lastTouchEnd = 0;
-  messageInput.addEventListener('touchend', function(e) {
-    const now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-      e.preventDefault();
-    }
-    lastTouchEnd = now;
-  }, false);
-  
-  // Improved scroll to bottom with smooth behavior
+  // Scroll to bottom
   function scrollToBottom(smooth = false) {
     const scrollOptions = {
       top: chatMessages.scrollHeight,
@@ -380,233 +402,67 @@ document.addEventListener('DOMContentLoaded', function() {
     chatMessages.scrollTo(scrollOptions);
   }
   
-  // Enhanced mobile keyboard handling
-  let initialViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  let isKeyboardOpen = false;
-  const messageInputContainer = document.getElementById('message-input-container');
-  
-  function handleViewportChange() {
-    const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    const heightDifference = initialViewportHeight - currentHeight;
-    
-    // Detect keyboard open/close
-    const keyboardThreshold = window.innerWidth < 768 ? 150 : 200;
-    const wasKeyboardOpen = isKeyboardOpen;
-    isKeyboardOpen = heightDifference > keyboardThreshold;
-    
-    if (isKeyboardOpen && !wasKeyboardOpen) {
-      // Keyboard opened
-      document.body.classList.add('keyboard-open');
-      messageInputContainer.style.transform = 'translateY(0)';
-      setTimeout(() => scrollToBottom(true), 300);
-    } else if (!isKeyboardOpen && wasKeyboardOpen) {
-      // Keyboard closed
-      document.body.classList.remove('keyboard-open');
-      messageInputContainer.style.transform = '';
-      setTimeout(() => scrollToBottom(false), 100);
-    }
+  // Members carousel horizontal scrolling
+  if (membersCarousel) {
+    membersCarousel.addEventListener('wheel', function(e) {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      this.scrollLeft += e.deltaY + e.deltaX;
+    }, { passive: false });
   }
   
-  // Use Visual Viewport API if available, fallback to resize
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', handleViewportChange);
-  } else {
-    window.addEventListener('resize', handleViewportChange);
-  }
-  
-  // Handle orientation changes
-  window.addEventListener('orientationchange', function() {
-    setTimeout(() => {
-      initialViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      scrollToBottom(false);
-    }, 500);
-  });
-  
-  // Intersection Observer for auto-scroll
-  let isUserScrolling = false;
-  let scrollTimeout;
-  
-  chatMessages.addEventListener('scroll', function() {
-    isUserScrolling = true;
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(() => {
-      isUserScrolling = false;
-    }, 1000);
-  });
-  
-  // Enhanced WebSocket connection with mobile optimizations
-  let socket = null;
-  let reconnectAttempts = 0;
-  const maxReconnectAttempts = 5;
-  let reconnectTimeout = null;
-  
-  function connectWebSocket() {
-    if (typeof WebSocket !== 'undefined') {
-      try {
-        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-        socket = new WebSocket(
-          protocol + window.location.host + '/ws/group/{{ group.id }}/'
-        );
+  // Profile modal functionality
+  function showProfileModal(profileUrl) {
+    fetch(profileUrl)
+      .then(response => response.text())
+      .then(html => {
+        // Extract the profile content from the response
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const profileContent = doc.querySelector('.profile-content') || doc.createElement('div');
         
-        socket.onopen = function() {
-          console.log('WebSocket connected');
-          reconnectAttempts = 0;
-        };
-        
-        socket.onmessage = function(e) {
-          try {
-            const data = JSON.parse(e.data);
-            if (data.message) {
-              // Use DocumentFragment for better performance
-              const fragment = document.createDocumentFragment();
-              const messageDiv = document.createElement('div');
-              messageDiv.className = 'flex mb-3 sm:mb-4 justify-start message-animate';
-              messageDiv.setAttribute('data-message-id', data.message.id || '');
-              
-              messageDiv.innerHTML = `
-                <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full">
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold mr-2 sm:mr-3 flex-shrink-0 self-end">
-                    ${(data.message.sender || 'U').charAt(0).toUpperCase()}
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1">${data.message.sender || 'Unknown'}</div>
-                    <div class="bg-white border border-gray-200 text-gray-900 rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
-                      <div class="message-content text-sm sm:text-base break-words leading-relaxed">${(data.message.content || '').replace(/\n/g, '<br>')}</div>
-                    </div>
-                    <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 px-1">
-                      <span>just now</span>
-                    </div>
-                  </div>
-                </div>
-              `;
-              
-              fragment.appendChild(messageDiv);
-              
-              const messagesContainer = chatMessages.querySelector('.max-w-4xl');
-              if (messagesContainer) {
-                messagesContainer.appendChild(fragment);
-                if (!isUserScrolling) {
-                  requestAnimationFrame(() => scrollToBottom(true));
-                }
-              }
-            }
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-          }
-        };
-        
-        socket.onclose = function(e) {
-          console.log('WebSocket closed:', e.code, e.reason);
-          if (reconnectAttempts < maxReconnectAttempts) {
-            const delay = Math.pow(2, reconnectAttempts) * 1000; // Exponential backoff
-            reconnectTimeout = setTimeout(() => {
-              reconnectAttempts++;
-              console.log(`Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})`);
-              connectWebSocket();
-            }, delay);
-          }
-        };
-        
-        socket.onerror = function(error) {
-          console.error('WebSocket error:', error);
-        };
-        
-      } catch (error) {
-        console.error('WebSocket connection failed:', error);
-      }
-    }
-  }
-  
-  // Handle app visibility changes for WebSocket management
-  document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-      // App is hidden, close WebSocket to save battery
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.close();
-      }
-      if (reconnectTimeout) {
-        clearTimeout(reconnectTimeout);
-      }
-    } else {
-      // App is visible again, reconnect WebSocket
-      if (!socket || socket.readyState === WebSocket.CLOSED) {
-        connectWebSocket();
-      }
-    }
-  });
-  
-  // Initialize WebSocket connection
-  connectWebSocket();
-  
-  // Enhanced touch gesture support
-  let touchStartY = 0;
-  let touchStartX = 0;
-  let isSwiping = false;
-  
-  chatMessages.addEventListener('touchstart', function(e) {
-    touchStartY = e.touches[0].clientY;
-    touchStartX = e.touches[0].clientX;
-    isSwiping = false;
-  }, { passive: true });
-  
-  chatMessages.addEventListener('touchmove', function(e) {
-    if (!touchStartY || !touchStartX) return;
-    
-    const touchY = e.touches[0].clientY;
-    const touchX = e.touches[0].clientX;
-    const diffY = touchStartY - touchY;
-    const diffX = touchStartX - touchX;
-    
-    // Detect horizontal swipe (for potential future features)
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-      isSwiping = true;
-    }
-  }, { passive: true });
-  
-  // Pull-to-refresh prevention in chat area
-  chatMessages.addEventListener('touchstart', function(e) {
-    if (chatMessages.scrollTop === 0) {
-      chatMessages.scrollTop = 1;
-    }
-  }, { passive: true });
-  
-  // Improved scroll performance on mobile
-  let ticking = false;
-  function updateScrollPosition() {
-    // Throttle scroll events for better performance
-    if (!ticking) {
-      requestAnimationFrame(function() {
-        // Add any scroll-based animations or updates here
-        ticking = false;
+        profileModalContent.innerHTML = profileContent.innerHTML;
+        profileModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      })
+      .catch(error => {
+        console.error('Error loading profile:', error);
+        profileModalContent.innerHTML = '<div class="p-4 text-center text-gray-500">Could not load profile</div>';
+        profileModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
       });
-      ticking = true;
-    }
   }
   
-  chatMessages.addEventListener('scroll', updateScrollPosition, { passive: true });
+  function hideProfileModal() {
+    profileModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  
+  // Handle profile link clicks
+  document.querySelectorAll('[data-member-id]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      if (window.innerWidth < 768) {
+        e.preventDefault();
+        const profileUrl = this.getAttribute('href');
+        showProfileModal(profileUrl);
+      }
+    });
+  });
+  
+  closeProfileModal.addEventListener('click', hideProfileModal);
+  overlay.addEventListener('click', function() {
+    if (!profileModal.classList.contains('hidden')) {
+      hideProfileModal();
+    }
+  });
   
   // Initial scroll to bottom
   scrollToBottom();
   
-  // Smart focus handling
+  // Focus input on desktop
   if (window.innerWidth >= 1024) {
     messageInput.focus();
-  } else {
-    // On mobile, only focus if user explicitly taps the input
-    messageInput.addEventListener('click', function() {
-      this.focus();
-    });
   }
-  
-  // Handle app state changes (when user switches apps)
-  document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && window.innerWidth < 768) {
-      // App became visible again, ensure proper layout
-      setTimeout(() => {
-        scrollToBottom(false);
-      }, 100);
-    }
-  });
 });
 </script>
 
