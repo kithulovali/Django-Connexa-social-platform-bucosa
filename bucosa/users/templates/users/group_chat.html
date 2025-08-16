@@ -11,81 +11,96 @@
   <meta name="mobile-web-app-capable" content="yes">
 </head>
 
-<div class="flex h-screen bg-gray-100 relative overflow-hidden">  <!-- Overlay for mobile -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
-
-  <!-- Main chat area -->
-  <div class="flex-1 flex flex-col lg:ml-0 min-w-0">
-    <!-- Group profile header with members carousel -->
-    <div class="bg-white border-b border-gray-200">
-      <div class="p-3 sm:p-4 pl-14 sm:pl-16 lg:pl-4">
-        <div class="flex items-center justify-between">
-          <div class="flex-1 min-w-0">
-            <h1 class="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
-            <p class="text-gray-500 text-xs sm:text-sm truncate mt-0.5">{{ group.description|default:"No description" }}</p>
+<div class="flex flex-col h-screen bg-gray-100">
+  <!-- Header -->
+  <div class="bg-emerald-700 text-white px-4 py-3 flex items-center justify-between border-b border-emerald-800">
+    <div class="flex items-center">
+      <button id="mobile-menu-btn" class="mr-4 lg:hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <div class="flex items-center">
+        {% if group.image %}
+          <img src="{{ group.image.url }}" class="w-10 h-10 rounded-full object-cover mr-3" alt="{{ group.name }}">
+        {% else %}
+          <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold mr-3">
+            {{ group.name|first|upper }}
           </div>
-          <div class="flex-shrink-0 ml-4">
-            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-              {{ group.user_set.count }} member{{ group.user_set.count|pluralize }}
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Members carousel -->
-      <div class="border-t border-gray-100 px-3 py-2 bg-gray-50">
-        <div class="flex items-center space-x-2 overflow-x-auto pb-2 custom-scrollbar" id="members-carousel">
-          {% for member in group.user_set.all %}
-              {% if member.profile and member.profile.profile_image %}
-                <img src="{{ member.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white shadow-sm object-cover group-hover:border-blue-300 transition-colors" alt="{{ member.username }}">
-              {% else %}
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white bg-gradient-to-br from-gray-300 to-gray-400 shadow-sm flex items-center justify-center text-white text-sm font-bold group-hover:border-blue-300 transition-colors">
-                  {{ member.username|first|upper }}
-                </div>
-              {% endif %}
-          {% endfor %}
+        {% endif %}
+        <div>
+          <h1 class="font-semibold">{{ group.name }}</h1>
+          <p class="text-xs text-emerald-100">{{ group.user_set.count }} member{{ group.user_set.count|pluralize }}</p>
         </div>
       </div>
     </div>
+    <div class="flex items-center space-x-4">
+      <button>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+        </svg>
+      </button>
+      <button>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </button>
+      <button>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
 
-    <!-- Messages area -->
-    <div class="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4 bg-gray-50 custom-scrollbar" id="chat-messages">
-      <div class="max-w-4xl mx-auto">
+  <!-- Main chat area with fixed layout -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Messages area with proper scrolling -->
+    <div class="flex-1 overflow-y-auto bg-[#e5ddd5] bg-opacity-30 bg-[url('{% static 'images/whatsapp-bg.png' %}')] p-2" id="chat-messages">
+      <div class="max-w-3xl mx-auto w-full">
         {% for msg in messages %}
-        <div class="flex mb-3 sm:mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
-          <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
+        <div class="flex mb-3 {% if msg.user == request.user %}justify-end{% else %}justify-start{% endif %}" data-message-id="{{ msg.id }}">
+          <div class="flex max-w-[80%] {% if msg.user == request.user %}flex-row-reverse{% endif %}">
             {% if msg.user != request.user %}
+              <div class="flex-shrink-0 self-end mr-2 mb-1">
                 {% if msg.user.profile and msg.user.profile.profile_image %}
-                  <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all" alt="{{ msg.user|display_name }}">
+                  <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 rounded-full" alt="{{ msg.user|display_name }}">
                 {% else %}
-                  <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %} flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all">{{ msg.user|display_name|first|upper }}</div>
+                  <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-bold">
+                    {{ msg.user|display_name|first|upper }}
+                  </div>
                 {% endif %}
+              </div>
             {% endif %}
-            <div class="flex-1 min-w-0">
+            
+            <div class="flex flex-col {% if msg.user == request.user %}items-end{% else %}items-start{% endif %}">
               {% if msg.user != request.user %}
-                <p class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1 hover:text-blue-600 transition-colors">{{ msg.user|display_name }}</p>
+                <span class="text-xs text-gray-600 mb-1 px-1">{{ msg.user|display_name }}</span>
               {% endif %}
-              <div class="{% if msg.user == request.user %}bg-blue-500 text-white ml-auto{% else %}bg-white border border-gray-200 text-gray-900{% endif %} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
-                <div class="message-content text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>
+              
+              <div class="{% if msg.user == request.user %}bg-emerald-100{% else %}bg-white{% endif %} rounded-lg py-2 px-3 shadow-sm">
+                <div class="message-content text-sm break-words">{{ msg.content|linebreaksbr }}</div>
+                
                 {% if msg.file %}
                   {% with msg.file.url|lower as file_url %}
                     {% if '.jpg' in file_url or '.jpeg' in file_url or '.png' in file_url or '.gif' in file_url %}
-                      <img src="{{ msg.file.url }}" class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" onclick="window.open(this.src, '_blank')" />
+                      <img src="{{ msg.file.url }}" class="rounded-lg mt-2 max-w-full h-auto max-h-64 cursor-pointer" onclick="window.open(this.src, '_blank')" />
                     {% elif '.mp4' in file_url or '.webm' in file_url or '.ogg' in file_url %}
-                      <video controls class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm">
+                      <video controls class="rounded-lg mt-2 max-w-full h-auto max-h-64">
                         <source src="{{ msg.file.url }}">
                         Your browser does not support the video tag.
                       </video>
                     {% else %}
-                      <a href="{{ msg.file.url }}" target="_blank" class="{% if msg.user == request.user %}text-blue-200 hover:text-white{% else %}text-blue-600 hover:text-blue-800{% endif %} underline block mt-2 text-sm font-medium">📎 Download file</a>
+                      <a href="{{ msg.file.url }}" target="_blank" class="text-blue-600 hover:text-blue-800 underline block mt-2 text-sm">📎 Download file</a>
                     {% endif %}
                   {% endwith %}
                 {% endif %}
               </div>
-              <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 {% if msg.user == request.user %}justify-end{% endif %} px-1">
-                <span>{{ msg.timestamp|timesince }} ago</span>
+              
+              <div class="flex items-center mt-1 space-x-1 text-xs text-gray-500 px-1">
+                <span>{{ msg.timestamp|time }}</span>
                 {% if msg.edited %}
-                  <span class="text-gray-400">(edited)</span>
+                  <span class="text-gray-400">• edited</span>
                 {% endif %}
               </div>
             </div>
@@ -95,66 +110,62 @@
       </div>
     </div>
 
-    <!-- Message input -->
-    <div class="bg-white border-t border-gray-200 p-2 sm:p-3 lg:p-4 safe-area-inset-bottom mobile-keyboard-adjust" id="message-input-container">
-      <form method="post" enctype="multipart/form-data" class="max-w-4xl mx-auto mobile-input-container" id="message-form">
+    <!-- Message input (fixed at bottom) -->
+    <div class="bg-gray-100 border-t border-gray-300 p-3 safe-area-inset-bottom" id="message-input-container">
+      <form method="post" enctype="multipart/form-data" class="flex items-center" id="message-form">
         {% csrf_token %}
-        <!-- File preview area -->
-        <div id="file-preview" class="hidden mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              <span id="file-name" class="text-sm text-gray-700 truncate"></span>
-            </div>
-            <button type="button" id="remove-file" class="text-gray-400 hover:text-gray-600 p-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
+        <!-- Emoji button -->
+        <button type="button" class="p-2 text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </button>
+        
+        <!-- Attachment button -->
+        <label class="p-2 text-gray-500 hover:text-gray-700 cursor-pointer">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+          </svg>
+          <input id="group-file-input" type="file" name="file" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt">
+        </label>
+        
+        <!-- Message input -->
+        <div class="flex-1 mx-2">
+          <textarea
+            name="content"
+            rows="1"
+            class="w-full border border-gray-300 rounded-full py-2 px-4 text-sm focus:outline-none resize-none max-h-32 bg-white"
+            placeholder="Type a message..."
+            id="message-input"
+            style="min-height: 40px;"
+            autocomplete="off"
+            autocorrect="on"
+            autocapitalize="sentences"
+            spellcheck="true"
+          ></textarea>
         </div>
         
-        <div class="flex items-end space-x-2 sm:space-x-3">
-          <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-blue-500 p-2 sm:p-3 rounded-full hover:bg-gray-100 transition-colors duration-150 touch-manipulation">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-            </svg>
-            <input id="group-file-input" type="file" name="file" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt">
-          </label>
-          <div class="flex-1 relative">
-            <textarea
-              name="content"
-              rows="1"
-              class="w-full border border-gray-300 rounded-2xl px-4 py-3 sm:px-5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none max-h-32 leading-relaxed touch-manipulation"
-              placeholder="Type a message..."
-              id="message-input"
-              style="min-height: 44px;"
-              autocomplete="off"
-              autocorrect="on"
-              autocapitalize="sentences"
-              spellcheck="true"
-            ></textarea>
-          </div>
-          <button
-            type="submit"
-            class="px-4 py-3 sm:px-5 sm:py-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base font-medium transition-colors duration-150 touch-manipulation min-w-[60px] sm:min-w-[70px]"
-            id="send-button"
-          >
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-            </svg>
-          </button>
-        </div>
+        <!-- Send button -->
+        <button
+          type="submit"
+          class="p-2 text-emerald-600 hover:text-emerald-700 focus:outline-none"
+          id="send-button"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+          </svg>
+        </button>
       </form>
     </div>
   </div>
 
-  <!-- Profile Modal (hidden by default) -->
+  <!-- Mobile sidebar overlay -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
+
+  <!-- Profile Modal -->
   <div id="profile-modal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl transform transition-transform duration-300 ease-out max-h-[90vh] overflow-hidden">
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl max-h-[90vh] overflow-hidden">
       <div class="p-4">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-bold">Profile</h3>
@@ -181,11 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const messageForm = document.getElementById('message-form');
   const messageInput = document.getElementById('message-input');
   const fileInput = document.getElementById('group-file-input');
-  const filePreview = document.getElementById('file-preview');
-  const fileName = document.getElementById('file-name');
-  const removeFileBtn = document.getElementById('remove-file');
   const sendButton = document.getElementById('send-button');
-  const membersCarousel = document.getElementById('members-carousel');
   const profileModal = document.getElementById('profile-modal');
   const profileModalContent = document.getElementById('profile-modal-content');
   const closeProfileModal = document.getElementById('close-profile-modal');
@@ -215,54 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
   overlay.addEventListener('click', closeSidebar);
   
-  // Enhanced swipe gestures for sidebar
-  let sidebarTouchStartX = 0;
-  let sidebarTouchStartY = 0;
-  let sidebarIsSwiping = false;
-  let sidebarSwipeThreshold = 50;
-  
-  document.addEventListener('touchstart', function(e) {
-    sidebarTouchStartX = e.touches[0].clientX;
-    sidebarTouchStartY = e.touches[0].clientY;
-    sidebarIsSwiping = false;
-  }, { passive: true });
-  
-  document.addEventListener('touchmove', function(e) {
-    if (!sidebarTouchStartX || !sidebarTouchStartY) return;
-    
-    const touchX = e.touches[0].clientX;
-    const touchY = e.touches[0].clientY;
-    const diffX = sidebarTouchStartX - touchX;
-    const diffY = sidebarTouchStartY - touchY;
-    
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-      sidebarIsSwiping = true;
-      
-      if (sidebarTouchStartX < 20 && diffX < -sidebarSwipeThreshold && sidebar.classList.contains('-translate-x-full')) {
-        e.preventDefault();
-        openSidebar();
-      }
-      
-      if (!sidebar.classList.contains('-translate-x-full') && diffX < -sidebarSwipeThreshold) {
-        e.preventDefault();
-        closeSidebar();
-      }
-    }
-  }, { passive: false });
-  
-  document.addEventListener('touchend', function() {
-    sidebarTouchStartX = 0;
-    sidebarTouchStartY = 0;
-    sidebarIsSwiping = false;
-  }, { passive: true });
-  
-  // Close sidebar on escape key
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
-      closeSidebar();
-    }
-  });
-  
   // Auto-resize textarea
   function adjustTextareaHeight() {
     messageInput.style.height = 'auto';
@@ -275,20 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(adjustTextareaHeight, 10);
   });
   
-  // File handling
-  fileInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      fileName.textContent = file.name;
-      filePreview.classList.remove('hidden');
-    }
-  });
-  
-  removeFileBtn.addEventListener('click', function() {
-    fileInput.value = '';
-    filePreview.classList.add('hidden');
-  });
-  
   // Form submission
   messageForm.addEventListener('submit', function(e) {
     const content = messageInput.value.trim();
@@ -296,16 +241,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (!content && !file) {
       e.preventDefault();
-      alert('Please enter a message or select a file.');
       return;
     }
     
     sendButton.disabled = true;
-    sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    sendButton.innerHTML = '<svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
     
     setTimeout(() => {
       sendButton.disabled = false;
-      sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
+      sendButton.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
     }, 2000);
   });
   
@@ -319,39 +263,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Mobile input focus handling
-  messageInput.addEventListener('focus', function() {
-    if (window.innerWidth < 768) {
-      setTimeout(() => {
-        messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
-    }
-  });
-  
-  // Scroll to bottom
-  function scrollToBottom(smooth = false) {
-    const scrollOptions = {
-      top: chatMessages.scrollHeight,
-      behavior: smooth ? 'smooth' : 'auto'
-    };
-    chatMessages.scrollTo(scrollOptions);
-  }
-  
-  // Members carousel horizontal scrolling
-  if (membersCarousel) {
-    membersCarousel.addEventListener('wheel', function(e) {
-      if (e.deltaY === 0) return;
-      e.preventDefault();
-      this.scrollLeft += e.deltaY + e.deltaX;
-    }, { passive: false });
-  }
-  
   // Profile modal functionality
   function showProfileModal(profileUrl) {
     fetch(profileUrl)
       .then(response => response.text())
       .then(html => {
-        // Extract the profile content from the response
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const profileContent = doc.querySelector('.profile-content') || doc.createElement('div');
@@ -392,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Initial scroll to bottom
-  scrollToBottom();
+  chatMessages.scrollTop = chatMessages.scrollHeight;
   
   // Focus input on desktop
   if (window.innerWidth >= 1024) {
