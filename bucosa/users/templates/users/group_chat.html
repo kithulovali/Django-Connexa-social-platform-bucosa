@@ -11,133 +11,193 @@
   <meta name="mobile-web-app-capable" content="yes">
 </head>
 
-<div class="flex flex-col h-screen bg-gray-100">
-  <!-- Header -->
-  <div class="bg-blue-700  text-white px-4 py-3 flex items-center justify-between border-b border-emerald-800">
-    <div class="flex items-center">
-      <div class="flex items-center">
-        {% if group.image %}
-          <img src="{{ group.image.url }}" class="w-10 h-10 rounded-full object-cover mr-3" alt="{{ group.name }}">
-        {% else %}
-          <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold mr-3">
-            {{ group.name|first|upper }}
+<div class="flex h-screen bg-gray-100 relative overflow-hidden">
+  <!-- Overlay for mobile -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
+
+  <!-- Main chat area -->
+  <div class="flex-1 flex flex-col lg:ml-0 min-w-0">
+    <!-- Group profile header with members carousel -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-20">
+      <div class="p-3 sm:p-4 pl-14 sm:pl-16 lg:pl-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <button id="mobile-menu-btn" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+            <div class="flex-1 min-w-0">
+              <h1 class="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate">{{ group.name }}</h1>
+              <p class="text-gray-500 text-xs sm:text-sm truncate mt-0.5">{{ group.description|default:"No description" }}</p>
+            </div>
           </div>
-        {% endif %}
-        <div>
-          <h1 class="font-semibold">{{ group.name }}</h1>
-          <p class="text-xs text-emerald-100">{{ group.user_set.count }} member{{ group.user_set.count|pluralize }}</p>
+          <div class="flex-shrink-0 ml-4">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              {{ group.user_set.count }} member{{ group.user_set.count|pluralize }}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Members carousel -->
+      <div class="border-t border-gray-100 px-3 py-2 bg-gray-50">
+        <div class="flex items-center space-x-2 overflow-x-auto pb-2 custom-scrollbar" id="members-carousel">
+          {% for member in group.user_set.all %}
+            <a href="{% url 'view_profile' member.username %}" data-member-id="{{ member.id }}" class="relative group">
+              {% if member.profile and member.profile.profile_image %}
+                <img src="{{ member.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white shadow-sm object-cover group-hover:border-blue-300 transition-colors" alt="{{ member.username }}">
+              {% else %}
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white bg-gradient-to-br from-gray-300 to-gray-400 shadow-sm flex items-center justify-center text-white text-sm font-bold group-hover:border-blue-300 transition-colors">
+                  {{ member.username|first|upper }}
+                </div>
+              {% endif %}
+              <span class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                {{ member|display_name }}
+              </span>
+            </a>
+          {% endfor %}
         </div>
       </div>
     </div>
 
-  </div>
-
-  <!-- Main chat area with fixed layout -->
-  <div class="flex-1 flex flex-col overflow-hidden">
-    <!-- Messages area with proper scrolling -->
-    <div class="flex-1 overflow-y-auto bg-[#FFFFFFFF] bg-opacity-30 bg-[url('{% static 'images/whatsapp-bg.png' %}')] p-2" id="chat-messages">
-      <div class="max-w-3xl mx-auto w-full">
+    <!-- Messages area -->
+    <div class="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4 bg-gray-50 custom-scrollbar" id="chat-messages">
+      <div class="max-w-4xl mx-auto">
         {% for msg in messages %}
-        <div class="flex mb-3 {% if msg.user == request.user %}justify-end{% else %}justify-start{% endif %}" data-message-id="{{ msg.id }}">
-          <div class="flex max-w-[80%] {% if msg.user == request.user %}flex-row-reverse{% endif %}">
+        <div class="flex mb-3 sm:mb-4 {% if msg.user == request.user %}justify-end{% endif %}" data-message-id="{{ msg.id }}">
+          <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full {% if msg.user == request.user %}flex-row-reverse{% endif %}">
             {% if msg.user != request.user %}
-              <div class="flex-shrink-0 self-end mr-2 mb-1">
+              <a href="{% url 'view_profile' msg.user.username %}" data-member-id="{{ msg.user.id }}" class="flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all rounded-full">
                 {% if msg.user.profile and msg.user.profile.profile_image %}
-                  <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 rounded-full" alt="{{ msg.user|display_name }}">
+                  <img src="{{ msg.user.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %}" alt="{{ msg.user|display_name }}">
                 {% else %}
-                  <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-bold">
-                    {{ msg.user|display_name|first|upper }}
-                  </div>
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold {% if msg.user == request.user %}ml-2 sm:ml-3{% else %}mr-2 sm:mr-3{% endif %}">{{ msg.user|display_name|first|upper }}</div>
                 {% endif %}
-              </div>
+              </a>
             {% endif %}
-            
-            <div class="flex flex-col {% if msg.user == request.user %}items-end{% else %}items-start{% endif %}">
+            <div class="flex-1 min-w-0">
               {% if msg.user != request.user %}
-                <span class="text-xs text-gray-600 mb-1 px-1">{{ msg.user|display_name }}</span>
+                <p class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1 hover:text-blue-600 transition-colors">{{ msg.user|display_name }}</p>
               {% endif %}
-              
-              <div class="{% if msg.user == request.user %}bg-emerald-100{% else %}bg-white{% endif %} rounded-lg py-2 px-3 shadow-sm">
-                <div class="message-content text-sm break-words">{{ msg.content|linebreaksbr }}</div>
-                
+              <div class="relative {% if msg.user == request.user %}bg-blue-500 text-white ml-auto{% else %}bg-white border border-gray-200 text-gray-900{% endif %} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm group">
+                <div class="message-content text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>
                 {% if msg.file %}
                   {% with msg.file.url|lower as file_url %}
                     {% if '.jpg' in file_url or '.jpeg' in file_url or '.png' in file_url or '.gif' in file_url %}
-                      <img src="{{ msg.file.url }}" class="rounded-lg mt-2 max-w-full h-auto max-h-64 cursor-pointer" onclick="window.open(this.src, '_blank')" />
+                      <img src="{{ msg.file.url }}" class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" onclick="window.open(this.src, '_blank')" />
                     {% elif '.mp4' in file_url or '.webm' in file_url or '.ogg' in file_url %}
-                      <video controls class="rounded-lg mt-2 max-w-full h-auto max-h-64">
+                      <video controls class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm">
                         <source src="{{ msg.file.url }}">
                         Your browser does not support the video tag.
                       </video>
                     {% else %}
-                      <a href="{{ msg.file.url }}" target="_blank" class="text-blue-600 hover:text-blue-800 underline block mt-2 text-sm">📎 Download file</a>
+                      <a href="{{ msg.file.url }}" target="_blank" class="{% if msg.user == request.user %}text-blue-200 hover:text-white{% else %}text-blue-600 hover:text-blue-800{% endif %} underline block mt-2 text-sm font-medium">📎 Download file</a>
                     {% endif %}
                   {% endwith %}
                 {% endif %}
+                {% if msg.user == request.user %}
+                  <div class="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <button class="edit-message bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full p-1 shadow-sm" data-message-id="{{ msg.id }}">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                {% endif %}
               </div>
-              
-              <div class="flex items-center mt-1 space-x-1 text-xs text-gray-500 px-1">
-                <span>{{ msg.timestamp|time }}</span>
+              <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 {% if msg.user == request.user %}justify-end{% endif %} px-1">
+                <span>{{ msg.timestamp|timesince }} ago</span>
                 {% if msg.edited %}
-                  <span class="text-gray-400">• edited</span>
+                  <span class="text-gray-400">(edited)</span>
                 {% endif %}
               </div>
             </div>
           </div>
         </div>
+        {% empty %}
+        <div class="flex flex-col items-center justify-center h-full py-12 text-center">
+          <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-gray-700 mb-1">No messages yet</h3>
+          <p class="text-gray-500 max-w-md px-4">Be the first to send a message in this group!</p>
+        </div>
         {% endfor %}
       </div>
     </div>
 
-    <!-- Message input (fixed at bottom) -->
-    <div class="bg-gray-100 border-t border-gray-300 p-3 safe-area-inset-bottom" id="message-input-container">
-      <form method="post" enctype="multipart/form-data" class="flex items-center" id="message-form">
+    <!-- Message input -->
+    <div class="bg-white border-t border-gray-200 p-2 sm:p-3 lg:p-4 safe-area-inset-bottom mobile-keyboard-adjust" id="message-input-container">
+      <form method="post" enctype="multipart/form-data" class="max-w-4xl mx-auto mobile-input-container" id="message-form">
         {% csrf_token %}
-        <!-- Attachment button -->
-        <label class="p-2 text-gray-500 hover:text-gray-700 cursor-pointer">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-          </svg>
-          <input id="group-file-input" type="file" name="file" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt">
-        </label>
-        
-        <!-- Message input -->
-        <div class="flex-1 mx-2">
-          <textarea
-            name="content"
-            rows="1"
-            class="w-full border border-gray-300 rounded-full py-2 px-4 text-sm focus:outline-none resize-none max-h-32 bg-white"
-            placeholder="Type a message..."
-            id="message-input"
-            style="min-height: 40px;"
-            autocomplete="off"
-            autocorrect="on"
-            autocapitalize="sentences"
-            spellcheck="true"
-          ></textarea>
+        <!-- File preview area -->
+        <div id="file-preview" class="hidden mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200 relative">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <span id="file-name" class="text-sm text-gray-700 truncate max-w-[180px] sm:max-w-xs"></span>
+            </div>
+            <button type="button" id="remove-file" class="text-gray-400 hover:text-gray-600 p-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div id="upload-progress" class="hidden absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+            <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-300 ease-out" style="width: 0%"></div>
+          </div>
         </div>
         
-        <!-- Send button -->
-        <button
-          type="submit"
-          class="p-2 text-emerald-600 hover:text-emerald-700 focus:outline-none"
-          id="send-button"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-          </svg>
-        </button>
+        <div class="flex items-end space-x-2 sm:space-x-3">
+          <label for="group-file-input" class="cursor-pointer text-gray-500 hover:text-blue-500 p-2 sm:p-3 rounded-full hover:bg-gray-100 transition-colors duration-150 touch-manipulation">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+            <input id="group-file-input" type="file" name="file" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.txt">
+          </label>
+          <div class="flex-1 relative">
+            <textarea
+              name="content"
+              rows="1"
+              class="w-full border border-gray-300 rounded-2xl px-4 py-3 sm:px-5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none max-h-32 leading-relaxed touch-manipulation"
+              placeholder="Type a message..."
+              id="message-input"
+              style="min-height: 44px;"
+              autocomplete="off"
+              autocorrect="on"
+              autocapitalize="sentences"
+              spellcheck="true"
+            ></textarea>
+            <div id="typing-indicator" class="absolute -top-6 left-2 hidden items-center space-x-1 bg-gray-100 px-2 py-1 rounded-full text-xs text-gray-600">
+              <div class="flex space-x-1">
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+              </div>
+              <span id="typing-text">Someone is typing</span>
+            </div>
+          </div>
+          <button
+            type="submit"
+            class="px-4 py-3 sm:px-5 sm:py-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base font-medium transition-colors duration-150 touch-manipulation min-w-[60px] sm:min-w-[70px] disabled:opacity-70 disabled:cursor-not-allowed"
+            id="send-button"
+          >
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+          </button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- Mobile sidebar overlay -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
-
-  <!-- Profile Modal -->
+  <!-- Profile Modal (hidden by default) -->
   <div id="profile-modal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl max-h-[90vh] overflow-hidden">
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl transform transition-transform duration-300 ease-out max-h-[90vh] overflow-hidden">
       <div class="p-4">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-bold">Profile</h3>
@@ -153,6 +213,41 @@
       </div>
     </div>
   </div>
+
+  <!-- Edit Message Modal -->
+  <div id="edit-message-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-xl transform transition-transform duration-300 ease-out max-h-[90vh] overflow-hidden">
+      <div class="p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold">Edit Message</h3>
+          <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <form id="edit-message-form" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" id="edit-message-id" name="message_id">
+          <textarea
+            id="edit-message-content"
+            name="content"
+            rows="4"
+            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          ></textarea>
+          <div class="flex justify-end space-x-3">
+            <button type="button" id="cancel-edit" class="px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">
+              Cancel
+            </button>
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -164,10 +259,32 @@ document.addEventListener('DOMContentLoaded', function() {
   const messageForm = document.getElementById('message-form');
   const messageInput = document.getElementById('message-input');
   const fileInput = document.getElementById('group-file-input');
+  const filePreview = document.getElementById('file-preview');
+  const fileName = document.getElementById('file-name');
+  const removeFileBtn = document.getElementById('remove-file');
   const sendButton = document.getElementById('send-button');
+  const membersCarousel = document.getElementById('members-carousel');
   const profileModal = document.getElementById('profile-modal');
   const profileModalContent = document.getElementById('profile-modal-content');
   const closeProfileModal = document.getElementById('close-profile-modal');
+  const editMessageModal = document.getElementById('edit-message-modal');
+  const editMessageForm = document.getElementById('edit-message-form');
+  const editMessageContent = document.getElementById('edit-message-content');
+  const editMessageId = document.getElementById('edit-message-id');
+  const closeEditModal = document.getElementById('close-edit-modal');
+  const cancelEdit = document.getElementById('cancel-edit');
+  const typingIndicator = document.getElementById('typing-indicator');
+  const typingText = document.getElementById('typing-text');
+  const uploadProgress = document.getElementById('upload-progress');
+  const progressBar = document.getElementById('progress-bar');
+  
+  // Initialize variables
+  let typingTimer;
+  let lastTypingTime = 0;
+  let isTyping = false;
+  let socket;
+  const groupId = {{ group.id }};
+  const currentUserId = {{ request.user.id }};
   
   // Mobile menu functionality
   function openSidebar() {
@@ -194,6 +311,54 @@ document.addEventListener('DOMContentLoaded', function() {
   
   overlay.addEventListener('click', closeSidebar);
   
+  // Enhanced swipe gestures for sidebar
+  let sidebarTouchStartX = 0;
+  let sidebarTouchStartY = 0;
+  let sidebarIsSwiping = false;
+  let sidebarSwipeThreshold = 50;
+  
+  document.addEventListener('touchstart', function(e) {
+    sidebarTouchStartX = e.touches[0].clientX;
+    sidebarTouchStartY = e.touches[0].clientY;
+    sidebarIsSwiping = false;
+  }, { passive: true });
+  
+  document.addEventListener('touchmove', function(e) {
+    if (!sidebarTouchStartX || !sidebarTouchStartY) return;
+    
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+    const diffX = sidebarTouchStartX - touchX;
+    const diffY = sidebarTouchStartY - touchY;
+    
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      sidebarIsSwiping = true;
+      
+      if (sidebarTouchStartX < 20 && diffX < -sidebarSwipeThreshold && sidebar.classList.contains('-translate-x-full')) {
+        e.preventDefault();
+        openSidebar();
+      }
+      
+      if (!sidebar.classList.contains('-translate-x-full') && diffX < -sidebarSwipeThreshold) {
+        e.preventDefault();
+        closeSidebar();
+      }
+    }
+  }, { passive: false });
+  
+  document.addEventListener('touchend', function() {
+    sidebarTouchStartX = 0;
+    sidebarTouchStartY = 0;
+    sidebarIsSwiping = false;
+  }, { passive: true });
+  
+  // Close sidebar on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+      closeSidebar();
+    }
+  });
+  
   // Auto-resize textarea
   function adjustTextareaHeight() {
     messageInput.style.height = 'auto';
@@ -206,23 +371,92 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(adjustTextareaHeight, 10);
   });
   
-  // Form submission
+  // File handling
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      fileName.textContent = file.name;
+      filePreview.classList.remove('hidden');
+      
+      // Show upload progress for large files
+      if (file.size > 1024 * 1024) { // 1MB
+        uploadProgress.classList.remove('hidden');
+      }
+    }
+  });
+  
+  removeFileBtn.addEventListener('click', function() {
+    fileInput.value = '';
+    filePreview.classList.add('hidden');
+    uploadProgress.classList.add('hidden');
+    progressBar.style.width = '0%';
+  });
+  
+  // Form submission with AJAX
   messageForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
     const content = messageInput.value.trim();
     const file = fileInput.files[0];
     
     if (!content && !file) {
-      e.preventDefault();
+      showToast('Please enter a message or select a file.', 'error');
       return;
     }
     
     sendButton.disabled = true;
-    sendButton.innerHTML = '<svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+    sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
     
-    setTimeout(() => {
+    const formData = new FormData();
+    formData.append('content', content);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    if (file) {
+      formData.append('file', file);
+    }
+    
+    // AJAX request with progress tracking
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '{% url "send_group_message" group.id %}', true);
+    
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable) {
+        const percentComplete = Math.round((e.loaded / e.total) * 100);
+        progressBar.style.width = percentComplete + '%';
+      }
+    };
+    
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        if (response.success) {
+          // Clear input fields
+          messageInput.value = '';
+          fileInput.value = '';
+          filePreview.classList.add('hidden');
+          uploadProgress.classList.add('hidden');
+          progressBar.style.width = '0%';
+          adjustTextareaHeight();
+          
+          // Scroll to bottom to see the new message
+          scrollToBottom(true);
+        } else {
+          showToast(response.error || 'Failed to send message', 'error');
+        }
+      } else {
+        showToast('An error occurred while sending the message', 'error');
+      }
+      
       sendButton.disabled = false;
-      sendButton.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
-    }, 2000);
+      sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
+    };
+    
+    xhr.onerror = function() {
+      showToast('Network error occurred', 'error');
+      sendButton.disabled = false;
+      sendButton.innerHTML = '<svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
+    };
+    
+    xhr.send(formData);
   });
   
   // Keyboard shortcuts
@@ -235,11 +469,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
+  // Mobile input focus handling
+  messageInput.addEventListener('focus', function() {
+    if (window.innerWidth < 768) {
+      setTimeout(() => {
+        messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  });
+  
+  // Scroll to bottom
+  function scrollToBottom(smooth = false) {
+    const scrollOptions = {
+      top: chatMessages.scrollHeight,
+      behavior: smooth ? 'smooth' : 'auto'
+    };
+    chatMessages.scrollTo(scrollOptions);
+  }
+  
+  // Members carousel horizontal scrolling
+  if (membersCarousel) {
+    membersCarousel.addEventListener('wheel', function(e) {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      this.scrollLeft += e.deltaY + e.deltaX;
+    }, { passive: false });
+  }
+  
   // Profile modal functionality
   function showProfileModal(profileUrl) {
     fetch(profileUrl)
       .then(response => response.text())
       .then(html => {
+        // Extract the profile content from the response
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const profileContent = doc.querySelector('.profile-content') || doc.createElement('div');
@@ -279,13 +541,334 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Initial scroll to bottom
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Edit message functionality
+  document.querySelectorAll('.edit-message').forEach(button => {
+    button.addEventListener('click', function() {
+      const messageId = this.getAttribute('data-message-id');
+      const messageElement = document.querySelector(`[data-message-id="${messageId}"] .message-content`);
+      const messageContent = messageElement.textContent.trim();
+      
+      editMessageId.value = messageId;
+      editMessageContent.value = messageContent;
+      editMessageModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+  
+  editMessageForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const messageId = editMessageId.value;
+    const newContent = editMessageContent.value.trim();
+    
+    if (!newContent) {
+      showToast('Message cannot be empty', 'error');
+      return;
+    }
+    
+    fetch(`/messages/${messageId}/edit/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({
+        content: newContent
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"] .message-content`);
+        messageElement.innerHTML = data.content.replace(/\n/g, '<br>');
+        
+        // Add edited indicator
+        const timeElement = messageElement.closest('.message-bubble').querySelector('.text-xs');
+        if (!timeElement.innerHTML.includes('(edited)')) {
+          timeElement.innerHTML += ' <span class="text-gray-400">(edited)</span>';
+        }
+        
+        hideEditModal();
+        showToast('Message updated', 'success');
+      } else {
+        showToast(data.error || 'Failed to update message', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showToast('An error occurred', 'error');
+    });
+  });
+  
+  function hideEditModal() {
+    editMessageModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  
+  closeEditModal.addEventListener('click', hideEditModal);
+  cancelEdit.addEventListener('click', hideEditModal);
+  overlay.addEventListener('click', function() {
+    if (!editMessageModal.classList.contains('hidden')) {
+      hideEditModal();
+    }
+  });
+  
+  // Typing indicator functionality
+  messageInput.addEventListener('input', function() {
+    updateTyping();
+  });
+  
+  function updateTyping() {
+    const now = new Date().getTime();
+    const typingLength = messageInput.value.length;
+    
+    if (typingLength > 0) {
+      lastTypingTime = now;
+      
+      if (!isTyping) {
+        isTyping = true;
+        // Send typing notification to server via WebSocket
+        if (socket) {
+          socket.send(JSON.stringify({
+            'type': 'typing',
+            'group_id': groupId,
+            'user_id': currentUserId,
+            'typing': true
+          }));
+        }
+      }
+      
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(stopTyping, 2000);
+    } else if (isTyping) {
+      stopTyping();
+    }
+  }
+  
+  function stopTyping() {
+    const now = new Date().getTime();
+    const timeDiff = now - lastTypingTime;
+    
+    if (timeDiff >= 2000 && isTyping) {
+      isTyping = false;
+      // Send stop typing notification to server via WebSocket
+      if (socket) {
+        socket.send(JSON.stringify({
+          'type': 'typing',
+          'group_id': groupId,
+          'user_id': currentUserId,
+          'typing': false
+        }));
+      }
+    }
+  }
+  
+  // WebSocket connection for real-time updates
+  function connectWebSocket() {
+    const wsScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const wsPath = wsScheme + window.location.host + '/ws/group/' + groupId + '/';
+    
+    socket = new WebSocket(wsPath);
+    
+    socket.onopen = function(e) {
+      console.log('WebSocket connection established');
+    };
+    
+    socket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      
+      if (data.type === 'message') {
+        // Append new message to chat
+        appendNewMessage(data.message);
+      } else if (data.type === 'typing') {
+        // Show typing indicator
+        if (data.typing && data.user_id !== currentUserId) {
+          typingText.textContent = data.username + ' is typing';
+          typingIndicator.classList.remove('hidden');
+        } else {
+          typingIndicator.classList.add('hidden');
+        }
+      } else if (data.type === 'message_edited') {
+        // Update edited message
+        const messageElement = document.querySelector(`[data-message-id="${data.message_id}"] .message-content`);
+        if (messageElement) {
+          messageElement.innerHTML = data.content.replace(/\n/g, '<br>');
+          
+          // Add edited indicator
+          const timeElement = messageElement.closest('.message-bubble').querySelector('.text-xs');
+          if (!timeElement.innerHTML.includes('(edited)')) {
+            timeElement.innerHTML += ' <span class="text-gray-400">(edited)</span>';
+          }
+        }
+      }
+    };
+    
+    socket.onclose = function(e) {
+      console.log('WebSocket disconnected, attempting to reconnect...');
+      setTimeout(connectWebSocket, 3000);
+    };
+    
+    socket.onerror = function(err) {
+      console.error('WebSocket error:', err);
+      socket.close();
+    };
+  }
+  
+  // Append new message to chat
+  function appendNewMessage(message) {
+    // Check if message already exists
+    if (document.querySelector(`[data-message-id="${message.id}"]`)) {
+      return;
+    }
+    
+    const isCurrentUser = message.user.id === currentUserId;
+    const messageDiv = document.createElement('div');
+    
+    // Format timestamp
+    const timestamp = new Date(message.timestamp);
+    const timeAgo = formatTimeAgo(timestamp);
+    
+    // Create message HTML
+    messageDiv.className = `flex mb-3 sm:mb-4 ${isCurrentUser ? 'justify-end' : ''}`;
+    messageDiv.setAttribute('data-message-id', message.id);
+    messageDiv.innerHTML = `
+      <div class="flex message-bubble max-w-[85%] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl w-full ${isCurrentUser ? 'flex-row-reverse' : ''}">
+        ${!isCurrentUser ? `
+          <a href="/profile/${message.user.username}/" data-member-id="${message.user.id}" class="flex-shrink-0 self-end hover:ring-2 hover:ring-blue-300 transition-all rounded-full">
+            ${message.user.profile_image ? `
+              <img src="${message.user.profile_image}" class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full mr-2 sm:mr-3" alt="${message.user.display_name}">
+            ` : `
+              <div class="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm font-bold mr-2 sm:mr-3">${message.user.display_name.charAt(0).toUpperCase()}</div>
+            `}
+          </a>
+        ` : ''}
+        <div class="flex-1 min-w-0">
+          ${!isCurrentUser ? `
+            <p class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1 hover:text-blue-600 transition-colors">${message.user.display_name}</p>
+          ` : ''}
+          <div class="relative ${isCurrentUser ? 'bg-blue-500 text-white ml-auto' : 'bg-white border border-gray-200 text-gray-900'} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm group">
+            <div class="message-content text-sm sm:text-base break-words leading-relaxed">${message.content.replace(/\n/g, '<br>')}</div>
+            ${message.file ? `
+              ${isImage(message.file) ? `
+                <img src="${message.file}" class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" onclick="window.open(this.src, '_blank')" />
+              ` : isVideo(message.file) ? `
+                <video controls class="rounded-xl mt-2 max-w-full h-auto border border-gray-200 shadow-sm">
+                  <source src="${message.file}">
+                  Your browser does not support the video tag.
+                </video>
+              ` : `
+                <a href="${message.file}" target="_blank" class="${isCurrentUser ? 'text-blue-200 hover:text-white' : 'text-blue-600 hover:text-blue-800'} underline block mt-2 text-sm font-medium">📎 Download file</a>
+              `}
+            ` : ''}
+            ${isCurrentUser ? `
+              <div class="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <button class="edit-message bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full p-1 shadow-sm" data-message-id="${message.id}">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+              </div>
+            ` : ''}
+          </div>
+          <div class="flex items-center mt-1 space-x-2 text-xs text-gray-500 ${isCurrentUser ? 'justify-end' : ''} px-1">
+            <span>${timeAgo}</span>
+            ${message.edited ? '<span class="text-gray-400">(edited)</span>' : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Append to chat
+    chatMessages.querySelector('.max-w-4xl').appendChild(messageDiv);
+    
+    // Add edit event listener if current user
+    if (isCurrentUser) {
+      messageDiv.querySelector('.edit-message').addEventListener('click', function() {
+        const messageId = this.getAttribute('data-message-id');
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"] .message-content`);
+        const messageContent = messageElement.textContent.trim();
+        
+        editMessageId.value = messageId;
+        editMessageContent.value = messageContent;
+        editMessageModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      });
+    }
+    
+    // Scroll to bottom if new message is from current user or near bottom
+    const isNearBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 200;
+    if (isCurrentUser || isNearBottom) {
+      scrollToBottom(true);
+    }
+  }
+  
+  // Helper functions
+  function formatTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    
+    if (seconds < 60) return 'just now';
+    
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+    
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+  }
+  
+  function isImage(url) {
+    return /\.(jpg|jpeg|png|gif)$/i.test(url);
+  }
+  
+  function isVideo(url) {
+    return /\.(mp4|webm|ogg)$/i.test(url);
+  }
+  
+  function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    const colors = {
+      info: 'bg-blue-500',
+      success: 'bg-green-500',
+      error: 'bg-red-500',
+      warning: 'bg-yellow-500'
+    };
+    
+    toast.className = `fixed bottom-4 right-4 text-white px-4 py-2 rounded-lg shadow-lg ${colors[type] || colors.info} z-50 transform transition-all duration-300 opacity-0 translate-y-2`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+    }, 10);
+    
+    setTimeout(() => {
+      toast.classList.remove('opacity-100', 'translate-y-0');
+      toast.classList.add('opacity-0', 'translate-y-2');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+  
+  // Initial setup
+  scrollToBottom();
   
   // Focus input on desktop
   if (window.innerWidth >= 1024) {
     messageInput.focus();
   }
+  
+  // Connect WebSocket
+  connectWebSocket();
+  
+  // Reconnect WebSocket when page becomes visible again
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && (!socket || socket.readyState === WebSocket.CLOSED)) {
+      connectWebSocket();
+    }
+  });
 });
 </script>
 
