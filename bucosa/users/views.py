@@ -1,12 +1,5 @@
 # List all groups where the user is creator or admin
 from django.db.models import Q
-
-@login_required
-def your_groups_list(request):
-    # Groups where user is creator or admin (no duplicates, sorted)
-    group_ids = GroupProfile.objects.filter(Q(admins=request.user) | Q(creator=request.user)).values_list('group_id', flat=True).distinct()
-    groups = Group.objects.filter(id__in=group_ids).select_related('profile').order_by('name')
-    return render(request, 'users/your_groups_list.html', {'groups': groups})
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.utils import timezone
@@ -1269,3 +1262,10 @@ def accept_invite(request, token):
         invitation.save()
         # Optionally, add user to group or perform other actions
     return render(request, 'users/accept_invite.html', {'invitation': invitation})
+
+@login_required
+def your_groups_list(request):
+    # Groups where user is creator or admin (no duplicates, sorted)
+    group_ids = GroupProfile.objects.filter(Q(admins=request.user) | Q(creator=request.user)).values_list('group_id', flat=True).distinct()
+    groups = Group.objects.filter(id__in=group_ids).select_related('profile').order_by('name')
+    return render(request, 'users/your_groups_list.html', {'groups': groups})
