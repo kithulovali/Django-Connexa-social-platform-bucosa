@@ -19,7 +19,7 @@
       <div class="px-6 py-6 space-y-4">
 
         <!-- Group Admin Section -->
-        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div class="group-admin-section mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <button type="button" class="toggle-groups-btn w-full flex items-center justify-between text-lg font-bold text-green-700 mb-2 gap-2 focus:outline-none">
             <span class="flex items-center gap-2">
               <span class="material-icons text-green-600">groups</span>
@@ -56,12 +56,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   document.querySelectorAll('.toggle-groups-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      // Try to find the next sibling with the class
-      var list = btn.nextElementSibling;
-      if (!list || !list.classList.contains('group-admin-list')) {
-        // Fallback: search in parent
-        list = btn.parentElement.querySelector('.group-admin-list');
-      }
+      var wrapper = btn.closest('.group-admin-section');
+      var list = wrapper ? wrapper.querySelector('.group-admin-list') : null;
       var icon = btn.querySelector('.toggle-groups-icon');
       if (list) {
         if (list.style.display === 'none' || list.style.display === '') {
