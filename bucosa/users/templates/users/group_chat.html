@@ -63,7 +63,7 @@
             {% endif %}
             <div class="flex-1 min-w-0">
               {% if msg.user != request.user %}
-                <a href="{% url 'users:profile' msg.user.username %}" class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1 hover:text-blue-600 transition-colors">{{ msg.user|display_name }}</a>
+                <p class="text-xs sm:text-sm font-medium text-gray-900 mb-1 px-1 hover:text-blue-600 transition-colors">{{ msg.user|display_name }}</p>
               {% endif %}
               <div class="{% if msg.user == request.user %}bg-blue-500 text-white ml-auto{% else %}bg-white border border-gray-200 text-gray-900{% endif %} rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
                 <div class="message-content text-sm sm:text-base break-words leading-relaxed">{{ msg.content|linebreaksbr }}</div>
