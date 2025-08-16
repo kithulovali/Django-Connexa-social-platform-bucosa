@@ -44,7 +44,10 @@
       <div class="border-t border-gray-100 px-3 py-2 bg-gray-50">
         <div class="flex items-center space-x-2 overflow-x-auto pb-2 custom-scrollbar" id="members-carousel">
           {% for member in group.user_set.all %}
-            <a href="{% url 'view_profile' member.username %}" data-member-id="{{ member.id }}" class="relative group">
+           <a href="{% url 'users:profile' member.username %}"
+             class="flex flex-col items-center flex-shrink-0 group"
+             data-member-id="{{ member.id }}"
+             title="{% if member.first_name or member.last_name %}{{ member.first_name }} {{ member.last_name }}{% else %}{{ member.username }}{% endif %}">
               {% if member.profile and member.profile.profile_image %}
                 <img src="{{ member.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white shadow-sm object-cover group-hover:border-blue-300 transition-colors" alt="{{ member.username }}">
               {% else %}
