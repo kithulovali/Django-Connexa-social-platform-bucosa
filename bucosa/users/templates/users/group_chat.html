@@ -11,67 +11,7 @@
   <meta name="mobile-web-app-capable" content="yes">
 </head>
 
-<div class="flex h-screen bg-gray-100 relative overflow-hidden">
-  <!-- Mobile menu button -->
-  <button id="mobile-menu-btn" class="lg:hidden fixed top-2 left-2 z-50 bg-white rounded-lg p-3 shadow-lg border border-gray-200 touch-manipulation">
-    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-    </svg>
-  </button>
-
-  <!-- Left sidebar - Members list -->
-  <div id="sidebar" class="w-full sm:w-80 lg:w-64 xl:w-72 bg-white border-r border-gray-200 flex flex-col fixed lg:relative h-full z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
-    <div class="p-3 sm:p-4 border-b border-gray-200">
-      <h2 class="text-lg sm:text-xl font-bold text-gray-800 truncate">{{ group.name }}</h2>
-      <p class="text-xs sm:text-sm text-gray-500">{{ group.user_set.count }} member{{ group.user_set.count|pluralize }}</p>
-    </div>
-    <div class="flex-1 overflow-y-auto overscroll-contain custom-scrollbar">
-      {% if group.admins.exists %}
-      <div class="p-3 sm:p-4">
-        <h3 class="text-xs sm:text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Admins</h3>
-        <ul class="space-y-1">
-          {% for admin in group.admins.all %}
-          <li class="flex items-center py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
-            <a href="{% url 'users:profile' admin.username %}" class="flex items-center w-full">
-              {% if admin.profile and admin.profile.profile_image %}
-                <img src="{{ admin.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ admin|display_name }}">
-              {% else %}
-                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ admin|display_name|first|upper }}</div>
-              {% endif %}
-              <div class="flex-1 min-w-0">
-                <span class="text-gray-800 text-sm font-medium truncate block">{{ admin|display_name }}</span>
-                <span class="text-xs text-blue-600 font-medium">Admin</span>
-              </div>
-            </a>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
-      
-      <div class="p-3 sm:p-4 {% if group.admins.exists %}border-t border-gray-200{% endif %}">
-        <h3 class="text-xs sm:text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Members</h3>
-        <ul class="space-y-1">
-          {% for member in group.user_set.all %}
-          <li class="flex items-center py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-150">
-            <a href="{% url 'users:profile' member.username %}" class="flex items-center w-full">
-              {% if member.profile and member.profile.profile_image %}
-                <img src="{{ member.profile.profile_image.url }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full mr-3 flex-shrink-0" alt="{{ member.username }}">
-              {% else %}
-                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-bold mr-3 flex-shrink-0">{{ member.username|first|upper }}</div>
-              {% endif %}
-              <div class="flex-1 min-w-0">
-                <span class="text-gray-800 text-sm truncate block">{{ member.username }}</span>
-              </div>
-            </a>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- Overlay for mobile -->
+<div class="flex h-screen bg-gray-100 relative overflow-hidden">  <!-- Overlay for mobile -->
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
 
   <!-- Main chat area -->
