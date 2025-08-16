@@ -20,21 +20,21 @@
 
         <!-- Group Admin Section -->
         <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <button id="toggle-groups-btn" type="button" class="w-full flex items-center justify-between text-lg font-bold text-green-700 mb-2 gap-2 focus:outline-none">
+          <button type="button" class="toggle-groups-btn w-full flex items-center justify-between text-lg font-bold text-green-700 mb-2 gap-2 focus:outline-none">
             <span class="flex items-center gap-2">
               <span class="material-icons text-green-600">groups</span>
               Manage Your Groups
             </span>
-            <span class="material-icons transition-transform" id="toggle-groups-icon">expand_more</span>
+            <span class="material-icons transition-transform toggle-groups-icon">expand_more</span>
           </button>
-          <div id="group-admin-list" class="mt-2" style="display: none;">
-            {% with admin_groups=user.admin_groups.all %}
-              {% if admin_groups|length > 0 %}
+          <div class="group-admin-list mt-2" style="display: none;">
+            {% with created_groups=user.created_groups.all %}
+              {% if created_groups|length > 0 %}
                 <ul class="space-y-2">
-                  {% for group in admin_groups %}
+                  {% for group_profile in created_groups %}
                     <li>
-                      <a href="{% url 'users:group_admin' group.id %}" class="text-green-800 hover:text-green-900 font-semibold underline">
-                        {{ group.name }}
+                      <a href="{% url 'users:group_admin' group_profile.group.id %}" class="text-green-800 hover:text-green-900 font-semibold underline">
+                        {{ group_profile.group.name }}
                       </a>
                     </li>
                   {% endfor %}
@@ -50,22 +50,22 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  var btn = document.getElementById('toggle-groups-btn');
-  var list = document.getElementById('group-admin-list');
-  var icon = document.getElementById('toggle-groups-icon');
-  // Always hide the list on load
-  if (list) list.style.display = 'none';
-  if (btn && list && icon) {
+  document.querySelectorAll('.group-admin-list').forEach(function(list) {
+    list.style.display = 'none';
+  });
+  document.querySelectorAll('.toggle-groups-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
+      var list = btn.parentElement.querySelector('.group-admin-list');
+      var icon = btn.querySelector('.toggle-groups-icon');
       if (list.style.display === 'none' || list.style.display === '') {
         list.style.display = 'block';
-        icon.textContent = 'expand_less';
+        if (icon) icon.textContent = 'expand_less';
       } else {
         list.style.display = 'none';
-        icon.textContent = 'expand_more';
+        if (icon) icon.textContent = 'expand_more';
       }
     });
-  }
+  });
 });
 </script>
 {% endblock %}
