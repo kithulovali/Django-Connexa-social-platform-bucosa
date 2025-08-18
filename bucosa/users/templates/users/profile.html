@@ -25,12 +25,21 @@
                 </a>
               {% endif %}
             {% else %}
-              <form method="post" action="{% url 'users:follow_user' user.id %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-lg text-sm font-semibold transition">
-                  Follow
-                </button>
-              </form>
+              {% if is_following %}
+                <form method="post" action="{% url 'users:unfollow_user' user.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-1.5 rounded-lg text-sm font-semibold transition">
+                    Unfollow
+                  </button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'users:follow_user' user.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-1.5 rounded-lg text-sm font-semibold transition">
+                    Follow
+                  </button>
+                </form>
+              {% endif %}
               <a href="{% url 'users:private_messages' user.id %}" class="border border-gray-300 hover:bg-gray-50 px-4 py-1.5 rounded-lg text-sm font-semibold transition">
                 Message
               </a>
