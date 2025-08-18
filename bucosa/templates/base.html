@@ -130,67 +130,66 @@
   <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
-        <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded" id="closeExpanded">
+        <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded w-6 h-6" id="closeExpanded">
       </div>
       <!-- Flex container with items in a single row -->
-      <div class="flex flex-row items-center justify-between space-x-4 overflow-x-auto whitespace-nowrap px-0 py-0">
-        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %} flex flex-col items-center shrink-0" data-page="search">
-          <span class="material-icons nav-icon">search</span>
-          <span class="nav-label-mobile">Search</span>
+      <div class="flex flex-row items-center justify-between space-x-2 overflow-x-auto whitespace-nowrap px-1 py-1">
+        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %} flex flex-col items-center shrink-0 px-2" data-page="search">
+          <span class="material-icons nav-icon text-xl">search</span>
+          <span class="nav-label-mobile text-xs mt-1">Search</span>
         </a>
 
-        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %} flex flex-col items-center shrink-0" data-page="fellowship">
-          <span class="material-symbols-outlined nav-icon">church</span>
-          <span class="nav-label-mobile">Fellowship</span>
+        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %} flex flex-col items-center shrink-0 px-2" data-page="fellowship">
+          <span class="material-symbols-outlined nav-icon text-xl">church</span>
+          <span class="nav-label-mobile text-xs mt-1">Fellowship</span>
         </a>
 
-        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0" data-page="bucosa-main">
-          <span class="material-icons nav-icon">groups</span>
-          <span class="nav-label-mobile">Bucosa Main</span>
+        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0 px-2" data-page="bucosa-main">
+          <span class="material-icons nav-icon text-xl">groups</span>
+          <span class="nav-label-mobile text-xs mt-1">Bucosa Main</span>
         </a>
 
-        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0" data-page="settings">
-          <span class="material-icons nav-icon">settings</span>
-          <span class="nav-label-mobile">Settings</span>
+        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0 px-2" data-page="settings">
+          <span class="material-icons nav-icon text-xl">settings</span>
+          <span class="nav-label-mobile text-xs mt-1">Settings</span>
         </a>
       </div>
     </div>
 
-    <div class="nav-main-container">
+    <div class="nav-main-container py-1">
       <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
         <div class="nav-item-content">
-          <span class="material-icons nav-icon">home</span>
-          <span class="nav-label-mobile">Home</span>
+          <span class="material-icons nav-icon text-xl">home</span>
+          <span class="nav-label-mobile text-xs mt-0.5">Home</span>
         </div>
       </a>
       
       <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
         <div class="nav-item-content">
-          <span class="material-icons nav-icon" style="font-size: 22px;">person_outline</span>
-          <span class="nav-label-mobile">User</span>
+          <span class="material-icons nav-icon text-lg">person_outline</span>
+          <span class="nav-label-mobile text-xs mt-0.5">User</span>
         </div>
       </a>
 
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <div class="nav-item-content">
-          <img src="{% static 'img/more.png' %}"  class="mobile-menu-icon" style="width:50px;height:50px;">
-
+          <img src="{% static 'img/more.png' %}" class="mobile-menu-icon w-8 h-8">
         </div>
       </a>
 
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
         <div class="nav-item-content" style="position:relative;">
-          <span class="material-icons nav-icon" style="font-size: 22px;">chat_bubble_outline</span>
-          <span class="nav-label-mobile">Chats</span>
-          <span class="notification-badge message-badge-mobile" id="mobile-message-badge" style="display:none;position:absolute;top:-8px;right:-12px;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 7px;border-radius:999px;min-width:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:700;">0</span>
+          <span class="material-icons nav-icon text-lg">chat_bubble_outline</span>
+          <span class="nav-label-mobile text-xs mt-0.5">Chats</span>
+          <span class="notification-badge message-badge-mobile" id="mobile-message-badge" style="display:none;position:absolute;top:-6px;right:-8px;background:#e53e3e;color:#fff;font-size:0.65rem;padding:1px 5px;border-radius:999px;min-width:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.10);font-weight:600;">0</span>
         </div>
       </a>
 
       <a href="{% url 'notifications:notifications_list' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="mobile-notifications">
         <div class="nav-item-content" style="position:relative;">
-          <span class="material-icons nav-icon" style="font-size: 22px;">notifications_none</span>
-          <span class="nav-label-mobile">Notifications</span>
-          <span class="notification-badge notif-badge-mobile" id="mobile-notif-badge" style="display:none;position:absolute;top:-8px;right:-12px;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 7px;border-radius:999px;min-width:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:700;">0</span>
+          <span class="material-icons nav-icon text-lg">notifications_none</span>
+          <span class="nav-label-mobile text-xs mt-0.5">Notifications</span>
+          <span class="notification-badge notif-badge-mobile" id="mobile-notif-badge" style="display:none;position:absolute;top:-6px;right:-8px;background:#e53e3e;color:#fff;font-size:0.65rem;padding:1px 5px;border-radius:999px;min-width:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.10);font-weight:600;">0</span>
         </div>
       </a>
     </div>
