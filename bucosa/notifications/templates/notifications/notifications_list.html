@@ -152,20 +152,38 @@
           <div class="p-3 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors duration-150">
             {% if notification.notification_type == 'message' %}
               <a href="{% url 'users:private_messages' sender.id %}" class="block">
-                <div class="font-semibold text-gray-900">
-                  {% if sender.first_name or sender.last_name %}
-                    {{ sender.first_name }} {{ sender.last_name }}
-                  {% else %}
-                    {{ sender.email }}
-                  {% endif %}
-                  <span class="font-normal">sent you a message</span>
+                <div class="flex items-start gap-3">
+                  <a href="{% url 'users:profile' sender.id %}" class="flex-shrink-0">
+                    {% if sender.profile.profile_image %}
+                      <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                    {% else %}
+                      <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                    {% endif %}
+                  </a>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-semibold text-gray-900">
+                      {% if sender.first_name or sender.last_name %}
+                        {{ sender.first_name }} {{ sender.last_name }}
+                      {% else %}
+                        {{ sender.email }}
+                      {% endif %}
+                      <span class="font-normal">sent you a message</span>
+                    </div>
+                    {% if notification.content_object and notification.content_object.content %}
+                      <div class="text-gray-600 text-sm mt-1 truncate">{{ notification.content_object.content }}</div>
+                    {% endif %}
+                  </div>
                 </div>
-                {% if notification.content_object and notification.content_object.content %}
-                  <div class="text-gray-600 text-sm mt-1 truncate">{{ notification.content_object.content }}</div>
-                {% endif %}
               </a>
             {% elif notification.notification_type == 'follow' %}
               <div class="flex items-start">
+                <a href="{% url 'users:profile' sender.id %}" class="flex-shrink-0 mr-3">
+                  {% if sender.profile.profile_image %}
+                    <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                  {% else %}
+                    <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                  {% endif %}
+                </a>
                 <div class="flex-1 min-w-0">
                   <div class="font-semibold text-gray-900">
                     {% if sender.first_name or sender.last_name %}
@@ -192,25 +210,36 @@
               </div>
             {% else %}
               <a href="{% url 'activities:post_detail' notification.object_id %}" class="block">
-                <div class="font-semibold text-gray-900">
-                  {% if sender.first_name or sender.last_name %}
-                    {{ sender.first_name }} {{ sender.last_name }}
-                  {% else %}
-                    {{ sender.email }}
-                  {% endif %}
-                  <span class="font-normal">
-                    {% if notification.notification_type == 'like' %}
-                      liked your post
-                    {% elif notification.notification_type == 'comment' %}
-                      commented on your post
-                    {% elif notification.notification_type == 'share' %}
-                      shared your post
+                <div class="flex items-start gap-3">
+                  <a href="{% url 'users:profile' sender.id %}" class="flex-shrink-0">
+                    {% if sender.profile.profile_image %}
+                      <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                    {% else %}
+                      <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-10 h-10 rounded-full object-cover border border-gray-200">
                     {% endif %}
-                  </span>
+                  </a>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-semibold text-gray-900">
+                      {% if sender.first_name or sender.last_name %}
+                        {{ sender.first_name }} {{ sender.last_name }}
+                      {% else %}
+                        {{ sender.email }}
+                      {% endif %}
+                      <span class="font-normal">
+                        {% if notification.notification_type == 'like' %}
+                          liked your post
+                        {% elif notification.notification_type == 'comment' %}
+                          commented on your post
+                        {% elif notification.notification_type == 'share' %}
+                          shared your post
+                        {% endif %}
+                      </span>
+                    </div>
+                    {% if notification.content_object and notification.content_object.content %}
+                      <div class="text-gray-600 text-sm mt-1 truncate">{{ notification.content_object.content }}</div>
+                    {% endif %}
+                  </div>
                 </div>
-                {% if notification.content_object and notification.content_object.content %}
-                  <div class="text-gray-600 text-sm mt-1 truncate">{{ notification.content_object.content }}</div>
-                {% endif %}
               </a>
             {% endif %}
             <div class="text-xs text-gray-400 mt-2">{{ notification.timestamp|timesince }} ago</div>
