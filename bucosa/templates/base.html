@@ -133,40 +133,8 @@
           <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded" id="closeExpanded">
       </div>
       <div class="nav-expanded-grid">
-        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">search</span>
-            <span class="nav-label-mobile">Search</span>
-          </div>
-        </a>
-
-        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
-          <div class="nav-item-content">
-            <span class="material-symbols-outlined nav-icon">church</span>
-            <span class="nav-label-mobile">Fellowship</span>
-          </div>
-        </a>
-        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">groups</span>
-            <span class="nav-label-mobile">Bucosa Main</span>
-          </div>
-        </a>
-        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">settings</span>
-            <span class="nav-label-mobile">Settings</span>
-          </div>
-        </a>
-        <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
-          <!-- Logout removed from expanded mobile nav -->
-        </a>
-      </div>
-    </div>
-
-    <div class="nav-main-container">
-      <!-- Quick Access Row: Four visible links/icons (now only in expanded menu) -->
-      <div class="flex w-full justify-between items-center mb-2 px-2 py-1 bg-white rounded-xl shadow-sm border border-gray-200">
+      <!-- Quick Access Row: Four visible links/icons in a single horizontal row -->
+      <div class="flex w-full justify-between items-center mb-4 px-2 py-1 bg-white rounded-xl shadow-sm border border-gray-200">
         <a href="{% url 'users:search_users' %}" class="flex flex-col items-center flex-1 mx-1">
           <span class="material-icons text-indigo-600" style="font-size:1.3rem;">search</span>
           <span class="text-[0.7rem] text-gray-600">Search</span>
@@ -184,6 +152,7 @@
           <span class="text-[0.7rem] text-gray-600">Settings</span>
         </a>
       </div>
+    <div class="nav-main-container">
       <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
         <div class="nav-item-content flex flex-col items-center justify-center">
           <span class="material-icons nav-icon" style="font-size: 1.4rem;">home</span>
