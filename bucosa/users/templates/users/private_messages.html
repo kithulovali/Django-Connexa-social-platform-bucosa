@@ -56,9 +56,13 @@
           <div class="flex items-center space-x-3">
             <!-- Profile Picture -->
             <div class="relative">
-              <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                {{ u|display_name|first|upper }}
-              </div>
+              {% if u.profile.profile_image %}
+                <img src="{{ u.profile.profile_image.url }}" alt="{{ u|display_name }}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+              {% else %}
+                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                  <img src="{% static 'img/default.png' %}" alt="{{ u|display_name }}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                </div>
+              {% endif %}
               <div class="online-dot"></div>
             </div>
             
@@ -129,7 +133,11 @@
         </button>
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center text-white font-semibold">
-            {{ other_user|display_name|first|upper }}
+            {% if other_user.profile.profile_image %}
+              <img src="{{ other_user.profile.profile_image.url }}" alt="{{ other_user|display_name }}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+            {% else %}
+              {{ other_user|display_name|first|upper }}
+            {% endif %}
           </div>
           <div>
             <h2 class="font-semibold text-white">{{ other_user|display_name }}</h2>
