@@ -36,9 +36,7 @@
                     {% if sender.profile.profile_image %}
                       <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
                     {% else %}
-                      <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                        {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                      </div>
+                      <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-10 h-10 rounded-full object-cover border border-gray-200">
                     {% endif %}
                   </a>
                   <div class="flex-1 min-w-0">
