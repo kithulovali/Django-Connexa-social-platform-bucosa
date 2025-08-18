@@ -128,11 +128,15 @@
   </nav>
 
   <nav id="mobileNav" class="mobile-nav">
+
     <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
           <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded" id="closeExpanded">
       </div>
       <div class="nav-expanded-grid">
+        <!-- Add any expanded menu content here if needed -->
+      </div>
+    </div>
     <div class="nav-main-container">
       <!-- Main mobile nav bar: always visible -->
       <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
