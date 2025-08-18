@@ -19,7 +19,7 @@
       <!-- Content Area -->
       <div class="p-8">
         <!-- Standard Login Form -->
-        <form method="post" action="{% url 'login' %}" class="space-y-5">
+        <form method="post" action="{% url 'users:login' %}" class="space-y-5">
           {% csrf_token %}
           
           <!-- Username Field -->
