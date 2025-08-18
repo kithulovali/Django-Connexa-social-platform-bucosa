@@ -95,14 +95,10 @@ body {
 
 /* More button special styling */
 .nav-more-btn {
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
       position: relative;
     }
 
 .nav-more-btn.active {
-      background: #6366f1;
-      border-color: #6366f1;
       transform: translateY(-2px);
     }
 
