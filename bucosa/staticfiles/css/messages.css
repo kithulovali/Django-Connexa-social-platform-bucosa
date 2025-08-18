@@ -1,24 +1,49 @@
     /* Improved mobile scrolling */
 .mobile-scroll {
-      -webkit-overflow-scrolling: touch; /* Enables smooth scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
       overflow-y: auto;
-      overscroll-behavior: contain; /* Prevents scroll chaining */
+      overscroll-behavior: contain;
     }
     
     /* Hide scrollbars but keep functionality */
 .hide-scrollbar {
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 .hide-scrollbar::-webkit-scrollbar {
-      display: none; /* Chrome/Safari */
+      display: none;
     }
     
+    /* Mobile optimizations */
 @media (max-width: 767px) {
-      .message-container {
+.message-container {
         max-height: calc(100vh - 120px);
       }
-      .contacts-container {
+.contacts-container {
         max-height: calc(100vh - 60px);
       }
+.message-bubble {
+        max-width: 85%;
+      }
+.group-badge {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.4rem;
+      }
+    }
+    
+    /* Group chat styling */
+.group-section-title {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      z-index: 10;
     }
