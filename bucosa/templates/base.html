@@ -133,7 +133,7 @@
         <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded" id="closeExpanded">
       </div>
       <!-- Flex container with items in a single row -->
-      <div class="flex flex-row items-center justify-between space-x-4 overflow-x-auto whitespace-nowrap px-4 py-2">
+      <div class="flex flex-row items-center justify-between space-x-4 overflow-x-auto whitespace-nowrap px-0 py-0">
         <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %} flex flex-col items-center shrink-0" data-page="search">
           <span class="material-icons nav-icon">search</span>
           <span class="nav-label-mobile">Search</span>
