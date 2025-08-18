@@ -113,7 +113,7 @@
         <a href="{% url 'bucosa_main' %}" class="sidebar-item nav-link" data-page="bucosa-main">
           <div class="nav-item-content">
             <span class="material-icons nav-icon">groups</span>
-            <span class="nav-label">Bucosa Main</span>
+            <span class="nav-label">Bucosa </span>
           </div>
           <div class="nav-item-indicator"></div>
         </a>
@@ -121,7 +121,7 @@
 
       <div class="sidebar-footer">
         <a href="{% url 'users:logout' %}" class="sidebar-item logout-item">
-          <!-- Logout removed from sidebar -->
+           logout
         </a>
       </div>
     </div>
@@ -130,36 +130,28 @@
   <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
-          <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded" id="closeExpanded">
+        <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded" id="closeExpanded">
       </div>
-      <div class="nav-expanded-grid">
-        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">search</span>
-            <span class="nav-label-mobile">Search</span>
-          </div>
+      <!-- Flex container with items in a single row -->
+      <div class="flex flex-row items-center justify-between space-x-4 overflow-x-auto whitespace-nowrap px-4 py-2">
+        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %} flex flex-col items-center shrink-0" data-page="search">
+          <span class="material-icons nav-icon">search</span>
+          <span class="nav-label-mobile">Search</span>
         </a>
 
-        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
-          <div class="nav-item-content">
-            <span class="material-symbols-outlined nav-icon">church</span>
-            <span class="nav-label-mobile">Fellowship</span>
-          </div>
+        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %} flex flex-col items-center shrink-0" data-page="fellowship">
+          <span class="material-symbols-outlined nav-icon">church</span>
+          <span class="nav-label-mobile">Fellowship</span>
         </a>
-        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">groups</span>
-            <span class="nav-label-mobile">Bucosa Main</span>
-          </div>
+
+        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0" data-page="bucosa-main">
+          <span class="material-icons nav-icon">groups</span>
+          <span class="nav-label-mobile">Bucosa Main</span>
         </a>
-        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">settings</span>
-            <span class="nav-label-mobile">Settings</span>
-          </div>
-        </a>
-        <a href="{% url 'users:logout' %}" class="nav-expanded-item logout-item">
-          <!-- Logout removed from expanded mobile nav -->
+
+        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0" data-page="settings">
+          <span class="material-icons nav-icon">settings</span>
+          <span class="nav-label-mobile">Settings</span>
         </a>
       </div>
     </div>
