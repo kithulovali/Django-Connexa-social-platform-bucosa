@@ -97,9 +97,9 @@ python manage.py runserver
 
 ## 🌐 Deployment
 
-- Ready for deployment on [Railway](https://railway.app/), [Heroku](https://heroku.com/), or any cloud platform.
-- Set all environment variables in your deployment dashboard.
-- Use Gunicorn or Daphne for production.
+- Ready for deployment on [Railway](https://railway.app/)
+
+- Daphne for production.
 
 ---
 ...
