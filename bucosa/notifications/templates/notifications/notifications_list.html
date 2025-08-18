@@ -37,7 +37,7 @@
             {% elif notification.notification_type == 'follow' %}
               <span class="font-semibold">{{ sender.first_name }} {{ sender.last_name }} followed you</span>
               {% if request.user != sender %}
-                {% if not request.user.following.filter(following_user=sender).exists %}
+                {% if sender.id not in followed_user_ids %}
                   <a href="{% url 'users:follow_user' sender.id %}" class="ml-2 inline-block px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">Follow back</a>
                 {% else %}
                   <a href="{% url 'users:unfollow_user' sender.id %}" class="ml-2 inline-block px-3 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400">Unfollow</a>

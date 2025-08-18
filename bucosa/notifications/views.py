@@ -13,10 +13,13 @@ def notifications_list(request):
     unread_notifications = notifications.filter(is_read=False)
     read_notifications = notifications.filter(is_read=True)
     unread_count = unread_notifications.count()
+    # Get a set of user IDs that the current user is following
+    followed_user_ids = set(request.user.following.values_list('following_user_id', flat=True))
     return render(request, 'notifications/notifications_list.html', {
         'unread_notifications': unread_notifications,
         'read_notifications': read_notifications,
         'unread_notification_count': unread_count,
+        'followed_user_ids': followed_user_ids,
     })
 
 
