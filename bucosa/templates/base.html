@@ -165,6 +165,25 @@
     </div>
 
     <div class="nav-main-container">
+      <!-- Quick Access Row: Four visible links/icons (now only in expanded menu) -->
+      <div class="flex w-full justify-between items-center mb-2 px-2 py-1 bg-white rounded-xl shadow-sm border border-gray-200">
+        <a href="{% url 'users:search_users' %}" class="flex flex-col items-center flex-1 mx-1">
+          <span class="material-icons text-indigo-600" style="font-size:1.3rem;">search</span>
+          <span class="text-[0.7rem] text-gray-600">Search</span>
+        </a>
+        <a href="{% url 'fellowship_detail' 1 %}" class="flex flex-col items-center flex-1 mx-1">
+          <span class="material-symbols-outlined text-indigo-600" style="font-size:1.3rem;">church</span>
+          <span class="text-[0.7rem] text-gray-600">Fellowship</span>
+        </a>
+        <a href="{% url 'bucosa_main' %}" class="flex flex-col items-center flex-1 mx-1">
+          <span class="material-icons text-indigo-600" style="font-size:1.3rem;">groups</span>
+          <span class="text-[0.7rem] text-gray-600">Bucosa</span>
+        </a>
+        <a href="{% url 'users:user_settings' %}" class="flex flex-col items-center flex-1 mx-1">
+          <span class="material-icons text-indigo-600" style="font-size:1.3rem;">settings</span>
+          <span class="text-[0.7rem] text-gray-600">Settings</span>
+        </a>
+      </div>
       <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
         <div class="nav-item-content flex flex-col items-center justify-center">
           <span class="material-icons nav-icon" style="font-size: 1.4rem;">home</span>
