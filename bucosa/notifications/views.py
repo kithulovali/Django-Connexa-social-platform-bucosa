@@ -10,7 +10,12 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def notifications_list(request):
     notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
-    return render(request, 'notifications/notifications_list.html', {'notifications': notifications})
+    unread_notifications = notifications.filter(is_read=False)
+    read_notifications = notifications.filter(is_read=True)
+    return render(request, 'notifications/notifications_list.html', {
+        'unread_notifications': unread_notifications,
+        'read_notifications': read_notifications,
+    })
 
 
 def send_notification_view(request):

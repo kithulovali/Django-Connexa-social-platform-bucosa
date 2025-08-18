@@ -26,16 +26,32 @@
           {% for notification in unread_notifications %}
           <div class="p-3 bg-white rounded-lg">
             <div class="font-semibold">
-              {% if notification.notification_type == 'like' %}
-                {{ notification.actor }} liked your post:
-              {% elif notification.notification_type == 'comment' %}
-                {{ notification.actor }} commented on your post:
-              {% elif notification.notification_type == 'follow' %}
-                {{ notification.actor }} followed you
-              {% endif %}
+              {% with sender=notification.sender %}
+                {% if sender.first_name or sender.last_name %}
+                  {% if notification.notification_type == 'like' %}
+                    {{ sender.first_name }} {{ sender.last_name }} liked your post:
+                  {% elif notification.notification_type == 'comment' %}
+                    {{ sender.first_name }} {{ sender.last_name }} commented on your post:
+                  {% elif notification.notification_type == 'follow' %}
+                    {{ sender.first_name }} {{ sender.last_name }} followed you
+                  {% else %}
+                    {{ sender.first_name }} {{ sender.last_name }} sent a notification
+                  {% endif %}
+                {% else %}
+                  {% if notification.notification_type == 'like' %}
+                    {{ sender.email }} liked your post:
+                  {% elif notification.notification_type == 'comment' %}
+                    {{ sender.email }} commented on your post:
+                  {% elif notification.notification_type == 'follow' %}
+                    {{ sender.email }} followed you
+                  {% else %}
+                    {{ sender.email }} sent a notification
+                  {% endif %}
+                {% endif %}
+              {% endwith %}
             </div>
-            {% if notification.target_object.content %}
-            <div class="text-gray-600 mt-1 text-sm">{{ notification.target_object.content|truncatechars:50 }}</div>
+            {% if notification.content_object and notification.content_object.content %}
+            <div class="text-gray-600 mt-1 text-sm">{{ notification.content_object.content|truncatechars:50 }}</div>
             {% endif %}
             <div class="text-xs text-gray-400 mt-2">{{ notification.timestamp|timesince }} ago</div>
           </div>
@@ -55,16 +71,32 @@
           {% for notification in read_notifications %}
           <div class="p-3 bg-white rounded-lg">
             <div class="font-semibold">
-              {% if notification.notification_type == 'like' %}
-                {{ notification.actor }} liked your post:
-              {% elif notification.notification_type == 'comment' %}
-                {{ notification.actor }} commented on your post:
-              {% elif notification.notification_type == 'follow' %}
-                {{ notification.actor }} followed you
-              {% endif %}
+              {% with sender=notification.sender %}
+                {% if sender.first_name or sender.last_name %}
+                  {% if notification.notification_type == 'like' %}
+                    {{ sender.first_name }} {{ sender.last_name }} liked your post:
+                  {% elif notification.notification_type == 'comment' %}
+                    {{ sender.first_name }} {{ sender.last_name }} commented on your post:
+                  {% elif notification.notification_type == 'follow' %}
+                    {{ sender.first_name }} {{ sender.last_name }} followed you
+                  {% else %}
+                    {{ sender.first_name }} {{ sender.last_name }} sent a notification
+                  {% endif %}
+                {% else %}
+                  {% if notification.notification_type == 'like' %}
+                    {{ sender.email }} liked your post:
+                  {% elif notification.notification_type == 'comment' %}
+                    {{ sender.email }} commented on your post:
+                  {% elif notification.notification_type == 'follow' %}
+                    {{ sender.email }} followed you
+                  {% else %}
+                    {{ sender.email }} sent a notification
+                  {% endif %}
+                {% endif %}
+              {% endwith %}
             </div>
-            {% if notification.target_object.content %}
-            <div class="text-gray-600 mt-1 text-sm">{{ notification.target_object.content|truncatechars:50 }}</div>
+            {% if notification.content_object and notification.content_object.content %}
+            <div class="text-gray-600 mt-1 text-sm">{{ notification.content_object.content|truncatechars:50 }}</div>
             {% endif %}
             <div class="text-xs text-gray-400 mt-2">{{ notification.timestamp|timesince }} ago</div>
           </div>
