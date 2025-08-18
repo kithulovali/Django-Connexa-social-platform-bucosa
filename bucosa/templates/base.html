@@ -34,7 +34,9 @@
 
   <script>
     window.USER_IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
-    window.NOTIFICATION_COUNT = {{ request.user.notifications.unread.count|default:0 }};
+    window.NOTIFICATION_COUNT = (
+      typeof unread_notification_count !== 'undefined' ? unread_notification_count : {{ request.user.notifications.unread.count|default:0 }}
+    );
     window.CSRF_TOKEN = '{{ csrf_token }}';
   </script>
   <script src="{% static 'js/firebase-push.js' %}" defer></script>

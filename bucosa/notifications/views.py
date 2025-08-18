@@ -12,9 +12,11 @@ def notifications_list(request):
     notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
     unread_notifications = notifications.filter(is_read=False)
     read_notifications = notifications.filter(is_read=True)
+    unread_count = unread_notifications.count()
     return render(request, 'notifications/notifications_list.html', {
         'unread_notifications': unread_notifications,
         'read_notifications': read_notifications,
+        'unread_notification_count': unread_count,
     })
 
 
