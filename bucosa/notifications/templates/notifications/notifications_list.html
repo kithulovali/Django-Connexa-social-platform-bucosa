@@ -1,100 +1,116 @@
-
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="max-w-2xl mx-auto w-full px-2 sm:px-0">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-    <h1 class="text-2xl font-bold">Notifications</h1>
-    <form id="mark-read-form" method="post" action="{% url 'notifications:mark_notifications_read' %}">
-      {% csrf_token %}
-      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full sm:w-auto">Mark all as read</button>
-    </form>
-  </div>
-  <ul class="divide-y divide-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
-    {% for notification in notifications %}
-      {% if notification.content_object %}
-        <a href="
-          {% if notification.content_type.model == 'post' %}
-            {% url 'activities:post_detail' notification.object_id %}
-          {% elif notification.content_type.model == 'event' %}
-            {% url 'activities:event_detail' notification.object_id %}
-          {% elif notification.content_type.model == 'privatemessage' %}
-            {% if notification.recipient.id == user.id %}
-              /users/messages/{{ notification.content_object.sender.id }}/
-            {% else %}
-              /users/messages/{{ notification.content_object.recipient.id }}/
+<!-- Disable body scrolling and enable mobile-like scrolling within container -->
+<div class="fixed inset-0 overflow-y-auto bg-gray-50">
+  <div class="min-h-full max-w-md mx-auto w-full px-4 py-4">
+    <!-- Header with fixed positioning -->
+    <div class="sticky top-0 z-10 bg-gray-50 pt-2 pb-3">
+      <h1 class="text-2xl font-bold mb-1">Notifications</h1>
+      
+      <!-- Mark all as read button -->
+      <form id="mark-read-form" method="post" action="{% url 'notifications:mark_notifications_read' %}" class="absolute top-3 right-4">
+        {% csrf_token %}
+        <button type="submit" class="text-blue-600 text-sm font-medium">Mark all as read</button>
+      </form>
+    </div>
+
+    <!-- Notification content with momentum scrolling -->
+    <div class="overflow-y-auto" style="-webkit-overflow-scrolling: touch; height: calc(100vh - 80px)">
+      <!-- Unread Section -->
+      <div class="mb-6">
+        <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Recent</h3>
+        
+        <!-- Recent Notifications -->
+        <div class="space-y-3">
+          {% for notification in unread_notifications %}
+          <div class="p-3 bg-white rounded-lg">
+            <div class="font-semibold">
+              {% if notification.notification_type == 'like' %}
+                {{ notification.actor }} liked your post:
+              {% elif notification.notification_type == 'comment' %}
+                {{ notification.actor }} commented on your post:
+              {% elif notification.notification_type == 'follow' %}
+                {{ notification.actor }} followed you
+              {% endif %}
+            </div>
+            {% if notification.target_object.content %}
+            <div class="text-gray-600 mt-1 text-sm">{{ notification.target_object.content|truncatechars:50 }}</div>
             {% endif %}
-          {% else %}#
-          {% endif %}"
-          class="block focus:outline-none focus:bg-blue-50">
-      {% else %}
-        <div>
-      {% endif %}
-      <li class="py-4 px-3 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition sm:gap-4">
-        <span class="material-icons text-2xl sm:text-3xl text-blue-500 flex-shrink-0">
-          {% if notification.notification_type == 'like' %}favorite{% elif notification.notification_type == 'comment' %}comment{% elif notification.notification_type == 'follow' %}person_add{% elif notification.notification_type == 'message' %}mail{% else %}notifications{% endif %}
-        </span>
-        <div class="flex-1 min-w-0">
-          <div class="font-medium text-base sm:text-lg text-gray-900 truncate">{{ notification.message|default:notification.notification_type|capfirst }}</div>
-          <div class="text-xs sm:text-sm text-gray-500 mt-1">{{ notification.timestamp|date:'M d, Y H:i' }}</div>
+            <div class="text-xs text-gray-400 mt-2">{{ notification.timestamp|timesince }} ago</div>
+          </div>
+          {% endfor %}
         </div>
-        {% if not notification.is_read %}
-          <span class="ml-auto bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">New</span>
-        {% endif %}
-      </li>
-      {% if notification.content_object %}
-        </a>
-      {% else %}
+      </div>
+
+      <!-- Divider -->
+      <div class="border-t border-gray-200 my-3"></div>
+
+      <!-- Earlier Section -->
+      <div class="mb-6">
+        <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Earlier</h3>
+        
+        <!-- Earlier Notifications -->
+        <div class="space-y-3">
+          {% for notification in read_notifications %}
+          <div class="p-3 bg-white rounded-lg">
+            <div class="font-semibold">
+              {% if notification.notification_type == 'like' %}
+                {{ notification.actor }} liked your post:
+              {% elif notification.notification_type == 'comment' %}
+                {{ notification.actor }} commented on your post:
+              {% elif notification.notification_type == 'follow' %}
+                {{ notification.actor }} followed you
+              {% endif %}
+            </div>
+            {% if notification.target_object.content %}
+            <div class="text-gray-600 mt-1 text-sm">{{ notification.target_object.content|truncatechars:50 }}</div>
+            {% endif %}
+            <div class="text-xs text-gray-400 mt-2">{{ notification.timestamp|timesince }} ago</div>
+          </div>
+          {% empty %}
+          <div class="text-center text-gray-500 py-4 text-sm">No earlier notifications</div>
+          {% endfor %}
         </div>
-      {% endif %}
-    {% empty %}
-      <li class="py-4 px-3 text-gray-500">No notifications yet.</li>
-    {% endfor %}
-  </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
-<script>
-// AJAX mark all as read
-document.getElementById('mark-read-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  fetch(this.action, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value,
-      'X-Requested-With': 'XMLHttpRequest',
-    },
-    credentials: 'same-origin',
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.status === 'ok') {
-      document.querySelectorAll('.bg-blue-100').forEach(el => el.style.display = 'none');
-    }
-  });
-});
+<style>
+  /* iOS-style momentum scrolling */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Disable body scroll */
+  body {
+    overflow: hidden;
+  }
+</style>
 
-// Real-time notifications via WebSocket
-const userId = {{ user.id|default:'null' }};
-if (userId) {
-  const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const wsPath = `${wsScheme}://${window.location.host}/ws/notifications/${userId}/`;
-  const socket = new WebSocket(wsPath);
-  socket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    // Build notification HTML (simple version)
-    const notifList = document.querySelector('ul.divide-y');
-    const li = document.createElement('li');
-    li.className = 'py-4 px-3 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition sm:gap-4';
-    li.innerHTML = `
-      <span class="material-icons text-2xl sm:text-3xl text-blue-500 flex-shrink-0">notifications</span>
-      <div class="flex-1 min-w-0">
-        <div class="font-medium text-base sm:text-lg text-gray-900 truncate">${data.message || 'New notification'}</div>
-        <div class="text-xs sm:text-sm text-gray-500 mt-1">Just now</div>
-      </div>
-      <span class="ml-auto bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">New</span>
-    `;
-    notifList.prepend(li);
-  };
-}
+<script>
+  // Prevent default body scrolling
+  document.body.style.overflow = 'hidden';
+  
+  // AJAX mark all as read
+  document.getElementById('mark-read-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    fetch(this.action, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        // Optionally update UI to show notifications as read
+        window.location.reload();
+      }
+    });
+  });
 </script>
+
 {% endblock %}
