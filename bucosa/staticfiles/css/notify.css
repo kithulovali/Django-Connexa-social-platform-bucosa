@@ -1,0 +1,13 @@
+  /* iOS-style momentum scrolling */
+.overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+.overflow-y-auto::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+  /* Disable body scroll */
+body {
+    overflow: hidden;
+    touch-action: none;
+  }
