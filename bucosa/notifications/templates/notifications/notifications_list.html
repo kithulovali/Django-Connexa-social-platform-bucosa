@@ -24,37 +24,60 @@
         <!-- Recent Notifications -->
         <div class="space-y-3">
           {% for notification in unread_notifications %}
+          {% with sender=notification.sender %}
           <div class="p-3 bg-white rounded-lg">
-            <div class="font-semibold">
-              {% with sender=notification.sender %}
+            {% if notification.notification_type == 'message' %}
+              <a href="{% url 'users:private_messages' sender.id %}" class="block font-semibold text-blue-600 hover:underline">
+                {% if sender.first_name or sender.last_name %}
+                  {{ sender.first_name }} {{ sender.last_name }} sent you a message
+                {% else %}
+                  {{ sender.email }} sent you a message
+                {% endif %}
+              </a>
+            {% elif notification.notification_type == 'follow' %}
+              <span class="font-semibold">{{ sender.first_name }} {{ sender.last_name }} followed you</span>
+              {% if request.user != sender %}
+                {% if not request.user.following.filter(following_user=sender).exists %}
+                  <a href="{% url 'users:follow_user' sender.id %}" class="ml-2 inline-block px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">Follow back</a>
+                {% else %}
+                  <a href="{% url 'users:unfollow_user' sender.id %}" class="ml-2 inline-block px-3 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400">Unfollow</a>
+                {% endif %}
+              {% endif %}
+            {% elif notification.notification_type == 'like' or notification.notification_type == 'comment' or notification.notification_type == 'share' %}
+              <a href="{% url 'activities:post_detail' notification.object_id %}" class="block font-semibold text-blue-600 hover:underline">
                 {% if sender.first_name or sender.last_name %}
                   {% if notification.notification_type == 'like' %}
                     {{ sender.first_name }} {{ sender.last_name }} liked your post:
                   {% elif notification.notification_type == 'comment' %}
                     {{ sender.first_name }} {{ sender.last_name }} commented on your post:
-                  {% elif notification.notification_type == 'follow' %}
-                    {{ sender.first_name }} {{ sender.last_name }} followed you
-                  {% else %}
-                    {{ sender.first_name }} {{ sender.last_name }} sent a notification
+                  {% elif notification.notification_type == 'share' %}
+                    {{ sender.first_name }} {{ sender.last_name }} shared your post:
                   {% endif %}
                 {% else %}
                   {% if notification.notification_type == 'like' %}
                     {{ sender.email }} liked your post:
                   {% elif notification.notification_type == 'comment' %}
                     {{ sender.email }} commented on your post:
-                  {% elif notification.notification_type == 'follow' %}
-                    {{ sender.email }} followed you
-                  {% else %}
-                    {{ sender.email }} sent a notification
+                  {% elif notification.notification_type == 'share' %}
+                    {{ sender.email }} shared your post:
                   {% endif %}
                 {% endif %}
-              {% endwith %}
-            </div>
+              </a>
+            {% else %}
+              <span class="font-semibold">
+                {% if sender.first_name or sender.last_name %}
+                  {{ sender.first_name }} {{ sender.last_name }} sent a notification
+                {% else %}
+                  {{ sender.email }} sent a notification
+                {% endif %}
+              </span>
+            {% endif %}
             {% if notification.content_object and notification.content_object.content %}
-            <div class="text-gray-600 mt-1 text-sm">{{ notification.content_object.content|truncatechars:50 }}</div>
+              <div class="text-gray-600 mt-1 text-sm">{{ notification.content_object.content|truncatechars:50 }}</div>
             {% endif %}
             <div class="text-xs text-gray-400 mt-2">{{ notification.timestamp|timesince }} ago</div>
           </div>
+          {% endwith %}
           {% endfor %}
         </div>
       </div>
@@ -69,16 +92,28 @@
         <!-- Earlier Notifications -->
         <div class="space-y-3">
           {% for notification in read_notifications %}
+          {% with sender=notification.sender %}
           <div class="p-3 bg-white rounded-lg">
-            <div class="font-semibold">
-              {% with sender=notification.sender %}
+            {% if notification.notification_type == 'message' %}
+              <a href="{% url 'users:private_messages' sender.id %}" class="block font-semibold text-blue-600 hover:underline">
+            {% elif notification.notification_type == 'follow' %}
+              <span class="font-semibold">{{ sender.first_name }} {{ sender.last_name }} followed you</span>
+              {% if request.user != sender %}
+                {% if not request.user.following.filter(following_user=sender).exists %}
+                  <a href="{% url 'users:follow_user' sender.id %}" class="ml-2 inline-block px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">Follow back</a>
+                {% else %}
+                  <a href="{% url 'users:unfollow_user' sender.id %}" class="ml-2 inline-block px-3 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400">Unfollow</a>
+                {% endif %}
+              {% endif %}
+            {% else %}
+              <span class="font-semibold">
                 {% if sender.first_name or sender.last_name %}
                   {% if notification.notification_type == 'like' %}
                     {{ sender.first_name }} {{ sender.last_name }} liked your post:
                   {% elif notification.notification_type == 'comment' %}
                     {{ sender.first_name }} {{ sender.last_name }} commented on your post:
-                  {% elif notification.notification_type == 'follow' %}
-                    {{ sender.first_name }} {{ sender.last_name }} followed you
+                  {% elif notification.notification_type == 'message' %}
+                    {{ sender.first_name }} {{ sender.last_name }} sent you a message
                   {% else %}
                     {{ sender.first_name }} {{ sender.last_name }} sent a notification
                   {% endif %}
@@ -87,19 +122,20 @@
                     {{ sender.email }} liked your post:
                   {% elif notification.notification_type == 'comment' %}
                     {{ sender.email }} commented on your post:
-                  {% elif notification.notification_type == 'follow' %}
-                    {{ sender.email }} followed you
+                  {% elif notification.notification_type == 'message' %}
+                    {{ sender.email }} sent you a message
                   {% else %}
                     {{ sender.email }} sent a notification
                   {% endif %}
                 {% endif %}
-              {% endwith %}
-            </div>
+              </span>
+            {% endif %}
             {% if notification.content_object and notification.content_object.content %}
             <div class="text-gray-600 mt-1 text-sm">{{ notification.content_object.content|truncatechars:50 }}</div>
             {% endif %}
             <div class="text-xs text-gray-400 mt-2">{{ notification.timestamp|timesince }} ago</div>
           </div>
+          {% endwith %}
           {% empty %}
           <div class="text-center text-gray-500 py-4 text-sm">No earlier notifications</div>
           {% endfor %}
