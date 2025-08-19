@@ -1,19 +1,35 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-<div class="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
-  <h2 class="text-2xl font-bold mb-4">New Event in {{ fellowship.name }}</h2>
-  <form method="post" enctype="multipart/form-data" class="flex flex-col gap-4">
-    {% csrf_token %}
-    <input type="text" name="title" required placeholder="Event Title" class="w-full border rounded-lg px-4 py-2" />
-    <textarea name="description" rows="3" required placeholder="Event Description" class="w-full border rounded-lg px-4 py-2"></textarea>
-    <input type="text" name="location" required placeholder="Location" class="w-full border rounded-lg px-4 py-2" />
-    <input type="datetime-local" name="start_time" required class="w-full border rounded-lg px-4 py-2" />
-    <input type="datetime-local" name="end_time" required class="w-full border rounded-lg px-4 py-2" />
-    <input type="file" name="cover_image" accept="image/*" class="border rounded-lg px-4 py-2" />
-    <div class="flex gap-2">
-      <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold">Create Event</button>
-      <a href="{% url 'fellowship_detail' fellowship.id %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-semibold">Cancel</a>
-    </div>
-  </form>
+<div class="h-screen bg-white flex flex-col">
+  <!-- Header -->
+  <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center sticky top-0 z-10">
+    <h2 class="text-lg font-semibold text-gray-800">Create Event</h2>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      <input type="text" name="title" placeholder="Event Title"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+
+      <textarea name="description" rows="4" placeholder="Event Description"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+
+      <input type="date" name="date"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+
+      <input type="time" name="time"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+
+      <input type="file" name="banner"
+        class="w-full text-gray-600 text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
+
+      <button type="submit"
+        class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">
+        Create Event
+      </button>
+    </form>
+  </div>
 </div>
 {% endblock %}
