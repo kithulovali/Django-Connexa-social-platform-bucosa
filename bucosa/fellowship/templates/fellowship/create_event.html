@@ -1,17 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="h-screen bg-white flex flex-col">
+  <!-- Header -->
   <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center sticky top-0 z-10">
     <h2 class="text-lg font-semibold text-gray-800">Create Event</h2>
   </div>
 
-  <div class="flex-1 overflow-y-auto divide-y divide-gray-200">
-    <form method="post" enctype="multipart/form-data" class="space-y-4 px-6 py-4">
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
       {% csrf_token %}
+
       {% for field in form %}
         <div class="space-y-1">
           <label class="block text-sm font-medium text-gray-800">{{ field.label_tag }}</label>
-          {{ field }}
+
+          {% if field.name == "event_image" %}
+            <!-- File input styling -->
+            {{ field|add_class:"w-full text-gray-600 text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer" }}
+          {% elif field|add_class:"textarea" %}
+            <!-- Textarea styling -->
+            {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" }}
+          {% else %}
+            <!-- Normal input styling -->
+            {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" }}
+          {% endif %}
+
           {% if field.help_text %}
             <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
           {% endif %}
@@ -20,7 +34,9 @@
           {% endfor %}
         </div>
       {% endfor %}
-      <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">
+
+      <button type="submit"
+        class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">
         Create Event
       </button>
     </form>
