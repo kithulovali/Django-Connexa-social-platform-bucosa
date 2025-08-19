@@ -38,7 +38,7 @@ def send_feedback(request):
                 pass
 
             messages.success(request, 'Thank you for your feedback!')
-            return redirect('feedback')
+            return redirect('activities:feedback')
     else:
         form = FeedbackForm()
     return render(request, 'activities/feedback.html', {'form': form})
