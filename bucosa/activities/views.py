@@ -595,6 +595,11 @@ def add_comment(request, post_id):
                 if user.email:
                     send_custom_notification_email(notification, user)
 
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'comment_id': comment.id, 'count': post.comments.count()})
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'success': False, 'errors': form.errors}, status=400)
 
     return redirect(request.META.get('HTTP_REFERER', 'home'))
 

@@ -2,6 +2,52 @@
 {% load static %}
 {% load user_extras %}
 {% block content %}
+<script>
+// AJAX for Like, Save, Share, and Comment
+document.addEventListener('DOMContentLoaded', function() {
+    function ajaxForm(formId, countSelector, btnSelector, successText) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', form.action);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    if (countSelector && data.count !== undefined) {
+                        document.querySelector(countSelector).textContent = data.count + ' ' + successText + (data.count === 1 ? '' : 's');
+                    }
+                    if (btnSelector && data.liked !== undefined) {
+                        const btn = document.querySelector(btnSelector);
+                        btn.textContent = data.liked ? 'Unlike' : 'Like';
+                    }
+                    if (btnSelector && data.saved !== undefined) {
+                        const btn = document.querySelector(btnSelector);
+                        btn.textContent = data.saved ? 'Unsave' : 'Save';
+                    }
+                    if (btnSelector && data.shared !== undefined) {
+                        const btn = document.querySelector(btnSelector);
+                        btn.textContent = 'Shared!';
+                        setTimeout(() => { btn.textContent = 'Share'; }, 1500);
+                    }
+                }
+                if (formId === 'comment-box' && xhr.status === 200) {
+                    // Reload comments section
+                    window.location.reload();
+                }
+            };
+            const formData = new FormData(form);
+            xhr.send(formData);
+        });
+    }
+    ajaxForm('like-form', '.like-count', '.like-btn', 'Like');
+    ajaxForm('save-form', null, '.save-btn', 'Save');
+    ajaxForm('share-form', null, '.share-btn', 'Share');
+    ajaxForm('comment-box', null, null, '');
+});
+</script>
 <div class="max-w-xl mx-auto bg-white rounded-xl shadow mt-6">
     <!-- Author and time -->
     <div class="flex items-center gap-3 px-5 pt-5">
@@ -33,7 +79,7 @@
             <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs font-bold">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" class="w-4 h-4"><path d="M2 10a6 6 0 1112 0A6 6 0 012 10zm6-4a4 4 0 100 8 4 4 0 000-8z"/></svg>
             </span>
-            <span class="text-sm text-gray-700">{{ post.likes.count }} Like{{ post.likes.count|pluralize }}</span>
+                                <span class="like-count text-sm text-gray-700">{{ post.likes.count }} Like{{ post.likes.count|pluralize }}</span>
             <span class="ml-3 text-sm text-gray-700">{{ post.comments.count }} Comment{{ post.comments.count|pluralize }}</span>
             <span class="ml-3 text-sm text-gray-700">{{ post.shares.count }} Share{{ post.shares.count|pluralize }}</span>
         </div>
@@ -57,21 +103,34 @@
     </div>
     {% endif %}
 
-    <!-- Facebook-style actions -->
-    <div class="flex justify-around border-t border-b border-gray-100 py-2 bg-gray-50">
-        <button class="flex items-center gap-1 px-4 py-2 rounded hover:bg-blue-50 text-blue-600 font-semibold">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" class="w-5 h-5"><path d="M2 10a6 6 0 1112 0A6 6 0 012 10zm6-4a4 4 0 100 8 4 4 0 000-8z"/></svg>
-            Like
-        </button>
-        <button class="flex items-center gap-1 px-4 py-2 rounded hover:bg-blue-50 text-gray-700 font-semibold">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8a9 9 0 1118 0z"/></svg>
-            Comment
-        </button>
-        <button class="flex items-center gap-1 px-4 py-2 rounded hover:bg-blue-50 text-gray-700 font-semibold">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-            Share
-        </button>
-    </div>
+        <!-- Facebook-style actions (functional) -->
+        <div class="flex justify-around border-t border-b border-gray-100 py-2 bg-gray-50">
+            <form id="like-form" method="post" action="{% url 'activities:like_post' post.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="flex items-center gap-1 px-4 py-2 rounded hover:bg-blue-50 text-blue-600 font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" class="w-5 h-5"><path d="M2 10a6 6 0 1112 0A6 6 0 012 10zm6-4a4 4 0 100 8 4 4 0 000-8z"/></svg>
+                    Like
+                </button>
+            </form>
+            <a href="#comment-box" class="flex items-center gap-1 px-4 py-2 rounded hover:bg-blue-50 text-gray-700 font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8a9 9 0 1118 0z"/></svg>
+                Comment
+            </a>
+            <form id="share-form" method="post" action="{% url 'activities:share_post' post.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="flex items-center gap-1 px-4 py-2 rounded hover:bg-blue-50 text-gray-700 font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    Share
+                </button>
+            </form>
+            <form id="save-form" method="post" action="{% url 'activities:save_post' post.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="flex items-center gap-1 px-4 py-2 rounded hover:bg-blue-50 text-gray-700 font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Save
+                </button>
+            </form>
+        </div>
 
     <!-- Highlight reaction if coming from notification -->
     {% if reaction == 'like' %}
@@ -124,16 +183,17 @@
                 </div>
             {% endfor %}
         </div>
-        <!-- Facebook-style comment box (not functional, for UI) -->
-        <div class="flex items-center gap-2 mt-4">
-            {% if user.is_authenticated and user.profile and user.profile.profile_image %}
-                <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="w-8 h-8 rounded-full object-cover">
-            {% else %}
-                <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-8 h-8 rounded-full object-cover">
-            {% endif %}
-            <input type="text" class="flex-1 rounded-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="Write a comment..." disabled>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold opacity-60 cursor-not-allowed">Post</button>
-        </div>
+            <!-- Facebook-style comment box (functional) -->
+            <form id="comment-box" method="post" action="{% url 'activities:add_comment' post.id %}" class="flex items-center gap-2 mt-4">
+                {% csrf_token %}
+                {% if user.is_authenticated and user.profile and user.profile.profile_image %}
+                    <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="w-8 h-8 rounded-full object-cover">
+                {% else %}
+                    <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-8 h-8 rounded-full object-cover">
+                {% endif %}
+                <input name="content" type="text" class="flex-1 rounded-full border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="Write a comment..." required>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold">Post</button>
+            </form>
     </div>
 </div>
 {% endblock %}
