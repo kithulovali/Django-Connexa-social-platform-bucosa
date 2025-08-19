@@ -15,8 +15,7 @@ def send_feedback(request):
             feedback = form.save(commit=False)
             feedback.user = request.user
             feedback.save()
-            messages.success(request, 'Thank you for your feedback!')
-            return redirect('activities:feedback')
+            return redirect('users:profile')
     else:
         form = FeedbackForm()
     return render(request, 'activities/feedback.html', {'form': form})
