@@ -5,8 +5,8 @@
   <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
 </head>
 <!-- Mobile-optimized container with proper scrolling -->
-<div class="fixed inset-0 bg-gray-50">
-  <div class="flex flex-col h-full max-w-md mx-auto w-full bg-white shadow-sm">
+<div class="min-h-screen bg-gradient-to-b from-blue-50 to-white py-4 px-2 sm:px-0">
+  <div class="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
     <!-- Sticky header -->
     <div class="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center">
       <h1 class="text-xl font-bold text-gray-900">Notifications</h1>
@@ -28,7 +28,7 @@
         <div class="space-y-2">
           {% for notification in unread_notifications %}
           {% with sender=notification.sender %}
-          <div class="p-3 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors duration-150">
+          <div class="p-4 rounded-2xl bg-white shadow-md border border-gray-100 hover:shadow-lg hover:bg-blue-50/60 transition-all duration-200 flex items-center gap-4">
             {% if notification.notification_type == 'message' %}
               <a href="{% url 'users:private_messages' sender.id %}" class="block">
                 <div class="flex items-start gap-3">
@@ -149,7 +149,7 @@
         <div class="space-y-2">
           {% for notification in read_notifications %}
           {% with sender=notification.sender %}
-          <div class="p-3 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors duration-150">
+          <div class="p-4 rounded-2xl bg-white shadow border border-gray-100 hover:shadow-lg hover:bg-gray-50/60 transition-all duration-200 flex items-center gap-4">
             {% if notification.notification_type == 'message' %}
               <a href="{% url 'users:private_messages' sender.id %}" class="block">
                 <div class="flex items-start gap-3">

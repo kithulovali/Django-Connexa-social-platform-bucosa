@@ -167,15 +167,9 @@
                   {{ other_user|display_name|first|upper }}
                 </div>
               {% endif %}
-              {% if other_user.is_online %}
-                <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></div>
-              {% endif %}
             </div>
             <div>
               <h2 class="font-semibold text-white text-sm">{{ other_user|display_name }}</h2>
-              <p class="text-xs text-blue-100">
-                {% if other_user.is_online %}Online{% else %}Offline{% endif %}
-              </p>
             </div>
           </div>
         {% endif %}
