@@ -10,14 +10,40 @@ def create_notification(sender, recipient, notification_type, message='', relate
     if related_object:
         content_type = ContentType.objects.get_for_model(related_object)
         object_id = related_object.pk
-    notification = Notification.objects.create(
-        sender=sender,
-        recipient=recipient,
-        notification_type=notification_type,
-        message=message,
-        content_type=content_type,
-        object_id=object_id
-    )
+    # Group like notifications: if an unread like notification for the same post and recipient exists, update it
+    if notification_type == 'like' and content_type and object_id:
+        existing = Notification.objects.filter(
+            recipient=recipient,
+            notification_type='like',
+            content_type=content_type,
+            object_id=object_id,
+            is_read=False
+        ).first()
+        if existing:
+            # Parse current likers from message (comma-separated user ids)
+            current_likers = set(existing.message.split(',')) if existing.message else set()
+            current_likers.add(str(sender.id))
+            existing.message = ','.join(current_likers)
+            existing.save(update_fields=['message', 'timestamp'])
+            notification = existing
+        else:
+            notification = Notification.objects.create(
+                sender=sender,
+                recipient=recipient,
+                notification_type=notification_type,
+                message=str(sender.id),
+                content_type=content_type,
+                object_id=object_id
+            )
+    else:
+        notification = Notification.objects.create(
+            sender=sender,
+            recipient=recipient,
+            notification_type=notification_type,
+            message=message,
+            content_type=content_type,
+            object_id=object_id
+        )
     # Only send email for event registration
     if notification_type == 'event_registration' and recipient.email:
         subject = "Event Registration Confirmation"
