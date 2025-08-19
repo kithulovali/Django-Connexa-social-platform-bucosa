@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<head>
+    <link rel="stylesheet" href="{% static 'activities/feedback.css' %}">
+</head>
+<div class="feedback-mobile-wrapper">
+        <h2 class="feedback-title">Send Feedback</h2>
+        {% if messages %}
+                {% for message in messages %}
+                        <div class="alert alert-success feedback-alert" role="alert">
+                                {{ message }}
+                        </div>
+                {% endfor %}
+        {% endif %}
+        <form method="post" class="feedback-form-mobile">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary feedback-btn-mobile">Send Feedback</button>
+        </form>
+</div>
+
+{% endblock %}

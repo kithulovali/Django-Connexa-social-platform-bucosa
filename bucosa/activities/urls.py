@@ -2,12 +2,16 @@ app_name = 'activities'
 
 from django.urls import path 
 from . import views
+from . import views_feedback
 from django.conf.urls.static import static
 from django.conf import settings
 from users.views import analytics_dashboard
 
 urlpatterns = [
     path('announcement/create/', views.create_announcement, name='create_announcement'),
+
+    # Feedback form
+    path('feedback/', views_feedback.send_feedback, name='feedback'),
 
     path('home/' , views.home_activities , name='home'),
     path('home/fellowship/', views.home_fellowship, name='home_fellowship'),

@@ -7,6 +7,9 @@ import dj_database_url
 # Load environment variables
 load_dotenv()
 
+# Feedback feature settings
+FEEDBACK_RECEIVER_USERNAME = "goffart"
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
