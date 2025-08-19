@@ -1,23 +1,69 @@
-{% extends 'base.html' %}
-{% block content %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="{% static 'activities/feedback.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Feedback Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<div class="feedback-mobile-wrapper">
-        <h2 class="feedback-title">Send Feedback</h2>
-        {% if messages %}
-                {% for message in messages %}
-                        <div class="alert alert-success feedback-alert" role="alert">
-                                {{ message }}
-                        </div>
-                {% endfor %}
-        {% endif %}
-        <form method="post" class="feedback-form-mobile">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary feedback-btn-mobile">Send Feedback</button>
-        </form>
-</div>
+<body>
+    <div class="feedback-container">
+        <div class="feedback-header">
+            <h2>Send Feedback</h2>
+        </div>
+        
+        <div class="feedback-body">
+            <form>
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" class="form-control" placeholder="Enter your name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="your.email@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Your Feedback</label>
+                    <textarea id="message" class="form-control" placeholder="Please share your thoughts..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit">Send Feedback</button>
+                
+                <p class="footer-note">We appreciate your feedback and will respond soon</p>
+            </form>
+        </div>
+    </div>
 
-{% endblock %}
+    <script>
+        // Simple form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+            
+            if (!name || !email || !message) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            // Form is valid - in a real app, you would submit to a server here
+            alert('Thank you for your feedback!');
+            this.reset();
+        });
+        
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+</body>
+</html>
