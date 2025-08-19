@@ -8,7 +8,6 @@ import dj_database_url
 load_dotenv()
 
 # Feedback feature settings
-FEEDBACK_RECEIVER_USERNAME = "goffart"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
