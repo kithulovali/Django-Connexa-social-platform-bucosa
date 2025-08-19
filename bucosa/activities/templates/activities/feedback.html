@@ -1,69 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Feedback Form</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <div class="feedback-container">
-        <div class="feedback-header">
-            <h2>Send Feedback</h2>
-        </div>
-        
-        <div class="feedback-body">
-            <form>
-                <div class="form-group">
-                    <label for="name">Your Name</label>
-                    <input type="text" id="name" class="form-control" placeholder="Enter your name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" class="form-control" placeholder="your.email@example.com">
-                </div>
-                
-                <div class="form-group">
-                    <label for="message">Your Feedback</label>
-                    <textarea id="message" class="form-control" placeholder="Please share your thoughts..."></textarea>
-                </div>
-                
-                <button type="submit" class="btn-submit">Send Feedback</button>
-                
-                <p class="footer-note">We appreciate your feedback and will respond soon</p>
-            </form>
-        </div>
-    </div>
+{% extends "base.html" %}
+{% block content %}
+<div class="h-screen bg-white flex flex-col">
+  <!-- Header -->
+  <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center sticky top-0 z-10">
+    <h2 class="text-lg font-semibold text-gray-800">Feedback</h2>
+  </div>
 
-    <script>
-        // Simple form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-            
-            if (!name || !email || !message) {
-                alert('Please fill in all fields');
-                return;
-            }
-            
-            if (!isValidEmail(email)) {
-                alert('Please enter a valid email address');
-                return;
-            }
-            
-            // Form is valid - in a real app, you would submit to a server here
-            alert('Thank you for your feedback!');
-            this.reset();
-        });
-        
-        function isValidEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-    </script>
-</body>
-</html>
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto divide-y divide-gray-200">
+    <form method="post" class="px-6 py-4 space-y-3">
+      {% csrf_token %}
+      <textarea name="message" rows="4"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder="Write your feedback here..."></textarea>
+      <button type="submit"
+        class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">
+        Submit Feedback
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
