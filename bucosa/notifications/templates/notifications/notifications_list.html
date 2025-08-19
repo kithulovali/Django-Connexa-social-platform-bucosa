@@ -100,7 +100,7 @@
                 {% endif %}
               </div>
             {% else %}
-              <a href="{% url 'activities:post_detail' notification.object_id %}" class="block">
+              <a href="{% url 'activities:post_detail' notification.object_id %}{% if notification.notification_type == 'like' %}?reaction=like{% elif notification.notification_type == 'comment' %}?reaction=comment&comment_id={{ notification.object_id }}{% elif notification.notification_type == 'save' %}?reaction=save{% elif notification.notification_type == 'share' %}?reaction=share{% endif %}" class="block">
                 <div class="flex items-start gap-3">
                   <a href="{% url 'users:profile' sender.id %}" class="flex-shrink-0">
                     {% if sender.profile.profile_image %}
@@ -226,7 +226,7 @@
                 {% endif %}
               </div>
             {% else %}
-              <a href="{% url 'activities:post_detail' notification.object_id %}" class="block">
+              <a href="{% url 'activities:post_detail' notification.object_id %}{% if notification.notification_type == 'like' %}?reaction=like{% elif notification.notification_type == 'comment' %}?reaction=comment&comment_id={{ notification.object_id }}{% elif notification.notification_type == 'save' %}?reaction=save{% elif notification.notification_type == 'share' %}?reaction=share{% endif %}" class="block">
                 <div class="flex items-start gap-3">
                   <a href="{% url 'users:profile' sender.id %}" class="flex-shrink-0">
                     {% if sender.profile.profile_image %}

@@ -730,10 +730,13 @@ def post_detail(request, pk):
                    ),
         id=pk
     )
-    
+    reaction = request.GET.get('reaction')
+    comment_id = request.GET.get('comment_id')
     return render(request, 'activities/post_detail.html', {
         'post': post,
-        'comments': post.comments.all()[:100]  # Limit to 100 comments
+        'comments': post.comments.all()[:100],  # Limit to 100 comments
+        'reaction': reaction,
+        'comment_id': comment_id,
     })
 
 @login_required
