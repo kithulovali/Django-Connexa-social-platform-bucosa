@@ -35,15 +35,13 @@
             <a href="{% url 'users:private_messages' sender.id %}" class="block">
               <div class="p-3 rounded-xl bg-blue-50/50 border border-blue-100 transition-all duration-200 hover:bg-blue-100 cursor-pointer">
                 <div class="flex items-start gap-3">
-                  <a href="{% url 'users:profile' sender.id %}" class="flex-shrink-0">
-                    {% if sender.profile.profile_image %}
-                      <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200">
-                    {% else %}
-                      <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                        {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                      </div>
-                    {% endif %}
-                  </a>
+                  {% if sender.profile.profile_image %}
+                    <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200">
+                  {% else %}
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
+                      {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
+                    </div>
+                  {% endif %}
                   <div class="flex-1 min-w-0">
                     <div class="font-semibold text-gray-900">
                       {% if sender.first_name or sender.last_name %}
@@ -106,15 +104,13 @@
             <a href="{% url 'activities:post_detail' notification.object_id %}{% if notification.notification_type == 'like' %}?reaction=like{% elif notification.notification_type == 'comment' %}?reaction=comment&comment_id={{ notification.object_id }}{% elif notification.notification_type == 'save' %}?reaction=save{% elif notification.notification_type == 'share' %}?reaction=share{% endif %}" class="block">
               <div class="p-3 rounded-xl bg-blue-50/50 border border-blue-100 transition-all duration-200 hover:bg-blue-100 cursor-pointer">
                 <div class="flex items-start gap-3">
-                  <a href="{% url 'users:profile' sender.id %}" class="flex-shrink-0">
-                    {% if sender.profile.profile_image %}
-                      <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200">
-                    {% else %}
-                      <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                        {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                      </div>
-                    {% endif %}
-                  </a>
+                  {% if sender.profile.profile_image %}
+                    <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200">
+                  {% else %}
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
+                      {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
+                    </div>
+                  {% endif %}
                   <div class="flex-1 min-w-0">
                     <div class="font-semibold text-gray-900">
                       {% if sender.first_name or sender.last_name %}
