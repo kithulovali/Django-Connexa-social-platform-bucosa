@@ -1,31 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="h-screen bg-white flex flex-col">
-  <!-- Header -->
   <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center sticky top-0 z-10">
     <h2 class="text-lg font-semibold text-gray-800">Edit Profile</h2>
   </div>
 
-  <!-- Scrollable Content -->
-  <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+  <div class="flex-1 overflow-y-auto divide-y divide-gray-200 px-6 py-4">
     <form method="post" enctype="multipart/form-data" class="space-y-4">
       {% csrf_token %}
-
       {% for field in profile_form %}
-      <div class="space-y-1">
-        <label class="block text-sm font-medium text-gray-800">{{ field.label_tag }}</label>
-        {{ field }}
-        {% if field.help_text %}
-          <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
-        {% endif %}
-        {% for error in field.errors %}
-          <p class="text-xs text-red-500 mt-1">{{ error }}</p>
-        {% endfor %}
-      </div>
+        <div class="space-y-1">
+          <label class="block text-sm font-medium text-gray-800">{{ field.label_tag }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+          {% endif %}
+          {% for error in field.errors %}
+            <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+          {% endfor %}
+        </div>
       {% endfor %}
-
-      <button type="submit"
-        class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">
+      <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">
         Save Changes
       </button>
     </form>
