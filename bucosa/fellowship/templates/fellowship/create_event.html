@@ -1,57 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 flex flex-col">
+<div class="min-h-screen bg-white flex flex-col">
   <!-- Header -->
-  <div class="bg-blue-600 px-4 py-4 flex items-center sticky top-0 z-10 shadow-sm">
+  <div class="bg-blue-600 px-4 py-4 flex items-center sticky top-0 z-10">
     <svg class="w-5 h-5 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
     </svg>
     <h2 class="text-lg font-semibold text-white">Create Event</h2>
   </div>
 
   <!-- Content Form -->
   <div class="flex-1 bg-white">
-    <form method="post" enctype="multipart/form-data" class="h-full flex flex-col">
+    <form method="post" enctype="multipart/form-data" class="h-full">
       {% csrf_token %}
       
-      <div class="flex-1 overflow-y-auto">
-        {% for field in form %}
-        <div class="border-b border-gray-100 p-4">
-          <label class="block text-sm font-medium text-blue-700 mb-3">{{ field.label_tag }}</label>
-          
-          {% if field.name == "event_image" %}
-            <!-- File input styling -->
-            <label class="flex items-center justify-center w-full h-12 px-4 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-              <span class="text-gray-600 text-sm">Choose File</span>
+      {% for field in form %}
+      <div class="px-4 py-3 {% if not forloop.last %}border-b border-gray-100{% endif %}">
+        <label class="block text-sm font-medium text-blue-600 mb-2">{{ field.label_tag }}</label>
+        
+        {% if field.name == "event_image" %}
+          <!-- File input styling -->
+          <div class="flex items-center">
+            <label class="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700">
+              Choose File
               {{ field|add_class:"hidden" }}
             </label>
-            <span class="text-gray-500 text-xs mt-1 block">No file chosen</span>
-          {% elif field|add_class:"textarea" %}
-            <!-- Textarea styling -->
-            {{ field|add_class:"w-full px-0 py-2 border-0 resize-none focus:outline-none text-gray-900 placeholder-gray-400 bg-transparent" }}
-          {% else %}
-            <!-- Normal input styling -->
-            {{ field|add_class:"w-full px-0 py-3 border-0 focus:outline-none text-gray-900 placeholder-gray-400 bg-transparent" }}
-          {% endif %}
-          
-          {% if field.help_text %}
-            <p class="text-xs text-gray-500 mt-2">{{ field.help_text }}</p>
-          {% endif %}
-          {% for error in field.errors %}
-            <p class="text-xs text-red-500 mt-2">{{ error }}</p>
-          {% endfor %}
-        </div>
+            <span class="text-gray-500 text-sm ml-3">No file chosen</span>
+          </div>
+        {% elif field|add_class:"textarea" %}
+          <!-- Textarea styling -->
+          {{ field|add_class:"w-full px-0 py-2 border-0 resize-none focus:outline-none text-gray-900 placeholder-gray-500 bg-white" }}
+        {% else %}
+          <!-- Normal input styling -->
+          {{ field|add_class:"w-full px-0 py-3 border-0 focus:outline-none text-gray-900 placeholder-gray-500 bg-white" }}
+        {% endif %}
+        
+        {% if field.help_text %}
+          <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+        {% endif %}
+        {% for error in field.errors %}
+          <p class="text-xs text-red-500 mt-1">{{ error }}</p>
         {% endfor %}
       </div>
+      {% endfor %}
 
       <!-- Submit Button -->
-      <div class="p-4 mt-auto border-t border-gray-100">
+      <div class="p-4 mt-auto">
         <button 
           type="submit"
-          class="w-full py-4 bg-blue-600 text-white font-semibold rounded-lg flex items-center justify-center active:bg-blue-700"
+          class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg active:bg-blue-700 flex items-center justify-center"
         >
-          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
           Create Event
