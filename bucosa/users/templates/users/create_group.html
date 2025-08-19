@@ -1,35 +1,60 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block content %}
-<div class="h-screen bg-white flex flex-col">
-  <!-- Header -->
-  <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center sticky top-0 z-10">
-    <h2 class="text-lg font-semibold text-gray-800">Create Group</h2>
-  </div>
+<div class="min-h-screen flex flex-col items-center justify-center bg-white py-10 px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-md">
+    <!-- Create Group Card with Glass Effect -->
+    <div class="bg-white/90 rounded-xl shadow-2xl border border-indigo-200/50 overflow-hidden backdrop-blur-sm">
+      <!-- Header with Semi-Transparent Background -->
+      <div class="bg-indigo-600/90 px-6 py-5 border-b border-indigo-300/30">
+        <div class="flex items-center justify-center space-x-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <h2 class="text-xl font-bold text-white">Create New Group</h2>
+        </div>
+      </div>
 
-  <!-- Content -->
-  <div class="flex-1 overflow-y-auto px-6 py-4 space-y-3">
-    <form method="post" enctype="multipart/form-data" class="space-y-4">
-      {% csrf_token %}
-      <input type="text" name="name" placeholder="Group Name"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-
-      <textarea name="description" rows="4" placeholder="Group Description"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
-
-      <input type="file" name="cover_image"
-        class="w-full text-gray-600 text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
-
-      <select name="privacy"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-        <option value="public">Public</option>
-        <option value="private">Private</option>
-      </select>
-
-      <button type="submit"
-        class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg">
-        Create Group
-      </button>
-    </form>
+      <!-- Form Content -->
+      <form method="post" class="px-6 py-6 space-y-4">
+        {% csrf_token %}
+        
+        <!-- Group Form Fields -->
+        {% for field in group_form %}
+          <div class="space-y-1">
+            <label class="block font-medium text-indigo-800 text-sm">{{ field.label_tag }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <p class="text-xs text-gray-600 mt-1">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="text-xs text-red-500 mt-1 font-medium">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        
+        <!-- Profile Form Fields -->
+        {% for field in profile_form %}
+          <div class="space-y-1">
+            <label class="block font-medium text-indigo-800 text-sm">{{ field.label_tag }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <p class="text-xs text-gray-600 mt-1">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="text-xs text-red-500 mt-1 font-medium">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        
+        <!-- Submit Button -->
+        <button type="submit" class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg transition-all flex items-center justify-center space-x-2 shadow-md hover:shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="font-medium">Create Group</span>
+        </button>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}

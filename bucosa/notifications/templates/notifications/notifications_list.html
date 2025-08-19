@@ -9,9 +9,9 @@
 
 <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white">
   <!-- Main container with proper scrolling behavior -->
-  <div class="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden h-screen flex flex-col">
-    <!-- Sticky header optimized for mobile -->
-    <div class="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center">
+  <div class="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden h-screen flex flex-col">
+    <!-- Sticky header -->
+    <div class="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold text-gray-900">Notifications</h1>
       <form id="mark-read-form" method="post" action="{% url 'notifications:mark_notifications_read' %}">
         {% csrf_token %}
@@ -21,305 +21,69 @@
       </form>
     </div>
 
-    <!-- Notification content with proper scrolling behavior -->
+    <!-- Notifications list -->
     <div class="flex-1 overflow-y-auto overscroll-contain" id="notification-container">
+
       <!-- Unread Section -->
-      <div class="px-4 py-3">
-        {% if unread_notifications %}
+      {% if unread_notifications %}
+      <div class="px-6 py-4">
         <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Recent</div>
-        
-        <!-- Recent Notifications -->
         <div class="space-y-3">
           {% for notification in unread_notifications %}
-          {% with sender=notification.sender %}
-          {% if notification.notification_type == 'message' %}
-            <a href="{% url 'users:private_messages' sender.id %}" class="block">
-              <div class="p-3 rounded-xl bg-blue-50/50 border border-blue-100 transition-all duration-200 hover:bg-blue-100 cursor-pointer">
-                <div class="flex items-start gap-3">
-                  {% if sender.profile.profile_image %}
-                    <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200">
-                  {% else %}
-                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                      {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                    </div>
-                  {% endif %}
-                  <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-gray-900">
-                      {% if sender.first_name or sender.last_name %}
-                        {{ sender.first_name }} {{ sender.last_name }}
-                      {% else %}
-                        {{ sender.email }}
-                      {% endif %}
-                      <span class="font-normal">sent you a message</span>
-                    </div>
-                    {% if notification.content_object and notification.content_object.content %}
-                      <div class="text-gray-600 text-sm mt-1">{{ notification.content_object.content|truncatechars:60 }}</div>
-                    {% endif %}
-                    <div class="text-xs text-blue-500 mt-1">{{ notification.timestamp|timesince }} ago</div>
-                  </div>
-                  <div class="ml-2 flex-shrink-0 self-center">
-                    <span class="inline-flex items-center justify-center h-3 w-3 rounded-full bg-blue-500"></span>
-                  </div>
-                </div>
-              </div>
-            </a>
-          {% elif notification.notification_type == 'follow' %}
-            <div class="group">
-              <a href="{% url 'users:profile' sender.id %}" class="block">
-                <div class="p-3 rounded-xl bg-blue-50/50 border border-blue-100 transition-all duration-200 hover:bg-blue-100 cursor-pointer">
-                  <div class="flex items-start gap-3">
-                    {% if sender.profile.profile_image %}
-                      <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200">
-                    {% else %}
-                      <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                        {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                      </div>
-                    {% endif %}
-                    <div class="flex-1 min-w-0">
-                      <div class="font-semibold text-gray-900">
-                        {% if sender.first_name or sender.last_name %}
-                          {{ sender.first_name }} {{ sender.last_name }}
-                        {% else %}
-                          {{ sender.email }}
-                        {% endif %}
-                        <span class="font-normal">followed you</span>
-                      </div>
-                      <div class="text-xs text-blue-500 mt-1">{{ notification.timestamp|timesince }} ago</div>
-                    </div>
-                    {% if request.user != sender %}
-                      <div class="ml-2 flex-shrink-0 self-center" onclick="event.stopPropagation()">
-                        {% if sender.id not in followed_user_ids %}
-                          <a href="{% url 'users:follow_user' sender.id %}" class="text-xs px-3 py-1.5 rounded-full bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 transition-colors">
-                            Follow back
-                          </a>
-                        {% else %}
-                          <a href="{% url 'users:unfollow_user' sender.id %}" class="text-xs px-3 py-1.5 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 active:bg-gray-400 transition-colors">
-                            Following
-                          </a>
-                        {% endif %}
-                      </div>
-                    {% endif %}
-                  </div>
-                </div>
-              </a>
-            </div>
-          {% else %}
-            <a href="{% url 'activities:post_detail' notification.object_id %}{% if notification.notification_type == 'like' %}?reaction=like{% elif notification.notification_type == 'comment' %}?reaction=comment&comment_id={{ notification.object_id }}{% elif notification.notification_type == 'save' %}?reaction=save{% elif notification.notification_type == 'share' %}?reaction=share{% endif %}" class="block">
-              <div class="p-3 rounded-xl bg-blue-50/50 border border-blue-100 transition-all duration-200 hover:bg-blue-100 cursor-pointer">
-                <div class="flex items-start gap-3">
-                  {% if sender.profile.profile_image %}
-                    <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200">
-                  {% else %}
-                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                      {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                    </div>
-                  {% endif %}
-                  <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-gray-900">
-                      {% if notification.notification_type == 'like' and notification.message %}
-                        {% with liker_ids=notification.message|split:',' %}
-                          {% with total=liker_ids|length %}
-                            {% for liker_id in liker_ids|slice:":2" %}
-                              {% with liker=liker_id|user_by_id %}
-                                {{ liker.get_full_name|default:liker.username }}{% if not forloop.last and total > 2 %}, {% endif %}
-                              {% endwith %}
-                            {% endfor %}
-                            {% if total > 2 %}and {{ total|add:"-2" }} others{% endif %}
-                          {% endwith %}
-                        {% endwith %}
-                        <span class="font-normal">liked your post</span>
-                      {% else %}
-                        {% if sender.first_name or sender.last_name %}
-                          {{ sender.first_name }} {{ sender.last_name }}
-                        {% else %}
-                          {{ sender.email }}
-                        {% endif %}
-                        <span class="font-normal">
-                          {% if notification.notification_type == 'like' %}
-                            liked your post
-                          {% elif notification.notification_type == 'comment' %}
-                            commented on your post
-                          {% elif notification.notification_type == 'share' %}
-                            shared your post
-                          {% endif %}
-                        </span>
-                      {% endif %}
-                    </div>
-                    {% if notification.content_object and notification.content_object.content %}
-                      <div class="text-gray-600 text-sm mt-1">{{ notification.content_object.content|truncatechars:60 }}</div>
-                    {% endif %}
-                    <div class="text-xs text-blue-500 mt-1">{{ notification.timestamp|timesince }} ago</div>
-                  </div>
-                  <div class="ml-2 flex-shrink-0 self-center">
-                    <span class="inline-flex items-center justify-center h-3 w-3 rounded-full bg-blue-500"></span>
-                  </div>
-                </div>
-              </div>
-            </a>
-          {% endif %}
-          {% endwith %}
+            {% include 'notifications/notification_item.html' with notification=notification unread=True %}
           {% endfor %}
         </div>
-        {% endif %}
       </div>
-
-      <!-- Divider -->
-      {% if unread_notifications and read_notifications %}
-      <div class="border-t border-gray-200 mx-4"></div>
       {% endif %}
 
-      <!-- Earlier Section -->
-      <div class="px-4 py-3">
-        {% if read_notifications %}
+      <!-- Divider between unread and read -->
+      {% if unread_notifications and read_notifications %}
+      <div class="border-t border-gray-300 mx-6"></div>
+      {% endif %}
+
+      <!-- Read Section -->
+      {% if read_notifications %}
+      <div class="px-6 py-4">
         <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Earlier</div>
-        
-        <!-- Earlier Notifications -->
         <div class="space-y-3">
           {% for notification in read_notifications %}
-          {% with sender=notification.sender %}
-          {% if notification.notification_type == 'message' %}
-            <a href="{% url 'users:private_messages' sender.id %}" class="block">
-              <div class="p-3 rounded-xl bg-white border border-gray-100 hover:bg-gray-50 transition-all duration-200">
-                <div class="flex items-start gap-3">
-                  {% if sender.profile.profile_image %}
-                    <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
-                  {% else %}
-                    <div class="w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                      {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                    </div>
-                  {% endif %}
-                  <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-gray-900">
-                      {% if sender.first_name or sender.last_name %}
-                        {{ sender.first_name }} {{ sender.last_name }}
-                      {% else %}
-                        {{ sender.email }}
-                      {% endif %}
-                      <span class="font-normal">sent you a message</span>
-                    </div>
-                    {% if notification.content_object and notification.content_object.content %}
-                      <div class="text-gray-600 text-sm mt-1">{{ notification.content_object.content|truncatechars:60 }}</div>
-                    {% endif %}
-                    <div class="text-xs text-gray-400 mt-1">{{ notification.timestamp|timesince }} ago</div>
-                  </div>
-                </div>
-              </div>
-            </a>
-          {% elif notification.notification_type == 'follow' %}
-            <div class="group">
-              <a href="{% url 'users:profile' sender.id %}" class="block">
-                <div class="p-3 rounded-xl bg-white border border-gray-100 hover:bg-gray-50 transition-all duration-200">
-                  <div class="flex items-start gap-3">
-                    {% if sender.profile.profile_image %}
-                      <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
-                    {% else %}
-                      <div class="w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                        {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                      </div>
-                    {% endif %}
-                    <div class="flex-1 min-w-0">
-                      <div class="font-semibold text-gray-900">
-                        {% if sender.first_name or sender.last_name %}
-                          {{ sender.first_name }} {{ sender.last_name }}
-                        {% else %}
-                          {{ sender.email }}
-                        {% endif %}
-                        <span class="font-normal">followed you</span>
-                      </div>
-                      <div class="text-xs text-gray-400 mt-1">{{ notification.timestamp|timesince }} ago</div>
-                    </div>
-                    {% if request.user != sender %}
-                      <div class="ml-2 flex-shrink-0 self-center" onclick="event.stopPropagation()">
-                        {% if sender.id not in followed_user_ids %}
-                          <a href="{% url 'users:follow_user' sender.id %}" class="text-xs px-3 py-1.5 rounded-full bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 transition-colors">
-                            Follow back
-                          </a>
-                        {% else %}
-                          <a href="{% url 'users:unfollow_user' sender.id %}" class="text-xs px-3 py-1.5 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 active:bg-gray-400 transition-colors">
-                            Following
-                          </a>
-                        {% endif %}
-                      </div>
-                    {% endif %}
-                  </div>
-                </div>
-              </a>
-            </div>
-          {% else %}
-            <a href="{% url 'activities:post_detail' notification.object_id %}{% if notification.notification_type == 'like' %}?reaction=like{% elif notification.notification_type == 'comment' %}?reaction=comment&comment_id={{ notification.object_id }}{% elif notification.notification_type == 'save' %}?reaction=save{% elif notification.notification_type == 'share' %}?reaction=share{% endif %}" class="block">
-              <div class="p-3 rounded-xl bg-white border border-gray-100 hover:bg-gray-50 transition-all duration-200">
-                <div class="flex items-start gap-3">
-                  {% if sender.profile.profile_image %}
-                    <img src="{{ sender.profile.profile_image.url }}" alt="{% if sender.first_name or sender.last_name %}{{ sender.first_name }} {{ sender.last_name }}{% else %}{{ sender.email }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
-                  {% else %}
-                    <div class="w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                      {% if sender.first_name %}{{ sender.first_name|first|upper }}{% elif sender.last_name %}{{ sender.last_name|first|upper }}{% else %}{{ sender.email|first|upper }}{% endif %}
-                    </div>
-                  {% endif %}
-                  <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-gray-900">
-                      {% if sender.first_name or sender.last_name %}
-                        {{ sender.first_name }} {{ sender.last_name }}
-                      {% else %}
-                        {{ sender.email }}
-                      {% endif %}
-                      <span class="font-normal">
-                        {% if notification.notification_type == 'like' %}
-                          liked your post
-                        {% elif notification.notification_type == 'comment' %}
-                          commented on your post
-                        {% elif notification.notification_type == 'share' %}
-                          shared your post
-                        {% endif %}
-                      </span>
-                    </div>
-                    {% if notification.content_object and notification.content_object.content %}
-                      <div class="text-gray-600 text-sm mt-1">{{ notification.content_object.content|truncatechars:60 }}</div>
-                    {% endif %}
-                    <div class="text-xs text-gray-400 mt-1">{{ notification.timestamp|timesince }} ago</div>
-                  </div>
-                </div>
-              </div>
-            </a>
-          {% endif %}
-          {% endwith %}
+            {% include 'notifications/notification_item.html' with notification=notification unread=False %}
           {% endfor %}
         </div>
-        {% else %}
-          {% if not unread_notifications %}
-          <div class="flex flex-col items-center justify-center h-64 text-center">
-            <div class="text-gray-400 mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-            </div>
-            <p class="text-gray-500 text-sm">No notifications yet</p>
-          </div>
-          {% endif %}
-        {% endif %}
       </div>
+      {% else %}
+        {% if not unread_notifications %}
+        <div class="flex flex-col items-center justify-center h-64 text-center">
+          <div class="text-gray-400 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </div>
+          <p class="text-gray-500 text-sm">No notifications yet</p>
+        </div>
+        {% endif %}
+      {% endif %}
+
     </div>
   </div>
 </div>
 
 <script>
-  // Prevent default body scrolling and enable native-like scrolling for notifications
+  // Prevent body scrolling
   document.body.style.overflow = 'hidden';
-  
-  // Add momentum scrolling for iOS
   const container = document.getElementById('notification-container');
   container.style.webkitOverflowScrolling = 'touch';
-  
-  // Improved AJAX mark all as read with better feedback
+
+  // AJAX: Mark all as read
   document.getElementById('mark-read-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const button = e.target.querySelector('button');
     const originalText = button.textContent;
-    
+
     button.disabled = true;
     button.textContent = 'Marking...';
     button.classList.add('opacity-75');
-    
+
     fetch(this.action, {
       method: 'POST',
       headers: {
@@ -336,7 +100,6 @@
           button.textContent = originalText;
           button.disabled = false;
           button.classList.remove('opacity-75');
-          // Remove unread indicators and change background
           document.querySelectorAll('.bg-blue-50\\/50').forEach(el => {
             el.classList.remove('bg-blue-50/50', 'border-blue-100');
             el.classList.add('bg-white', 'border-gray-100');
@@ -355,5 +118,4 @@
     });
   });
 </script>
-
 {% endblock %}
