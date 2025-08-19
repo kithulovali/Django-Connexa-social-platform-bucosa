@@ -3,6 +3,9 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .models import Notification
 from users.utils import get_display_name
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+import json
 
 def create_notification(sender, recipient, notification_type, message='', related_object=None):
     content_type = None
@@ -55,6 +58,28 @@ def create_notification(sender, recipient, notification_type, message='', relate
             [recipient.email],
             fail_silently=True,
         )
+    # Real-time push via Django Channels
+    try:
+        channel_layer = get_channel_layer()
+        group_name = f"notifications_{recipient.id}"
+        notif_data = {
+            'id': notification.id,
+            'sender': sender.username,
+            'message': message,
+            'notification_type': notification_type,
+            'timestamp': str(notification.timestamp),
+            'object_id': notification.object_id,
+            'url': None,  # Optionally add a URL for the notification
+        }
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                'type': 'send_notification',
+                'notification': notif_data
+            }
+        )
+    except Exception as e:
+        pass  # Optionally log error
     return notification
 
 def send_custom_notification_email(notification, recipient):
