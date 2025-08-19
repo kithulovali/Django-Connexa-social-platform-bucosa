@@ -341,7 +341,7 @@ def create_event(request, group_id=None):
             
             return redirect('group_profile', pk=group.id) if group else redirect('users:profile', pk=request.user.id)
     else:
-        form
+        form = EventForm()
 
     return render(request, 'activities/create_event.html', {
         'form': form,

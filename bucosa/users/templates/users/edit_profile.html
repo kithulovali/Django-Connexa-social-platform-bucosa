@@ -14,22 +14,12 @@
           <h2 class="text-xl font-bold text-white">Create Your Profile</h2>
         </div>
       </div>
-
-      <!-- Messages -->
-      {% if messages %}
-        <div class="px-6 pt-4">
-          {% for message in messages %}
-            <p class="text-red-500 text-sm font-medium">{{ message }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
-
       <!-- Form -->
       <form method="post" enctype="multipart/form-data" class="px-6 py-6 space-y-4">
         {% csrf_token %}
         {{ form.non_field_errors }}
         {% for field in form %}
-          {% if field.name != 'user_type' %}
+          {% if field.name != 'user_type' and field.name != 'username' %}
           <div class="space-y-1">
             <label class="block font-medium text-green-800 text-sm">{{ field.label_tag }}</label>
             {% if field.field.widget.input_type == 'textarea' %}
