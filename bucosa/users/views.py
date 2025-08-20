@@ -378,7 +378,7 @@ def profile_user(request, pk):
 
     # Prefetch all related data in optimized queries
     posts_prefetch = Prefetch(
-        'posts',
+        'post_set',
         queryset=Post.objects.select_related('author').order_by('-created_at')[:20],
         to_attr='prefetched_posts'
     )
@@ -411,7 +411,7 @@ def profile_user(request, pk):
     ).annotate(
         followers_count=Count('followers', distinct=True),
         following_count=Count('following', distinct=True),
-        posts_count=Count('posts', distinct=True),
+        posts_count=Count('post_set', distinct=True),
         is_following=Exists(
             user_following.objects.filter(
                 user_id=auth_user_id,
@@ -878,7 +878,7 @@ def analytics_dashboard(request):
 
     # User stats - Use annotations for efficiency
     user_stats = User.objects.filter(id=user.id).annotate(
-        post_count=Count('posts'),
+        post_count=Count('post_set'),
         event_count=Count('event_set'),
         followers_count=Count('followers'),
         following_count=Count('following')
