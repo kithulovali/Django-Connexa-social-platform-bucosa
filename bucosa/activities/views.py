@@ -21,7 +21,17 @@ from .models import Announcement
 from django.core.mail import send_mail
 from django.conf import settings
 from django import forms
-
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.conf import settings
+from .models import Announcement, User
+from .forms import AnnouncementForm
+from notifications.utils import create_notification
 # Announcement form
 class AnnouncementForm(forms.ModelForm):
     class Meta:
@@ -31,6 +41,9 @@ class AnnouncementForm(forms.ModelForm):
             'image': forms.FileInput(attrs={'class': 'file-input'}),
         }
 
+# views.py
+
+
 @login_required
 def create_announcement(request):
     # Only allow superusers
@@ -39,13 +52,15 @@ def create_announcement(request):
             return JsonResponse({'success': False, 'errors': 'You do not have permission to send announcements.'})
         messages.error(request, 'You do not have permission to send announcements.')
         return redirect('activities:home')
+    
     if request.method == 'POST':
         form = AnnouncementForm(request.POST, request.FILES)
         if form.is_valid():
             announcement = form.save(commit=False)
             announcement.sender = request.user
             announcement.save()
-            # Send notifications and emails synchronously
+            
+            # Send notifications and emails
             users = User.objects.exclude(id=announcement.sender.id)
             for user in users:
                 # In-app notification
@@ -56,15 +71,130 @@ def create_announcement(request):
                     message=f"{announcement.title}: {announcement.message}",
                     related_object=announcement
                 )
+                
                 # Email notification
                 if user.email:
-                    send_mail(
+                    # Generate HTML email content directly in code
+                    html_content = f"""
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <style>
+                            body {{
+                                font-family: Arial, sans-serif;
+                                line-height: 1.6;
+                                color: #333;
+                                max-width: 600px;
+                                margin: 0 auto;
+                                padding: 20px;
+                            }}
+                            .header {{
+                                background-color: #2563eb;
+                                color: white;
+                                padding: 20px;
+                                text-align: center;
+                                border-radius: 5px 5px 0 0;
+                            }}
+                            .content {{
+                                padding: 20px;
+                                background-color: #f9fafb;
+                                border: 1px solid #e5e7eb;
+                                border-top: none;
+                                border-radius: 0 0 5px 5px;
+                            }}
+                            .announcement-image {{
+                                max-width: 100%;
+                                height: auto;
+                                margin: 15px 0;
+                                border-radius: 5px;
+                            }}
+                            .footer {{
+                                margin-top: 20px;
+                                padding-top: 20px;
+                                border-top: 1px solid #e5e7eb;
+                                font-size: 12px;
+                                color: #6b7280;
+                            }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>New Announcement: {announcement.title}</h1>
+                        </div>
+                        
+                        <div class="content">
+                            <p>Hello {user.first_name},</p>
+                            
+                            <p>{announcement.message.replace(chr(10), '<br>').replace(chr(13), '<br>')}</p>
+                    """
+                    
+                    # Add image section if image exists
+                    if announcement.image:
+                        image_name = announcement.image.name.split('/')[-1]
+                        html_content += f"""
+                            <div class="image-container">
+                                <img src="cid:{image_name}" alt="Announcement Image" class="announcement-image">
+                            </div>
+                        """
+                    
+                    # Add footer
+                    html_content += f"""
+                            <div class="footer">
+                                <p>This announcement was sent by {announcement.sender.get_full_name()} on {announcement.created_at.strftime('%B %d, %Y')}.</p>
+                                <p>Please do not reply to this automated message.</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    """
+                    
+                    text_content = strip_tags(html_content)  # Fallback text version
+                    
+                    # Create email
+                    email = EmailMultiAlternatives(
                         f"New Announcement: {announcement.title}",
-                        announcement.message,
+                        text_content,
                         settings.DEFAULT_FROM_EMAIL,
                         [user.email],
-                        fail_silently=True,
                     )
+                    
+                    # Attach HTML content
+                    email.attach_alternative(html_content, "text/html")
+                    
+                    # Attach image if exists
+                    if announcement.image:
+                        # Get the image path and read the file
+                        image_path = announcement.image.path
+                        with open(image_path, 'rb') as img_file:
+                            image_data = img_file.read()
+                        
+                        # Determine content type based on file extension
+                        image_name = announcement.image.name.split('/')[-1]
+                        if image_name.lower().endswith('.png'):
+                            content_type = 'image/png'
+                        elif image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg'):
+                            content_type = 'image/jpeg'
+                        elif image_name.lower().endswith('.gif'):
+                            content_type = 'image/gif'
+                        else:
+                            content_type = 'image/jpeg'  # Default
+                        
+                        # Add image as attachment with content ID for embedding
+                        email.attach(
+                            image_name, 
+                            image_data, 
+                            content_type
+                        )
+                        # Set Content-ID header for embedding in HTML
+                        email.extra_headers[f'Content-ID'] = f'<{image_name}>'
+                    
+                    # Send email
+                    try:
+                        email.send(fail_silently=True)
+                    except Exception as e:
+                        print(f"Error sending email: {e}")
+            
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'message': 'Announcement sent to all users!'})
             messages.success(request, 'Announcement sent to all users!')
@@ -95,6 +225,9 @@ def home_activities(request):
                         .prefetch_related('likes', 'comments__author')\
                         .exclude(is_welcome_post=True, created_at__lt=now - timezone.timedelta(hours=24))\
                         .order_by('-created_at')[:20] # Limit initial posts
+    
+    # Fetch announcements
+    announcements = Announcement.objects.select_related('sender').order_by('-created_at')[:10]
     
     # Get all discovery items
     events = list(Event.objects.filter(group__isnull=True, start_time__gte=timezone.now())\
@@ -141,6 +274,13 @@ def home_activities(request):
     # --- 2. Interleave the content for the main feed ---
     
     combined_feed = []
+    
+    # Add announcements to the feed (show them first)
+    for announcement in announcements:
+        combined_feed.append({
+            'type': 'announcement',
+            'data': announcement
+        })
     
     # Convert all posts to a list
     posts_list = list(posts)
@@ -888,3 +1028,4 @@ def latest_announcements(request):
         })
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request'})
+
