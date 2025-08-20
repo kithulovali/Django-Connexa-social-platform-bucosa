@@ -914,7 +914,6 @@ def analytics_dashboard(request):
             group = group_profile.group
             group_stats.append({
                 'name': group.name,
-                'posts': group.posts.count(),
                 'events': group.event_set.count(),
                 'members': group.user_set.count(),
             })
