@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+<head>
+  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+</head>
 <div class="min-h-screen bg-gray-50">
   <!-- App Header -->
   <header class="bg-indigo-600 text-white p-4 shadow-md">
@@ -8,7 +11,6 @@
       <button onclick="history.back()" class="mr-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          <link rel="stylesheet" href="{% static 'css/profile.css' %}">
         </svg>
       </button>
       <h1 class="text-xl font-bold">Create Profile</h1>
@@ -16,7 +18,7 @@
   </header>
 
   <!-- Form Content -->
-  <div class="p-5 pb-24">
+  <div class="p-5 pb-6">
     <form method="post" enctype="multipart/form-data" class="space-y-5" id="profile-form">
       {% csrf_token %}
       {{ form.non_field_errors }}
@@ -76,31 +78,18 @@
     </form>
   </div>
 
-  <!-- Fixed Submit Button -->
-  <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg safe-area-bottom z-50">
-    <button onclick="document.getElementById('profile-form').submit()" class="w-full bg-indigo-600 text-white px-4 py-4 rounded-lg transition-all flex items-center justify-center space-x-2 hover:bg-indigo-700 font-medium">
-      Create Profile
-    </button>
-  </div>
+
 </div>
 <script>
-// Ensure the button is always visible and functional
+// Simple form validation and submission
 document.addEventListener('DOMContentLoaded', function() {
-  const submitBtn = document.querySelector('button[onclick*="submit"]');
   const form = document.getElementById('profile-form');
+  const submitBtn = form.querySelector('button[type="submit"]');
   
-  // Make sure button is visible
   if (submitBtn) {
-    submitBtn.style.display = 'flex';
-    submitBtn.style.visibility = 'visible';
-    submitBtn.style.opacity = '1';
-  }
-  
-  // Ensure form submission works
-  if (submitBtn && form) {
     submitBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      form.submit();
+      // Let the form submit normally
+      console.log('Form submitting...');
     });
   }
 });
