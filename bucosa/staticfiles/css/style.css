@@ -185,8 +185,7 @@ body {
     }
 
 .nav-expanded-item:hover {
-      background: rgba(99, 102, 241, 0.08);
-      color: #6366f1;
+      background: rgba(255, 255, 255, 0.1);
       transform: translateY(-2px);
     }
 
@@ -407,3 +406,35 @@ body {
       font-size: 14px;
       line-height: 1.4;
     }
+    
+/* Modal styles for Instagram-like lightbox */
+#media-modal {
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+#media-modal .modal-content {
+  max-width: 80%;
+  max-height: 80%;
+}
+
+#close-modal {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 40px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+#close-modal:hover {
+  color: #ddd;
+}
+
+/* Profile image modal */
+.profile-image-modal {
+  cursor: pointer;
+}
