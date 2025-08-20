@@ -411,6 +411,7 @@ def profile_user(request, pk):
     ).annotate(
         followers_count=Count('followers', distinct=True),
         following_count=Count('following', distinct=True),
+        posts_count=Count('post_set', distinct=True),
         is_following=Exists(
             user_following.objects.filter(
                 user_id=auth_user_id,
@@ -430,6 +431,7 @@ def profile_user(request, pk):
         'is_following': getattr(user, 'is_following', False),
         'followers_count': getattr(user, 'followers_count', 0),
         'following_count': getattr(user, 'following_count', 0),
+        'posts_count': getattr(user, 'posts_count', 0),
         'user_groups': getattr(user, 'prefetched_groups', []),
         'posts': getattr(user, 'prefetched_posts', []),
         'reposts': getattr(user, 'prefetched_reposts', []),
