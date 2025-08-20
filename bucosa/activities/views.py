@@ -21,6 +21,7 @@ from .models import Announcement
 from django.core.mail import send_mail
 from django.conf import settings
 from django import forms
+import requests
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -55,6 +56,7 @@ class AnnouncementForm(forms.ModelForm):
         }
 
 # views.py
+@login_required
 @login_required
 def create_announcement(request):
     # Only allow superusers
@@ -144,7 +146,9 @@ def create_announcement(request):
                     
                     # Add image section if image exists
                     if announcement.image:
-                        image_name = announcement.image.name.split('/')[-1]
+                        # Get image URL from CloudinaryResource
+                        image_url = announcement.image.url
+                        image_name = image_url.split('/')[-1].split('?')[0]  # Remove query params
                         html_content += f"""
                             <div class="image-container">
                                 <img src="cid:{image_name}" alt="Announcement Image" class="announcement-image">
@@ -178,28 +182,33 @@ def create_announcement(request):
                     # Attach image if exists
                     if announcement.image:
                         try:
-                            # Get the image data
-                            image_data = announcement.image.read()
+                            # Get image URL from CloudinaryResource
+                            image_url = announcement.image.url
+                            image_name = image_url.split('/')[-1].split('?')[0]  # Remove query params
                             
-                            # Determine content type based on file extension
-                            image_name = announcement.image.name.split('/')[-1]
-                            if image_name.lower().endswith('.png'):
-                                content_type = 'image/png'
-                            elif image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg'):
-                                content_type = 'image/jpeg'
-                            elif image_name.lower().endswith('.gif'):
-                                content_type = 'image/gif'
-                            else:
-                                content_type = 'image/jpeg'  # Default
-                            
-                            # Add image as attachment with content ID for embedding
-                            email.attach(
-                                image_name, 
-                                image_data, 
-                                content_type
-                            )
-                            # Set Content-ID header for embedding in HTML
-                            email.extra_headers[f'Content-ID'] = f'<{image_name}>'
+                            # Download image from Cloudinary
+                            response = requests.get(image_url)
+                            if response.status_code == 200:
+                                image_data = response.content
+                                
+                                # Determine content type based on file extension
+                                if image_name.lower().endswith('.png'):
+                                    content_type = 'image/png'
+                                elif image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg'):
+                                    content_type = 'image/jpeg'
+                                elif image_name.lower().endswith('.gif'):
+                                    content_type = 'image/gif'
+                                else:
+                                    content_type = 'image/jpeg'  # Default
+                                
+                                # Add image as attachment with content ID for embedding
+                                email.attach(
+                                    image_name, 
+                                    image_data, 
+                                    content_type
+                                )
+                                # Set Content-ID header for embedding in HTML
+                                email.extra_headers[f'Content-ID'] = f'<{image_name}>'
                         except Exception as e:
                             print(f"Error processing image: {e}")
                     
