@@ -2,6 +2,9 @@ body {
             font-family: 'Inter', sans-serif;
         }
         /* Custom scrollbar for the story section */
+.scroll-container {
+            -webkit-overflow-scrolling: touch;
+        }
 .scroll-container::-webkit-scrollbar {
             height: 8px;
         }

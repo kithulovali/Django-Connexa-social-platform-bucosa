@@ -69,7 +69,7 @@
             </svg>
             Members ({{ members.count }})
         </h2>
-        <div class="flex gap-4 overflow-x-auto scrollbar-hide py-2">
+        <div class="members-section flex gap-4 overflow-x-auto scrollbar-hide py-2">
             {% for m in members %}
             <a href="{% url 'users:profile' m.user.id %}" class="flex flex-col items-center group">
                 <div class="relative">
@@ -94,7 +94,7 @@
 
     <!-- Navigation Tabs -->
     <div class="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
-        <div class="flex overflow-x-auto scrollbar-hide">
+        <div class="nav-tabs flex overflow-x-auto scrollbar-hide">
             <a href="#" class="px-6 py-3 text-sm font-medium text-indigo-600 whitespace-nowrap border-b-2 border-indigo-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
@@ -174,30 +174,30 @@
                     <div class="flex items-center justify-between py-3">
                         <div class="flex items-center gap-2">
                             <form method="post" action="{% url 'like_fellowship_post' fellowship.id post.id %}" class="">
-                                {% csrf_token %}
-                                <button type="submit" class="group flex items-center px-3 py-2 rounded-full bg-indigo-50 hover:bg-indigo-100 transition shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 group-hover:text-rose-600 transition" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
-                                    </svg>
-                                    <span class="ml-2 text-sm font-semibold text-gray-700 group-hover:text-rose-600 transition">{{ post.like_count|default:0 }}</span>
-                                </button>
-                            </form>
-                            <button onclick="toggleComments(this)" class="group flex items-center px-3 py-2 rounded-full bg-indigo-50 hover:bg-indigo-100 transition shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500 group-hover:text-indigo-600 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <span class="ml-2 text-sm font-semibold text-gray-700 group-hover:text-indigo-600 transition">Comment ({{ post.comment_count|default:0 }})</span>
-                            </button>
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="reaction-button">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 group-hover:text-rose-600 transition" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                                                </svg>
+                                                                <span class="text-sm font-semibold text-rose-500 group-hover:text-rose-600 transition">{{ post.like_count|default:0 }}</span>
+                                                            </button>
+                                                        </form>
+                                                        <button onclick="toggleComments(this)" class="reaction-button">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 group-hover:text-gray-900 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                            </svg>
+                                                            <span class="text-sm font-semibold text-gray-800 group-hover:text-gray-900 transition">Comment ({{ post.comment_count|default:0 }})</span>
+                                                        </button>
                         </div>
                         <form method="post" action="{% url 'share_fellowship_post' fellowship.id post.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="group flex items-center px-3 py-2 rounded-full bg-indigo-50 hover:bg-indigo-100 transition shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500 group-hover:text-indigo-600 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                </svg>
-                                <span class="ml-2 text-sm font-semibold text-gray-700 group-hover:text-indigo-600 transition">Share</span>
-                            </button>
-                        </form>
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="reaction-button">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 group-hover:text-gray-900 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                                        </svg>
+                                                        <span class="text-sm font-semibold text-gray-800 group-hover:text-gray-900 transition">Share</span>
+                                                    </button>
+                                                </form>
                     </div>
                     
                     <!-- Comments Section (Initially Hidden) -->

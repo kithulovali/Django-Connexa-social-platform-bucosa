@@ -4,6 +4,20 @@
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
         }
+        
+        /* Members section with mobile scrolling */
+        .members-section {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Navigation tabs with mobile scrolling */
+        .nav-tabs {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 .category-tabs::-webkit-scrollbar {
             display: none;
         }
@@ -12,4 +26,66 @@
         }
 .news-card:hover {
             transform: translateY(-2px);
+        }
+
+/* Reaction buttons styles */
+.reaction-button {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background-color: #eff6ff; /* bg-indigo-50 equivalent */
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            cursor: pointer;
+        }
+
+.reaction-button:hover {
+            background-color: #dbeafe; /* hover:bg-indigo-100 equivalent */
+        }
+
+.reaction-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+.reaction-button span {
+            margin-left: 0.5rem;
+        }
+
+/* Mobile improvements for reaction buttons */
+@media (max-width: 768px) {
+            .reaction-button {
+                padding: 0.75rem 1.25rem;
+                font-size: 1rem;
+            }
+            
+            .reaction-button svg {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+            
+            .reaction-button span {
+                margin-left: 0.75rem;
+            }
+        }
+
+/* Ensure reaction buttons are visible on all screen sizes */
+.reaction-button svg {
+            color: #1f2937; /* text-gray-800 equivalent */
+        }
+
+.reaction-button span {
+            color: #1f2937; /* text-gray-800 equivalent */
+        }
+
+.reaction-button:hover svg {
+            color: #111827; /* text-gray-900 equivalent */
+        }
+
+.reaction-button:hover span {
+            color: #111827; /* text-gray-900 equivalent */
         }
