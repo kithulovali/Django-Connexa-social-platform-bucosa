@@ -1,0 +1,246 @@
+/* Optimized CSS for messaging page - Mobile and Desktop */
+
+/* Base styles for message container */
+.message-app-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f3f4f6;
+  overflow: hidden;
+}
+
+/* Contacts sidebar styles */
+.contacts-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+
+/* Chat area styles */
+.chat-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: white;
+  box-shadow: inset 1px 0 0 #e5e7eb;
+}
+
+/* Message input area - always visible */
+.message-input-area {
+  background-color: white;
+  border-top: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 1001; /* Higher than mobile navigation z-index (1000) */
+}
+
+/* Scrollable areas */
+.contacts-container,
+.message-container {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar for WebKit browsers */
+.contacts-container::-webkit-scrollbar,
+.message-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.contacts-container,
+.message-container {
+  scrollbar-width: none;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 767px) {
+  .message-app-container {
+    flex-direction: column;
+  }
+  
+  .contacts-sidebar {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .chat-area {
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Ensure message input is always visible on mobile */
+  .message-input-area {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    border-top: 1px solid #e5e7eb;
+    padding-bottom: 1rem; /* Extra padding for mobile keyboard */
+    z-index: 1001; /* Higher than mobile navigation z-index (1000) */
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom)); /* Account for device safe areas */
+  }
+  
+  /* Mobile navigation buttons */
+  .mobile-nav-button {
+    padding: 0.25rem;
+    border-radius: 50%;
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+}
+
+/* Desktop-specific optimizations */
+@media (min-width: 768px) {
+  .contacts-sidebar {
+    width: 20rem; /* 320px */
+    max-width: 24rem; /* 384px on larger screens */
+  }
+  
+  .message-input-area {
+    padding-bottom: 1rem;
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1024px) {
+  .contacts-sidebar {
+    width: 24rem; /* 384px */
+  }
+}
+
+/* Ensure proper spacing for mobile navigation */
+.pb-for-mobile-nav {
+  padding-bottom: 5rem; /* Space for mobile navigation */
+}
+
+/* Smooth transitions */
+.contacts-sidebar,
+.chat-area {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Mobile hide/show classes */
+.mobile-hidden {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-hidden {
+    display: flex;
+  }
+}
+
+/* Focus states for better accessibility */
+.message-input:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Improved message bubbles */
+.message-bubble {
+  max-width: 80%;
+  border-radius: 1.5rem;
+  padding: 0.5rem 1rem;
+  word-wrap: break-word;
+}
+
+.message-bubble.sent {
+  background-color: #3b82f6;
+  color: white;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.message-bubble.received {
+  background-color: white;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-bottom-left-radius: 0.25rem;
+}
+
+/* Timestamp styles */
+.message-timestamp {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Attachment button styles */
+.attachment-button {
+  padding: 0.5rem;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  transition: background-color 0.2s;
+}
+
+.attachment-button:hover {
+  background-color: #e5e7eb;
+}
+
+/* Send button styles */
+.send-button {
+  padding: 0.75rem;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.send-button:hover {
+  background-color: #2563eb;
+}
+
+/* Textarea styles */
+.message-textarea {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 1.5rem;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  resize: none;
+  font-size: 0.875rem;
+  line-height: 1.25;
+}
+
+.message-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background-color: white;
+}
+
+/* Welcome screen styles */
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 1rem;
+  background-color: #f9fafb;
+}
+
+.welcome-icon {
+  background-color: white;
+  border-radius: 50%;
+  padding: 1.25rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.welcome-title {
+  font-size: 1.25rem;
+  font-weight: 300;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
