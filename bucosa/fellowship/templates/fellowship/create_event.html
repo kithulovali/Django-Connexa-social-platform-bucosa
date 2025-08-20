@@ -1,9 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
 {% block content %}
-<head>
-  <link rel="stylesheet" href="{% static 'css/event.css' %}">
-</head>
 <div class="min-h-screen bg-gray-50">
   <!-- App Header -->
   <header class="bg-blue-600 text-white p-4 shadow-md">
@@ -21,92 +17,66 @@
   </header>
 
   <!-- Form Content -->
-  <div class="p-5 pb-6">
+  <div class="p-5 pb-6 bg-white min-h-screen">
     <form method="post" enctype="multipart/form-data" class="space-y-5" id="event-form">
       {% csrf_token %}
-      
       {% for field in form %}
-      <div class="space-y-2">
-        <label class="block font-medium text-gray-700 text-sm">{{ field.label_tag }}</label>
-        
-        {% if field.name == "event_image" %}
-          <!-- File Input -->
-          <div class="relative">
-            <input 
-              type="file" 
+        {% if field.name != "event_name" and field.name != "event_description" and field.name != "event_date" and field.name != "event_time" and field.name != "location" and field.name != "event_category" and field.name != "max_attendees" and field.name != "event_fee" and field.name != "event_image" and field.name != "is_public" and field.name != "event_tags" and field.name != "additional_notes" %}
+        <div class="space-y-2">
+          <label class="block font-medium text-gray-700 text-sm">{{ field.label_tag }}</label>
+          
+          {% if field.field.widget.input_type == 'textarea' %}
+            <textarea 
               name="{{ field.name }}" 
               id="{{ field.id_for_label }}" 
-              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              accept="image/*"
-            >
-            <div class="p-3 border border-gray-300 rounded-lg bg-white flex items-center justify-between">
-              <span class="text-gray-500" id="file-name-{{ field.name }}">Choose event image</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white resize-none"
+              rows="4"
+              {% if field.field.required %}required{% endif %}
+              placeholder="Enter {{ field.label|lower }}"
+            >{% if field.value %}{{ field.value }}{% endif %}</textarea>
+          {% elif field.field.widget.input_type == 'file' %}
+            <div class="relative">
+              <input 
+                type="file" 
+                name="{{ field.name }}" 
+                id="{{ field.id_for_label }}" 
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                {% if field.field.required %}required{% endif %}
+                accept="image/*"
+              >
+              <div class="p-3 border border-gray-300 rounded-lg bg-white flex items-center justify-between">
+                <span class="text-gray-500" id="file-name-{{ field.name }}">Choose file</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+              </div>
             </div>
-          </div>
-        {% elif field.field.widget.input_type == 'textarea' %}
-          <textarea 
-            name="{{ field.name }}" 
-            id="{{ field.id_for_label }}" 
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white resize-none"
-            rows="4"
-            {% if field.field.required %}required{% endif %}
-            placeholder="Enter {{ field.label|lower }}"
-          >{% if field.value %}{{ field.value }}{% endif %}</textarea>
-        {% elif field.field.widget.input_type == 'datetime-local' %}
-          <input 
-            type="datetime-local" 
-            name="{{ field.name }}" 
-            id="{{ field.id_for_label }}" 
-            value="{% if field.value %}{{ field.value }}{% endif %}"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            {% if field.field.required %}required{% endif %}
-          >
-        {% elif field.field.widget.input_type == 'date' %}
-          <input 
-            type="date" 
-            name="{{ field.name }}" 
-            id="{{ field.id_for_label }}" 
-            value="{% if field.value %}{{ field.value }}{% endif %}"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            {% if field.field.required %}required{% endif %}
-          >
-        {% elif field.field.widget.input_type == 'time' %}
-          <input 
-            type="time" 
-            name="{{ field.name }}" 
-            id="{{ field.id_for_label }}" 
-            value="{% if field.value %}{{ field.value }}{% endif %}"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            {% if field.field.required %}required{% endif %}
-          >
-        {% else %}
-          <input 
-            type="{{ field.field.widget.input_type }}" 
-            name="{{ field.name }}" 
-            id="{{ field.id_for_label }}" 
-            value="{% if field.value %}{{ field.value }}{% endif %}"
-            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            {% if field.field.required %}required{% endif %}
-            placeholder="Enter {{ field.label|lower }}"
-          >
+          {% else %}
+            <input 
+              type="{{ field.field.widget.input_type }}" 
+              name="{{ field.name }}" 
+              id="{{ field.id_for_label }}" 
+              value="{% if field.value %}{{ field.value }}{% endif %}"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              {% if field.field.required %}required{% endif %}
+              placeholder="Enter {{ field.label|lower }}"
+            >
+          {% endif %}
+          
+          {% if field.help_text %}
+            <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+          {% endif %}
+          {% for error in field.errors %}
+            <p class="text-xs text-red-500 mt-1 font-medium">{{ error }}</p>
+          {% endfor %}
+        </div>
         {% endif %}
-        
-        {% if field.help_text %}
-          <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
-        {% endif %}
-        {% for error in field.errors %}
-          <p class="text-xs text-red-500 mt-1 font-medium">{{ error }}</p>
-        {% endfor %}
-      </div>
       {% endfor %}
       
-      <!-- Submit Button inside form -->
-      <div class="mt-8 mb-6">
-        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-4 rounded-lg transition-all flex items-center justify-center space-x-2 hover:bg-blue-700 font-medium">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <!-- Submit Button -->
+      <div class="mt-8 mb-8">
+        <button type="submit" class="w-full bg-blue-600 text-white px-6 py-5 rounded-xl transition-all flex items-center justify-center space-x-3 hover:bg-blue-700 font-bold text-lg shadow-lg active:bg-blue-800">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
           <span>Create Event</span>
@@ -115,16 +85,83 @@
     </form>
   </div>
 </div>
+
+<style>
+  body {
+    background-color: #f9fafb;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Force visibility for all form elements */
+  .space-y-2 {
+    margin-bottom: 1.5rem !important;
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  /* Ensure inputs are visible */
+  input, textarea, select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Ensure labels are visible */
+  label {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Improve mobile form experience */
+  @media (max-width: 640px) {
+    .min-h-screen {
+      min-height: 100vh;
+      min-height: 100dvh; /* Dynamic viewport height for mobile */
+    }
+    
+    input, textarea, select {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Better touch targets */
+    button {
+      min-height: 48px;
+    }
+    
+    input, textarea {
+      min-height: 48px;
+    }
+  }
+  
+  /* Custom file input styling */
+  input[type="file"] + div:hover {
+    border-color: #3b82f6;
+    background-color: #f8fafc;
+  }
+  
+  /* Focus states */
+  input:focus, textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+</style>
+
 <script>
-// Show chosen file name
+// File handling and form validation - only for actual form fields
 document.addEventListener('DOMContentLoaded', function() {
+  // Handle all file inputs from the form
   const fileInputs = document.querySelectorAll('input[type="file"]');
   
   fileInputs.forEach(input => {
     input.addEventListener('change', function(e) {
       const fileNameSpan = document.getElementById(`file-name-${this.name}`);
       if (fileNameSpan) {
-        fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Choose event image';
+        fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Choose file';
       }
     });
   });
