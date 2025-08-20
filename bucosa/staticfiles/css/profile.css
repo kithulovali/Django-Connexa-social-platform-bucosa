@@ -1,0 +1,22 @@
+body {
+    background-color: #f9fafb;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+input, textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  
+  /* Improve mobile form experience */
+@media (max-width: 640px) {
+.min-h-screen {
+      min-height: 100vh;
+    }
+    
+input, textarea, select {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+  }
