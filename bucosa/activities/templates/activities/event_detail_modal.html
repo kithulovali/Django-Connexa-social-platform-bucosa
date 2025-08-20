@@ -1,0 +1,48 @@
+{# activities/event_detail_modal.html #}
+{% load static %}
+<div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+  {% if event.cover_image %}
+    <div class="h-56 w-full bg-gray-200 relative">
+      <img src="{{ event.cover_image.url }}" alt="{{ event.title }} Banner" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-purple-800/80 to-transparent flex flex-col justify-end p-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow mb-2">{{ event.title }}</h1>
+        <div class="text-lg text-purple-100 mb-1">{{ event.tagline|default:"" }}</div>
+      </div>
+    </div>
+  {% else %}
+    <div class="h-40 w-full bg-gradient-to-r from-purple-700 to-purple-400 flex items-center justify-center">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white">{{ event.title }}</h1>
+    </div>
+  {% endif %}
+  <div class="px-8 py-6 bg-white">
+    <div class="flex flex-col md:flex-row gap-6 mb-6">
+      <div class="flex-1 bg-blue-50 rounded-xl p-4 shadow flex flex-col items-start">
+        <div class="font-bold text-blue-700 mb-1 flex items-center gap-2">
+          <span class="material-icons align-middle">event</span> Date & Time
+        </div>
+        <div class="text-gray-800">{{ event.start_time|date:'F d, Y H:i' }}{% if event.end_time %} - {{ event.end_time|date:'F d, Y H:i' }}{% endif %}</div>
+      </div>
+      <div class="flex-1 bg-green-50 rounded-xl p-4 shadow flex flex-col items-start">
+        <div class="font-bold text-green-700 mb-1 flex items-center gap-2">
+          <span class="material-icons align-middle">location_on</span> Location
+        </div>
+        <div class="text-gray-800">{{ event.location|default:'TBA' }}</div>
+      </div>
+    </div>
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">About the Event</h2>
+      <div class="text-gray-700 text-lg leading-relaxed">{{ event.description|linebreaks }}</div>
+    </div>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+      <div class="text-gray-600 text-sm">
+        <span class="font-semibold">Organizer:</span> <a href="{% url 'users:profile' event.creator.id %}" class="text-blue-700 hover:underline">{{ event.creator.username }}</a>
+        {% if event.group %}
+        | <span class="font-semibold">Group:</span> <a href="{% url 'users:group_profile' event.group.id %}" class="text-green-700 hover:underline">{{ event.group.name }}</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="flex justify-end">
+      <span class="text-gray-600 font-semibold">{{ event.registered_users.count }} Registered</span>
+    </div>
+  </div>
+</div>

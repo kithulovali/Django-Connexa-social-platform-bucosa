@@ -48,9 +48,9 @@
         <div class="flex items-start gap-6 mb-4">
           <div class="flex-shrink-0">
             {% if profile.profile_image %}
-              <img src="{{ profile.profile_image.url }}" alt="{{ user|display_name }}" class="w-20 h-20 rounded-full object-cover border border-gray-200">
+              <img src="{{ profile.profile_image.url }}" alt="{{ user|display_name }}" class="w-20 h-20 rounded-full object-cover border border-gray-200 profile-image-modal" onclick="openModal('{{ profile.profile_image.url }}')">
             {% else %}
-              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover border border-gray-200">
+              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-20 h-20 rounded-full object-cover border border-gray-200 profile-image-modal" onclick="openModal('{% static 'img/default.png' %}')">
             {% endif %}
           </div>
           
@@ -118,9 +118,9 @@
           <!-- Profile Picture -->
           <div class="flex-shrink-0">
             {% if profile.profile_image %}
-              <img src="{{ profile.profile_image.url }}" alt="{{ user|display_name }}" class="w-36 h-36 rounded-full object-cover border border-gray-300">
+              <img src="{{ profile.profile_image.url }}" alt="{{ user|display_name }}" class="w-36 h-36 rounded-full object-cover border border-gray-300 profile-image-modal" onclick="openModal('{{ profile.profile_image.url }}')">
             {% else %}
-              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-36 h-36 rounded-full object-cover border border-gray-300">
+              <img src="{% static 'img/default.png' %}" alt="Default Profile" class="w-36 h-36 rounded-full object-cover border border-gray-300 profile-image-modal" onclick="openModal('{% static 'img/default.png' %}')">
             {% endif %}
           </div>
           
@@ -253,7 +253,7 @@
       {% if posts %}
         <div class="grid grid-cols-3 gap-1 md:gap-4">
           {% for post in posts %}
-            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden" onclick="openModal('{% url 'activities:post_detail_modal' post.id %}')">
               {% if post.image %}
                 <img src="{{ post.image.url }}" alt="Post" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
@@ -314,7 +314,7 @@
       {% if reposts %}
         <div class="grid grid-cols-3 gap-1 md:gap-4">
           {% for repost in reposts %}
-            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden" onclick="openModal('{% url 'activities:post_detail_modal' repost.post.id %}')">
               {% if repost.post.image %}
                 <img src="{{ repost.post.image.url }}" alt="Repost" class="w-full h-full object-cover">
                 <div class="absolute top-2 right-2">
@@ -348,7 +348,7 @@
       {% if saved %}
         <div class="grid grid-cols-3 gap-1 md:gap-4">
           {% for post in saved %}
-            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden" onclick="openModal('{% url 'activities:post_detail_modal' post.id %}')">
               {% if post.image %}
                 <img src="{{ post.image.url }}" alt="Saved Post" class="w-full h-full object-cover">
                 <div class="absolute top-2 right-2">
@@ -382,7 +382,7 @@
       {% if events %}
         <div class="grid grid-cols-3 gap-1 md:gap-4">
           {% for event in events %}
-            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden">
+            <div class="aspect-square bg-gray-100 relative group cursor-pointer overflow-hidden" onclick="openModal('{% url 'activities:event_detail_modal' event.id %}')">
               {% if event.cover_image %}
                 <img src="{{ event.cover_image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover">
               {% else %}
@@ -413,6 +413,20 @@
   </main>
 </div>
 
+
+<!-- Modal for displaying posts, events, reposts, and saved items -->
+<div id="media-modal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center">
+  <div class="relative w-full h-full flex items-center justify-center">
+    <!-- Close button -->
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-3xl z-10">&times;</button>
+    
+    <!-- Modal content -->
+    <div id="modal-content" class="max-w-4xl max-h-[90vh] w-full">
+      <!-- Content will be loaded here -->
+    </div>
+  </div>
+</div>
+
 <script>
 function showTab(tab) {
   const tabIds = ['posts', 'reposts', 'saved', 'events'];
@@ -433,6 +447,95 @@ function showTab(tab) {
   });
 }
 
+// Function to open modal with content
+function openModal(url) {
+  // Check if the URL is an image
+  if (url.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+    // For images, create an img element
+    document.getElementById('modal-content').innerHTML = '<img src="' + url + '" class="max-w-full max-h-[90vh] object-contain" alt="Profile Image">';
+    document.getElementById('media-modal').classList.remove('hidden');
+    document.getElementById('media-modal').classList.add('flex');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  } else {
+    // For other content, fetch and display
+    fetch(url)
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('modal-content').innerHTML = html;
+        document.getElementById('media-modal').classList.remove('hidden');
+        document.getElementById('media-modal').classList.add('flex');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      })
+      .catch(error => {
+        console.error('Error loading modal content:', error);
+      });
+  }
+}
+
+// Function to close modal
+function closeModal() {
+  document.getElementById('media-modal').classList.add('hidden');
+  document.getElementById('media-modal').classList.remove('flex');
+  document.body.style.overflow = 'auto'; // Enable background scrolling
+}
+
+// Function to initialize AJAX forms in modal
+function initializeModalForms() {
+  // AJAX for Like, Save, Share, and Comment
+  function ajaxForm(formId, countSelector, btnSelector, successText) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', form.action);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          if (countSelector && data.count !== undefined) {
+            document.querySelector(countSelector).textContent = data.count + ' ' + successText + (data.count === 1 ? '' : 's');
+          }
+          if (btnSelector && data.liked !== undefined) {
+            const btn = document.querySelector(btnSelector);
+            btn.textContent = data.liked ? 'Unlike' : 'Like';
+          }
+          if (btnSelector && data.saved !== undefined) {
+            const btn = document.querySelector(btnSelector);
+            btn.textContent = data.saved ? 'Unsave' : 'Save';
+          }
+          if (btnSelector && data.shared !== undefined) {
+            const btn = document.querySelector(btnSelector);
+            btn.textContent = 'Shared!';
+            setTimeout(() => { btn.textContent = 'Share'; }, 1500);
+          }
+        }
+        if (formId === 'comment-box' && xhr.status === 200) {
+          // Reload comments section
+          window.location.reload();
+        }
+      };
+      const formData = new FormData(form);
+      xhr.send(formData);
+    });
+  }
+  
+  // Initialize forms if they exist in the modal
+  if (document.getElementById('like-form')) {
+    ajaxForm('like-form', '.like-count', '.like-btn', 'Like');
+  }
+  if (document.getElementById('save-form')) {
+    ajaxForm('save-form', null, '.save-btn', 'Save');
+  }
+  if (document.getElementById('share-form')) {
+    ajaxForm('share-form', null, '.share-btn', 'Share');
+  }
+  if (document.getElementById('comment-box')) {
+    ajaxForm('comment-box', null, null, '');
+  }
+}
+
+// Add event listeners for modal
 document.addEventListener('DOMContentLoaded', function() {
   const hash = window.location.hash.replace('#', '');
   if(['posts','reposts','saved','events'].includes(hash)) {
@@ -440,6 +543,29 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
     showTab('posts');
   }
+  
+  // Close modal when close button is clicked
+  document.getElementById('close-modal').addEventListener('click', closeModal);
+  
+  // Close modal when clicking outside the content
+  document.getElementById('media-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeModal();
+    }
+  });
+  
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+});
+
+// Initialize modal forms after content is loaded
+document.getElementById('media-modal').addEventListener('DOMNodeInserted', function() {
+  // Small delay to ensure DOM is fully updated
+  setTimeout(initializeModalForms, 100);
 });
 </script>
 

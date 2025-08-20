@@ -1,0 +1,154 @@
+{% load static %}
+{% load user_extras %}
+<div class="w-full max-w-xl bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+    <!-- Author and time -->
+    <div class="flex items-center gap-4 px-6 pt-6 pb-2">
+        {% if post.author.profile and post.author.profile.profile_image %}
+            <img src="{{ post.author.profile.profile_image.url }}" alt="{{ post.author.username }}'s Profile" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200">
+        {% else %}
+            <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-14 h-14 rounded-full object-cover border-2 border-gray-200">
+        {% endif %}
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+                <span class="font-bold text-gray-900 text-lg">{{ post.author.get_full_name|default:post.author.username }}</span>
+                <span class="text-gray-500">·</span>
+                <time class="text-gray-500 text-sm">{{ post.created_at|timesince }} ago</time>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                {% if post.group %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">
+                    <span class="material-icons text-xs mr-1">group</span>
+                    <a href="{% url 'users:group_profile' post.group.id %}" class="hover:underline">{{ post.group.name }}</a>
+                </span>
+                {% endif %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                    {{ post.get_privacy_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- Content -->
+    {% if post.content %}
+    <div class="px-6 pb-3 text-gray-800 text-base leading-relaxed">{{ post.content }}</div>
+    {% endif %}
+    {% if post.image %}
+        <div class="px-6 pb-3">
+            <img src="{{ post.image.url }}" alt="Post Image" class="rounded-xl w-full max-h-96 object-cover border border-gray-200">
+        </div>
+    {% endif %}
+    {% if post.video %}
+        <div class="px-6 pb-3">
+            <video controls class="rounded-xl w-full max-h-96 object-cover border border-gray-200">
+                <source src="{{ post.video.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    {% endif %}
+
+    <!-- Reactions summary -->
+    <div class="flex items-center justify-between px-6 py-2 border-b border-gray-100">
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 text-blue-600 text-xs font-bold">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" class="w-4 h-4"><path d="M2 10a6 6 0 1112 0A6 6 0 012 10zm6-4a4 4 0 100 8 4 4 0 000-8z"/></svg>
+            </span>
+            <span class="like-count text-sm text-gray-700">{{ post.likes.count }} Like{{ post.likes.count|pluralize }}</span>
+            <span class="ml-4 text-sm text-gray-700">{{ post.comments.count }} Comment{{ post.comments.count|pluralize }}</span>
+            <span class="ml-4 text-sm text-gray-700">{{ post.shares.count }} Share{{ post.shares.count|pluralize }}</span>
+        </div>
+    </div>
+
+    <!-- Like avatars -->
+    {% if post.likes.count > 0 %}
+    <div class="flex items-center px-6 py-2 -mt-2">
+        {% for like in post.likes.all|slice:":6" %}
+            {% with liker=like.user %}
+                {% if liker.profile and liker.profile.profile_image %}
+                    <img src="{{ liker.profile.profile_image.url }}" alt="{{ liker.username }}" class="w-8 h-8 rounded-full border-2 border-white -ml-2 first:ml-0">
+                {% else %}
+                    <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-8 h-8 rounded-full border-2 border-white -ml-2 first:ml-0">
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+        {% if post.likes.count > 6 %}
+            <span class="ml-2 text-xs text-gray-500">+{{ post.likes.count|add:"-6" }} more</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Facebook-style actions (functional) -->
+    <div class="px-6 py-3 border-t border-b border-gray-100 bg-gray-50">
+        <div class="grid grid-cols-4 gap-2">
+            <!-- Like Button -->
+            <form id="like-form" method="post" action="{% url 'activities:like_post' post.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="like-btn flex flex-col items-center justify-center text-gray-600 hover:text-red-500 py-1 rounded-xl hover:bg-red-50 transition-colors">
+                    <span class="material-icons text-lg like-icon mb-1">favorite</span>
+                    <span class="font-medium text-xs like-count">{{ post.likes.count }}</span>
+                </button>
+            </form>
+            <!-- Save Button -->
+            <form id="save-form" method="post" action="{% url 'activities:save_post' post.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="save-btn flex flex-col items-center justify-center text-gray-600 hover:text-green-600 py-1 rounded-xl hover:bg-green-50 transition-colors">
+                    <span class="material-icons text-lg mb-1">bookmark_border</span>
+                    <span class="font-medium text-xs">{{ post.saves.count }}</span>
+                </button>
+            </form>
+            <!-- Share Button -->
+            <form id="share-form" method="post" action="{% url 'activities:share_post' post.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="share-btn flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 py-1 rounded-xl hover:bg-blue-50 transition-colors">
+                    <span class="material-icons text-lg mb-1">share</span>
+                    <span class="font-medium text-xs">Share</span>
+                </button>
+            </form>
+            <!-- Comment Button -->
+            <a href="#comment-box" class="flex flex-col items-center justify-center text-gray-600 hover:text-purple-600 py-1 rounded-xl hover:bg-purple-50 transition-colors">
+                <span class="material-icons text-lg mb-1">chat_bubble_outline</span>
+                <span class="font-medium text-xs">{{ post.comments.count }}</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Comments -->
+    <div class="px-6 pt-4 pb-2">
+        <div class="font-semibold text-gray-800 mb-2">Comments</div>
+        <div class="space-y-3 max-h-80 overflow-y-auto">
+            {% for comment in comments %}
+            <div id="comment-{{ comment.id }}" class="flex gap-3 bg-white rounded-xl p-3 border border-gray-200">
+                {% if comment.author.profile and comment.author.profile.profile_image %}
+                    <img src="{{ comment.author.profile.profile_image.url }}" alt="{{ comment.author.username }}'s Profile" class="w-8 h-8 rounded-full object-cover border border-gray-200">
+                {% else %}
+                    <img src="{% static 'images/default.jpg' %}" alt="Default Profile" class="w-8 h-8 rounded-full object-cover border border-gray-200">
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-semibold text-sm">{{ comment.author.get_full_name|default:comment.author.username }}</span>
+                        <span class="text-gray-500 text-xs">·</span>
+                        <span class="text-xs text-gray-400">{{ comment.created_at|timesince }} ago</span>
+                    </div>
+                    <div class="text-gray-700 break-words leading-relaxed text-sm">{{ comment.content }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-6">
+                <span class="material-icons text-3xl text-gray-400 mb-2">chat_bubble_outline</span>
+                <p class="text-gray-500 text-sm">No comments yet. Be the first to comment!</p>
+            </div>
+            {% endfor %}
+        </div>
+        <!-- Facebook-style comment box (functional) -->
+        <form id="comment-box" method="post" action="{% url 'activities:add_comment' post.id %}" class="mt-4 flex gap-2 items-start">
+            {% csrf_token %}
+            {% if user.is_authenticated and user.profile and user.profile.profile_image %}
+                <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="w-8 h-8 rounded-full object-cover border border-gray-200 flex-shrink-0">
+            {% else %}
+                <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-8 h-8 rounded-full object-cover border border-gray-200 flex-shrink-0">
+            {% endif %}
+            <div class="flex-1 flex gap-2">
+                <input name="content" type="text" required placeholder="Write a comment..." class="flex-1 rounded-full border border-gray-300 px-4 py-2 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-full shadow transition-all text-sm">Post</button>
+            </div>
+        </form>
+    </div>
+</div>

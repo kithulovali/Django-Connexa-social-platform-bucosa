@@ -437,6 +437,29 @@ def event_detail(request, pk):
         'event': event
     })
 
+def event_detail_modal(request, pk):
+    event = get_object_or_404(
+        Event.objects.select_related('creator', 'group')
+                   .prefetch_related('attendees', 'registered_users'),
+        pk=pk
+    )
+    
+    # Single permission check instead of multiple
+    if request.user.is_authenticated:
+        event.user_can_edit = event.creator_id == request.user.id
+        event.user_can_delete = event.creator_id == request.user.id
+        event.user_is_attending = event.attendees.filter(id=request.user.id).exists()
+        event.user_is_registered = event.registered_users.filter(id=request.user.id).exists()
+    else:
+        event.user_can_edit = False
+        event.user_can_delete = False
+        event.user_is_attending = False
+        event.user_is_registered = False
+    
+    return render(request, 'activities/event_detail_modal.html', {
+        'event': event
+    })
+
 @login_required
 def remove_user_from_group(request, group_id, user_id):
     group = get_object_or_404(Group, id=group_id)
@@ -738,6 +761,24 @@ def post_detail(request, pk):
     reaction = request.GET.get('reaction')
     comment_id = request.GET.get('comment_id')
     return render(request, 'activities/post_detail.html', {
+        'post': post,
+        'comments': post.comments.all()[:100],  # Limit to 100 comments
+        'reaction': reaction,
+        'comment_id': comment_id,
+    })
+
+def post_detail_modal(request, pk):
+    post = get_object_or_404(
+        Post.objects.select_related('author', 'group')
+                   .prefetch_related(
+                       'likes',
+                       Prefetch('comments', queryset=Comment.objects.select_related('author'))
+                   ),
+        id=pk
+    )
+    reaction = request.GET.get('reaction')
+    comment_id = request.GET.get('comment_id')
+    return render(request, 'activities/post_detail_modal.html', {
         'post': post,
         'comments': post.comments.all()[:100],  # Limit to 100 comments
         'reaction': reaction,

@@ -45,6 +45,8 @@ urlpatterns = [
     path('share_to_user/', views.share_to_user, name='share_to_user'),
     path('share/<int:post_id>/', views.share_page, name='share_page'),
     path('event/<int:event_id>/register/', views.register_event, name='register_event'),
+path('event/<int:pk>/modal/', views.event_detail_modal, name='event_detail_modal'),
+path('post/<int:pk>/modal/', views.post_detail_modal, name='post_detail_modal'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
