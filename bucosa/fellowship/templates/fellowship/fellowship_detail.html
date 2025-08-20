@@ -13,8 +13,8 @@
     <div class="bg-white rounded-xl shadow-md p-6 mb-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-indigo-800">{{ fellowship.name }}</h1>
-                <p class="text-indigo-600 mt-1">{{ fellowship.description|default:"A community of believers growing together in faith." }}</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ fellowship.name }}</h1>
+                <p class="text-gray-700 mt-1">{{ fellowship.description|default:"A community of believers growing together in faith." }}</p>
             </div>
             
             <!-- Join Button or Status -->
@@ -44,7 +44,7 @@
     <!-- Admin Controls -->
     {% if user.is_superuser %}
     <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
-        <h3 class="text-lg font-semibold text-indigo-800 mb-3 flex items-center">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
             </svg>
@@ -63,7 +63,7 @@
 
     <!-- Members Section -->
     <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-        <h2 class="text-xl font-semibold text-indigo-800 mb-4 flex items-center">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z" />
             </svg>
@@ -86,7 +86,7 @@
                     </span>
                     {% endif %}
                 </div>
-                <span class="text-xs text-indigo-700 mt-2 font-medium group-hover:text-indigo-600 transition">{{ m.user|display_name|truncatechars:12 }}</span>
+                <span class="text-xs text-gray-700 mt-2 font-medium group-hover:text-indigo-600 transition">{{ m.user|display_name|truncatechars:12 }}</span>
             </a>
             {% endfor %}
         </div>
@@ -95,26 +95,26 @@
     <!-- Navigation Tabs -->
     <div class="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
         <div class="nav-tabs flex overflow-x-auto scrollbar-hide">
-            <a href="#" class="px-6 py-3 text-sm font-medium text-indigo-600 whitespace-nowrap border-b-2 border-indigo-500">
+            <a href="#" class="px-6 py-3 text-sm font-medium text-gray-900 whitespace-nowrap border-b-2 border-indigo-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
                     <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
                 </svg>
                 Posts
             </a>
-            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-6 py-3 text-sm font-medium text-indigo-700 hover:text-indigo-600 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
+            <a href="{% url 'fellowship_events' fellowship.id %}" class="px-6 py-3 text-sm font-medium text-gray-700 hover:text-gray-900 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
                 </svg>
                 Events
             </a>
-            <a href="{% url 'donation_list' %}" class="px-6 py-3 text-sm font-medium text-indigo-700 hover:text-indigo-600 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
+            <a href="{% url 'donation_list' %}" class="px-6 py-3 text-sm font-medium text-gray-700 hover:text-gray-900 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                 </svg>
                 Donate
             </a>
-            <a href="{% url 'fellowship_history' %}" class="px-6 py-3 text-sm font-medium text-indigo-700 hover:text-indigo-600 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
+            <a href="{% url 'fellowship_history' %}" class="px-6 py-3 text-sm font-medium text-gray-700 hover:text-gray-900 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                 </svg>
@@ -125,7 +125,7 @@
 
     <!-- Fellowship Posts Section -->
     <div class="space-y-6">
-        <h2 class="text-xl font-semibold text-indigo-800 mb-4">Recent Posts</h2>
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent Posts</h2>
         
         {% if fellowship_posts %}
             {% for post in fellowship_posts %}
@@ -141,8 +141,8 @@
                             {% endif %}
                         </a>
                         <div>
-                            <a href="{% url 'users:profile' post.author.id %}" class="font-medium text-indigo-800 hover:text-indigo-600">{{ post.author|display_name }}</a>
-                            <div class="flex items-center text-xs text-indigo-600">
+                            <a href="{% url 'users:profile' post.author.id %}" class="font-medium text-gray-900 hover:text-indigo-600">{{ post.author|display_name }}</a>
+                            <div class="flex items-center text-xs text-gray-600">
                                 <span>{{ post.created_at|date:"M d, Y" }}</span>
                                 <span class="mx-1">•</span>
                                 <span>{{ post.created_at|timesince }} ago</span>
@@ -174,30 +174,30 @@
                     <div class="flex items-center justify-between py-3">
                         <div class="flex items-center gap-2">
                             <form method="post" action="{% url 'like_fellowship_post' fellowship.id post.id %}" class="">
-                                                            {% csrf_token %}
-                                                            <button type="submit" class="reaction-button">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 group-hover:text-rose-600 transition" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
-                                                                </svg>
-                                                                <span class="text-sm font-semibold text-rose-500 group-hover:text-rose-600 transition">{{ post.like_count|default:0 }}</span>
-                                                            </button>
-                                                        </form>
-                                                        <button onclick="toggleComments(this)" class="reaction-button">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 group-hover:text-gray-900 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                            </svg>
-                                                            <span class="text-sm font-semibold text-gray-800 group-hover:text-gray-900 transition">Comment ({{ post.comment_count|default:0 }})</span>
-                                                        </button>
+                                {% csrf_token %}
+                                <button type="submit" class="reaction-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 group-hover:text-rose-600 transition" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-sm font-semibold text-rose-500 group-hover:text-rose-600 transition">{{ post.like_count|default:0 }}</span>
+                                </button>
+                            </form>
+                            <button onclick="toggleComments(this)" class="reaction-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 group-hover:text-gray-900 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-gray-900 transition">Comment ({{ post.comment_count|default:0 }})</span>
+                            </button>
                         </div>
                         <form method="post" action="{% url 'share_fellowship_post' fellowship.id post.id %}">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="reaction-button">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 group-hover:text-gray-900 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                                        </svg>
-                                                        <span class="text-sm font-semibold text-gray-800 group-hover:text-gray-900 transition">Share</span>
-                                                    </button>
-                                                </form>
+                            {% csrf_token %}
+                            <button type="submit" class="reaction-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 group-hover:text-gray-900 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                </svg>
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-gray-900 transition">Share</span>
+                            </button>
+                        </form>
                     </div>
                     
                     <!-- Comments Section (Initially Hidden) -->
@@ -220,13 +220,13 @@
                                 {% endif %}
                             </a>
                             <div class="bg-indigo-50 rounded-lg px-3 py-2 flex-grow">
-                                <a href="{% url 'users:profile' comment.author.id %}" class="font-medium text-sm text-indigo-800 hover:text-indigo-600">{{ comment.author|display_name }}</a>
+                                <a href="{% url 'users:profile' comment.author.id %}" class="font-medium text-sm text-gray-900 hover:text-indigo-600">{{ comment.author|display_name }}</a>
                                 <p class="text-sm text-gray-800">{{ comment.content }}</p>
-                                <div class="text-xs text-indigo-600 mt-1">{{ comment.created_at|timesince }} ago</div>
+                                <div class="text-xs text-gray-600 mt-1">{{ comment.created_at|timesince }} ago</div>
                             </div>
                         </div>
                         {% empty %}
-                        <div class="text-center text-sm text-indigo-600 py-2">No comments yet</div>
+                        <div class="text-center text-sm text-gray-600 py-2">No comments yet</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -234,11 +234,11 @@
             {% endfor %}
         {% else %}
             <div class="bg-white rounded-xl shadow-md p-8 text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h3 class="mt-2 text-lg font-medium text-indigo-800">No posts yet</h3>
-                <p class="mt-1 text-sm text-indigo-600">Be the first to share something with your fellowship!</p>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">No posts yet</h3>
+                <p class="mt-1 text-sm text-gray-700">Be the first to share something with your fellowship!</p>
                 {% if is_member %}
                 <div class="mt-6">
                     <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (commentsDiv) {
                         const newComment = document.createElement('div');
                         newComment.className = 'flex items-start space-x-2 pt-3';
-                        newComment.innerHTML = `<div class='bg-indigo-50 rounded-lg px-3 py-2 flex-grow'><span class='font-medium text-sm text-indigo-800'>You</span><p class='text-sm text-gray-800'>${content}</p><div class='text-xs text-indigo-600 mt-1'>Just now</div></div>`;
+                        newComment.innerHTML = `<div class='bg-indigo-50 rounded-lg px-3 py-2 flex-grow'><span class='font-medium text-sm text-gray-900'>You</span><p class='text-sm text-gray-800'>${content}</p><div class='text-xs text-gray-600 mt-1'>Just now</div></div>`;
                         commentsDiv.appendChild(newComment);
                         form.querySelector('input[name="content"]').value = '';
                         
