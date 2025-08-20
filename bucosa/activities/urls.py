@@ -47,6 +47,7 @@ urlpatterns = [
     path('event/<int:event_id>/register/', views.register_event, name='register_event'),
 path('event/<int:pk>/modal/', views.event_detail_modal, name='event_detail_modal'),
 path('post/<int:pk>/modal/', views.post_detail_modal, name='post_detail_modal'),
+path('announcements/latest/', views.latest_announcements, name='latest_announcements'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

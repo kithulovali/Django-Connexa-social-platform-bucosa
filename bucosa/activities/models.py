@@ -67,6 +67,7 @@ class Announcement(models.Model):
     message = models.TextField()
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=20, choices=ANNOUNCEMENT_TYPES)
+    image = CloudinaryField('announcement_images', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -26,16 +26,21 @@ from django import forms
 class AnnouncementForm(forms.ModelForm):
     class Meta:
         model = Announcement
-        fields = ['title', 'message', 'type']
+        fields = ['title', 'message', 'type', 'image']
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'file-input'}),
+        }
 
 @login_required
 def create_announcement(request):
     # Only allow superusers
     if not request.user.is_superuser:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'errors': 'You do not have permission to send announcements.'})
         messages.error(request, 'You do not have permission to send announcements.')
         return redirect('activities:home')
     if request.method == 'POST':
-        form = AnnouncementForm(request.POST)
+        form = AnnouncementForm(request.POST, request.FILES)
         if form.is_valid():
             announcement = form.save(commit=False)
             announcement.sender = request.user
@@ -60,8 +65,13 @@ def create_announcement(request):
                         [user.email],
                         fail_silently=True,
                     )
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Announcement sent to all users!'})
             messages.success(request, 'Announcement sent to all users!')
             return redirect('activities:home')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors})
     else:
         form = AnnouncementForm()
     return render(request, 'activities/create_announcement.html', {'form': form})
@@ -852,3 +862,29 @@ def home_fellowship(request):
         'fellowship_events': fellowship_events,
         'is_fellowship_member': is_fellowship_member,
     })
+@login_required
+def latest_announcements(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # Get the latest announcements (last 10 minutes)
+        ten_minutes_ago = timezone.now() - timezone.timedelta(minutes=10)
+        announcements = Announcement.objects.filter(created_at__gte=ten_minutes_ago).select_related('sender').order_by('-created_at')
+        
+        # Format announcements for JSON response
+        announcements_data = []
+        for announcement in announcements:
+            announcements_data.append({
+                'id': announcement.id,
+                'title': announcement.title,
+                'message': announcement.message,
+                'sender_name': announcement.sender.get_full_name() or announcement.sender.username,
+                'created_at': announcement.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'type_display': announcement.get_type_display(),
+                'image': announcement.image.url if announcement.image else None,
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'announcements': announcements_data
+        })
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request'})
