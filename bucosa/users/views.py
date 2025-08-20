@@ -384,7 +384,7 @@ def profile_user(request, pk):
     )
     
     events_prefetch = Prefetch(
-        'event',
+        'event_set',  # This is correct for Event model
         queryset=Event.objects.select_related('creator').order_by('-start_time')[:10],
         to_attr='prefetched_events'
     )
@@ -411,7 +411,7 @@ def profile_user(request, pk):
     ).annotate(
         followers_count=Count('followers', distinct=True),
         following_count=Count('following', distinct=True),
-        posts_count=Count('post', distinct=True),
+        posts_count=Count('post', distinct=True),  # Fixed: use 'post' not 'post_set'
         is_following=Exists(
             user_following.objects.filter(
                 user_id=auth_user_id,
@@ -907,7 +907,7 @@ def analytics_dashboard(request):
     if hasattr(user, 'admin_groups'):
         admin_groups = user.admin_groups.select_related('group').prefetch_related(
             Prefetch('group__posts', queryset=Post.objects.all()),
-            Prefetch('group__event', queryset=Event.objects.all())
+            Prefetch('group__event_set', queryset=Event.objects.all())
         )
         
         for group_profile in admin_groups:
