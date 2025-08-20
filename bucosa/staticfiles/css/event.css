@@ -1,0 +1,43 @@
+body {
+    background-color: #f9fafb;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+input, textarea, select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  
+  /* Improve mobile form experience */
+@media (max-width: 640px) {
+.min-h-screen {
+      min-height: 100vh;
+      min-height: 100dvh; /* Dynamic viewport height for mobile */
+    }
+    
+input, textarea, select {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Better touch targets */
+button {
+      min-height: 48px;
+    }
+    
+input, textarea {
+      min-height: 48px;
+    }
+  }
+  
+  /* Custom file input styling */
+input[type="file"] + div:hover {
+    border-color: #3b82f6;
+    background-color: #f8fafc;
+  }
+  
+  /* Focus states */
+input:focus, textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }

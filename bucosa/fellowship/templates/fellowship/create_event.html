@@ -1,67 +1,142 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="min-h-screen bg-white flex flex-col">
-  
-  <!-- Header -->
-  <div class="bg-blue-600 px-6 py-4 flex items-center sticky top-0 z-10">
-    <svg class="w-5 h-5 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-    </svg>
-    <h2 class="text-lg font-semibold text-white">Create Event</h2>
-  </div>
+<head>
+  <link rel="stylesheet" href="{% static 'css/event.css' %}">
+</head>
+<div class="min-h-screen bg-gray-50">
+  <!-- App Header -->
+  <header class="bg-blue-600 text-white p-4 shadow-md">
+    <div class="flex items-center">
+      <button onclick="history.back()" class="mr-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      <h1 class="text-xl font-bold">Create Event</h1>
+    </div>
+  </header>
 
   <!-- Form Content -->
-  <div class="flex-1 overflow-y-auto px-4 py-6">
-    <form method="post" enctype="multipart/form-data" class="space-y-5">
+  <div class="p-5 pb-6">
+    <form method="post" enctype="multipart/form-data" class="space-y-5" id="event-form">
       {% csrf_token %}
       
       {% for field in form %}
-      <div>
-        <label class="block text-sm font-medium text-blue-600 mb-2">{{ field.label_tag }}</label>
-
+      <div class="space-y-2">
+        <label class="block font-medium text-gray-700 text-sm">{{ field.label_tag }}</label>
+        
         {% if field.name == "event_image" %}
           <!-- File Input -->
-          <div class="flex items-center">
-            <label class="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700">
-              Choose File
-              {{ field|add_class:"hidden" }}
-            </label>
-            <span class="text-gray-500 text-sm ml-3" id="file-name-{{ field.name }}">No file chosen</span>
+          <div class="relative">
+            <input 
+              type="file" 
+              name="{{ field.name }}" 
+              id="{{ field.id_for_label }}" 
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              accept="image/*"
+            >
+            <div class="p-3 border border-gray-300 rounded-lg bg-white flex items-center justify-between">
+              <span class="text-gray-500" id="file-name-{{ field.name }}">Choose event image</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
           </div>
-        {% elif field|add_class:"textarea" %}
-          <textarea class="w-full px-3 py-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500" name="{{ field.name }}" placeholder="{{ field.label }}"></textarea>
+        {% elif field.field.widget.input_type == 'textarea' %}
+          <textarea 
+            name="{{ field.name }}" 
+            id="{{ field.id_for_label }}" 
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white resize-none"
+            rows="4"
+            {% if field.field.required %}required{% endif %}
+            placeholder="Enter {{ field.label|lower }}"
+          >{% if field.value %}{{ field.value }}{% endif %}</textarea>
+        {% elif field.field.widget.input_type == 'datetime-local' %}
+          <input 
+            type="datetime-local" 
+            name="{{ field.name }}" 
+            id="{{ field.id_for_label }}" 
+            value="{% if field.value %}{{ field.value }}{% endif %}"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            {% if field.field.required %}required{% endif %}
+          >
+        {% elif field.field.widget.input_type == 'date' %}
+          <input 
+            type="date" 
+            name="{{ field.name }}" 
+            id="{{ field.id_for_label }}" 
+            value="{% if field.value %}{{ field.value }}{% endif %}"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            {% if field.field.required %}required{% endif %}
+          >
+        {% elif field.field.widget.input_type == 'time' %}
+          <input 
+            type="time" 
+            name="{{ field.name }}" 
+            id="{{ field.id_for_label }}" 
+            value="{% if field.value %}{{ field.value }}{% endif %}"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            {% if field.field.required %}required{% endif %}
+          >
         {% else %}
-          <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500" placeholder="{{ field.label }}">
+          <input 
+            type="{{ field.field.widget.input_type }}" 
+            name="{{ field.name }}" 
+            id="{{ field.id_for_label }}" 
+            value="{% if field.value %}{{ field.value }}{% endif %}"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            {% if field.field.required %}required{% endif %}
+            placeholder="Enter {{ field.label|lower }}"
+          >
         {% endif %}
-
+        
         {% if field.help_text %}
           <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
         {% endif %}
         {% for error in field.errors %}
-          <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+          <p class="text-xs text-red-500 mt-1 font-medium">{{ error }}</p>
         {% endfor %}
       </div>
       {% endfor %}
-
-      <!-- Submit Button -->
-      <button type="submit" class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 flex items-center justify-center">
-        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Create Event
-      </button>
+      
+      <!-- Submit Button inside form -->
+      <div class="mt-8 mb-6">
+        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-4 rounded-lg transition-all flex items-center justify-center space-x-2 hover:bg-blue-700 font-medium">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>Create Event</span>
+        </button>
+      </div>
     </form>
   </div>
 </div>
-
 <script>
-  // Show chosen file name
-  document.querySelectorAll('input[type="file"]').forEach(input => {
-    input.addEventListener('change', e => {
-      const fileNameSpan = document.getElementById(`file-name-${input.name}`);
-      fileNameSpan.textContent = input.files.length > 0 ? input.files[0].name : 'No file chosen';
+// Show chosen file name
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInputs = document.querySelectorAll('input[type="file"]');
+  
+  fileInputs.forEach(input => {
+    input.addEventListener('change', function(e) {
+      const fileNameSpan = document.getElementById(`file-name-${this.name}`);
+      if (fileNameSpan) {
+        fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Choose event image';
+      }
     });
   });
+  
+  // Form submission
+  const form = document.getElementById('event-form');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function(e) {
+      console.log('Event form submitting...');
+    });
+  }
+});
 </script>
 {% endblock %}

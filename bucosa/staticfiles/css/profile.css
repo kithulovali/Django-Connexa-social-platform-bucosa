@@ -1,40 +1,23 @@
-body {
+ body {
     background-color: #f9fafb;
     max-width: 100%;
     overflow-x: hidden;
   }
   
-input, textarea {
+  input, textarea {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
   }
   
-  /* Safe area support for modern phones with notches */
-.safe-area-bottom {
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  }
-  
   /* Improve mobile form experience */
-@media (max-width: 640px) {
-.min-h-screen {
+  @media (max-width: 640px) {
+    .min-h-screen {
       min-height: 100vh;
-      min-height: 100dvh; /* Dynamic viewport height for mobile */
+      min-height: 100dvh; 
     }
     
-input, textarea, select {
-      font-size: 16px; /* Prevents zoom on iOS */
-    }
-    
-    /* Ensure content doesn't hide behind fixed button */
-.pb-24 {
-      padding-bottom: 7rem; /* Increased padding for mobile */
-    }
-  }
-  
-  /* Additional safety for very small screens */
-@media (max-height: 600px) {
-.pb-24 {
-      padding-bottom: 8rem;
+    input, textarea, select {
+      font-size: 16px; 
     }
   }
