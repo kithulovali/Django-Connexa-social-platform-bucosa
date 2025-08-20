@@ -4,10 +4,29 @@ body {
     overflow-x: hidden;
   }
   
+  /* Force visibility for all form elements */
+  .space-y-2 {
+    margin-bottom: 1.5rem !important;
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  /* Ensure inputs are visible */
 input, textarea, select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Ensure labels are visible */
+label {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-bottom: 0.5rem !important;
   }
   
   /* Improve mobile form experience */

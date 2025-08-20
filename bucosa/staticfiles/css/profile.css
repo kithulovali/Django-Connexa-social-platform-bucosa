@@ -1,23 +1,37 @@
- body {
+body {
     background-color: #f9fafb;
     max-width: 100%;
     overflow-x: hidden;
   }
   
-  input, textarea {
+input, textarea {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
   }
   
   /* Improve mobile form experience */
-  @media (max-width: 640px) {
-    .min-h-screen {
+@media (max-width: 640px) {
+.min-h-screen {
       min-height: 100vh;
-      min-height: 100dvh; 
+      min-height: 100dvh; /* Dynamic viewport height for mobile */
     }
     
-    input, textarea, select {
-      font-size: 16px; 
+input, textarea, select {
+      font-size: 16px; /* Prevents zoom on iOS */
     }
+    
+    /* Ensure enough space for fixed button */
+    .p-5 {
+      padding-bottom: 120px !important;
+    }
+  }
+  
+  /* Fixed button positioning */
+.fixed {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
   }
