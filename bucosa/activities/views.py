@@ -30,7 +30,6 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.conf import settings
 from .models import Announcement, User
-from .forms import AnnouncementForm
 from notifications.utils import create_notification
 # Announcement form
 class AnnouncementForm(forms.ModelForm):
@@ -38,12 +37,24 @@ class AnnouncementForm(forms.ModelForm):
         model = Announcement
         fields = ['title', 'message', 'type', 'image']
         widgets = {
-            'image': forms.FileInput(attrs={'class': 'file-input'}),
+            'title': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'placeholder': 'Enter announcement title'
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                'placeholder': 'Enter your announcement message',
+                'rows': 4
+            }),
+            'type': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+            })
         }
 
 # views.py
-
-
 @login_required
 def create_announcement(request):
     # Only allow superusers
@@ -62,6 +73,8 @@ def create_announcement(request):
             
             # Send notifications and emails
             users = User.objects.exclude(id=announcement.sender.id)
+            email_count = 0
+            
             for user in users:
                 # In-app notification
                 create_notification(
@@ -164,40 +177,45 @@ def create_announcement(request):
                     
                     # Attach image if exists
                     if announcement.image:
-                        # Get the image path and read the file
-                        image_path = announcement.image.path
-                        with open(image_path, 'rb') as img_file:
-                            image_data = img_file.read()
-                        
-                        # Determine content type based on file extension
-                        image_name = announcement.image.name.split('/')[-1]
-                        if image_name.lower().endswith('.png'):
-                            content_type = 'image/png'
-                        elif image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg'):
-                            content_type = 'image/jpeg'
-                        elif image_name.lower().endswith('.gif'):
-                            content_type = 'image/gif'
-                        else:
-                            content_type = 'image/jpeg'  # Default
-                        
-                        # Add image as attachment with content ID for embedding
-                        email.attach(
-                            image_name, 
-                            image_data, 
-                            content_type
-                        )
-                        # Set Content-ID header for embedding in HTML
-                        email.extra_headers[f'Content-ID'] = f'<{image_name}>'
+                        try:
+                            # Get the image data
+                            image_data = announcement.image.read()
+                            
+                            # Determine content type based on file extension
+                            image_name = announcement.image.name.split('/')[-1]
+                            if image_name.lower().endswith('.png'):
+                                content_type = 'image/png'
+                            elif image_name.lower().endswith('.jpg') or image_name.lower().endswith('.jpeg'):
+                                content_type = 'image/jpeg'
+                            elif image_name.lower().endswith('.gif'):
+                                content_type = 'image/gif'
+                            else:
+                                content_type = 'image/jpeg'  # Default
+                            
+                            # Add image as attachment with content ID for embedding
+                            email.attach(
+                                image_name, 
+                                image_data, 
+                                content_type
+                            )
+                            # Set Content-ID header for embedding in HTML
+                            email.extra_headers[f'Content-ID'] = f'<{image_name}>'
+                        except Exception as e:
+                            print(f"Error processing image: {e}")
                     
                     # Send email
                     try:
                         email.send(fail_silently=True)
+                        email_count += 1
                     except Exception as e:
-                        print(f"Error sending email: {e}")
+                        print(f"Error sending email to {user.email}: {e}")
             
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'success': True, 'message': 'Announcement sent to all users!'})
-            messages.success(request, 'Announcement sent to all users!')
+                return JsonResponse({
+                    'success': True, 
+                    'message': f'Announcement sent to all users! Emails delivered to {email_count} users.'
+                })
+            messages.success(request, f'Announcement sent to all users! Emails delivered to {email_count} users.')
             return redirect('activities:home')
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
