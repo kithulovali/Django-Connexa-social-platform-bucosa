@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<head>
-  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-</head>
 <div class="min-h-screen bg-gray-50">
   <!-- App Header -->
   <header class="bg-indigo-600 text-white p-4 shadow-md">
@@ -18,7 +15,7 @@
   </header>
 
   <!-- Form Content -->
-  <div class="p-5 pb-6">
+  <div class="p-5" style="padding-bottom: 100px;">
     <form method="post" enctype="multipart/form-data" class="space-y-5" id="profile-form">
       {% csrf_token %}
       {{ form.non_field_errors }}
@@ -81,15 +78,28 @@
 
 </div>
 <script>
-// Simple form validation and submission
+// Ensure button is always visible and functional
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('profile-form');
-  const submitBtn = form.querySelector('button[type="submit"]');
+  const buttonContainer = document.querySelector('.fixed');
+  const submitBtn = buttonContainer.querySelector('button');
   
-  if (submitBtn) {
+  // Force visibility
+  if (buttonContainer) {
+    buttonContainer.style.display = 'block';
+    buttonContainer.style.visibility = 'visible';
+    buttonContainer.style.position = 'fixed';
+    buttonContainer.style.bottom = '0';
+    buttonContainer.style.left = '0';
+    buttonContainer.style.right = '0';
+    buttonContainer.style.zIndex = '9999';
+  }
+  
+  // Ensure form submission works
+  if (submitBtn && form) {
     submitBtn.addEventListener('click', function(e) {
-      // Let the form submit normally
-      console.log('Form submitting...');
+      e.preventDefault();
+      form.submit();
     });
   }
 });
