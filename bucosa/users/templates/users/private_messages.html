@@ -228,38 +228,38 @@
         </div>
       </div>
 
-      <!-- Message Input - Fixed at bottom -->
-      <div class="bg-white border-t border-gray-200 px-4 py-3 flex-shrink-0 shadow-md">
-        <form method="post" enctype="multipart/form-data" class="flex items-end space-x-2">
-          {% csrf_token %}
-          
-          <!-- Attachment Button -->
-          <button type="button" class="p-2 text-gray-500 hover:text-blue-500 rounded-full transition-colors bg-gray-100 hover:bg-gray-200">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-            </svg>
-          </button>
+     <!-- Message Input - Fixed at bottom -->
+<div class="bg-white border-t border-gray-200 px-3 py-2 flex-shrink-0 shadow-md sticky bottom-0 z-20">
+  <form method="post" enctype="multipart/form-data" class="flex items-end space-x-2">
+    {% csrf_token %}
+    
+    <!-- Attachment Button -->
+    <button type="button" class="p-2 text-gray-500 hover:text-blue-500 rounded-full transition-colors bg-gray-100 hover:bg-gray-200">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+      </svg>
+    </button>
 
-          <!-- Message Input -->
-          <div class="flex-1 relative">
-            <textarea 
-              name="content" 
-              id="message-input"
-              rows="1" 
-              placeholder="Type a message..." 
-              class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm bg-gray-50"
-              style="min-height: 44px; max-height: 120px;"
-            ></textarea>
-          </div>
+    <!-- Message Input -->
+    <div class="flex-1 relative">
+      <textarea 
+        name="content" 
+        id="message-input"
+        rows="1" 
+        placeholder="Type a message..." 
+        class="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm bg-gray-50"
+        style="min-height: 44px; max-height: 120px; overflow-y:auto;"
+      ></textarea>
+    </div>
 
-          <!-- Send Button -->
-          <button type="submit" class="p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors shadow-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
-            </svg>
-          </button>
-        </form>
-      </div>
+    <!-- Send Button -->
+    <button type="submit" class="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors shadow">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+      </svg>
+    </button>
+  </form>
+</div>
 
     {% else %}
       <!-- Welcome Screen -->
