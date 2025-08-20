@@ -57,10 +57,6 @@
           <div class="flex-1 pt-2">
             <div class="flex justify-around text-center">
               <div>
-                <div class="font-semibold text-base">{{ posts_count|default:0 }}</div>
-                <div class="text-gray-600 text-sm">posts</div>
-              </div>
-              <div>
                 <a href="{% url 'users:followers_list' user.id %}" class="block hover:text-blue-700">
                   <div class="font-semibold text-base">{{ followers_count|default:0 }}</div>
                   <div class="text-gray-600 text-sm hover:text-blue-700">followers</div>
@@ -163,7 +159,7 @@
             <!-- Stats -->
             <div class="flex gap-8">
               <div class="flex items-center gap-1">
-                <span class="font-semibold">{{ posts_count|default:0 }}</span>
+                <span class="font-semibold">{{ posts.count|default:0 }}</span>
                 <span class="text-gray-700">posts</span>
               </div>
               <a href="{% url 'users:followers_list' user.id %}" class="flex items-center gap-1 hover:text-blue-700">

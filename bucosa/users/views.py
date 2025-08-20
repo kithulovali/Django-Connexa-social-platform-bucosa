@@ -378,25 +378,25 @@ def profile_user(request, pk):
 
     # Prefetch all related data in optimized queries
     posts_prefetch = Prefetch(
-        'post',
+        'post_set',
         queryset=Post.objects.select_related('author').order_by('-created_at')[:20],
         to_attr='prefetched_posts'
     )
     
     events_prefetch = Prefetch(
-        'event_set',  # This is correct for Event model
+        'event_set',
         queryset=Event.objects.select_related('creator').order_by('-start_time')[:10],
         to_attr='prefetched_events'
     )
     
     reposts_prefetch = Prefetch(
-        'repost',
+        'repost_set',
         queryset=Repost.objects.select_related('user', 'post__author').order_by('-created_at')[:10],
         to_attr='prefetched_reposts'
     )
     
     saved_posts_prefetch = Prefetch(
-        'save',
+        'save_set',
         queryset=Save.objects.select_related('post__author').order_by('-created_at')[:10],
         to_attr='prefetched_saves'
     )
@@ -411,7 +411,6 @@ def profile_user(request, pk):
     ).annotate(
         followers_count=Count('followers', distinct=True),
         following_count=Count('following', distinct=True),
-        posts_count=Count('post', distinct=True),  # Fixed: use 'post' not 'post_set'
         is_following=Exists(
             user_following.objects.filter(
                 user_id=auth_user_id,
@@ -431,7 +430,6 @@ def profile_user(request, pk):
         'is_following': getattr(user, 'is_following', False),
         'followers_count': getattr(user, 'followers_count', 0),
         'following_count': getattr(user, 'following_count', 0),
-        'posts_count': getattr(user, 'posts_count', 0),
         'user_groups': getattr(user, 'prefetched_groups', []),
         'posts': getattr(user, 'prefetched_posts', []),
         'reposts': getattr(user, 'prefetched_reposts', []),
@@ -878,7 +876,7 @@ def analytics_dashboard(request):
 
     # User stats - Use annotations for efficiency
     user_stats = User.objects.filter(id=user.id).annotate(
-        post_count=Count('post'),
+        post_count=Count('post_set'),
         event_count=Count('event_set'),
         followers_count=Count('followers'),
         following_count=Count('following')
@@ -906,7 +904,7 @@ def analytics_dashboard(request):
     group_stats = []
     if hasattr(user, 'admin_groups'):
         admin_groups = user.admin_groups.select_related('group').prefetch_related(
-            Prefetch('group__posts', queryset=Post.objects.all()),
+            Prefetch('group__post_set', queryset=Post.objects.all()),
             Prefetch('group__event_set', queryset=Event.objects.all())
         )
         
@@ -914,6 +912,7 @@ def analytics_dashboard(request):
             group = group_profile.group
             group_stats.append({
                 'name': group.name,
+                'posts': group.post_set.count(),
                 'events': group.event_set.count(),
                 'members': group.user_set.count(),
             })
