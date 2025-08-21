@@ -69,3 +69,14 @@ class donation(models.Model):
         return self.name or "(no name)"
 
 
+class Profile(models.Model):
+    name = models.CharField(max_length=150)
+    fellowship_name = models.CharField(max_length=150)
+    description = models.TextField()
+    image = CloudinaryField('profile_image', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name or "(no name)"
+    
+    

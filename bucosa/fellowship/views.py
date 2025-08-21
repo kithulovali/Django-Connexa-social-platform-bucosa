@@ -5,8 +5,8 @@ from .models import MembershipRequest
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from . forms import  donationForm , fellowship_editForm
-from . models import fellowship_edit , donation , FellowshipMember , FellowshipPost , FellowshipEvent
+from . forms import  donationForm , fellowship_editForm , ProfileForm
+from . models import fellowship_edit , donation , FellowshipMember , FellowshipPost , FellowshipEvent , Profile
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import send_mail
@@ -14,6 +14,8 @@ from django.conf import settings
 from notifications.models import Notification
 from django.contrib.auth.models import User
 from fellowship.models import FellowshipMember
+from activities.models import GenericLike, GenericComment
+from django.contrib.contenttypes.models import ContentType
 # Create your views here.
 @login_required
 def fellowship_view(request):
@@ -173,8 +175,7 @@ def fellowship_detail(request, fellowship_id):
     followers_count = members.count()
 
     # Annotate posts with like_count, comment_count, and comments
-    from activities.models import GenericLike, GenericComment
-    from django.contrib.contenttypes.models import ContentType
+
     post_ct = ContentType.objects.get_for_model(FellowshipPost)
     annotated_posts = []
     for post in posts:
@@ -382,3 +383,19 @@ def share_fellowship_post(request, fellowship_id, post_id):
         object_id=post.id
     )
     return redirect('fellowship_detail', fellowship_id=fellowship_id)
+
+@login_required
+def create_fellowship_profile(request):
+    if request.method == "POST":
+        form = ProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            user_profile.user = request.user
+            user_profile.save()
+            return redirect('fellowship_detail', user_id=request.user.id)
+    else:
+        form = ProfileForm()
+    return render(request , "fellowship/profile.html", {
+        'form': form
+    })
+    
