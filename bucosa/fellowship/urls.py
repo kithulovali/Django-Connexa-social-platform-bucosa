@@ -31,7 +31,7 @@ urlpatterns = [
     path('<int:fellowship_id>/post/<int:post_id>/like/', views.like_fellowship_post, name='like_fellowship_post'),
     path('<int:fellowship_id>/post/<int:post_id>/comment/', views.comment_fellowship_post, name='comment_fellowship_post'),
     path('<int:fellowship_id>/post/<int:post_id>/share/', views.share_fellowship_post, name='share_fellowship_post'),
-    path('profile/<int:profile_id>/', views.create_fellowship_profile, name='fellowship_profile_detail'),
+    path('profile/', views.create_fellowship_profile, name='fellowship_profile_detail'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

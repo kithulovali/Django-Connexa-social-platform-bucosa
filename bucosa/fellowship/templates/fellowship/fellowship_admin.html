@@ -12,7 +12,7 @@
     <a href="{% url 'admin_my_posts_events' fellowship.id %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[200px] text-center">My Posts & Events</a>
     <a href="{% url 'donation_list' %}" class="bg-pink-700 hover:bg-pink-800 text-white px-4 py-2 rounded-lg font-semibold min-w-[220px] text-center">View Donation Requests</a>
     <a href="{% url 'membership_requests_page' fellowship.id %}" class="px-4 py-2 bg-red-600 text-white rounded-full font-semibold shadow hover:bg-red-700 transition">Manage Membership Requests</a>
-    <a href="{% url 'fellowship_profile_detail' fellowship.id %}" class="px-4 py-2 bg-green-600 text-white rounded-full font-semibold shadow hover:bg-green-700 transition">View Fellowship Profile</a>
+    <a href="{% url 'fellowship_profile_detail' %}" class="px-4 py-2 bg-green-600 text-white rounded-full font-semibold shadow hover:bg-green-700 transition">View Fellowship Profile</a>
   </div>
   <div class="mb-8">
     <h3 class="text-xl font-bold mb-2">Members ({{ members.count }})</h3>
