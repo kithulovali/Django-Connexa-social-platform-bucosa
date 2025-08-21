@@ -70,7 +70,7 @@ class donation(models.Model):
 
 
 class Profile(models.Model):
-    profile_fellowship = models.CharField(max_length=150)
+#    profile_fellowship = models.CharField(max_length=150)
     fellowship_name = models.CharField(max_length=150)
     description = models.TextField()
     image = CloudinaryField('profile_image', null=True, blank=True)
