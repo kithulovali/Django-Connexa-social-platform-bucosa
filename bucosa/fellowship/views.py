@@ -406,7 +406,6 @@ def create_fellowship_profile(request):
         'form': form
     })
     
-@login_required
 def update_fellowship_profile(request):
     # Get the user's profile or return 404 if it doesn't exist
     profile = get_object_or_404(Profile, user=request.user)
@@ -421,5 +420,5 @@ def update_fellowship_profile(request):
     
     return render(request, "fellowship/profile.html", {
         'form': form,
-        'is_update': True  
+        'is_update': True
     })
