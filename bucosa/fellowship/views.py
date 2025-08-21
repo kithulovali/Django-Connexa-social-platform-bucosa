@@ -388,6 +388,10 @@ def share_fellowship_post(request, fellowship_id, post_id):
 
 @login_required
 def create_fellowship_profile(request):
+    # Check if user already has a profile
+    if hasattr(request.user, 'profile'):
+        return redirect('update_fellowship_profile')
+    
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -397,7 +401,25 @@ def create_fellowship_profile(request):
             return redirect('fellowship_detail', user_id=request.user.id)
     else:
         form = ProfileForm()
-    return render(request , "fellowship/profile.html", {
+    
+    return render(request, "fellowship/profile.html", {
         'form': form
     })
     
+@login_required
+def update_fellowship_profile(request):
+    # Get the user's profile or return 404 if it doesn't exist
+    profile = get_object_or_404(Profile, user=request.user)
+    
+    if request.method == "POST":
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('fellowship_detail', user_id=request.user.id)
+    else:
+        form = ProfileForm(instance=profile)
+    
+    return render(request, "fellowship/profile.html", {
+        'form': form,
+        'is_update': True  
+    })
