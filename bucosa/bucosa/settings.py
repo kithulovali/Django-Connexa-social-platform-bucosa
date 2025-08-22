@@ -113,13 +113,13 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,
            #"PARSER_CLASS": "redis.connection.HiredisParser",
             "CONNECTION_POOL_KWARGS": {
-                "max_connections": 100,
+                "max_connections": 200,
                 "retry_on_timeout": True
             },
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
         },
         "KEY_PREFIX": "bucosa",
-        "TIMEOUT": 300,
+        "TIMEOUT": 600,  # Increase cache timeout to 10 minutes
     },
     "fallback": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -254,8 +254,8 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [os.environ.get("REDIS_URL")],
-            "capacity": 1500,  
-            "expiry": 10,
+            "capacity": 3000,  # Increase capacity for better handling of concurrent connections
+            "expiry": 30,  # Increase expiry time to 30 seconds
         },
     },
 }

@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from fellowship.models import FellowshipMember
 from activities.models import GenericLike, GenericComment
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 # Create your views here.
 @login_required
 def fellowship_view(request):
@@ -166,6 +167,13 @@ def create_fellowship_event(request, fellowship_id):
 
 @login_required
 def fellowship_detail(request, fellowship_id):
+    # Cache key generation
+    cache_key = f'fellowship_detail_{fellowship_id}_{request.user.id if request.user.is_authenticated else "anon"}'
+    cached_response = cache.get(cache_key)
+    
+    if cached_response:
+        return render(request, 'fellowship/fellowship_detail.html', cached_response)
+    
     try:
         profile_fellowship = fellowship.fellowship_profile
     except fellowship_edit.DoesNotExist:
@@ -193,7 +201,7 @@ def fellowship_detail(request, fellowship_id):
         post.comments = comments
         annotated_posts.append(post)
 
-    return render(request, 'fellowship/fellowship_detail.html', {
+    context = {
         'fellowship': fellowship,
         'fellowship_posts': annotated_posts,
         'events': events,
@@ -202,7 +210,12 @@ def fellowship_detail(request, fellowship_id):
         'is_admin': is_admin,
         'followers_count': followers_count,
         'profile_fellowship': profile_fellowship,
-    })
+    }
+    
+    # Cache the response for 5 minutes
+    cache.set(cache_key, context, 300)
+    
+    return render(request, 'fellowship/fellowship_detail.html', context)
 
 @login_required
 def fellowship_admin_dashboard(request, fellowship_id):
