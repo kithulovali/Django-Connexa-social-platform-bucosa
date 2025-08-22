@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <!-- Profile Header -->
+        <div class="relative">
+            {% if profile.image %}
+            <img src="{{ profile.image.url }}" alt="{{ profile.fellowship.name|default:'Profile Image' }}" class="w-full h-64 object-cover">
+            {% else %}
+            <div class="bg-gray-200 border-2 border-dashed rounded-xl w-full h-64 flex items-center justify-center">
+                <span class="text-gray-500">No profile image</span>
+            </div>
+            {% endif %}
+            
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+                <h1 class="text-3xl font-bold text-white">{{ profile.fellowship.name|default:'No Fellowship' }}</h1>
+            </div>
+        </div>
+        
+        <!-- Profile Content -->
+        <div class="p-6">
+            <!-- Profile Actions -->
+            {% if user == profile.user %}
+            <div class="flex justify-end mb-6">
+                <a href="{% url 'update_fellowship_profile' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
+                    Edit Profile
+                </a>
+            </div>
+            {% endif %}
+            
+            <!-- Profile Description -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">About</h2>
+                <p class="text-gray-700 whitespace-pre-line">{{ profile.description }}</p>
+            </div>
+            
+            <!-- Profile Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-medium text-gray-900 mb-2">Fellowship Information</h3>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Name:</span>
+                            <span class="font-medium">{{ profile.fellowship.name|default:'No Fellowship Assigned' }}</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Member since:</span>
+                            <span class="font-medium">{{ profile.created_at|date:"F d, Y" }}</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-medium text-gray-900 mb-2">Member Information</h3>
+                    <ul class="space-y-2">
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Username:</span>
+                            <span class="font-medium">{{ profile.user.username }}</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Email:</span>
+                            <span class="font-medium">{{ profile.user.email }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

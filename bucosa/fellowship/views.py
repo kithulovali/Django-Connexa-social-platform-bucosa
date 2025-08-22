@@ -166,7 +166,10 @@ def create_fellowship_event(request, fellowship_id):
 
 @login_required
 def fellowship_detail(request, fellowship_id):
-    profile_fellowship = Profile.objects.filter(fellowship_name__icontains=fellowship_id).first()
+    try:
+        profile_fellowship = fellowship.fellowship_profile
+    except fellowship_edit.DoesNotExist:
+        profile_fellowship = None
     fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
     posts = FellowshipPost.objects.filter(fellowship=fellowship, author=fellowship.admin).order_by('-created_at')
     events = FellowshipEvent.objects.filter(fellowship=fellowship).order_by('-start_time')
@@ -389,7 +392,7 @@ def share_fellowship_post(request, fellowship_id, post_id):
 @login_required
 def create_fellowship_profile(request):
     # Check if user already has a profile
-    if hasattr(request.user, 'profile'):
+    if hasattr(request.user, 'fellowship_profile'):
         return redirect('update_fellowship_profile')
     
     if request.method == "POST":
@@ -398,7 +401,7 @@ def create_fellowship_profile(request):
             user_profile = form.save(commit=False)
             user_profile.user = request.user
             user_profile.save()
-            return redirect('fellowship_detail', user_id=request.user.id)
+            return redirect('fellowship_profile_detail')
     else:
         form = ProfileForm()
     
@@ -406,6 +409,7 @@ def create_fellowship_profile(request):
         'form': form
     })
     
+@login_required
 def update_fellowship_profile(request):
     # Get the user's profile or return 404 if it doesn't exist
     profile = get_object_or_404(Profile, user=request.user)
@@ -414,11 +418,19 @@ def update_fellowship_profile(request):
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect('fellowship_detail', user_id=request.user.id)
+            return redirect('fellowship_profile_detail')
     else:
         form = ProfileForm(instance=profile)
     
-    return render(request, "fellowship/profile.html", {
-        'form': form,
-        'is_update': True
+    return render(request, "fellowship/profile_edit.html", {
+        'form': form
+    })
+
+@login_required
+def fellowship_profile_detail(request):
+    # Get the user's profile or return 404 if it doesn't exist
+    profile = get_object_or_404(Profile, user=request.user)
+    
+    return render(request, "fellowship/profile_detail.html", {
+        'profile': profile
     })

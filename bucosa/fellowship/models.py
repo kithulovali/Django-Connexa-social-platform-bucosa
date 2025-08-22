@@ -71,12 +71,10 @@ class donation(models.Model):
 
 class Profile(models.Model):
 #    profile_fellowship = models.CharField(max_length=150)
-    fellowship_name = models.CharField(max_length=150)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='fellowship_profile' ,blank =True , null =True)
+    fellowship = models.OneToOneField(fellowship_edit, on_delete=models.CASCADE, related_name='fellowship_profile', null=True, blank=True)
     description = models.TextField()
     image = CloudinaryField('profile_image', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return self.name or "(no name)"
-    
-    
+        return self.fellowship.name if self.fellowship and self.fellowship.name else "(no fellowship)"

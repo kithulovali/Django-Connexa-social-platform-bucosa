@@ -13,12 +13,16 @@
     <div class="bg-white rounded-xl shadow-md p-6 mb-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
            <div>
-            {% for profile_fellowship in profile_fellowships %}
-            <p>Fellowship Name:</p> {{ profile_fellowship.fellowship_name }}
-            <img src="{{ profile_fellowship.image.url }}" alt="{{ profile_fellowship.user.username }}'s profile picture" class="w-24 h-24 rounded-full">
+            {% if profile_fellowship %}
+            <h2 class="text-2xl font-bold text-gray-900">{{ profile_fellowship.fellowship.name }}</h2>
+            {% if profile_fellowship.image %}
+            <img src="{{ profile_fellowship.image.url }}" alt="{{ profile_fellowship.fellowship.name }} fellowship profile picture" class="w-24 h-24 rounded-full mt-2">
+            {% endif %}
             <p class="text-gray-700 mt-2">{{ profile_fellowship.description }}</p>
-            {% endfor %}
-
+            {% else %}
+            <h2 class="text-2xl font-bold text-gray-900">{{ fellowship.name }}</h2>
+            <p class="text-gray-700 mt-2">Welcome to {{ fellowship.name }} fellowship.</p>
+            {% endif %}
            </div>
             
             <!-- Join Button or Status -->
