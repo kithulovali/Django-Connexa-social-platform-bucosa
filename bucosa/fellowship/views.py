@@ -166,10 +166,6 @@ def create_fellowship_event(request, fellowship_id):
 
 @login_required
 def fellowship_detail(request, fellowship_id):
-    try:
-        profile_fellowship = fellowship.fellowship_profile
-    except fellowship_edit.DoesNotExist:
-        profile_fellowship = None
     fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
     posts = FellowshipPost.objects.filter(fellowship=fellowship, author=fellowship.admin).order_by('-created_at')
     events = FellowshipEvent.objects.filter(fellowship=fellowship).order_by('-start_time')
@@ -201,7 +197,6 @@ def fellowship_detail(request, fellowship_id):
         'is_member': is_member,
         'is_admin': is_admin,
         'followers_count': followers_count,
-        'profile_fellowship': profile_fellowship,
     })
 
 @login_required
