@@ -6,35 +6,21 @@ from .models import Notification
 from .tasks import send_notification_task
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
 # Notifications list page
 @login_required
 def notifications_list(request):
-    # Cache key generation
-    cache_key = f'notifications_list_{request.user.id}'
-    cached_response = cache.get(cache_key)
-    
-    if cached_response:
-        return render(request, 'notifications/notifications_list.html', cached_response)
-    
     notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
     unread_notifications = notifications.filter(is_read=False)
     read_notifications = notifications.filter(is_read=True)
     unread_count = unread_notifications.count()
     # Get a set of user IDs that the current user is following
     followed_user_ids = set(request.user.following.values_list('following_user_id', flat=True))
-    
-    context = {
+    return render(request, 'notifications/notifications_list.html', {
         'unread_notifications': unread_notifications,
         'read_notifications': read_notifications,
         'unread_notification_count': unread_count,
         'followed_user_ids': followed_user_ids,
-    }
-    
-    # Cache the response for 2 minutes
-    cache.set(cache_key, context, 120)
-    
-    return render(request, 'notifications/notifications_list.html', context)
+    })
 
 
 def send_notification_view(request):

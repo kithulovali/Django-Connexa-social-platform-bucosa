@@ -16,20 +16,18 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     'connexa-bucosa.up.railway.app',
-    'django-connexa-social-platform-bucosa-production.up.railway.app',
     '127.0.0.1',
     'localhost'
 ]
 
-# Security settings - only applied in production
-if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+# Security settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -115,13 +113,13 @@ CACHES = {
             "IGNORE_EXCEPTIONS": True,
            #"PARSER_CLASS": "redis.connection.HiredisParser",
             "CONNECTION_POOL_KWARGS": {
-                "max_connections": 200,
+                "max_connections": 100,
                 "retry_on_timeout": True
             },
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
         },
         "KEY_PREFIX": "bucosa",
-        "TIMEOUT": 600,  # Increase cache timeout to 10 minutes
+        "TIMEOUT": 300,
     },
     "fallback": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -256,8 +254,8 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [os.environ.get("REDIS_URL")],
-            "capacity": 3000,  # Increase capacity for better handling of concurrent connections
-            "expiry": 30,  # Increase expiry time to 30 seconds
+            "capacity": 1500,  
+            "expiry": 10,
         },
     },
 }

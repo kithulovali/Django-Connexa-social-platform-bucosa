@@ -437,11 +437,11 @@ def profile_user(request, pk):
         'events': getattr(user, 'prefetched_events', []),
     }
 
-    # Cache the full response for 10 minutes
+    # Cache the full response for 5 minutes
     cache.set(cache_key, {
         'context': context,
         'auth_user_id': auth_user_id
-    }, 600)
+    }, 300)
 
     return render(request, 'users/profile.html', context)
 
