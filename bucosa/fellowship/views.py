@@ -5,7 +5,7 @@ from .models import MembershipRequest, FellowshipMember, fellowship_edit, donati
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from . forms import donationForm, fellowship_editForm, ProfileForm
+from . forms import donationForm, fellowship_editForm
 from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import send_mail
 from django.conf import settings
@@ -269,7 +269,7 @@ def fellowship_detail(request, fellowship_id):
         'is_member': is_member,
         'is_admin': is_admin,
         'followers_count': followers_count,
-        'profile_fellowship': profile_fellowship,
+
     }
     
     cache.set(cache_key, context, 300)
