@@ -260,6 +260,8 @@ CHANNEL_LAYERS = {
             "expiry": 30,
             "socket_timeout": 10,
             "socket_connect_timeout": 10,
+            # Add this line:
+            "group_expiry": 86400,  # 24 hours in seconds
         },
     },
 }
