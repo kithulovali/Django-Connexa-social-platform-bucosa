@@ -141,22 +141,25 @@ function pollUnreadNotificationsBadge() {
 
       // WebSocket reconnect logic
       function setupNotificationSocket() {
-        let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-        let ws_path = ws_scheme + '://' + window.location.host + "/ws/notifications/";
-        let notificationSocket = new WebSocket(ws_path);
+        // Only establish WebSocket connection for authenticated users
+        if (window.USER_IS_AUTHENTICATED) {
+          let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+          let ws_path = ws_scheme + '://' + window.location.host + "/ws/notifications/";
+          let notificationSocket = new WebSocket(ws_path);
 
-        notificationSocket.onmessage = function(e) {
-          const data = JSON.parse(e.data);
-          showToast(data.message || "New notification", 'info');
-          playNotificationSound();
-          updateNotificationBadge();
-          prependNotificationDropdown(data);
-        };
+          notificationSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            showToast(data.message || "New notification", 'info');
+            playNotificationSound();
+            updateNotificationBadge();
+            prependNotificationDropdown(data);
+          };
 
-        notificationSocket.onclose = function(e) {
-          console.error('Notification socket closed unexpectedly, reconnecting...');
-          setTimeout(setupNotificationSocket, 2000);
-        };
+          notificationSocket.onclose = function(e) {
+            console.error('Notification socket closed unexpectedly, reconnecting...');
+            setTimeout(setupNotificationSocket, 2000);
+          };
+        }
       }
       setupNotificationSocket();
 
