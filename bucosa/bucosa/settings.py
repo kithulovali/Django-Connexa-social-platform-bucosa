@@ -256,8 +256,10 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [os.environ.get("REDIS_URL")],
-            "capacity": 3000,  # Increase capacity for better handling of concurrent connections
-            "expiry": 30,  # Increase expiry time to 30 seconds
+            "capacity": 3000,
+            "expiry": 30,
+            "socket_timeout": 10,
+            "socket_connect_timeout": 10,
         },
     },
 }
