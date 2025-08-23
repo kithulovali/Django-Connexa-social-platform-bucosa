@@ -110,14 +110,15 @@ def create_fellowship_post(request, fellowship_id):
             all_users = User.objects.exclude(id=request.user.id).exclude(email='').exclude(email__isnull=True)
             site_url = request.build_absolute_uri('/')[:-1]  # Remove trailing slash
             fellowship_url = request.build_absolute_uri(f'/fellowship/{fellowship.id}/')
+            messages = []
+            subject = 'Bucosa Fellowship Posted'
+            message = f'{request.user.username} posted in {fellowship.name}:\n\n{content}\n\nView on site: {fellowship_url}'
+            from_email = settings.DEFAULT_FROM_EMAIL
             for user in all_users:
-                send_mail(
-                    'Bucosa Fellowship Posted',
-                    f'{request.user.username} posted in {fellowship.name}:\n\n{content}\n\nView on site: {fellowship_url}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=True,
-                )
+                messages.append((subject, message, from_email, [user.email]))
+            if messages:
+                from django.core.mail import send_mass_mail
+                send_mass_mail(messages, fail_silently=True)
             return redirect('fellowship_detail', fellowship_id=fellowship.id)
     return render(request, 'fellowship/create_post.html', {'fellowship': fellowship})
 
@@ -155,14 +156,15 @@ def create_fellowship_event(request, fellowship_id):
             all_users = User.objects.exclude(id=request.user.id).exclude(email='').exclude(email__isnull=True)
             site_url = request.build_absolute_uri('/')[:-1]
             fellowship_url = request.build_absolute_uri(f'/fellowship/{fellowship.id}/')
+            messages = []
+            subject = 'Join the Fellowship Event'
+            message = f'{request.user.username} created an event in {fellowship.name}: {title}\n\nDescription: {description}\nLocation: {location}\nStart: {start_time}\nEnd: {end_time}\n\nJoin or view event: {fellowship_url}'
+            from_email = settings.DEFAULT_FROM_EMAIL
             for user in all_users:
-                send_mail(
-                    'Join the Fellowship Event',
-                    f'{request.user.username} created an event in {fellowship.name}: {title}\n\nDescription: {description}\nLocation: {location}\nStart: {start_time}\nEnd: {end_time}\n\nJoin or view event: {fellowship_url}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=True,
-                )
+                messages.append((subject, message, from_email, [user.email]))
+            if messages:
+                from django.core.mail import send_mass_mail
+                send_mass_mail(messages, fail_silently=True)
     return render(request, 'fellowship/create_event.html', {'fellowship': fellowship})
 
 @login_required
