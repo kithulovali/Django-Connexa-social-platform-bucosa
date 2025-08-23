@@ -156,8 +156,18 @@ function pollUnreadNotificationsBadge() {
           };
 
           notificationSocket.onclose = function(e) {
-            console.error('Notification socket closed unexpectedly, reconnecting...');
-            setTimeout(setupNotificationSocket, 2000);
+            console.log('WebSocket connection closed:', e);
+            // Check if the connection was closed due to authentication issues
+            if (e.code === 4001) {
+              console.warn('WebSocket connection rejected due to authentication issues. User may need to re-authenticate.');
+              // Don't attempt to reconnect immediately as it's likely an authentication issue
+              return;
+            }
+            
+            // Attempt to reconnect after a delay, but only if user is still authenticated
+            if (window.USER_IS_AUTHENTICATED) {
+              setTimeout(setupNotificationSocket, 5000);
+            }
           };
         }
       }
@@ -190,4 +200,3 @@ function pollUnreadNotificationsBadge() {
           dropdown.style.display = 'none';
         }
       });
-    
