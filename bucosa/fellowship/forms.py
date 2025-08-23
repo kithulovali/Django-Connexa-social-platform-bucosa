@@ -5,11 +5,6 @@ class fellowship_editForm( forms.ModelForm):
     class Meta:
         model= fellowship_edit
         fields = ['name', 'email', 'profile','back_image']
-
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['fellowship', 'description', 'image']
     
 class donationForm(forms.ModelForm):
     class Meta :

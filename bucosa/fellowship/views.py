@@ -469,41 +469,6 @@ def share_fellowship_post(request, fellowship_id, post_id):
     cache.delete_pattern(f'fellowship_detail_{fellowship_id}_*')
     return redirect('fellowship_detail', fellowship_id=fellowship_id)
 
-@login_required
-def create_fellowship_profile(request):
-    profile, created = Profile.objects.get_or_create(user=request.user)
-    
-    if not created:
-        return redirect('update_fellowship_profile')
-    
-    if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect('fellowship_profile_detail')
-    else:
-        form = ProfileForm(instance=profile)
-    
-    return render(request, "fellowship/profile.html", {'form': form})
 
-@login_required
-def update_fellowship_profile(request):
-    try:
-        profile = Profile.objects.get(user=request.user)
-    except Profile.DoesNotExist:
-        return redirect('create_fellowship_profile')
-    
-    if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect('fellowship_profile_detail')
-    else:
-        form = ProfileForm(instance=profile)
-    
-    return render(request, "fellowship/profile_edit.html", {'form': form})
 
-@login_required
-def fellowship_profile_detail(request):
-    profile = get_object_or_404(Profile, user=request.user)
     return render(request, "fellowship/profile_detail.html", {'profile': profile})
