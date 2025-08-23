@@ -16,6 +16,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     'connexa-bucosa.up.railway.app',
+    'django-connexa-social-platform-bucosa-production.up.railway.app',
     '127.0.0.1',
     'localhost'
 ]
