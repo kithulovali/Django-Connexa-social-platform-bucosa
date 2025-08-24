@@ -33,6 +33,11 @@
                         {% endif %}
                     </div>
                 </div>
+                
+                <!-- Government info -->
+                <div class="ml-4 mt-2">
+                    <h2 class="text-2xl font-bold text-gray-900">{{ current_gov.name }}</h2>
+                </div>
             </div>
         </div>
         
@@ -49,12 +54,6 @@
                 <i class="fas fa-users"></i>
                 <span><strong class="text-gray-900">{{ approved_join_requests|length }}</strong> members</span>
             </div>
-            {% if current_gov.created_at %}
-            <div class="flex items-center gap-1">
-                <i class="fas fa-calendar"></i>
-                <span>Founded {{ current_gov.created_at|date:"F Y" }}</span>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
