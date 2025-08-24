@@ -4,15 +4,15 @@
 {% block content %}
 <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 mt-8">
   <h2 class="text-2xl font-bold mb-6 text-center">Fellowship Admin: {{ fellowship.name }}</h2>
-  <div class="flex flex-wrap gap-4 mb-8 justify-center md:justify-start">
-    <a href="{% url 'edit_fellowship' fellowship.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[180px] text-center">Edit Fellowship</a>
-    <a href="{% url 'edit_fellowship_model' fellowship.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[220px] text-center">Edit Fellowship Model</a>
-    <a href="{% url 'create_fellowship_post' fellowship.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[140px] text-center">Create Post</a>
-    <a href="{% url 'create_fellowship_event' fellowship.id %}" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[160px] text-center">Create Event</a>
-    <a href="{% url 'admin_my_posts_events' fellowship.id %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[200px] text-center">My Posts & Events</a>
-    <a href="{% url 'donation_list' %}" class="bg-pink-700 hover:bg-pink-800 text-white px-4 py-2 rounded-lg font-semibold min-w-[220px] text-center">View Donation Requests</a>
-    <a href="{% url 'membership_requests_page' fellowship.id %}" class="px-4 py-2 bg-red-600 text-white rounded-full font-semibold shadow hover:bg-red-700 transition">Manage Membership Requests</a>
-    
+   <div class="nav-tabs flex overflow-x-auto scrollbar-hide">
+      <a href="{% url 'edit_fellowship' fellowship.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[180px] text-center">Edit Fellowship</a>
+      <a href="{% url 'edit_fellowship_model' fellowship.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[220px] text-center">Edit Fellowship Model</a>
+      <a href="{% url 'create_fellowship_post' fellowship.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[140px] text-center">Create Post</a>
+      <a href="{% url 'create_fellowship_event' fellowship.id %}" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[160px] text-center">Create Event</a>
+      <a href="{% url 'admin_my_posts_events' fellowship.id %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-semibold min-w-[200px] text-center">My Posts & Events</a>
+      <a href="{% url 'donation_list' %}" class="bg-pink-700 hover:bg-pink-800 text-white px-4 py-2 rounded-lg font-semibold min-w-[220px] text-center">View Donation Requests</a>
+      <a href="{% url 'membership_requests_page' fellowship.id %}" class="px-4 py-2 bg-red-600 text-white rounded-full font-semibold shadow hover:bg-red-700 transition">Manage Membership Requests</a>
+   </div> 
   <div class="mb-8">
     <h3 class="text-xl font-bold mb-2">Members ({{ members.count }})</h3>
     <div class="flex flex-wrap gap-4 p-2">

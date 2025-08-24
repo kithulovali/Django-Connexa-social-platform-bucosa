@@ -1,0 +1,200 @@
+/* Minimal form styling */
+form p {
+            margin-bottom: 1.25rem;
+        }
+        
+form label {
+            display: block;
+            color: #1a202c;
+            font-weight: 500;
+        }
+
+form input:not([type="file"]), 
+form textarea, 
+form select {
+            width: 100%;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 1rem;
+        }
+
+form textarea {
+            resize: none;
+            min-height: 6rem;
+        }
+
+form select {
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%23666" d="M4.427 9.573L8 6l3.573 3.573z"/></svg>');
+            background-size: 16px;
+        }
+
+form input[type="file"] {
+            width: 100%;
+            padding: 1rem;
+            background-color: #f9fafb;
+        }
+
+form input[type="checkbox"],
+form input[type="radio"] {
+            width: 20px !important;
+            height: 20px;
+            accent-color: #2563eb;
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+        }
+
+form input[type="checkbox"]:focus,
+form input[type="radio"]:focus {
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        /* Button styles (missing selector, so adding .form-btn as example) */
+.form-btn {
+            margin-right: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            border: 0;
+            background-color: #2563eb;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+form textarea:focus,
+form select:focus {
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+form input:not([type="file"])::placeholder,
+form textarea::placeholder,
+form select::placeholder {
+            color: #6b7280;
+        }
+form select {
+            width: 100%;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 1rem;
+        }
+form textarea {
+            resize: none;
+            min-height: 6rem;
+        }
+form select {
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%23666" d="M4.427 9.573L8 6l3.573 3.573z"/></svg>');
+            background-size: 16px;
+        }
+form input[type="file"] {
+            width: 100%;
+            padding: 1rem;
+            background-color: #f9fafb;
+        }
+form input[type="checkbox"],
+form input[type="radio"] {
+            width: 20px !important;
+            height: 20px;
+            accent-color: #2563eb;
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+        }
+form input[type="checkbox"]:focus,
+form input[type="radio"]:focus {
+            box-shadow: 0 0 0 2px #3b82f6;
+            outline: none;
+        }
+form select::placeholder {
+            color: #6b7280;
+        }
+        
+form textarea {
+            resize: none;
+            min-height: 6rem;
+        }
+        
+form select {
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%23666" d="M4.427 9.573L8 6l3.573 3.573z"/></svg>');
+            background-size: 16px;
+        }
+        
+form input[type="file"] {
+            width: 100%;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 1rem;
+            border: 2px dashed #d1d5db;
+            color: #4b5563;
+            /* File input pseudo-element styles for modern browsers */
+        }
+form input[type="file"]::file-selector-button {
+            margin-right: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            border: 0;
+            background-color: #2563eb;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+form input[type="checkbox"],
+form input[type="radio"] {
+            width: 20px !important;
+            height: 20px;
+            color: #2563eb;
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        /* Safe area for iPhone with notch */
+.safe-area-bottom {
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+
+        /* Remove default form margins */
+form p {
+            margin: 0 0 1.25rem 0;
+        }
+
+        /* Ensure touch targets are large enough */
+button, input, select, textarea, a {
+            min-height: 44px;
+        }
+
+        /* Prevent text selection on UI elements */
+button, .select-none * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        /* Allow text selection in form inputs */
+input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            user-select: text;
+        }
+
+        /* Responsive adjustments */
+@media screen and (max-width: 375px) {
+            .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        }
+
+@media screen and (max-width: 320px) {
+            .px-4 { padding-left: 0.75rem; padding-right: 0.75rem; }
+            form input:not([type="file"]), form textarea, form select {
+                padding: 0.875rem;
+            }
+        }

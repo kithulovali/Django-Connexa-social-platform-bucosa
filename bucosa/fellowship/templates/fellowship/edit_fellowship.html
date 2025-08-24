@@ -1,16 +1,53 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Fellowship Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="{% static 'css/profile_f.css'%}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
-<body>
-     <a href="{% url 'edit_fellowship_model' fellowship.id %}">edit profile</a>
-    <form method="post"  enctype="multipart/form-data">
-        {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit">Apply</button>
-    </form>
+<body class="bg-white font-sans antialiased select-none">
+    <div class="min-h-screen max-w-sm mx-auto bg-white relative">
+        
+        <!-- Status Bar Space -->
+        <div class="h-11 bg-white"></div>
+        
+        <!-- Header -->
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
+            <button class="p-2 -ml-2 active:bg-gray-100 rounded-full transition-colors">
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            
+            <h1 class="text-lg font-semibold text-gray-900">Apply</h1>
+            
+            <a href="{% url 'edit_fellowship_model' fellowship.id %}" 
+               class="text-blue-600 text-base font-medium active:text-blue-800 transition-colors">
+                Edit
+            </a>
+        </div>
+
+        <!-- Form Container -->
+        <div class="px-4 pt-6 pb-28">
+            <form method="post" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+                {{form.as_p}}
+            </form>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-100 px-4 py-4 safe-area-bottom">
+            <button type="submit" 
+                    class="w-full bg-blue-600 active:bg-blue-700 text-white py-4 rounded-2xl font-semibold text-lg transition-colors touch-manipulation">
+                Apply
+            </button>
+        </div>
+    </div>
 </body>
 </html>
