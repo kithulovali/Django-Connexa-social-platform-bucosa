@@ -12,7 +12,6 @@
   <!-- Navigation Tabs -->
   <div class="nav-tabs flex flex-wrap gap-3 justify-center mb-8">
     <a href="{% url 'edit_fellowship' fellowship.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md">Create Profile</a>
-    <a href="{% url 'edit_fellowship_model' fellowship.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md">Edit Profile</a>
     <a href="{% url 'create_fellowship_post' fellowship.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md">Create Post</a>
     <a href="{% url 'create_fellowship_event' fellowship.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md">Create Event</a>
     <a href="{% url 'admin_my_posts_events' fellowship.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md">My Posts & Events</a>
