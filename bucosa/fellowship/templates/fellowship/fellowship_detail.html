@@ -8,6 +8,14 @@
 
 <!-- Main Container -->
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <h1>{{ fellowship.name }}</h1>
+            <p>Email: {{ fellowship.email }}</p>
+            {% if fellowship.profile %}
+            <img src="{{ fellowship.profile.url }}" alt="Profile Image">
+            {% endif %}
+            {% if fellowship.back_image %}
+            <img src="{{ fellowship.back_image.url }}" alt="Background Image">
+            {% endif %}
             <!-- Join Button or Status -->
             {% if user.is_authenticated and not is_member %}
                 {% if membership_request_pending %}
