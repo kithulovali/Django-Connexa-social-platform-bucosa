@@ -1,2 +1,0 @@
-# index.html is now deprecated. The root template is main.html (which extends bucosa.html).
-# You can now delete index.html from the templates/government directory.
