@@ -7,7 +7,8 @@
     <title>Edit Member</title>
 </head>
 <body>
-    <h2 style="color: red;">Template is rendering</h2>
+    {% block content %}
+     <h2 style="color: red;">Template is rendering</h2>
     <pre>{{ member|default:"No member object" }}</pre>
     <input type="text" id="ministry" name="ministry" value="{{ member.ministry }}" required>
     <input type="text" id="contact" name="contact" value="{{ member.contact }}" required>
@@ -32,5 +33,6 @@
             </div>
             <button type="submit">Save Changes</button>
         </form>
+    {% endblock content %}
 </body>
 </html>
