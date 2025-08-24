@@ -7,6 +7,7 @@
     <title>Edit Member</title>
 </head>
 <body>
+    <pre>{{ member|default:"No member object" }}</pre>
     <input type="text" id="ministry" name="ministry" value="{{ member.ministry }}" required>
     <input type="text" id="contact" name="contact" value="{{ member.contact }}" required>
         <h1>Edit Member</h1>
