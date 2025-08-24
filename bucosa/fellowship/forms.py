@@ -4,8 +4,8 @@ from . models import fellowship_edit , donation , Profile
 class fellowship_editForm( forms.ModelForm):
     class Meta:
         model= fellowship_edit
-        fields = ['name', 'email', 'profile','back_image']
-    
+        fields = ['name', 'email', 'profile','back_image',  'description']
+
 class donationForm(forms.ModelForm):
     class Meta :
         model = donation

@@ -20,6 +20,7 @@ class fellowship_edit(models.Model):
     email = models.EmailField(max_length=254)
     profile = CloudinaryField('fellowship', null=True, blank=True)
     back_image = CloudinaryField('back_images', null=True, blank=True)
+    description = models.TextField( null=True, blank=True)
     admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_fellowships')
     
     def __str__(self):

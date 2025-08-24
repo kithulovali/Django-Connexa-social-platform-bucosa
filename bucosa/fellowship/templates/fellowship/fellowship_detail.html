@@ -16,6 +16,9 @@
             {% if fellowship.back_image %}
             <img src="{{ fellowship.back_image.url }}" alt="Background Image">
             {% endif %}
+            {% if fellowship.description %}
+            <p>Description: {{ fellowship.description }}</p>
+            {% endif %}
             <!-- Join Button or Status -->
             {% if user.is_authenticated and not is_member %}
                 {% if membership_request_pending %}
