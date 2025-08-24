@@ -118,7 +118,7 @@
         Admin
       </a>
       {% endif %}
-      <a href="#history" class="py-4 px-2 border-b-2 border-transparent text-gray-500 font-medium text-sm hover:text-black hover:border-gray-300 transition-colors">
+      <a href="{% url 'government_history' %}" class="py-4 px-2 border-b-2 border-transparent text-gray-500 font-medium text-sm hover:text-black hover:border-gray-300 transition-colors">
         History
       </a>
     </nav>
@@ -370,15 +370,6 @@
           </a>
         </div>
       </div>
-      
-      <!-- Navigation Links -->
-      <div>
-        <h3 class="font-semibold text-black mb-4">Organization</h3>
-        <ul class="space-y-3">
-          <li><a href="{% url 'government_history' %}" class="text-gray-600 hover:text-black transition-colors text-sm">Our History</a></li>
-        </ul>
-      </div>    
-    </div>
 </footer>
 
 {% endblock %}
