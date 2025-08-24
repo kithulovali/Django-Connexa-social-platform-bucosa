@@ -7,25 +7,28 @@
     <title>Edit Member</title>
 </head>
 <body>
-    <h1>Edit Member</h1>
-    <form method="post" action="{% url 'edit_member' member.id %}">
-        {% csrf_token %}
-        <div>
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" value="{{ member.name }}" required>
-        </div>
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ member.email }}" required>
-        </div>
-        <div>
-            <label for="role">Role:</label>
-            <select id="role" name="role">
-                <option value="admin" {% if member.role == "admin" %}selected{% endif %}>Admin</option>
-                <option value="member" {% if member.role == "member" %}selected{% endif %}>Member</option>
-            </select>
-        </div>
-        <button type="submit">Save Changes</button>
-    </form>
+    <input type="text" id="ministry" name="ministry" value="{{ member.ministry }}" required>
+    <input type="text" id="contact" name="contact" value="{{ member.contact }}" required>
+        <h1>Edit Member</h1>
+        <form method="post" action="{% url 'edit_member' member.id %}">
+            {% csrf_token %}
+            <div>
+                <label for="ministry">Ministry:</label>
+                <input type="text" id="ministry" name="ministry" value="{{ member.ministry }}" required>
+            </div>
+            <div>
+                <label for="contact">Contact:</label>
+                <input type="text" id="contact" name="contact" value="{{ member.contact }}" required>
+            </div>
+            <div>
+                <label>Name:</label>
+                <span>{{ member.user.get_full_name }}</span>
+            </div>
+            <div>
+                <label>Email:</label>
+                <span>{{ member.user.email }}</span>
+            </div>
+            <button type="submit">Save Changes</button>
+        </form>
 </body>
 </html>
