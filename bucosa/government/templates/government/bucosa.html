@@ -5,58 +5,65 @@
 <!-- Twitter-style Header Section -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Cover Photo Section -->
-<div class="relative w-full bg-white border-b border-gray-200">
-  <div class="relative w-full h-48 md:h-64 bg-gray-100 overflow-hidden">
-    {% if current_gov and current_gov.image %}
-      <img src="{{ current_gov.image.url }}" alt="Profile Background" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-    {% else %}
-      <img src="{% static 'images/profile_bg.png' %}" alt="Profile Background" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
-    {% endif %}
-    <!-- Overlay for better text readability if needed -->
-    <div class="absolute inset-0 bg-black bg-opacity-10"></div>
-  </div>
-  
-  <!-- Profile Picture -->
-  <div class="absolute left-4 md:left-6 -bottom-16 md:-bottom-20">
-    <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
-      {% if current_gov and current_gov.image %}
-        <img src="{{ current_gov.image.url }}" alt="Current Government" class="w-full h-full object-cover">
-      {% else %}
-        <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-full h-full object-cover">
-      {% endif %}
+<!-- Twitter-style header section -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+    <!-- Cover image -->
+    <div class="h-48 bg-gray-100 overflow-hidden">
+        {% if current_gov and current_gov.image %}
+        <img src="{{ current_gov.image.url }}" alt="Cover Image" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+        {% else %}
+        <img src="{% static 'images/profile_bg.png' %}" alt="Profile Background" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+        {% endif %}
+        <!-- Overlay for better text readability -->
+        <div class="absolute inset-0 bg-black bg-opacity-10"></div>
     </div>
-  </div>
-</div>
-
-<!-- Profile Info Section -->
-<div class="bg-white border-b border-gray-200">
-  <div class="container mx-auto px-4 pt-20 md:pt-24 pb-6">
-    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-      <div class="flex-1">
-        <!-- Name and Handle -->
-        <h1 class="text-2xl md:text-3xl font-black text-black mb-1">{{ current_gov.name|default:'BUCOSA' }}</h1>
-        <div class="text-gray-500 text-base mb-3">@{{ current_gov.slug|default:'bucosa' }}</div>
+    
+    <!-- Profile section -->
+    <div class="px-6 pb-6 relative">
+        <!-- Profile image and info container -->
+        <div class="flex justify-between items-start">
+            <div class="flex items-end">
+                <!-- Profile image -->
+                <div class="relative -mt-16 mb-4">
+                    <div class="h-32 w-32 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
+                        {% if current_gov and current_gov.image %}
+                        <img src="{{ current_gov.image.url }}" alt="Current Government" class="w-full h-full object-cover">
+                        {% else %}
+                        <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Government info -->
+                <div class="ml-4 mt-2">
+                    <h1 class="text-2xl font-bold text-gray-900">{{ current_gov.name|default:'BUCOSA' }}</h1>
+                    <p class="text-gray-600">@{{ current_gov.slug|default:'bucosa' }}</p>
+                </div>
+            </div>
+        </div>
         
         <!-- Bio/Mission -->
         {% if current_gov.mission %}
-        <p class="text-black text-base mb-4 max-w-2xl leading-relaxed">{{ current_gov.mission }}</p>
+        <div class="mt-4">
+            <p class="text-gray-900 text-base leading-relaxed max-w-2xl">{{ current_gov.mission }}</p>
+        </div>
         {% endif %}
         
-        <!-- Member Count -->
-        <div class="flex items-center gap-6 text-gray-500 text-sm">
-          <div class="flex items-center gap-1">
-            <i class="fas fa-users"></i>
-            <span><strong class="text-black">{{ approved_join_requests|length }}</strong> members</span>
-          </div>
-          {% if current_gov.created_at %}
-          <div class="flex items-center gap-1">
-            <i class="fas fa-calendar"></i>
-            <span>Founded {{ current_gov.created_at|date:"F Y" }}</span>
-          </div>
-          {% endif %}
+        <!-- Stats section -->
+        <div class="flex items-center gap-6 text-gray-500 text-sm mt-4">
+            <div class="flex items-center gap-1">
+                <i class="fas fa-users"></i>
+                <span><strong class="text-gray-900">{{ approved_join_requests|length }}</strong> members</span>
+            </div>
+            {% if current_gov.created_at %}
+            <div class="flex items-center gap-1">
+                <i class="fas fa-calendar"></i>
+                <span>Founded {{ current_gov.created_at|date:"F Y" }}</span>
+            </div>
+            {% endif %}
         </div>
-      </div>
+    </div>
+</div>
       
       <!-- Action Buttons -->
       <div class="flex gap-3">
