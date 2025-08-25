@@ -1271,42 +1271,35 @@ def your_groups_list(request):
     groups = Group.objects.filter(id__in=group_ids).select_related('profile').order_by('name')
     return render(request, 'users/your_groups_list.html', {'groups': groups})
 
+
 def staff_required(user):
     return user.is_authenticated and user.is_staff
 
 @user_passes_test(staff_required)
 def staff_messages_view(request):
     # Get all messages for the current staff user
-    user_messages = staff_messages.objects.filter(recipients=request.user)
+    user_messages = staff_messages.objects.filter(recipients=request.user).order_by('-created_at')
     
-    # Mark messages as read when viewed
-    unread_messages = user_messages.filter(is_read=False)
-    for msg in unread_messages:
-        msg.is_read = True
-        msg.save()
-    
-    # Get all staff users for the compose form
+    # Get all staff users for the compose form (exclude current user)
     staff_users = User.objects.filter(is_staff=True).exclude(id=request.user.id)
     
     if request.method == 'POST':
         # Handle new message
-        subject = request.POST.get('subject')
+        subject = request.POST.get('subject', 'No Subject')
         message_text = request.POST.get('message')
         recipient_ids = request.POST.getlist('recipients')
-        priority = request.POST.get('priority', 'medium')
         
-        if subject and message_text and recipient_ids:
+        if message_text and recipient_ids:
             new_message = staff_messages.objects.create(
                 sender=request.user,
                 subject=subject,
-                message=message_text,
-                priority=priority
+                message=message_text
             )
             new_message.recipients.set(recipient_ids)
             messages.success(request, 'Message sent successfully!')
-            return redirect('staff_messages')
+            return redirect('users:staff_messages')
         else:
-            messages.error(request, 'Please fill all required fields.')
+            messages.error(request, 'Message text and recipients are required.')
     
     context = {
         'messages': user_messages,
