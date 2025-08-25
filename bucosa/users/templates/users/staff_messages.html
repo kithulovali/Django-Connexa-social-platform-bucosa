@@ -15,17 +15,6 @@
                     <h1 class="text-lg font-semibold text-gray-800">
                         💬 {{ room_name }} Staff Chat
                     </h1>
-                    {% if room_name == "Fellowship" %}
-                    <a href="{% url 'users:staff_messages_government' %}" 
-                       class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-lg hover:bg-green-200">
-                        Switch to Government
-                    </a>
-                    {% else %}
-                    <a href="{% url 'users:staff_messages_fellowship' %}" 
-                       class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200">
-                        Switch to Fellowship
-                    </a>
-                    {% endif %}
                 </div>
                 <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
                     {{ staff_users.count }} online
