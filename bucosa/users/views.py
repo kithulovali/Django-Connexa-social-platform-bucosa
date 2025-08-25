@@ -1275,7 +1275,7 @@ def staff_required(user):
     return user.is_authenticated and user.is_staff
 
 @user_passes_test(staff_required)
-def staff_messages(request):
+def staff_messages_view(request):
     # Get all messages for the current staff user
     user_messages = staff_messages.objects.filter(recipients=request.user)
     
