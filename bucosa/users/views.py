@@ -1275,13 +1275,10 @@ def your_groups_list(request):
 def staff_required(user):
     return user.is_authenticated and user.is_staff
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.models import User
-from .models import staff_messages
+
 
 @user_passes_test(lambda u: u.is_staff)
-def staff_messages(request):
+def staff_messages_view(request):
     # Get all messages (group chat - everyone sees everything)
     all_messages = staff_messages.objects.all().order_by('created_at')
     
