@@ -10,7 +10,10 @@ class staff_messages(models.Model):
         ('medium', 'Medium'),
         ('high', 'High'),
     ]
-    
+    CHAT_ROOM_CHOICES  =[
+        (1, 'Fellowship'),
+        (2, 'Government'),
+    ]
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_staff_messages')
     recipients = models.ManyToManyField(User, related_name='received_staff_messages')
     subject = models.CharField(max_length=200)  

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Staff Group Chat</title>
+    <title>{{ room_name }} Staff Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -9,16 +9,28 @@
 <body class="bg-gray-100 h-screen flex">
     <!-- Main Chat Area -->
     <div class="flex-1 flex flex-col">
-        <!-- Header -->
+        <!-- Header with Room Switching -->
         <div class="bg-white border-b border-gray-200 px-4 py-3">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-lg font-semibold text-gray-800">💬 Staff Group Chat</h1>
-                    <p class="text-sm text-gray-500">All staff members can chat here</p>
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-lg font-semibold text-gray-800">
+                        💬 {{ room_name }} Staff Chat
+                    </h1>
+                    {% if current_room == 1 %}
+                    <a href="{% url 'users:staff_messages_government' %}" 
+                       class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-lg hover:bg-green-200 transition-colors">
+                        Switch to Government
+                    </a>
+                    {% else %}
+                    <a href="{% url 'users:staff_messages_fellowship' %}" 
+                       class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200 transition-colors">
+                        Switch to Fellowship
+                    </a>
+                    {% endif %}
                 </div>
                 <div class="flex items-center space-x-2">
                     <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                        {{ staff_users.count }} online
+                        {{ staff_users.count }} staff online
                     </span>
                 </div>
             </div>
@@ -31,7 +43,7 @@
                 <div class="flex space-x-3">
                     <!-- Avatar -->
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <div class="w-8 h-8 {% if current_room == 1 %}bg-blue-500{% else %}bg-green-500{% endif %} rounded-full flex items-center justify-center">
                             <span class="text-white text-sm font-semibold">{{ msg.sender.username|first|upper }}</span>
                         </div>
                     </div>
@@ -56,7 +68,7 @@
             {% else %}
                 <div class="text-center py-8">
                     <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
-                    <p class="text-gray-500">No messages yet. Start the conversation!</p>
+                    <p class="text-gray-500">No messages in {{ room_name }} chat yet. Start the conversation!</p>
                 </div>
             {% endif %}
         </div>
@@ -66,9 +78,6 @@
             <form method="post" enctype="multipart/form-data" class="flex space-x-2 items-end">
                 {% csrf_token %}
                 
-                <!-- Hidden recipient field (sends to all staff) -->
-                <input type="hidden" name="recipients" value="all">
-                
                 <!-- File Upload -->
                 <label class="flex items-center justify-center w-10 h-10 text-gray-500 hover:text-blue-500 cursor-pointer mb-2">
                     <input type="file" name="image" class="hidden" accept="image/*" id="file-input">
@@ -77,14 +86,14 @@
                 
                 <!-- Message Textarea -->
                 <div class="flex-1 relative">
-                    <textarea name="message" rows="1" placeholder="Type a message to the group..." required
+                    <textarea name="message" rows="1" placeholder="Type a message to {{ room_name }}..." required
                               class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                               oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
                 </div>
 
                 <!-- Send Button -->
                 <button type="submit" 
-                        class="w-10 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
+                        class="w-10 h-10 {% if current_room == 1 %}bg-blue-500 hover:bg-blue-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </form>

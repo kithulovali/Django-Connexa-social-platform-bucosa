@@ -1271,29 +1271,30 @@ def your_groups_list(request):
     groups = Group.objects.filter(id__in=group_ids).select_related('profile').order_by('name')
     return render(request, 'users/your_groups_list.html', {'groups': groups})
 
-
-def staff_required(user):
-    return user.is_authenticated and user.is_staff
-
-
+@user_passes_test(lambda u: u.is_staff)
+def staff_messages_fellowship(request):
+    return staff_messages_room(request, room_id=1, room_name="Fellowship")
 
 @user_passes_test(lambda u: u.is_staff)
-def staff_messages_view(request):
-    # Get all messages (group chat - everyone sees everything)
-    all_messages = staff_messages.objects.all().order_by('created_at')
+def staff_messages_government(request):
+    return staff_messages_room(request, room_id=2, room_name="Government")
+
+def staff_messages_room(request, room_id, room_name):
+    # Get messages for the specific chat room
+    room_messages = staff_messages.objects.filter(chat_room=room_id).order_by('created_at')
     
-    # Get all staff users for online count
+    # Get all staff users
     staff_users = User.objects.filter(is_staff=True)
     
     if request.method == 'POST':
         message_text = request.POST.get('message')
         
         if message_text:
-            # Create message - automatically goes to all staff
+            # Create message for this specific chat room
             new_message = staff_messages.objects.create(
                 sender=request.user,
+                chat_room=room_id,
                 message=message_text,
-                subject="Group Chat"  # Default subject for group messages
             )
             
             # Add all staff members as recipients
@@ -1304,10 +1305,18 @@ def staff_messages_view(request):
                 new_message.image = request.FILES['image']
                 new_message.save()
             
-            return redirect('users:staff_messages')
+            # Redirect to the same room
+            if room_id == 1:
+                return redirect('users:staff_messages_fellowship')
+            else:
+                return redirect('users:staff_messages_government')
     
     context = {
-        'messages': all_messages,
+        'messages': room_messages,
         'staff_users': staff_users,
+        'current_room': room_id,
+        'room_name': room_name,
+        'other_room_id': 2 if room_id == 1 else 1,
+        'other_room_name': "Government" if room_id == 1 else "Fellowship",
     }
     return render(request, 'users/staff_messages.html', context)
