@@ -1312,4 +1312,4 @@ def staff_messages(request):
         'messages': user_messages,
         'staff_users': staff_users,
     }
-    return render(request, 'staff_messages.html', context)
+    return render(request, 'users/staff_messages.html', context)

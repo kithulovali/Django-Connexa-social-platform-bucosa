@@ -64,7 +64,7 @@ urlpatterns = [
     path('suggestions/', views.friend_suggestions, name='friend_suggestions'),
     path('advanced_search/', views.advanced_search, name='advanced_search'),
     path('delete_account/', views.delete_account, name='delete_account'),
-    path('staff/messages/', views.staff_messages, name='staff_messages'),
+    path('users/messages/', views.staff_messages, name='staff_messages'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
