@@ -7,60 +7,48 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 h-screen flex">
-    <!-- Main Chat Area -->
     <div class="flex-1 flex flex-col">
-        <!-- Header with Room Switching -->
+        <!-- Header -->
         <div class="bg-white border-b border-gray-200 px-4 py-3">
-            <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <h1 class="text-lg font-semibold text-gray-800">
                         💬 {{ room_name }} Staff Chat
                     </h1>
-                    {% if current_room == 1 %}
+                    {% if room_name == "Fellowship" %}
                     <a href="{% url 'users:staff_messages_government' %}" 
-                       class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-lg hover:bg-green-200 transition-colors">
+                       class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-lg hover:bg-green-200">
                         Switch to Government
                     </a>
                     {% else %}
                     <a href="{% url 'users:staff_messages_fellowship' %}" 
-                       class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200 transition-colors">
+                       class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200">
                         Switch to Fellowship
                     </a>
                     {% endif %}
                 </div>
-                <div class="flex items-center space-x-2">
-                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                        {{ staff_users.count }} staff online
-                    </span>
-                </div>
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                    {{ staff_users.count }} online
+                </span>
             </div>
         </div>
 
-        <!-- Messages Container -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white" id="messages-container">
+        <!-- Messages -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
             {% if messages %}
                 {% for msg in messages %}
                 <div class="flex space-x-3">
-                    <!-- Avatar -->
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 {% if current_room == 1 %}bg-blue-500{% else %}bg-green-500{% endif %} rounded-full flex items-center justify-center">
-                            <span class="text-white text-sm font-semibold">{{ msg.sender.username|first|upper }}</span>
-                        </div>
+                    <div class="w-8 h-8 {% if room_name == 'Fellowship' %}bg-blue-500{% else %}bg-green-500{% endif %} rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-white text-sm font-semibold">{{ msg.sender.username|first|upper }}</span>
                     </div>
-                    
-                    <!-- Message Content -->
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1">
                         <div class="flex items-baseline space-x-2">
                             <span class="font-semibold text-gray-900 text-sm">{{ msg.sender.username }}</span>
                             <span class="text-xs text-gray-500">{{ msg.created_at|date:"M d, H:i" }}</span>
                         </div>
-                        
                         <p class="text-gray-800 mt-1 text-sm">{{ msg.message }}</p>
-                        
                         {% if msg.image %}
-                        <div class="mt-2">
-                            <img src="{{ msg.image.url }}" alt="Attachment" class="rounded-lg max-w-xs border border-gray-200">
-                        </div>
+                        <img src="{{ msg.image.url }}" alt="Attachment" class="rounded-lg max-w-xs border border-gray-200 mt-2">
                         {% endif %}
                     </div>
                 </div>
@@ -68,67 +56,35 @@
             {% else %}
                 <div class="text-center py-8">
                     <i class="fas fa-comments text-gray-300 text-4xl mb-2"></i>
-                    <p class="text-gray-500">No messages in {{ room_name }} chat yet. Start the conversation!</p>
+                    <p class="text-gray-500">No messages yet. Start the conversation!</p>
                 </div>
             {% endif %}
         </div>
 
-        <!-- Message Input -->
+        <!-- Input -->
         <div class="bg-white border-t border-gray-200 p-4">
             <form method="post" enctype="multipart/form-data" class="flex space-x-2 items-end">
                 {% csrf_token %}
-                
-                <!-- File Upload -->
-                <label class="flex items-center justify-center w-10 h-10 text-gray-500 hover:text-blue-500 cursor-pointer mb-2">
-                    <input type="file" name="image" class="hidden" accept="image/*" id="file-input">
-                    <i class="fas fa-image text-lg"></i>
+                <label class="flex items-center justify-center w-10 h-10 text-gray-500 hover:text-blue-500 cursor-pointer">
+                    <input type="file" name="image" class="hidden" accept="image/*">
+                    <i class="fas fa-image"></i>
                 </label>
-                
-                <!-- Message Textarea -->
-                <div class="flex-1 relative">
-                    <textarea name="message" rows="1" placeholder="Type a message to {{ room_name }}..." required
-                              class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                <div class="flex-1">
+                    <textarea name="message" rows="1" placeholder="Type a message..." required
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                               oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
                 </div>
-
-                <!-- Send Button -->
-                <button type="submit" 
-                        class="w-10 h-10 {% if current_room == 1 %}bg-blue-500 hover:bg-blue-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2">
+                <button type="submit" class="w-10 h-10 {% if room_name == 'Fellowship' %}bg-blue-500 hover:bg-blue-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white rounded-lg flex items-center justify-center">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </form>
-
-            <!-- File name display -->
-            <div id="file-name" class="text-xs text-gray-500 mt-1 hidden"></div>
         </div>
     </div>
 
     <script>
-        // Auto-scroll to bottom of messages
-        document.addEventListener('DOMContentLoaded', function() {
-            const container = document.getElementById('messages-container');
-            container.scrollTop = container.scrollHeight;
-        });
-
-        // Show selected file name
-        document.getElementById('file-input').addEventListener('change', function(e) {
-            const fileNameDiv = document.getElementById('file-name');
-            if (this.files.length > 0) {
-                fileNameDiv.textContent = 'Selected: ' + this.files[0].name;
-                fileNameDiv.classList.remove('hidden');
-            } else {
-                fileNameDiv.classList.add('hidden');
-            }
-        });
-
-        // Handle form submission
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const textarea = this.querySelector('textarea');
-            if (textarea.value.trim() === '') {
-                e.preventDefault();
-                textarea.focus();
-            }
-        });
+        // Auto-scroll to bottom
+        const container = document.querySelector('.overflow-y-auto');
+        container.scrollTop = container.scrollHeight;
     </script>
 </body>
 </html>

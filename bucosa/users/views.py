@@ -1271,29 +1271,37 @@ def your_groups_list(request):
     groups = Group.objects.filter(id__in=group_ids).select_related('profile').order_by('name')
     return render(request, 'users/your_groups_list.html', {'groups': groups})
 
+
 @user_passes_test(lambda u: u.is_staff)
 def staff_messages_fellowship(request):
-    return staff_messages_room(request, room_id=1, room_name="Fellowship")
+    # Filter fellowship messages by a specific subject pattern or custom logic
+    fellowship_messages = staff_messages.objects.filter(
+        subject__icontains='[Fellowship]'
+    ).order_by('created_at')
+    
+    return render_chat_room(request, fellowship_messages, "Fellowship")
 
 @user_passes_test(lambda u: u.is_staff)
 def staff_messages_government(request):
-    return staff_messages_room(request, room_id=2, room_name="Government")
-
-def staff_messages_room(request, room_id, room_name):
-    # Get messages for the specific chat room
-    room_messages = staff_messages.objects.filter(chat_room=room_id).order_by('created_at')
+    # Filter government messages by a specific subject pattern or custom logic
+    government_messages = staff_messages.objects.filter(
+        subject__icontains='[Government]'
+    ).order_by('created_at')
     
-    # Get all staff users
+    return render_chat_room(request, government_messages, "Government")
+
+def render_chat_room(request, room_messages, room_name):
     staff_users = User.objects.filter(is_staff=True)
     
     if request.method == 'POST':
         message_text = request.POST.get('message')
         
         if message_text:
-            # Create message for this specific chat room
+            # Create message with room-specific subject
+            subject_prefix = f"[{room_name}]"
             new_message = staff_messages.objects.create(
                 sender=request.user,
-                chat_room=room_id,
+                subject=subject_prefix,
                 message=message_text,
             )
             
@@ -1306,7 +1314,7 @@ def staff_messages_room(request, room_id, room_name):
                 new_message.save()
             
             # Redirect to the same room
-            if room_id == 1:
+            if room_name == "Fellowship":
                 return redirect('users:staff_messages_fellowship')
             else:
                 return redirect('users:staff_messages_government')
@@ -1314,9 +1322,7 @@ def staff_messages_room(request, room_id, room_name):
     context = {
         'messages': room_messages,
         'staff_users': staff_users,
-        'current_room': room_id,
         'room_name': room_name,
-        'other_room_id': 2 if room_id == 1 else 1,
-        'other_room_name': "Government" if room_id == 1 else "Fellowship",
+        'other_room_name': "Government" if room_name == "Fellowship" else "Fellowship",
     }
     return render(request, 'users/staff_messages.html', context)
