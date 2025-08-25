@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from cloudinary.models import CloudinaryField
 class PrivateMessage(models.Model):
     def get_absolute_url(self):
         # Always redirect to the chat with the other user (for the recipient)
@@ -16,7 +16,7 @@ class PrivateMessage(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
     content = models.TextField(blank=True)
-    image = models.ImageField(upload_to='private_message_images/', blank=True, null=True)
+    image = CloudinaryField('private_message_images/', blank=True, null=True)
     video = models.FileField(upload_to='private_message_videos/', blank=True, null=True)
     file = models.FileField(upload_to='private_message_files/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

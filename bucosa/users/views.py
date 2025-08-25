@@ -1,4 +1,3 @@
-# List all groups where the user is creator or admin
 from django.db.models import Q
 from django.core.mail import send_mail
 from django.http import HttpResponse
@@ -19,12 +18,12 @@ from django.contrib.auth.views import (
     PasswordResetCompleteView
 )
 
-# Welcome page for new users
-# Handler for the Next button (if you want a separate view)
+
+
 @login_required
 @require_http_methods(["POST"])
 def welcome_next(request):
-    return redirect('home')  # Replace 'home' with your actual home page url name
+    return redirect('home')  
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q, Count, Max, Prefetch, Exists, OuterRef
@@ -51,6 +50,7 @@ from django.db.models import Q
 from .models import GroupJoinRequest
 from .models_block_report import UserBlock, UserReport
 from .models_group_message import GroupMessage
+from .models_staff_message import staff_messages
 from notifications.utils import create_notification, send_custom_notification_email
 from django.core.mail import send_mail
 from .utils import get_display_name
@@ -1270,3 +1270,46 @@ def your_groups_list(request):
     group_ids = GroupProfile.objects.filter(Q(admins=request.user) | Q(creator=request.user)).values_list('group_id', flat=True).distinct()
     groups = Group.objects.filter(id__in=group_ids).select_related('profile').order_by('name')
     return render(request, 'users/your_groups_list.html', {'groups': groups})
+
+def staff_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(staff_required)
+def staff_messages(request):
+    # Get all messages for the current staff user
+    user_messages = staff_messages.objects.filter(recipients=request.user)
+    
+    # Mark messages as read when viewed
+    unread_messages = user_messages.filter(is_read=False)
+    for msg in unread_messages:
+        msg.is_read = True
+        msg.save()
+    
+    # Get all staff users for the compose form
+    staff_users = User.objects.filter(is_staff=True).exclude(id=request.user.id)
+    
+    if request.method == 'POST':
+        # Handle new message
+        subject = request.POST.get('subject')
+        message_text = request.POST.get('message')
+        recipient_ids = request.POST.getlist('recipients')
+        priority = request.POST.get('priority', 'medium')
+        
+        if subject and message_text and recipient_ids:
+            new_message = staff_messages.objects.create(
+                sender=request.user,
+                subject=subject,
+                message=message_text,
+                priority=priority
+            )
+            new_message.recipients.set(recipient_ids)
+            messages.success(request, 'Message sent successfully!')
+            return redirect('staff_messages')
+        else:
+            messages.error(request, 'Please fill all required fields.')
+    
+    context = {
+        'messages': user_messages,
+        'staff_users': staff_users,
+    }
+    return render(request, 'staff_messages.html', context)

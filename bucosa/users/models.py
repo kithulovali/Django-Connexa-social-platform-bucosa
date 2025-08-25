@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group 
 from django.utils.encoding import force_str
-from django_resized import ResizedImageField
 from cloudinary.models import CloudinaryField
 import uuid
 class user_profile(models.Model):
