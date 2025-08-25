@@ -1,90 +1,11 @@
-{% extends 'base.html' %}
-
-{% block content %}
-<div class="container mt-4">
-    <h2>Staff Messages</h2>
-    
-    <!-- Compose New Message -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5>Send New Message</h5>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Recipients:</label>
-                    <div class="row">
-                        {% for user in staff_users %}
-                        <div class="col-md-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" 
-                                       name="recipients" value="{{ user.id }}" 
-                                       id="user{{ user.id }}">
-                                <label class="form-check-label" for="user{{ user.id }}">
-                                    {{ user.get_full_name|default:user.username }}
-                                </label>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Subject:</label>
-                    <input type="text" name="subject" class="form-control" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Priority:</label>
-                    <select name="priority" class="form-select">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label">Message:</label>
-                    <textarea name="message" class="form-control" rows="4" required></textarea>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">Send Message</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Messages List -->
-    <div class="card">
-        <div class="card-header">
-            <h5>Your Messages</h5>
-        </div>
-        <div class="card-body">
-            {% if messages %}
-                <div class="list-group">
-                    {% for msg in messages %}
-                    <div class="list-group-item {% if not msg.is_read %}list-group-item-warning{% endif %}">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">
-                                {% if not msg.is_read %}
-                                <span class="badge bg-primary">New</span>
-                                {% endif %}
-                                {{ msg.subject }}
-                                <span class="badge bg-{% if msg.priority == 'high' %}danger{% elif msg.priority == 'medium' %}warning{% else %}info{% endif %}">
-                                    {{ msg.priority|title }}
-                                </span>
-                            </h6>
-                            <small>{{ msg.created_at|timesince }} ago</small>
-                        </div>
-                        <p class="mb-1">{{ msg.message|truncatewords:30 }}</p>
-                        <small>From: {{ msg.sender.get_full_name|default:msg.sender.username }}</small>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted">No messages yet.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
-{% endblock %}
+<!-- users/templates/users/staff_messages.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Staff Messages</title>
+</head>
+<body>
+    <h1>Staff Messages - Working!</h1>
+    <p>User: {{ request.user.username }}</p>
+</body>
+</html>
