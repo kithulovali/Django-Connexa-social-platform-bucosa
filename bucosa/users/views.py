@@ -1275,34 +1275,42 @@ def your_groups_list(request):
 def staff_required(user):
     return user.is_authenticated and user.is_staff
 
-@user_passes_test(staff_required)
-def staff_messages_view(request):
-    # Get all messages for the current staff user
-    user_messages = staff_messages.objects.filter(recipients=request.user).order_by('-created_at')
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.models import User
+from .models import staff_messages
+
+@user_passes_test(lambda u: u.is_staff)
+def staff_messages(request):
+    # Get all messages (group chat - everyone sees everything)
+    all_messages = staff_messages.objects.all().order_by('created_at')
     
-    # Get all staff users for the compose form (exclude current user)
-    staff_users = User.objects.filter(is_staff=True).exclude(id=request.user.id)
+    # Get all staff users for online count
+    staff_users = User.objects.filter(is_staff=True)
     
     if request.method == 'POST':
-        # Handle new message
-        subject = request.POST.get('subject', 'No Subject')
         message_text = request.POST.get('message')
-        recipient_ids = request.POST.getlist('recipients')
         
-        if message_text and recipient_ids:
+        if message_text:
+            # Create message - automatically goes to all staff
             new_message = staff_messages.objects.create(
                 sender=request.user,
-                subject=subject,
-                message=message_text
+                message=message_text,
+                subject="Group Chat"  # Default subject for group messages
             )
-            new_message.recipients.set(recipient_ids)
-            messages.success(request, 'Message sent successfully!')
+            
+            # Add all staff members as recipients
+            new_message.recipients.set(staff_users)
+            
+            # Handle file upload
+            if 'image' in request.FILES:
+                new_message.image = request.FILES['image']
+                new_message.save()
+            
             return redirect('users:staff_messages')
-        else:
-            messages.error(request, 'Message text and recipients are required.')
     
     context = {
-        'messages': user_messages,
+        'messages': all_messages,
         'staff_users': staff_users,
     }
     return render(request, 'users/staff_messages.html', context)
