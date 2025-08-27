@@ -23,7 +23,7 @@
         </div>
 
         <!-- Messages -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
+        <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
             {% if messages %}
                 {% for msg in messages %}
                 <div class="flex space-x-3">
@@ -52,14 +52,14 @@
 
         <!-- Input -->
         <div class="bg-white border-t border-gray-200 p-4">
-            <form method="post" enctype="multipart/form-data" class="flex space-x-2 items-end">
+            <form id="chat-form" method="post" enctype="multipart/form-data" class="flex space-x-2 items-end">
                 {% csrf_token %}
                 <label class="flex items-center justify-center w-10 h-10 text-gray-500 hover:text-blue-500 cursor-pointer">
-                    <input type="file" name="image" class="hidden" accept="image/*">
+                    <input type="file" name="image" id="image-input" class="hidden" accept="image/*">
                     <i class="fas fa-image"></i>
                 </label>
                 <div class="flex-1">
-                    <textarea name="message" rows="1" placeholder="Type a message..." required
+                    <textarea id="message-input" name="message" rows="1" placeholder="Type a message..." required
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                               oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
                 </div>
@@ -72,8 +72,52 @@
 
     <script>
         // Auto-scroll to bottom
-        const container = document.querySelector('.overflow-y-auto');
+        const container = document.getElementById('messages-container');
         container.scrollTop = container.scrollHeight;
+
+        // AJAX submit for chat form
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Build new message HTML
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = "flex space-x-3";
+                    msgDiv.innerHTML = `
+                        <div class="w-8 h-8 ${data.room_name === 'Fellowship' ? 'bg-blue-500' : 'bg-green-500'} rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-sm font-semibold">${data.sender.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-baseline space-x-2">
+                                <span class="font-semibold text-gray-900 text-sm">${data.sender}</span>
+                                <span class="text-xs text-gray-500">${data.timestamp}</span>
+                            </div>
+                            <p class="text-gray-800 mt-1 text-sm">${data.message}</p>
+                            ${data.image_url ? `<img src="${data.image_url}" alt="Attachment" class="rounded-lg max-w-xs border border-gray-200 mt-2">` : ''}
+                        </div>
+                    `;
+                    container.appendChild(msgDiv);
+                    container.scrollTop = container.scrollHeight;
+                    form.reset();
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error sending message.');
+            });
+        });
     </script>
 </body>
 </html>

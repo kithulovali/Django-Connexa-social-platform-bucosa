@@ -1297,23 +1297,34 @@ def render_chat_room(request, room_messages, room_name):
         message_text = request.POST.get('message')
         
         if message_text:
-            # Create message with room-specific subject
             subject_prefix = f"[{room_name}]"
             new_message = staff_messages.objects.create(
                 sender=request.user,
                 subject=subject_prefix,
                 message=message_text,
             )
-            
-            # Add all staff members as recipients
             new_message.recipients.set(staff_users)
-            
-            # Handle file upload
             if 'image' in request.FILES:
                 new_message.image = request.FILES['image']
                 new_message.save()
-            
-            # Redirect to the same room
+
+            # --- Real-time broadcast ---
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f"staff_{room_name.lower()}",
+                {
+                    "type": "staff_chat_message",
+                    "message": {
+                        "sender": request.user.username,
+                        "subject": subject_prefix,
+                        "content": message_text,
+                        "timestamp": str(new_message.created_at),
+                        "id": new_message.id
+                    }
+                }
+            )
+            # --- End broadcast ---
+
             if room_name == "Fellowship":
                 return redirect('users:staff_messages_fellowship')
             else:
