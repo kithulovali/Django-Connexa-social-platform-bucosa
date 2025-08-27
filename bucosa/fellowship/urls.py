@@ -32,6 +32,7 @@ urlpatterns = [
     path('<int:fellowship_id>/post/<int:post_id>/comment/', views.comment_fellowship_post, name='comment_fellowship_post'),
     path('<int:fellowship_id>/post/<int:post_id>/share/', views.share_fellowship_post, name='share_fellowship_post'),
     path('<int:fellowship_id>/create-verse/', views.create_verse, name='create_daily_verse'),
+    path('fellowship/<int:fellowship_id>/verse-history/', views.verse_history, name='verse_history'),
     path("verses/history/", views.verse_history, name="verse_history"),
     path("verse/<int:verse_id>/edit/", views.edit_verse, name="edit_verse"),
     path("verse/<int:verse_id>/delete/", views.delete_verse, name="delete_verse"),

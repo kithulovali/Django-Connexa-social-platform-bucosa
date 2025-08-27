@@ -7,6 +7,7 @@
         <li class="p-4 border-b border-gray-200">
           <blockquote class="text-lg italic text-gray-800">“{{ verse.text }}”</blockquote>
           <p class="text-gray-600">- {{ verse.reference }}</p>
+          <p class="text-gray-600 font-medium">- {{daily_verse.verse_text}}</p>
           <p class="text-sm text-gray-400">Posted on {{ verse.created_at|date:"M d, Y H:i" }}</p>
 
           <!-- Actions -->
