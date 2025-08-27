@@ -433,4 +433,4 @@ def create_verse(request, fellowship_id):
             return redirect('fellowship_details', fellowship_id=fellowship.id)
     else:
         form = DailyVerseForm()
-    return render(request, 'fellowship/create_verse.html', {'form': form, 'fellowship': fellowship})
+    return render(request, 'fellowship/create_daily_verse', {'form': form, 'fellowship': fellowship})
