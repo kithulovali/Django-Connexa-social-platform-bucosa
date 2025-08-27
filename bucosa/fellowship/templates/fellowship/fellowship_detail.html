@@ -130,6 +130,7 @@
         <h3 class="text-lg font-semibold text-yellow-800 mb-2">📖 Daily Verse</h3>
         <blockquote class="italic text-gray-800 mb-1">“{{ daily_verse.text }}”</blockquote>
         <p class="text-gray-600 font-medium">- {{ daily_verse.reference }}</p>
+        <p class="text-gray-600 font-medium">- {{daily_verse.verse_text}}</p>
         <p class="text-xs text-gray-400 mt-1">Posted on {{ daily_verse.created_at|date:"M d, Y H:i" }}</p>
 
         {% if user.is_superuser %}
