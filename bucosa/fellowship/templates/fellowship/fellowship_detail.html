@@ -56,7 +56,7 @@
                                 </svg>
                             </div>
                         {% else %}
-                            <form method="post" action="{% url 'join_fellowship' fellowship.id %}">
+                            <form method="post" action="{% url 'join_fellowship' fellowship.id %}" onsubmit="this.querySelector('button').style.display='none'">
                                 {% csrf_token %}
                                 <button type="submit" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -87,7 +87,7 @@
                             </svg>
                         </div>
                     {% else %}
-                        <form method="post" action="{% url 'join_fellowship' fellowship.id %}">
+                        <form method="post" action="{% url 'join_fellowship' fellowship.id %}" onsubmit="this.querySelector('button').style.display='none'">
                             {% csrf_token %}
                             <button type="submit" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
