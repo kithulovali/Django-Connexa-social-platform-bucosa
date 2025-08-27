@@ -1304,9 +1304,11 @@ def render_chat_room(request, room_messages, room_name):
                 message=message_text,
             )
             new_message.recipients.set(staff_users)
+            image_url = ''
             if 'image' in request.FILES:
                 new_message.image = request.FILES['image']
                 new_message.save()
+                image_url = new_message.image.url
 
             # --- Real-time broadcast ---
             channel_layer = get_channel_layer()
@@ -1319,16 +1321,31 @@ def render_chat_room(request, room_messages, room_name):
                         "subject": subject_prefix,
                         "content": message_text,
                         "timestamp": str(new_message.created_at),
-                        "id": new_message.id
+                        "id": new_message.id,
+                        "image_url": image_url
                     }
                 }
             )
             # --- End broadcast ---
 
+            # AJAX response
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'sender': request.user.username,
+                    'room_name': room_name,
+                    'timestamp': new_message.created_at.strftime('%b %d, %H:%M'),
+                    'message': message_text,
+                    'image_url': image_url
+                })
+            # Normal POST fallback
             if room_name == "Fellowship":
                 return redirect('users:staff_messages_fellowship')
             else:
                 return redirect('users:staff_messages_government')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'Message required.'}, status=400)
     
     context = {
         'messages': room_messages,
