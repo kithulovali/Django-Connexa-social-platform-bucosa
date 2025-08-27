@@ -79,3 +79,27 @@ class Profile(models.Model):
     
     def __str__(self):
         return self.fellowship.name if self.fellowship and self.fellowship.name else "(no fellowship)"
+
+
+
+from django.db import models
+from django.contrib.auth.models import User
+
+class DailyVerse(models.Model):
+    reference = models.CharField(max_length=100)
+    verse_text = models.TextField()
+    posted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True) 
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def save(self, *args, **kwargs):
+        # Before saving this verse, deactivate all others
+        if self.is_active:
+            DailyVerse.objects.filter(is_active=True).update(is_active=False)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.reference} ({'Active' if self.is_active else 'History'})"

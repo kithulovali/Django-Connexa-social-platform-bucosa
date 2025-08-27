@@ -1,0 +1,11 @@
+<div class="max-w-xl mx-auto bg-white shadow-md rounded-lg p-6 text-center">
+  <h2 class="text-xl font-bold mb-4">🗑️ Delete Verse</h2>
+  <p>Are you sure you want to delete this verse?</p>
+  <blockquote class="italic text-gray-700 my-3">"{{ verse.text }}" - {{ verse.reference }}</blockquote>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md">Yes, Delete</button>
+    <a href="{% url 'verse_history' %}" class="ml-3 text-gray-600">Cancel</a>
+  </form>
+</div>

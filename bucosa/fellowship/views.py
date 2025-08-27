@@ -5,8 +5,8 @@ from .models import MembershipRequest
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from . forms import  donationForm , fellowship_editForm
-from . models import fellowship_edit , donation , FellowshipMember , FellowshipPost , FellowshipEvent 
+from . forms import  donationForm , fellowship_editForm ,DailyVerseForm
+from . models import fellowship_edit , donation , FellowshipMember , FellowshipPost , FellowshipEvent , DailyVerse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import send_mail
@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from fellowship.models import FellowshipMember
 from activities.models import GenericLike, GenericComment
 from django.contrib.contenttypes.models import ContentType
+
 # Create your views here.
 @login_required
 def fellowship_view(request):
@@ -175,7 +176,6 @@ def fellowship_detail(request, fellowship_id):
     followers_count = members.count()
 
     # Annotate posts with like_count, comment_count, and comments
-
     post_ct = ContentType.objects.get_for_model(FellowshipPost)
     annotated_posts = []
     for post in posts:
@@ -183,11 +183,16 @@ def fellowship_detail(request, fellowship_id):
         comment_qs = GenericComment.objects.filter(content_type=post_ct, object_id=post.id).order_by('created_at')
         comment_count = comment_qs.count()
         comments = list(comment_qs)
-        # Optionally, you can annotate if the user has liked/shared
         post.like_count = like_count
         post.comment_count = comment_count
         post.comments = comments
         annotated_posts.append(post)
+
+    # Get latest daily verse
+    try:
+        daily_verse = DailyVerse.objects.latest("created_at")
+    except DailyVerse.DoesNotExist:
+        daily_verse = None
 
     return render(request, 'fellowship/fellowship_detail.html', {
         'fellowship': fellowship,
@@ -197,7 +202,9 @@ def fellowship_detail(request, fellowship_id):
         'is_member': is_member,
         'is_admin': is_admin,
         'followers_count': followers_count,
+        'daily_verse': daily_verse,  
     })
+
 
 @login_required
 def fellowship_admin_dashboard(request, fellowship_id):
@@ -383,3 +390,52 @@ def share_fellowship_post(request, fellowship_id, post_id):
         object_id=post.id
     )
     return redirect('fellowship_detail', fellowship_id=fellowship_id)
+
+
+
+def verse_history(request):
+    verses = DailyVerse.objects.filter(is_active=False).order_by("-created_at")
+    return render(request, "fellowship/verse_history.html", {"verses": verses})
+
+# --- Edit Verse ---
+def edit_verse(request, verse_id):
+    verse = get_object_or_404(DailyVerse, id=verse_id)
+    if request.method == "POST":
+        form = DailyVerseForm(request.POST, instance=verse)
+        if form.is_valid():
+            form.save()
+            return redirect("verse_history")  # or redirect back to fellowship page
+    else:
+        form = DailyVerseForm(instance=verse)
+    
+    return render(request, "fellowship/edit_verse.html", {"form": form, "verse": verse})
+
+
+# --- Delete Verse ---
+def delete_verse(request, verse_id):
+    verse = get_object_or_404(DailyVerse, id=verse_id)
+    if request.method == "POST":
+        verse.delete()
+        return redirect("verse_history")
+    
+    return render(request, "fellowship/verse_delete.html", {"verse": verse})
+
+@login_required
+def create_verse(request, fellowship_id):
+    fellowship = get_object_or_404(fellowship, id=fellowship_id)
+
+    if request.method == 'POST':
+        form = DailyVerseForm(request.POST)
+        if form.is_valid():
+            verse = form.save(commit=False)
+            verse.fellowship = fellowship
+            verse.author = request.user
+            verse.save()
+            return redirect('fellowship_details', fellowship_id=fellowship.id)
+    else:
+        form = DailyVerseForm()
+
+    return render(request, 'fellowship/create_daily_verse.html', {
+        'form': form,
+        'fellowship': fellowship
+    })

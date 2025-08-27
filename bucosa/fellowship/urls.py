@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    path('', views.fellowship_detail, kwargs={'fellowship_id': 1}, name='fellowship'),  # Root page is fellowship_detail for id=1 (or change as needed)
+    path('', views.fellowship_detail, kwargs={'fellowship_id': 1}, name='fellowship'), 
     path('edit/<int:fellowship_id>/', views.edit_fellowship, name='edit_fellowship'),
     path('donate/', views.donate_view, name='donate'),
     path('<int:fellowship_id>/post/<int:post_id>/like/', views.like_fellowship_post, name='like_fellowship_post'),
@@ -31,6 +31,10 @@ urlpatterns = [
     path('<int:fellowship_id>/post/<int:post_id>/like/', views.like_fellowship_post, name='like_fellowship_post'),
     path('<int:fellowship_id>/post/<int:post_id>/comment/', views.comment_fellowship_post, name='comment_fellowship_post'),
     path('<int:fellowship_id>/post/<int:post_id>/share/', views.share_fellowship_post, name='share_fellowship_post'),
+    path('<int:fellowship_id>/create-verse/', views.create_verse, name='create_daily_verse'),
+    path("verses/history/", views.verse_history, name="verse_history"),
+    path("verse/<int:verse_id>/edit/", views.edit_verse, name="edit_verse"),
+    path("verse/<int:verse_id>/delete/", views.delete_verse, name="delete_verse"),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
