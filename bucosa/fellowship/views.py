@@ -420,22 +420,17 @@ def delete_verse(request, verse_id):
     
     return render(request, "fellowship/verse_delete.html", {"verse": verse})
 
+
 @login_required
 def create_verse(request, fellowship_id):
-    fellowship = get_object_or_404(fellowship, id=fellowship_id)
-
-    if request.method == 'POST':
+    fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
+    if request.method == "POST":
         form = DailyVerseForm(request.POST)
         if form.is_valid():
             verse = form.save(commit=False)
-            verse.fellowship = fellowship
-            verse.author = request.user
+            verse.posted_by = request.user
             verse.save()
             return redirect('fellowship_details', fellowship_id=fellowship.id)
     else:
         form = DailyVerseForm()
-
-    return render(request, 'fellowship/create_daily_verse.html', {
-        'form': form,
-        'fellowship': fellowship
-    })
+    return render(request, 'fellowship/create_verse.html', {'form': form, 'fellowship': fellowship})

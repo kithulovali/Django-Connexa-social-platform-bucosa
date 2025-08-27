@@ -10,15 +10,13 @@ class donationForm(forms.ModelForm):
     class Meta :
         model = donation
         fields =['name','email','amount','payment_method','mobile_money_number']
-         
-from django import forms
-from .models import DailyVerse
-
+        
 class DailyVerseForm(forms.ModelForm):
     class Meta:
         model = DailyVerse
-        fields = ['verse_text', 'reference']  
+        fields = ['reference', 'verse_text', 'is_active']
         widgets = {
-            'verse_text': forms.Textarea(attrs={'class': 'form-textarea rounded-lg border p-2 w-full', 'rows': 5}),
-            'reference': forms.TextInput(attrs={'class': 'form-input rounded-lg border p-2 w-full'}),
+            'reference': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Verse Reference'}),
+            'verse_text': forms.Textarea(attrs={'class': 'form-textarea', 'placeholder': 'Enter verse text here'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
         }
