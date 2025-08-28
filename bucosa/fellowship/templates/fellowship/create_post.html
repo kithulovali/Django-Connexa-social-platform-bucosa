@@ -61,16 +61,18 @@
       </div>
 
       <!-- Video Section -->
-      <div class="space-y-2">
-        <label class="block font-medium text-gray-700 text-sm">Video</label>
+        <div class="space-y-2">
+        <label for="video" class="block font-medium text-gray-700 text-sm">Video</label>
         <div class="p-4 border border-gray-300 rounded-lg bg-gray-50 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-          <span class="text-gray-500 text-sm">Video upload coming soon</span>
+          <input 
+            type="file" 
+            name="video" 
+            id="video" 
+            accept="video/*" 
+            class="text-sm text-gray-600"
+          >
         </div>
       </div>
-
       <!-- Group Section -->
       <div class="space-y-2">
         <label class="block font-medium text-gray-700 text-sm">Group</label>

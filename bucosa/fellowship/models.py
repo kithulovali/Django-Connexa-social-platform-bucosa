@@ -40,7 +40,7 @@ class FellowshipPost(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     image = CloudinaryField('fellowship_post_images/', blank=True, null=True)
-    video = models.FileField(upload_to='fellowship_post_videos/', blank=True, null=True)
+    video = CloudinaryField('fellowship_post_videos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
@@ -79,11 +79,6 @@ class Profile(models.Model):
     
     def __str__(self):
         return self.fellowship.name if self.fellowship and self.fellowship.name else "(no fellowship)"
-
-
-
-from django.db import models
-from django.contrib.auth.models import User
 
 class DailyVerse(models.Model):
     reference = models.CharField(max_length=100)
