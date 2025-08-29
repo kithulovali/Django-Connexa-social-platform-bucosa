@@ -3,167 +3,215 @@
 {% load display_name %}
 
 {% block content %}
-<h2 class="text-2xl font-bold mb-6">Explore</h2>
-<form method="get" action="" class="mb-8 flex gap-2 items-center justify-center">
-    <input type="text" name="q" placeholder="Search media, users, posts, events..." value="{{ query }}" class="px-4 py-2 border rounded-full w-72 focus:outline-none focus:ring-2 focus:ring-blue-400">
-    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition font-bold">Search</button>
-</form>
+<div class="container mx-auto px-2 md:px-4 py-4 md:py-6">
+    <h2 class="text-xl md:text-2xl font-bold mb-4 md:mb-6">Explore</h2>
+    
+    <form method="get" action="" class="mb-6 md:mb-8 flex flex-col sm:flex-row gap-2 items-center justify-center">
+        <input type="text" name="q" placeholder="Search media, users, posts, events..." value="{{ query }}" 
+               class="px-4 py-2 border rounded-full w-full sm:w-64 md:w-72 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm md:text-base">
+        <button type="submit" class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-full hover:bg-blue-700 transition font-bold w-full sm:w-auto text-sm md:text-base">
+            Search
+        </button>
+    </form>
 
-{# User Results #}
-{% if query and users %}
-<div class="mb-8">
-  <h3 class="text-lg font-semibold mb-3">Users</h3>
-  <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-    {% for user in users %}
-      <li class="bg-white rounded-xl shadow p-4 flex flex-col items-center">
-        <a href="{% url 'users:profile' user.id %}">
-          {% if user.profile.profile_image %}
-            <img src="{{ user.profile.profile_image.url }}" alt="{{ user|display_name }}" class="w-16 h-16 rounded-full object-cover mb-2">
-          {% else %}
-            <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-16 h-16 rounded-full object-cover mb-2">
-          {% endif %}
-        </a>
-        <a href="{% url 'users:profile' user.id %}" class="font-bold text-gray-900 hover:text-blue-600 truncate w-full text-center">{{ user|display_name }}</a>
-        <span class="text-xs text-gray-500 truncate w-full text-center">@{{ user.username }}</span>
-      </li>
-    {% endfor %}
-  </ul>
-</div>
-{% endif %}
-
-{% if query %}
-<div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-  {# Fellowship Posts with Images/Videos #}
-  {% for post in fellowship_posts %}
-    {% if post.image or post.video %}
-  <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('post', {{ post.id }}, '{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', '{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', `{{ post.content|escapejs }}`, '{{ post.author|display_name|escapejs }}')">
-        {% if post.image %}
-          <img src="{{ post.image.url }}" alt="Post image" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
-        {% elif post.video %}
-          <video controls class="w-full h-64 object-cover rounded">
-            <source src="{{ post.video.url }}">
-          </video>
-        {% endif %}
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
-          <span class="text-white font-bold text-lg">{{ post.author|display_name }}</span>
-          <span class="text-gray-200 text-xs truncate">{{ post.content|truncatechars:40 }}</span>
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
-  {# Activity Posts with Images/Videos #}
-  {% for post in posts %}
-    {% if post.image or post.video %}
-      <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('post', {{ post.id }}, '{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', '{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', `{{ post.content|escapejs }}`, '{{ post.author.username }}')">
-        {% if post.image %}
-          <img src="{{ post.image.url }}" alt="Post image" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
-        {% elif post.video %}
-          <video controls class="w-full h-64 object-cover rounded">
-            <source src="{{ post.video.url }}">
-          </video>
-        {% endif %}
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
-          <span class="text-white font-bold text-lg">{{ post.author|display_name }}</span>
-          <span class="text-gray-200 text-xs truncate">{{ post.content|truncatechars:40 }}</span>
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
-  {# Fellowship Events with Cover Images #}
-  {% for event in fellowship_events %}
-    {% if event.cover_image %}
-  <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('event', {{ event.id }}, '{{ event.cover_image.url }}', '', `{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, '{{ event.creator|display_name|escapejs }}')">
-        <img src="{{ event.cover_image.url }}" alt="Event cover" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
-          <span class="text-white font-bold text-lg">{{ event.creator|display_name }}</span>
-          <span class="text-gray-200 text-xs truncate">{{ event.title|truncatechars:40 }}</span>
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
-  {# Activity Events with Cover Images #}
-  {% for event in events %}
-    {% if event.cover_image %}
-      <div class="relative group bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('event', {{ event.id }}, '{{ event.cover_image.url }}', '', `{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, '{{ event.creator.username }}')">
-        <img src="{{ event.cover_image.url }}" alt="Event cover" class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col items-start">
-          <span class="text-white font-bold text-lg">{{ event.creator|display_name }}</span>
-          <span class="text-gray-200 text-xs truncate">{{ event.title|truncatechars:40 }}</span>
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
-
-</div>
-{% endif %}
-
-<!-- Modal for media preview -->
-<div id="mediaModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 hidden">
-  <div class="bg-white rounded-2xl shadow-lg max-w-lg w-full p-6 relative flex flex-col items-center">
-    <button onclick="closeMediaModal()" class="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl">&times;</button>
-    <div id="mediaModalContent"></div>
-    <div class="mt-4 w-full">
-      <div class="font-bold" id="mediaModalAuthor"></div>
-      <div class="text-gray-700 mt-2" id="mediaModalText"></div>
+    {# User Results #}
+    {% if query and users %}
+    <div class="mb-6 md:mb-8">
+        <h3 class="text-base md:text-lg font-semibold mb-3">Users</h3>
+        <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+            {% for user in users %}
+            <li class="bg-white rounded-xl shadow p-3 md:p-4 flex flex-col items-center">
+                <a href="{% url 'users:profile' user.id %}">
+                    {% if user.profile.profile_image %}
+                    <img src="{{ user.profile.profile_image.url }}" alt="{{ user|display_name }}" class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover mb-2">
+                    {% else %}
+                    <img src="{% static 'images/default.jpg' %}" alt="Default" class="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover mb-2">
+                    {% endif %}
+                </a>
+                <a href="{% url 'users:profile' user.id %}" class="font-bold text-gray-900 hover:text-blue-600 truncate w-full text-center text-xs md:text-sm">
+                    {{ user|display_name }}
+                </a>
+                <span class="text-xs text-gray-500 truncate w-full text-center text-xs">@{{ user.username }}</span>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
-    <div class="flex justify-between w-full mt-6">
-      <button id="mediaPrevBtn" class="text-blue-600 hover:underline">Previous</button>
-      <button id="mediaNextBtn" class="text-blue-600 hover:underline">Next</button>
+    {% endif %}
+
+    {% if query %}
+    <div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+        {# Fellowship Posts with Images/Videos #}
+        {% for post in fellowship_posts %}
+            {% if post.image or post.video %}
+        <div class="relative group bg-white rounded-xl md:rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('post', {{ post.id }}, '{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', '{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', `{{ post.content|escapejs }}`, '{{ post.author|display_name|escapejs }}')">
+                {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Post image" class="w-full h-40 md:h-64 object-cover group-hover:scale-105 transition-transform duration-200">
+                {% elif post.video %}
+                <video class="w-full h-40 md:h-64 object-cover rounded">
+                    <source src="{{ post.video.url }}">
+                </video>
+                {% endif %}
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 md:p-3 flex flex-col items-start">
+                    <span class="text-white font-bold text-sm md:text-lg">{{ post.author|display_name }}</span>
+                    <span class="text-gray-200 text-xs truncate">{{ post.content|truncatechars:40 }}</span>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        
+        {# Activity Posts with Images/Videos #}
+        {% for post in posts %}
+            {% if post.image or post.video %}
+            <div class="relative group bg-white rounded-xl md:rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('post', {{ post.id }}, '{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', '{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', `{{ post.content|escapejs }}`, '{{ post.author.username }}')">
+                {% if post.image %}
+                <img src="{{ post.image.url }}" alt="Post image" class="w-full h-40 md:h-64 object-cover group-hover:scale-105 transition-transform duration-200">
+                {% elif post.video %}
+                <video class="w-full h-40 md:h-64 object-cover rounded">
+                    <source src="{{ post.video.url }}">
+                </video>
+                {% endif %}
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 md:p-3 flex flex-col items-start">
+                    <span class="text-white font-bold text-sm md:text-lg">{{ post.author|display_name }}</span>
+                    <span class="text-gray-200 text-xs truncate">{{ post.content|truncatechars:40 }}</span>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        
+        {# Fellowship Events with Cover Images #}
+        {% for event in fellowship_events %}
+            {% if event.cover_image %}
+        <div class="relative group bg-white rounded-xl md:rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('event', {{ event.id }}, '{{ event.cover_image.url }}', '', `{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, '{{ event.creator|display_name|escapejs }}')">
+                <img src="{{ event.cover_image.url }}" alt="Event cover" class="w-full h-40 md:h-64 object-cover group-hover:scale-105 transition-transform duration-200">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 md:p-3 flex flex-col items-start">
+                    <span class="text-white font-bold text-sm md:text-lg">{{ event.creator|display_name }}</span>
+                    <span class="text-gray-200 text-xs truncate">{{ event.title|truncatechars:40 }}</span>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        
+        {# Activity Events with Cover Images #}
+        {% for event in events %}
+            {% if event.cover_image %}
+            <div class="relative group bg-white rounded-xl md:rounded-2xl shadow hover:shadow-xl transition overflow-hidden cursor-pointer" onclick="openMediaModal('event', {{ event.id }}, '{{ event.cover_image.url }}', '', `{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, '{{ event.creator.username }}')">
+                <img src="{{ event.cover_image.url }}" alt="Event cover" class="w-full h-40 md:h-64 object-cover group-hover:scale-105 transition-transform duration-200">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 md:p-3 flex flex-col items-start">
+                    <span class="text-white font-bold text-sm md:text-lg">{{ event.creator|display_name }}</span>
+                    <span class="text-gray-200 text-xs truncate">{{ event.title|truncatechars:40 }}</span>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
     </div>
-  </div>
+    {% endif %}
+
+    <!-- Modal for media preview -->
+    <div id="mediaModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 hidden px-2 md:px-0">
+        <div class="bg-white rounded-xl md:rounded-2xl shadow-lg max-w-full md:max-w-lg w-full p-4 md:p-6 relative flex flex-col items-center mx-2">
+            <button onclick="closeMediaModal()" class="absolute top-2 right-2 text-gray-500 hover:text-black text-xl md:text-2xl z-10 bg-white rounded-full p-1">&times;</button>
+            <div id="mediaModalContent" class="w-full"></div>
+            <div class="mt-3 md:mt-4 w-full">
+                <div class="font-bold text-sm md:text-base" id="mediaModalAuthor"></div>
+                <div class="text-gray-700 mt-1 md:mt-2 text-sm md:text-base" id="mediaModalText"></div>
+            </div>
+            <div class="flex justify-between w-full mt-4 md:mt-6">
+                <button id="mediaPrevBtn" class="text-blue-600 hover:underline text-sm md:text-base">Previous</button>
+                <button id="mediaNextBtn" class="text-blue-600 hover:underline text-sm md:text-base">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const mediaItems = [];
+    // Collect all media items in order
+    {% for post in fellowship_posts %}{% if post.image or post.video %}
+    mediaItems.push({type:'post', id:{{ post.id }}, img:'{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', vid:'{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', text:`{{ post.content|escapejs }}`, author:'{{ post.author|display_name|escapejs }}'});
+    {% endif %}{% endfor %}
+    {% for post in posts %}{% if post.image or post.video %}
+    mediaItems.push({type:'post', id:{{ post.id }}, img:'{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', vid:'{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', text:`{{ post.content|escapejs }}`, author:'{{ post.author|display_name|escapejs }}'});
+    {% endif %}{% endfor %}
+    {% for event in fellowship_events %}{% if event.cover_image %}
+    mediaItems.push({type:'event', id:{{ event.id }}, img:'{{ event.cover_image.url }}', vid:'', text:`{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, author:'{{ event.creator|display_name|escapejs }}'});
+    {% endif %}{% endfor %}
+    {% for event in events %}{% if event.cover_image %}
+    mediaItems.push({type:'event', id:{{ event.id }}, img:'{{ event.cover_image.url }}', vid:'', text:`{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, author:'{{ event.creator|display_name|escapejs }}'});
+    {% endif %}{% endfor %}
+
+    let currentMediaIndex = 0;
+    function openMediaModal(type, id, img, vid, text, author) {
+        currentMediaIndex = mediaItems.findIndex(item => item.type === type && item.id === id);
+        showMediaModal();
+    }
+    
+    function showMediaModal() {
+        const item = mediaItems[currentMediaIndex];
+        const modal = document.getElementById('mediaModal');
+        const content = document.getElementById('mediaModalContent');
+        const authorDiv = document.getElementById('mediaModalAuthor');
+        const textDiv = document.getElementById('mediaModalText');
+        
+        if (item.img) {
+            content.innerHTML = `<img src="${item.img}" class='w-full rounded-xl max-h-64 md:max-h-96 object-contain' />`;
+        } else if (item.vid) {
+            content.innerHTML = `<video controls class='w-full rounded-xl max-h-64 md:max-h-96'><source src="${item.vid}"></video>`;
+        } else {
+            content.innerHTML = '';
+        }
+        
+        authorDiv.textContent = item.author;
+        textDiv.innerHTML = item.text;
+        modal.classList.remove('hidden');
+        
+        // Update navigation buttons state
+        document.getElementById('mediaPrevBtn').disabled = currentMediaIndex <= 0;
+        document.getElementById('mediaNextBtn').disabled = currentMediaIndex >= mediaItems.length - 1;
+    }
+    
+    function closeMediaModal() {
+        document.getElementById('mediaModal').classList.add('hidden');
+    }
+    
+    document.getElementById('mediaPrevBtn').onclick = function() {
+        if (currentMediaIndex > 0) { 
+            currentMediaIndex--; 
+            showMediaModal(); 
+        }
+    };
+    
+    document.getElementById('mediaNextBtn').onclick = function() {
+        if (currentMediaIndex < mediaItems.length - 1) { 
+            currentMediaIndex++; 
+            showMediaModal(); 
+        }
+    };
+    
+    // Close modal when clicking outside content
+    document.getElementById('mediaModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeMediaModal();
+        }
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('mediaModal');
+        if (!modal.classList.contains('hidden')) {
+            if (e.key === 'Escape') {
+                closeMediaModal();
+            } else if (e.key === 'ArrowLeft' && currentMediaIndex > 0) {
+                currentMediaIndex--;
+                showMediaModal();
+            } else if (e.key === 'ArrowRight' && currentMediaIndex < mediaItems.length - 1) {
+                currentMediaIndex++;
+                showMediaModal();
+            }
+        }
+    });
+    </script>
+
+    {% if not posts and not events and not fellowship_posts and not fellowship_events and query %}
+    <div class="text-gray-400 text-center py-8 md:py-12">No media found.</div>
+    {% endif %}
 </div>
-
-<script>
-const mediaItems = [];
-// Collect all media items in order
-{% for post in fellowship_posts %}{% if post.image or post.video %}
-mediaItems.push({type:'post', id:{{ post.id }}, img:'{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', vid:'{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', text:`{{ post.content|escapejs }}`, author:'{{ post.author|display_name|escapejs }}'});
-{% endif %}{% endfor %}
-{% for post in posts %}{% if post.image or post.video %}
-mediaItems.push({type:'post', id:{{ post.id }}, img:'{% if post.image %}{{ post.image.url }}{% else %}{% endif %}', vid:'{% if post.video %}{{ post.video.url }}{% else %}{% endif %}', text:`{{ post.content|escapejs }}`, author:'{{ post.author|display_name|escapejs }}'});
-{% endif %}{% endfor %}
-{% for event in fellowship_events %}{% if event.cover_image %}
-mediaItems.push({type:'event', id:{{ event.id }}, img:'{{ event.cover_image.url }}', vid:'', text:`{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, author:'{{ event.creator|display_name|escapejs }}'});
-{% endif %}{% endfor %}
-{% for event in events %}{% if event.cover_image %}
-mediaItems.push({type:'event', id:{{ event.id }}, img:'{{ event.cover_image.url }}', vid:'', text:`{{ event.title|escapejs }}<br>{{ event.description|escapejs }}`, author:'{{ event.creator|display_name|escapejs }}'});
-{% endif %}{% endfor %}
-
-let currentMediaIndex = 0;
-function openMediaModal(type, id, img, vid, text, author) {
-  currentMediaIndex = mediaItems.findIndex(item => item.type === type && item.id === id);
-  showMediaModal();
-}
-function showMediaModal() {
-  const item = mediaItems[currentMediaIndex];
-  const modal = document.getElementById('mediaModal');
-  const content = document.getElementById('mediaModalContent');
-  const authorDiv = document.getElementById('mediaModalAuthor');
-  const textDiv = document.getElementById('mediaModalText');
-  if (item.img) {
-    content.innerHTML = `<img src="${item.img}" class='w-full rounded-xl max-h-96 object-contain' />`;
-  } else if (item.vid) {
-    content.innerHTML = `<video controls class='w-full rounded-xl max-h-96'><source src="${item.vid}"></video>`;
-  } else {
-    content.innerHTML = '';
-  }
-  authorDiv.textContent = item.author;
-  textDiv.innerHTML = item.text;
-  modal.classList.remove('hidden');
-}
-function closeMediaModal() {
-  document.getElementById('mediaModal').classList.add('hidden');
-}
-document.getElementById('mediaPrevBtn').onclick = function() {
-  if (currentMediaIndex > 0) { currentMediaIndex--; showMediaModal(); }
-};
-document.getElementById('mediaNextBtn').onclick = function() {
-  if (currentMediaIndex < mediaItems.length - 1) { currentMediaIndex++; showMediaModal(); }
-};
-</script>
-
-{% if not posts and not events and not fellowship_posts and not fellowship_events %}
-  <div class="text-gray-400 text-center">No media found.</div>
-{% endif %}
-
 {% endblock %}
