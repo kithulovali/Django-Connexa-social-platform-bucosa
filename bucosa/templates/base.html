@@ -60,45 +60,45 @@
     Install Bucosa App
   </button>
 
- <nav id="desktopSidebar" class="desktop-sidebar bg-white h-screen w-64 shadow-lg border-r border-gray-200 flex flex-col">
+ <nav id="desktopSidebar" class="desktop-sidebar bg-white h-screen w-64 border-r border-black flex flex-col">
   <div class="sidebar-nav flex-1 flex flex-col justify-between">
     
     <!-- Main Navigation -->
     <div class="nav-section px-3 py-4 space-y-2">
       <a href="{% url 'activities:home' %}" 
-         class="flex items-center p-3 rounded-xl transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'home' %}bg-gray-100 text-blue-600 font-semibold{% endif %}">
+         class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'home' %}font-bold text-black{% else %}text-black{% endif %}">
         <img src="{% static 'img/more.png' %}" alt="Home" class="w-6 h-6">
         <span class="ml-3">Home</span>
       </a>
 
       <a href="{% url 'users:search_users' %}" 
-         class="flex items-center p-3 rounded-xl transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'search_users' %}bg-gray-100 text-blue-600 font-semibold{% endif %}">
+         class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'search_users' %}font-bold text-black{% else %}text-black{% endif %}">
         <span class="material-icons w-6 h-6">search</span>
         <span class="ml-3">Search</span>
       </a>
 
       <a href="{% url 'users:private_messages' %}" 
-         class="flex items-center p-3 rounded-xl transition hover:bg-gray-100 relative {% if request.resolver_match.url_name == 'private_messages' %}bg-gray-100 text-blue-600 font-semibold{% endif %}">
+         class="flex items-center p-3 rounded-xl relative {% if request.resolver_match.url_name == 'private_messages' %}font-bold text-black{% else %}text-black{% endif %}">
         <span class="material-icons w-6 h-6">chat_bubble_outline</span>
         <span class="ml-3">Messages</span>
         <span id="desktop-message-badge"
-              class="absolute top-2 right-3 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">
+              class="absolute top-2 right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">
           0
         </span>
       </a>
 
       <a href="{% url 'notifications:notifications_list' %}" 
-         class="flex items-center p-3 rounded-xl transition hover:bg-gray-100 relative {% if request.resolver_match.url_name == 'notifications_list' %}bg-gray-100 text-blue-600 font-semibold{% endif %}">
+         class="flex items-center p-3 rounded-xl relative {% if request.resolver_match.url_name == 'notifications_list' %}font-bold text-black{% else %}text-black{% endif %}">
         <span class="material-icons w-6 h-6">notifications_none</span>
         <span class="ml-3">Notifications</span>
         <span id="desktop-notif-badge"
-              class="absolute top-2 right-3 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">
+              class="absolute top-2 right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">
           0
         </span>
       </a>
 
       <a href="{% url 'users:profile' user.id %}" 
-         class="flex items-center p-3 rounded-xl transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'profile' %}bg-gray-100 text-blue-600 font-semibold{% endif %}">
+         class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'profile' %}font-bold text-black{% else %}text-black{% endif %}">
         <span class="material-icons w-6 h-6">person_outline</span>
         <span class="ml-3">Profile</span>
       </a>
@@ -106,30 +106,30 @@
 
     <!-- Community Section -->
     <div class="sidebar-section px-3 py-4">
-      <div class="flex items-center text-gray-500 uppercase text-sm font-semibold mb-3">
-        <span class="material-icons text-gray-400 mr-2">groups</span>
+      <div class="flex items-center text-black uppercase text-sm font-bold mb-3">
+        <span class="material-icons mr-2">groups</span>
         Community
       </div>
 
       <a href="{% url 'fellowship_detail' 1 %}" 
-         class="flex items-center p-3 rounded-xl transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-gray-100 text-blue-600 font-semibold{% endif %}">
+         class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'fellowship_detail' %}font-bold text-black{% else %}text-black{% endif %}">
         <span class="material-symbols-outlined w-6 h-6">church</span>
         <span class="ml-3">Fellowship</span>
       </a>
 
       <a href="{% url 'bucosa_main' %}" 
-         class="flex items-center p-3 rounded-xl transition hover:bg-gray-100">
+         class="flex items-center p-3 rounded-xl text-black">
         <span class="material-icons w-6 h-6">groups</span>
         <span class="ml-3">Bucosa</span>
       </a>
     </div>
 
     <!-- Footer -->
-    <div class="sidebar-footer px-3 py-4 border-t border-gray-200">
+    <div class="sidebar-footer px-3 py-4 border-t border-black">
       <a href="{% url 'users:logout' %}" 
-         class="flex items-center p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition">
+         class="flex items-center p-3 rounded-xl text-black font-semibold">
         <span class="material-icons w-6 h-6">logout</span>
-        <span class="ml-3 font-semibold">Logout</span>
+        <span class="ml-3">Logout</span>
       </a>
     </div>
 
