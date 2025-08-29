@@ -60,75 +60,89 @@
     Install Bucosa App
   </button>
 
-  <nav id="desktopSidebar" class="desktop-sidebar">    
-    <div class="sidebar-nav">
-      <div class="nav-section">
-        <a href="{% url 'activities:home' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
-          <div class="nav-item-content">
-            <img src="{% static 'img/more.png' %}" alt="Home" class="desktop-sidebar-icon">
-          </div>
-          <div class="nav-item-indicator"></div>
-        </a>
-        <a href="{% url 'users:search_users' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">search</span>
-            <span class="nav-label">Search</span>
-          </div>
-          <div class="nav-item-indicator"></div>
-        </a>
-        <a href="{% url 'users:private_messages' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
-           <div class="nav-item-content" style="position:relative;">
-             <span class="material-icons nav-icon">chat_bubble_outline</span>
-             <span class="nav-label">Messages</span>
-             <span class="notification-badge message-badge-desktop" id="desktop-message-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
-           </div>
-           <div class="nav-item-indicator"></div>
-         </a>
-        <a href="{% url 'notifications:notifications_list' %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="desktop-notifications">
-           <div class="nav-item-content" style="position:relative;">
-             <span class="material-icons nav-icon" id="notif-bell">notifications_none</span>
-             <span class="nav-label">Notifications</span>
-             <span class="notification-badge notif-badge-desktop" id="desktop-notif-badge" style="display:none;position:absolute;top:0.2rem;right:0.2rem;background:#e53e3e;color:#fff;font-size:0.85rem;padding:2px 6px;border-radius:999px;min-width:18px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.10);font-weight:600;">0</span>
-           </div>
-           <div class="nav-item-indicator"></div>
-         </a>
-        <a href="{% url 'users:profile' user.id %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">person_outline</span>
-            <span class="nav-label">Profile</span>
-          </div>
-          <div class="nav-item-indicator"></div>
-        </a>
-      </div>
-      
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">
-          <span class="material-icons section-icon">groups</span>
-          Community
+ <nav id="desktopSidebar" class="desktop-sidebar w-64 h-screen bg-white border-r border-gray-200 flex flex-col shadow-lg">
+  <div class="sidebar-nav flex-1 flex flex-col justify-between">
+    <!-- Top Navigation -->
+    <div class="nav-section mt-4 space-y-1">
+      <!-- Home -->
+      <a href="{% url 'activities:home' %}" 
+         class="sidebar-item nav-link flex items-center px-4 py-3 rounded-lg transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'home' %}bg-gray-100 font-semibold{% endif %}">
+        <img src="{% static 'img/more.png' %}" alt="Home" class="w-6 h-6">
+        <span class="ml-3 text-sm">Home</span>
+      </a>
+
+      <!-- Search -->
+      <a href="{% url 'users:search_users' %}" 
+         class="sidebar-item nav-link flex items-center px-4 py-3 rounded-lg transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'search_users' %}bg-gray-100 font-semibold{% endif %}">
+        <span class="material-icons text-xl">search</span>
+        <span class="ml-3 text-sm">Search</span>
+      </a>
+
+      <!-- Messages -->
+      <a href="{% url 'users:private_messages' %}" 
+         class="sidebar-item nav-link flex items-center px-4 py-3 rounded-lg transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'private_messages' %}bg-gray-100 font-semibold{% endif %}">
+        <div class="relative flex items-center">
+          <span class="material-icons text-xl">chat_bubble_outline</span>
+          <span id="desktop-message-badge" 
+                class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+            0
+          </span>
         </div>
-        <a href="{% url 'fellowship_detail' 1 %}" class="sidebar-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
-          <div class="nav-item-content">
-            <span class="material-symbols-outlined nav-icon">church</span>
-            <span class="nav-label">Fellowship</span>
-          </div>
-          <div class="nav-item-indicator"></div>
-        </a>
-        <a href="{% url 'bucosa_main' %}" class="sidebar-item nav-link" data-page="bucosa-main">
-          <div class="nav-item-content">
-            <span class="material-icons nav-icon">groups</span>
-            <span class="nav-label">Bucosa </span>
-          </div>
-          <div class="nav-item-indicator"></div>
-        </a>
+        <span class="ml-3 text-sm">Messages</span>
+      </a>
+
+      <!-- Notifications -->
+      <a href="{% url 'notifications:notifications_list' %}" 
+         class="sidebar-item nav-link flex items-center px-4 py-3 rounded-lg transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'notifications_list' %}bg-gray-100 font-semibold{% endif %}">
+        <div class="relative flex items-center">
+          <span class="material-icons text-xl" id="notif-bell">notifications_none</span>
+          <span id="desktop-notif-badge" 
+                class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+            0
+          </span>
+        </div>
+        <span class="ml-3 text-sm">Notifications</span>
+      </a>
+
+      <!-- Profile -->
+      <a href="{% url 'users:profile' user.id %}" 
+         class="sidebar-item nav-link flex items-center px-4 py-3 rounded-lg transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'profile' %}bg-gray-100 font-semibold{% endif %}">
+        <span class="material-icons text-xl">person_outline</span>
+        <span class="ml-3 text-sm">Profile</span>
+      </a>
+    </div>
+
+    <!-- Community Section -->
+    <div class="sidebar-section mt-6">
+      <div class="px-4 py-2 text-xs font-bold uppercase text-gray-500 tracking-wide flex items-center">
+        <span class="material-icons text-sm mr-2">groups</span>
+        Community
       </div>
 
-      <div class="sidebar-footer">
-        <a href="{% url 'users:logout' %}" class="sidebar-item logout-item">
-           logout
-        </a>
-      </div>
+      <a href="{% url 'fellowship_detail' 1 %}" 
+         class="sidebar-item nav-link flex items-center px-4 py-3 rounded-lg transition hover:bg-gray-100 {% if request.resolver_match.url_name == 'fellowship_detail' %}bg-gray-100 font-semibold{% endif %}">
+        <span class="material-symbols-outlined text-xl">church</span>
+        <span class="ml-3 text-sm">Fellowship</span>
+      </a>
+
+      <a href="{% url 'bucosa_main' %}" 
+         class="sidebar-item nav-link flex items-center px-4 py-3 rounded-lg transition hover:bg-gray-100">
+        <span class="material-icons text-xl">groups</span>
+        <span class="ml-3 text-sm">Bucosa</span>
+      </a>
     </div>
-  </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer mb-4 px-4">
+      <a href="{% url 'users:logout' %}" 
+         class="flex items-center justify-center w-full py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition">
+        <span class="material-icons text-sm mr-2">logout</span>
+        Logout
+      </a>
+    </div>
+  </div>
+</nav>
+
 
   <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
