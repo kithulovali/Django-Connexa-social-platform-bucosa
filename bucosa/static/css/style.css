@@ -67,12 +67,6 @@ body {
   transition: background 0.2s, box-shadow 0.2s;
 }
 
-.nav-item.active {
-  background: #6366f1;
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(99,102,241,0.12);
-}
-
 .nav-item.active .nav-label-mobile {
   color: #fff;
 }
@@ -227,7 +221,6 @@ body {
         top: 0;
         bottom: 0;
         width: 280px;
-        background: #1f2937;
         padding: 32px 24px;
         overflow-y: auto;
         z-index: 1000;

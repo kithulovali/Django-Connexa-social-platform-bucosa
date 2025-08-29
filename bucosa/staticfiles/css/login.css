@@ -1,0 +1,43 @@
+body {
+            font-family: 'Inter', sans-serif;
+            background: #e9f0ff; /* Light blue background color */
+        }
+        
+        /* Keyframes for a gentle floating animation */
+@keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(10px, -15px) rotate(5deg);
+            }
+            50% {
+                transform: translate(0, -20px) rotate(-5deg);
+            }
+            75% {
+                transform: translate(-10px, -15px) rotate(5deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+        }
+
+        /* Applying the animation to the circles with different durations and delays for a random effect */
+.floating-circle-1 {
+            animation: float 15s ease-in-out infinite;
+        }
+.floating-circle-2 {
+            animation: float 20s ease-in-out infinite reverse;
+        }
+.floating-circle-3 {
+            animation: float 18s ease-in-out infinite;
+        }
+.floating-circle-4 {
+            animation: float 22s ease-in-out infinite reverse;
+        }
+.floating-circle-5 {
+            animation: float 17s ease-in-out infinite;
+        }
+.floating-circle-6 {
+            animation: float 24s ease-in-out infinite reverse;
+        }
