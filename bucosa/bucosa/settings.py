@@ -3,8 +3,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
-import json
-
+import tempfile
 # Load environment variables
 load_dotenv()
 
@@ -261,11 +260,18 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
 # YouTube API configuration and live streaming
-YOUTUBE_API_SERVICE_NAME = os.getenv("YOUTUBE_API_SERVICE_NAME")
-YOUTUBE_API_VERSION = os.getenv("YOUTUBE_API_VERSION")
-YOUTUBE_CLIENT_SECRET_JSON = json.loads(os.getenv("YOUTUBE_CLIENT_SECRET_JSON", "{}"))
-YOUTUBE_SCOPES = os.getenv("YOUTUBE_SCOPES", "").split(",")
+YOUTUBE_API_SERVICE_NAME = os.getenv("YOUTUBE_API_SERVICE_NAME", "youtube")
+YOUTUBE_API_VERSION = os.getenv("YOUTUBE_API_VERSION", "v3")
+YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
+# YouTube Client Secret: store the JSON string in env
+YOUTUBE_CLIENT_SECRET_JSON = os.getenv("YOUTUBE_CLIENT_SECRET_JSON")
 
+# Write the env JSON to a temp file for InstalledAppFlow
+if YOUTUBE_CLIENT_SECRET_JSON:
+    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as f:
+        f.write(YOUTUBE_CLIENT_SECRET_JSON)
+        YOUTUBE_CLIENT_SECRET_FILE_PATH = f.name
+else:
+    YOUTUBE_CLIENT_SECRET_FILE_PATH = None

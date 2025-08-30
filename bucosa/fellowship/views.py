@@ -442,24 +442,34 @@ def create_verse(request, fellowship_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
+
 def create_livestream(request, fellowship_id):
     fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
     users = User.objects.exclude(id=request.user.id)
     youtube_live_url = None  # default
 
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        start_time = request.POST.get('start_time')
-        invited_user_ids = request.POST.getlist('invited_users')
+    if request.method == "POST":
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        start_time = request.POST.get("start_time")
+        invited_user_ids = request.POST.getlist("invited_users")
+
+        if settings.YOUTUBE_CLIENT_SECRET_FILE_PATH is None:
+            messages.error(request, "YouTube client secret not configured!")
+            return redirect("fellowship_detail", fellowship_id=fellowship.id)
 
         # YouTube API setup
-        credentials_file = settings.YOUTUBE_CLIENT_SECRET_JSON
-        scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
-        flow = InstalledAppFlow.from_client_secrets_file(credentials_file, scopes)
+        flow = InstalledAppFlow.from_client_secrets_file(
+            settings.YOUTUBE_CLIENT_SECRET_FILE_PATH, settings.YOUTUBE_SCOPES
+        )
         credentials = flow.run_local_server(port=0)
-        youtube = build(settings.YOUTUBE_API_SERVICE_NAME, settings.YOUTUBE_API_VERSION, credentials=credentials)
+        youtube = build(
+            settings.YOUTUBE_API_SERVICE_NAME,
+            settings.YOUTUBE_API_VERSION,
+            credentials=credentials
+        )
 
+        # Create broadcast
         broadcast = youtube.liveBroadcasts().insert(
             part="snippet,status",
             body={
@@ -468,10 +478,8 @@ def create_livestream(request, fellowship_id):
                     "description": description,
                     "scheduledStartTime": start_time,
                 },
-                "status": {
-                    "privacyStatus": "public"
-                }
-            }
+                "status": {"privacyStatus": "public"},
+            },
         ).execute()
 
         youtube_live_url = f"https://www.youtube.com/watch?v={broadcast['id']}"
@@ -482,33 +490,32 @@ def create_livestream(request, fellowship_id):
             youtube_live_url=youtube_live_url,
             created_by=request.user,
             start_time=start_time,
-            is_active=True
+            is_active=True,
         )
         livestream.invited_users.set(User.objects.filter(id__in=invited_user_ids))
 
         messages.success(request, "✅ Live stream created! Joining link generated.")
+        return redirect("livestream_detail", livestream.id)
 
-        return render(request, "fellowship/create_livestream.html", {
-            "fellowship": fellowship,
-            "users": users,
-            "youtube_live_url": youtube_live_url
-        })
-
-    return render(request, "fellowship/create_livestream.html", {
-        "fellowship": fellowship,
-        "users": users,
-        "youtube_live_url": youtube_live_url
-    })
+    return render(
+        request,
+        "fellowship/create_livestream.html",
+        {"fellowship": fellowship, "users": users, "youtube_live_url": youtube_live_url},
+    )
 
 
-@login_required
 def livestream_detail(request, livestream_id):
     livestream = get_object_or_404(LiveStream, id=livestream_id)
-    # Only invited users or the creator can join
+
     if request.user != livestream.created_by and request.user not in livestream.invited_users.all():
         messages.error(request, "You are not invited to this live stream.")
-        return redirect('fellowship_detail', fellowship_id=livestream.created_by.id)
-    return render(request, 'fellowship/livestream_detail.html', {
-        'livestream': livestream,
-        'join_link': livestream.youtube_live_url,
-    })
+        return redirect("fellowship_detail", fellowship_id=livestream.created_by.id)
+
+    return render(
+        request,
+        "fellowship/livestream_detail.html",
+        {"livestream": livestream, "join_link": livestream.youtube_live_url},
+    )
+
+
+
