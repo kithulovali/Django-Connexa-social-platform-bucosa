@@ -445,8 +445,6 @@ def create_verse(request, fellowship_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-# fellowship/views.py
-@login_required
 def create_livestream(request, fellowship_id):
     fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
     users = User.objects.exclude(id=request.user.id)
@@ -458,38 +456,70 @@ def create_livestream(request, fellowship_id):
         start_time = request.POST.get("start_time")
         invited_user_ids = request.POST.getlist("invited_users")
 
-        try:
-            youtube = get_youtube_service()
+        # Load credentials from env variable
+        creds_data = json.loads(settings.YOUTUBE_CLIENT_SECRET_JSON)
+        credentials = Credentials(
+            token=creds_data["token"],
+            refresh_token=creds_data["refresh_token"],
+            client_id=creds_data["client_id"],
+            client_secret=creds_data["client_secret"],
+            token_uri=creds_data["token_uri"],
+        )
 
-            broadcast = youtube.liveBroadcasts().insert(
-                part="snippet,status",
-                body={
-                    "snippet": {
-                        "title": title,
-                        "description": description,
-                        "scheduledStartTime": start_time,
-                    },
-                    "status": {"privacyStatus": "public"}
-                }
-            ).execute()
+        # Build YouTube service
+        youtube = build(settings.YOUTUBE_API_SERVICE_NAME, settings.YOUTUBE_API_VERSION, credentials=credentials)
 
-            youtube_live_url = f"https://www.youtube.com/watch?v={broadcast['id']}"
+        # 1️⃣ Create live stream (video feed)
+        live_stream = youtube.liveStreams().insert(
+            part="snippet,cdn",
+            body={
+                "snippet": {"title": title},
+                "cdn": {"frameRate": "30fps", "resolution": "720p", "ingestionType": "rtmp"}
+            }
+        ).execute()
 
-            livestream = LiveStream.objects.create(
-                title=title,
-                description=description,
-                youtube_live_url=youtube_live_url,
-                created_by=request.user,
-                start_time=start_time,
-                is_active=True,
-            )
-            livestream.invited_users.set(User.objects.filter(id__in=invited_user_ids))
+        # 2️⃣ Create live broadcast
+        broadcast = youtube.liveBroadcasts().insert(
+            part="snippet,status",
+            body={
+                "snippet": {
+                    "title": title,
+                    "description": description,
+                    "scheduledStartTime": start_time  # Can be now for immediate
+                },
+                "status": {"privacyStatus": "public"}
+            }
+        ).execute()
 
-            messages.success(request, "✅ Live stream created! Joining link generated.")
-            return redirect("livestream_detail", livestream.id)
+        # 3️⃣ Bind broadcast to stream
+        youtube.liveBroadcasts().bind(
+            part="id,contentDetails",
+            id=broadcast["id"],
+            streamId=live_stream["id"]
+        ).execute()
 
-        except Exception as e:
-            messages.error(request, f"Error creating YouTube live stream: {str(e)}")
+        # 4️⃣ Transition broadcast to live
+        youtube.liveBroadcasts().transition(
+            broadcastStatus="live",
+            id=broadcast["id"],
+            part="status"
+        ).execute()
+
+        youtube_live_url = f"https://www.youtube.com/watch?v={broadcast['id']}"
+
+        # Save in DB
+        livestream = LiveStream.objects.create(
+            title=title,
+            description=description,
+            youtube_live_url=youtube_live_url,
+            created_by=request.user,
+            start_time=start_time,
+            is_active=True,
+        )
+        livestream.invited_users.set(User.objects.filter(id__in=invited_user_ids))
+
+        messages.success(request, "✅ Live stream created and started! Joining link generated.")
+        return redirect("livestream_detail", livestream.id)
 
     return render(
         request,
@@ -497,7 +527,7 @@ def create_livestream(request, fellowship_id):
         {"fellowship": fellowship, "users": users, "youtube_live_url": youtube_live_url},
     )
 
-@login_required
+
 def livestream_detail(request, livestream_id):
     livestream = get_object_or_404(LiveStream, id=livestream_id)
 
@@ -510,6 +540,5 @@ def livestream_detail(request, livestream_id):
         "fellowship/livestream_detail.html",
         {"livestream": livestream, "join_link": livestream.youtube_live_url},
     )
-
 
 
