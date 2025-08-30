@@ -1,33 +1,27 @@
-import os
-import json
-import tempfile
-from google_auth_oauthlib.flow import InstalledAppFlow
+# fellowship/utils.py
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from django.conf import settings
+import json
 
 def get_youtube_service():
-    """
-    Initializes and returns the YouTube API service client.
-    Uses environment variables for credentials and scopes.
-    """
-    # YouTube API settings
-    service_name = os.getenv("YOUTUBE_API_SERVICE_NAME", "youtube")
-    api_version = os.getenv("YOUTUBE_API_VERSION", "v3")
-    scopes = json.loads(os.getenv("YOUTUBE_SCOPES", '["https://www.googleapis.com/auth/youtube.force-ssl"]'))
+    creds_data = getattr(settings, "YOUTUBE_CLIENT_SECRET_JSON", None)
+    if not creds_data:
+        raise ValueError("YouTube credentials not configured.")
 
-    # Get client secret JSON from env
-    client_secret_json = os.getenv("YOUTUBE_CLIENT_SECRET_JSON")
-    if not client_secret_json:
-        raise ValueError("YOUTUBE_CLIENT_SECRET_JSON not set in environment variables")
+    creds_dict = json.loads(creds_data)
+    credentials = Credentials(
+        token=creds_dict.get("token"),
+        refresh_token=creds_dict.get("refresh_token"),
+        client_id=creds_dict.get("client_id"),
+        client_secret=creds_dict.get("client_secret"),
+        token_uri=creds_dict.get("token_uri"),
+        scopes=settings.YOUTUBE_SCOPES
+    )
 
-    # Write JSON to temporary file
-    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as f:
-        f.write(client_secret_json)
-        credentials_file_path = f.name
-
-    # Run OAuth flow
-    flow = InstalledAppFlow.from_client_secrets_file(credentials_file_path, scopes)
-    credentials = flow.run_local_server(port=0)
-
-    # Build YouTube service
-    youtube = build(service_name, api_version, credentials=credentials)
+    youtube = build(
+        settings.YOUTUBE_API_SERVICE_NAME,
+        settings.YOUTUBE_API_VERSION,
+        credentials=credentials
+    )
     return youtube

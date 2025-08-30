@@ -21,6 +21,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from django.contrib.auth import get_user_model
 from .utils import get_youtube_service
 User = get_user_model()
+from google.oauth2.credentials import Credentials
+import json
 # Create your views here.
 @login_required
 def fellowship_view(request):
@@ -443,6 +445,8 @@ def create_verse(request, fellowship_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
+# fellowship/views.py
+@login_required
 def create_livestream(request, fellowship_id):
     fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
     users = User.objects.exclude(id=request.user.id)
@@ -454,24 +458,9 @@ def create_livestream(request, fellowship_id):
         start_time = request.POST.get("start_time")
         invited_user_ids = request.POST.getlist("invited_users")
 
-        # --- YouTube API Setup ---
-        if not settings.YOUTUBE_CLIENT_SECRET_FILE_PATH:
-            messages.error(request, "YouTube credentials are not configured.")
-            return redirect("fellowship_detail", fellowship_id=fellowship_id)
-
         try:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                settings.YOUTUBE_CLIENT_SECRET_FILE_PATH,
-                settings.YOUTUBE_SCOPES,
-            )
-            credentials = flow.run_local_server(port=0)
-            youtube = build(
-                settings.YOUTUBE_API_SERVICE_NAME,
-                settings.YOUTUBE_API_VERSION,
-                credentials=credentials,
-            )
+            youtube = get_youtube_service()
 
-            # Create a live broadcast
             broadcast = youtube.liveBroadcasts().insert(
                 part="snippet,status",
                 body={
@@ -480,13 +469,12 @@ def create_livestream(request, fellowship_id):
                         "description": description,
                         "scheduledStartTime": start_time,
                     },
-                    "status": {"privacyStatus": "public"},
-                },
+                    "status": {"privacyStatus": "public"}
+                }
             ).execute()
 
             youtube_live_url = f"https://www.youtube.com/watch?v={broadcast['id']}"
 
-            # Save livestream in DB
             livestream = LiveStream.objects.create(
                 title=title,
                 description=description,
@@ -497,14 +485,11 @@ def create_livestream(request, fellowship_id):
             )
             livestream.invited_users.set(User.objects.filter(id__in=invited_user_ids))
 
-            messages.success(
-                request, "✅ Live stream created successfully! Joining link generated."
-            )
+            messages.success(request, "✅ Live stream created! Joining link generated.")
             return redirect("livestream_detail", livestream.id)
 
         except Exception as e:
-            messages.error(request, f"Error creating YouTube livestream: {e}")
-            return redirect("fellowship_detail", fellowship_id=fellowship_id)
+            messages.error(request, f"Error creating YouTube live stream: {str(e)}")
 
     return render(
         request,
