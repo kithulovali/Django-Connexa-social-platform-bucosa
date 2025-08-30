@@ -1,9 +1,7 @@
-import json
-import os
 from pathlib import Path
 from dotenv import load_dotenv
+import os, json, tempfile
 import dj_database_url
-import tempfile
 # Load environment variables
 load_dotenv()
 
@@ -261,23 +259,33 @@ CHANNEL_LAYERS = {
     },
 }
 
-# YouTube API
+# YouTube API configuration
 YOUTUBE_API_SERVICE_NAME = os.getenv("YOUTUBE_API_SERVICE_NAME", "youtube")
 YOUTUBE_API_VERSION = os.getenv("YOUTUBE_API_VERSION", "v3")
-YOUTUBE_SCOPES = json.loads(os.getenv("YOUTUBE_SCOPES", '["https://www.googleapis.com/auth/youtube.force-ssl"]'))
 
-# Store JSON in env, create a temporary file at runtime
+# Scopes: parse JSON string into Python list
+raw_scopes = os.getenv("YOUTUBE_SCOPES", '["https://www.googleapis.com/auth/youtube.force-ssl"]')
+try:
+    YOUTUBE_SCOPES = json.loads(raw_scopes)
+except json.JSONDecodeError:
+    # fallback if env is corrupted
+    YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
+# Client Secret JSON
 YOUTUBE_CLIENT_SECRET_JSON = os.getenv("YOUTUBE_CLIENT_SECRET_JSON")
+
+# Write the JSON to a temporary file for InstalledAppFlow
 if YOUTUBE_CLIENT_SECRET_JSON:
     try:
-        json.loads(YOUTUBE_CLIENT_SECRET_JSON)  # just check
-    except json.JSONDecodeError:
-        raise ValueError("Invalid YOUTUBE_CLIENT_SECRET_JSON in environment variables")
-    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as f:
-        f.write(YOUTUBE_CLIENT_SECRET_JSON)
+        client_secret_data = json.loads(YOUTUBE_CLIENT_SECRET_JSON)  # validate JSON
+    except json.JSONDecodeError as e:
+        raise ValueError(f"YOUTUBE_CLIENT_SECRET_JSON is not valid JSON: {e}")
+
+    with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".json") as f:
+        json.dump(client_secret_data, f)  # write proper JSON
         YOUTUBE_CLIENT_SECRET_FILE_PATH = f.name
 else:
     YOUTUBE_CLIENT_SECRET_FILE_PATH = None
+
 
 
