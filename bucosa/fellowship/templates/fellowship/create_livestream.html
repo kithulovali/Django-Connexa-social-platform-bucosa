@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Create Live Stream</h2>
+{% comment %}  
  <a href="{% url 'livestream_detail' livestream.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md">Join Live Stream</a>
-<form method="post">
+{% endcomment %}
+ <form method="post">
     {% csrf_token %}
     <label for="title">Title:</label>
     <input type="text" name="title" required><br>
