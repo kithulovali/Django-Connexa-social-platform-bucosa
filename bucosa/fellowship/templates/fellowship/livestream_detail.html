@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ livestream.title }}</h2>
+<p>{{ livestream.description }}</p>
+<p>Scheduled for: {{ livestream.start_time }}</p>
+
+{% if join_link %}
+  <div class="mt-4 p-3 border rounded bg-green-100">
+      <h3>🎥 Join Live Stream</h3>
+
+      <!-- Embed YouTube player -->
+      <iframe width="560" height="315" 
+              src="https://www.youtube.com/embed/{{ livestream.youtube_live_url|cut:'https://www.youtube.com/watch?v=' }}" 
+              frameborder="0" allowfullscreen></iframe>
+
+      <!-- Join & Copy Section -->
+      <div class="mt-3">
+          <label for="youtubeLink">Your Join Link:</label>
+          <input id="youtubeLink" type="text" value="{{ join_link }}" readonly
+                 class="p-2 border rounded w-full">
+          <button id="copyBtn" class="mt-2 p-2 bg-blue-600 text-white rounded">📋 Copy Link</button>
+          <span id="copyMsg" class="ml-2 text-green-700 hidden">Copied ✅</span>
+      </div>
+
+      <!-- Optional Share Buttons -->
+      <div class="mt-3">
+          <a href="https://wa.me/?text={{ join_link }}" target="_blank"
+             class="p-2 bg-green-500 text-white rounded">WhatsApp</a>
+          <a href="mailto:?subject=Join my live stream&body={{ join_link }}" 
+             class="p-2 bg-gray-700 text-white rounded">Email</a>
+          <a href="https://twitter.com/intent/tweet?text={{ join_link }}" target="_blank"
+             class="p-2 bg-blue-400 text-white rounded">Twitter</a>
+      </div>
+  </div>
+
+  <!-- Auto-copy & Manual Copy Script -->
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          const youtubeLink = document.getElementById("youtubeLink");
+          const copyBtn = document.getElementById("copyBtn");
+          const copyMsg = document.getElementById("copyMsg");
+
+          // Auto-copy on page load
+          if (youtubeLink && youtubeLink.value) {
+              navigator.clipboard.writeText(youtubeLink.value).then(() => {
+                  copyMsg.classList.remove("hidden");
+                  setTimeout(() => copyMsg.classList.add("hidden"), 2000);
+              });
+          }
+
+          // Manual copy
+          copyBtn.addEventListener("click", function() {
+              navigator.clipboard.writeText(youtubeLink.value).then(() => {
+                  copyMsg.classList.remove("hidden");
+                  setTimeout(() => copyMsg.classList.add("hidden"), 2000);
+              });
+          });
+      });
+  </script>
+{% else %}
+  <p>Live stream link not available yet.</p>
+{% endif %}
+{% endblock %}

@@ -36,6 +36,8 @@ urlpatterns = [
     path("verses/history/", views.verse_history, name="verse_history"),
     path("verse/<int:verse_id>/edit/", views.edit_verse, name="edit_verse"),
     path("verse/<int:verse_id>/delete/", views.delete_verse, name="delete_verse"),
+    path('fellowship/<int:fellowship_id>/livestream/create/', views.create_livestream, name='create_livestream'),
+    path('livestream/<int:livestream_id>/', views.livestream_detail, name='livestream_detail'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

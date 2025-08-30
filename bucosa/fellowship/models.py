@@ -3,6 +3,19 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import User
 from cloudinary.models import CloudinaryField
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class LiveStream(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    youtube_live_url = models.URLField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    invited_users = models.ManyToManyField(User, related_name='invited_livestreams', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class MembershipRequest(models.Model):
     fellowship = models.ForeignKey('fellowship_edit', on_delete=models.CASCADE, related_name='membership_requests')

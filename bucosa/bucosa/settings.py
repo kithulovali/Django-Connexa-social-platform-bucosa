@@ -1,8 +1,9 @@
+import json
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
-
+import json
 
 # Load environment variables
 load_dotenv()
@@ -261,6 +262,10 @@ CHANNEL_LAYERS = {
     },
 }
 
-
+# YouTube API configuration and live streaming
+YOUTUBE_API_SERVICE_NAME = os.getenv("YOUTUBE_API_SERVICE_NAME")
+YOUTUBE_API_VERSION = os.getenv("YOUTUBE_API_VERSION")
+YOUTUBE_CLIENT_SECRET = json.loads(os.getenv("YOUTUBE_CLIENT_SECRET_JSON", "{}"))
+YOUTUBE_SCOPES =os.getenv("YOUTUBE_URL")
 
 

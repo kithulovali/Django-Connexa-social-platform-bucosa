@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create Live Stream</h2>
+ <a href="{% url 'livestream_detail' livestream.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md">Join Live Stream</a>
+<form method="post">
+    {% csrf_token %}
+    <label for="title">Title:</label>
+    <input type="text" name="title" required><br>
+
+    <label for="description">Description:</label>
+    <textarea name="description"></textarea><br>
+
+    <label for="start_time">Start Time:</label>
+    <input type="datetime-local" name="start_time" required><br>
+
+    <label for="invited_users">Invite Users:</label>
+    <select name="invited_users" multiple>
+        {% for user in users %}
+            <option value="{{ user.id }}">{{ user.email }}</option>
+        {% endfor %}
+    </select><br>
+
+    <button type="submit">Create Live Stream</button>
+</form>
+
+{% if youtube_live_url %}
+    <div class="mt-4 p-3 border rounded bg-green-100">
+        <h3>✅ Your Live Stream is Ready!</h3>
+        <p>Share this link with others:</p>
+        <input id="youtubeLink" type="text" value="{{ youtube_live_url }}" readonly class="p-2 border rounded w-full">
+        <button id="copyBtn" class="mt-2 p-2 bg-blue-600 text-white rounded">📋 Copy Link</button>
+        <span id="copyMsg" class="ml-2 text-green-700 hidden">Copied ✅</span>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const copyBtn = document.getElementById("copyBtn");
+            const youtubeLink = document.getElementById("youtubeLink");
+            const copyMsg = document.getElementById("copyMsg");
+
+            // Copy automatically once link is generated
+            youtubeLink.select();
+            youtubeLink.setSelectionRange(0, 99999); // For mobile
+            navigator.clipboard.writeText(youtubeLink.value).then(() => {
+                copyMsg.classList.remove("hidden");
+            });
+
+            // Manual copy when button is clicked
+            copyBtn.addEventListener("click", function() {
+                youtubeLink.select();
+                youtubeLink.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(youtubeLink.value).then(() => {
+                    copyMsg.classList.remove("hidden");
+                    setTimeout(() => copyMsg.classList.add("hidden"), 2000);
+                });
+            });
+        });
+    </script>
+{% endif %}
+{% endblock %}
