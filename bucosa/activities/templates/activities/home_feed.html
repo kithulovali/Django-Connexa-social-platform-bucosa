@@ -2,551 +2,524 @@
 {% load static %}
 {% load display_name %}
 
-
 {% block content %}
-<!-- Removed margin container wrapper -->
-<div class="min-h-screen w-full bg-gray-100 flex flex-col lg:flex-row">
-  <!-- Main Content - comes first in mobile view -->
-  <main class="flex flex-col items-center flex-1 min-h-screen w-full py-6 lg:max-w-2xl lg:mx-auto lg:px-4">
-    {% if combined_feed %}
-      <div class="w-full space-y-6">
-        {% for item in combined_feed %}
-         {% if item.type == 'post' %}
-<!-- Post/Repost template with small padding around -->
-        <article class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden mobile-post mx-2 sm:mx-3" id="post-{{ item.data.id }}">
-          {% if item.data.repost_of %}
-            <!-- Repost header -->
-            <div class="px-4 sm:px-6 pt-4 pb-2">
-              <div class="flex items-center gap-2 text-sm text-blue-600 mb-3">
-                <span class="material-icons text-base">repeat</span>
-                <span>Reposted from</span>
-                <a href="{% url 'users:profile' item.data.repost_of.author.id %}" class="font-medium hover:text-blue-500">
-                  {{ item.data.repost_of.author|display_name }}
-                </a>
-              </div>
-              <!-- Original post content -->
-              <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-5">
-                <!-- Author info -->
-                <div class="flex items-center gap-3 mb-4">
-                  {% if item.data.repost_of.author.profile and item.data.repost_of.author.profile.profile_image %}
-                  <a href="{% url 'users:profile' item.data.repost_of.author.id %}" class="flex-shrink-0">
-                    <img src="{{ item.data.repost_of.author.profile.profile_image.url }}" 
-                        class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200">
+<!-- Main container with improved mobile responsiveness -->
+<div class="min-h-screen bg-gray-100 w-full">
+  <div class="flex flex-col lg:flex-row">
+    <!-- Main Content - comes first in mobile view -->
+    <main class="flex-1 w-full py-4 lg:py-6 lg:max-w-2xl lg:mx-auto lg:px-4">
+      {% if combined_feed %}
+        <div class="w-full space-y-4 lg:space-y-6">
+          {% for item in combined_feed %}
+           {% if item.type == 'post' %}
+          <!-- Post/Repost template with improved mobile margins -->
+          <article class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden mx-2 lg:mx-0" id="post-{{ item.data.id }}">
+            {% if item.data.repost_of %}
+              <!-- Repost header -->
+              <div class="px-4 sm:px-6 pt-4 pb-2">
+                <div class="flex items-center gap-2 text-sm text-blue-600 mb-3">
+                  <span class="material-icons text-base">repeat</span>
+                  <span>Reposted from</span>
+                  <a href="{% url 'users:profile' item.data.repost_of.author.id %}" class="font-medium hover:text-blue-500">
+                    {{ item.data.repost_of.author|display_name }}
                   </a>
-                  {% else %}
-                  <a href="{% url 'users:profile' item.data.repost_of.author.id %}" class="flex-shrink-0">
-                    <img src="{% static 'img/default.png' %}" 
-                        class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200">
-                  </a>
-                  {% endif %}
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <a href="{% url 'users:profile' item.data.repost_of.author.id %}" 
-                        class="font-bold text-gray-800 hover:text-black truncate text-sm sm:text-base">
-                        {{ item.data.repost_of.author|display_name }}
-                      </a>
-                      <span class="text-gray-500 text-sm">·</span>
-                      <time class="text-gray-500 text-xs sm:text-sm">{{ item.data.repost_of.created_at|timesince }} ago</time>
-                      {% if item.data.repost_of.group %}
-                      <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-medium">
-                        Group: <a href="{% url 'users:group_profile' item.data.repost_of.group.id %}" class="ml-1 hover:underline">{{ item.data.repost_of.group.name }}</a>
-                      </span>
-                      {% endif %}
+                </div>
+                <!-- Original post content -->
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-5">
+                  <!-- Author info -->
+                  <div class="flex items-center gap-3 mb-4">
+                    {% if item.data.repost_of.author.profile and item.data.repost_of.author.profile.profile_image %}
+                    <a href="{% url 'users:profile' item.data.repost_of.author.id %}" class="flex-shrink-0">
+                      <img src="{{ item.data.repost_of.author.profile.profile_image.url }}" 
+                          class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200">
+                    </a>
+                    {% else %}
+                    <a href="{% url 'users:profile' item.data.repost_of.author.id %}" class="flex-shrink-0">
+                      <img src="{% static 'img/default.png' %}" 
+                          class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200">
+                    </a>
+                    {% endif %}
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <a href="{% url 'users:profile' item.data.repost_of.author.id %}" 
+                          class="font-bold text-gray-800 hover:text-black truncate text-sm sm:text-base">
+                          {{ item.data.repost_of.author|display_name }}
+                        </a>
+                        <span class="text-gray-500 text-sm">·</span>
+                        <time class="text-gray-500 text-xs sm:text-sm">{{ item.data.repost_of.created_at|timesince }} ago</time>
+                        {% if item.data.repost_of.group %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-medium">
+                          Group: <a href="{% url 'users:group_profile' item.data.repost_of.group.id %}" class="ml-1 hover:underline">{{ item.data.repost_of.group.name }}</a>
+                        </span>
+                        {% endif %}
+                      </div>
                     </div>
                   </div>
+                  
+                  <!-- Post content -->
+                  {% if item.data.repost_of.content %}
+                  <div class="text-gray-800 mb-4 leading-relaxed text-sm sm:text-base">{{ item.data.repost_of.content }}</div>
+                  {% endif %}
+                  
+                  <!-- Media -->
+                  {% if item.data.repost_of.image %}
+                  <div class="mb-4">
+                    <img src="{{ item.data.repost_of.image.url }}" 
+                        class="rounded-xl w-full max-h-60 sm:max-h-80 object-cover border border-gray-200">
+                  </div>
+                  {% endif %}
+                  
+                  {% if item.data.repost_of.video %}
+                  <div class="mb-4">
+                    <video controls class="rounded-xl w-full max-h-60 sm:max-h-80 object-cover border border-gray-200">
+                      <source src="{{ item.data.repost_of.video.url }}" type="video/mp4">
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                  {% endif %}
                 </div>
+              </div>
+            {% endif %}
+            
+            <!-- Main post content -->
+            <div class="px-4 sm:px-6 {% if not item.data.repost_of %}pt-6{% else %}pt-2{% endif %}">
+              <!-- Author info -->
+              <div class="flex items-center gap-3 sm:gap-4 mb-4">
+                {% if item.data.author.profile and item.data.author.profile.profile_image %}
+                <a href="{% url 'users:profile' item.data.author.id %}" class="flex-shrink-0">
+                  <img src="{{ item.data.author.profile.profile_image.url }}" 
+                      class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200">
+                </a>
+                {% else %}
+                <a href="{% url 'users:profile' item.data.author.id %}" class="flex-shrink-0">
+                  <img src="{% static 'img/default.png' %}" 
+                      class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200">
+                </a>
+                {% endif %}
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap mb-1">
+                    <a href="{% url 'users:profile' item.data.author.id %}" 
+                      class="font-bold text-gray-900 text-base sm:text-lg">
+                      {{ item.data.author|display_name }}
+                    </a>
+                    <span class="text-gray-500">·</span>
+                    <time class="text-gray-500 text-xs sm:text-sm">{{ item.data.created_at|timesince }} ago</time>
+                  </div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    {% if item.data.group %}
+                    <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">
+                      <span class="material-icons text-xs mr-1">group</span>
+                      <a href="{% url 'users:group_profile' item.data.group.id %}" class="hover:underline">{{ item.data.group.name }}</a>
+                    </span>
+                    {% endif %}
+                    <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                      {{ item.data.get_privacy_display }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Post content -->
+              {% if item.data.content %}
+              <div class="text-gray-800 text-base sm:text-lg leading-relaxed mb-6 break-words">
+                {{ item.data.content }}
+              </div>
+              {% endif %}
+              
+              <!-- Media -->
+              {% if item.data.image %}
+              <div class="mb-6 -mx-2 sm:mx-0">
+                <img src="{{ item.data.image.url }}" 
+                    class="rounded-xl sm:rounded-2xl w-full max-h-80 sm:max-h-96 object-cover border border-gray-200">
+              </div>
+              {% endif %}
+              
+              {% if item.data.video %}
+              <div class="mb-6 -mx-2 sm:mx-0">
+                <video controls class="rounded-xl sm:rounded-2xl w-full max-h-80 sm:max-h-96 object-cover border border-gray-200">
+                  <source src="{{ item.data.video.url }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              {% endif %}
+            </div>
+            
+            <!-- Action buttons -->
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50">
+              <div class="grid grid-cols-5 gap-1">
+                <!-- Like Button -->
+                <button type="button" 
+                        class="like-btn group flex flex-col items-center justify-center text-gray-600 hover:text-red-500 py-1 rounded-xl hover:bg-red-50 transition-colors"
+                        data-post-id="{{ item.data.id }}"
+                        data-liked="{% if user in item.data.likes.all %}true{% else %}false{% endif %}">
+                  <span class="material-icons text-lg like-icon mb-1">
+                    {% if user in item.data.likes.all %}favorite{% else %}favorite_border{% endif %}
+                  </span>
+                  <span class="font-medium text-xs sm:text-sm like-count">{{ item.data.likes.count }}</span>
+                </button>
                 
-                <!-- Post content -->
-                {% if item.data.repost_of.content %}
-                <div class="text-gray-800 mb-4 leading-relaxed text-sm sm:text-base">{{ item.data.repost_of.content }}</div>
+                <!-- Save Button -->
+                <form action="{% if item.data.repost_of %}{% url 'activities:save_post' item.data.repost_of.id %}{% else %}{% url 'activities:save_post' item.data.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
+                  {% csrf_token %}
+                  <button type="submit" class="group flex flex-col items-center justify-center text-gray-600 hover:text-green-600 w-full py-1 rounded-xl hover:bg-green-50">
+                    <span class="material-icons text-lg mb-1">bookmark_border</span>
+                    <span class="font-medium text-xs sm:text-sm">{{ item.data.saves.count }}</span>
+                  </button>
+                </form>
+                
+                <!-- Share Button -->
+                <a href="{% if item.data.repost_of %}{% url 'activities:share_page' item.data.repost_of.id %}{% else %}{% url 'activities:share_page' item.data.id %}{% endif %}" 
+                  class="flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 py-1 rounded-xl hover:bg-blue-50">
+                  <span class="material-icons text-lg mb-1">share</span>
+                  <span class="font-medium text-xs sm:text-sm">Share</span>
+                </a>
+                
+                <!-- Repost Button -->
+                {% if not item.data.repost_of or item.data.repost_of.author != user %}
+                <form action="{% if item.data.repost_of %}{% url 'activities:repost_post' item.data.repost_of.id %}{% else %}{% url 'activities:repost_post' item.data.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
+                  {% csrf_token %}
+                  <button type="submit" class="group flex flex-col items-center justify-center text-gray-600 hover:text-orange-500 w-full py-1 rounded-xl hover:bg-orange-50">
+                    <span class="material-icons text-lg mb-1">repeat</span>
+                    <span class="font-medium text-xs sm:text-sm">{{ item.data.repost_count }}</span>
+                  </button>
+                </form>
                 {% endif %}
                 
-                <!-- Media -->
-                {% if item.data.repost_of.image %}
-                <div class="mb-4">
-                  <img src="{{ item.data.repost_of.image.url }}" 
-                      class="rounded-xl w-full max-h-60 sm:max-h-80 object-cover border border-gray-200">
+                <!-- Comment Button -->
+                <button type="button" 
+                        class="toggle-comments-btn flex flex-col items-center justify-center text-gray-600 hover:text-purple-600 py-1 rounded-xl hover:bg-purple-50" 
+                        data-post-id="{{ item.data.id }}">
+                  <span class="material-icons text-lg mb-1">chat_bubble_outline</span>
+                  <span class="font-medium text-xs sm:text-sm">{{ item.data.comments.count }}</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Comments section -->
+            <div class="comments-section hidden border-t border-gray-200" id="comments-section-{{ item.data.id }}">
+              <div class="px-4 sm:px-6 py-4 bg-gray-50">
+                <div class="space-y-4 max-h-80 overflow-y-auto">
+                  {% for comment in item.data.comments.all %}
+                  <div class="flex gap-3 bg-white rounded-xl p-3 sm:p-4 border border-gray-200">
+                    {% if comment.author.profile and comment.author.profile.profile_image %}
+                    <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
+                      <img src="{{ comment.author.profile.profile_image.url }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">
+                    </a>
+                    {% else %}
+                    <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
+                      <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">
+                    </a>
+                    {% endif %}
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1 sm:mb-2">
+                        <a href="{% url 'users:profile' comment.author.id %}" class="font-semibold text-gray-800 text-sm sm:text-base">{{ comment.author|display_name }}</a>
+                        <span class="text-gray-500 text-xs sm:text-sm">·</span>
+                        <time class="text-gray-500 text-xs sm:text-sm">{{ comment.created_at|timesince }} ago</time>
+                      </div>
+                      <div class="text-gray-700 break-words leading-relaxed text-sm sm:text-base">{{ comment.content }}</div>
+                    </div>
+                  </div>
+                  {% empty %}
+                  <div class="text-center py-6">
+                    <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2">chat_bubble_outline</span>
+                    <p class="text-gray-500 text-sm sm:text-base">No comments yet. Be the first to comment!</p>
+                  </div>
+                  {% endfor %}
                 </div>
-                {% endif %}
                 
-                {% if item.data.repost_of.video %}
-                <div class="mb-4">
-                  <video controls class="rounded-xl w-full max-h-60 sm:max-h-80 object-cover border border-gray-200">
-                    <source src="{{ item.data.repost_of.video.url }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                  </video>
+                <!-- Comment form -->
+                {% if user.is_authenticated %}
+                <form action="{% url 'activities:add_comment' item.data.id %}" method="post" class="mt-4 flex gap-2 sm:gap-3 items-start">
+                  {% csrf_token %}
+                  {% if user.profile and user.profile.profile_image %}
+                  <img src="{{ user.profile.profile_image.url }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
+                  {% else %}
+                  <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
+                  {% endif %}
+                  <div class="flex-1 flex gap-2">
+                    <textarea name="content" rows="1" required placeholder="Add a comment..." class="flex-1 resize-none border border-gray-300 rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm sm:text-base comment-textarea"></textarea>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl shadow transition-all text-sm sm:text-base">Post</button>
+                  </div>
+                </form>
+                {% else %}
+                <div class="text-center py-4">
+                  <p class="text-gray-500 text-sm sm:text-base">
+                    <a href="{% url 'account_login' %}" class="text-blue-600 hover:text-blue-500 underline">Log in</a> 
+                    to join the conversation
+                  </p>
                 </div>
                 {% endif %}
               </div>
             </div>
-          {% endif %}
-          
-          <!-- Main post content -->
-          <div class="px-4 sm:px-6 {% if not item.data.repost_of %}pt-6{% else %}pt-2{% endif %}">
-            <!-- Author info -->
-            <div class="flex items-center gap-3 sm:gap-4 mb-4">
-              {% if item.data.author.profile and item.data.author.profile.profile_image %}
-              <a href="{% url 'users:profile' item.data.author.id %}" class="flex-shrink-0">
-                <img src="{{ item.data.author.profile.profile_image.url }}" 
-                    class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200">
-              </a>
-              {% else %}
-              <a href="{% url 'users:profile' item.data.author.id %}" class="flex-shrink-0">
-                <img src="{% static 'img/default.png' %}" 
-                    class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200">
-              </a>
-              {% endif %}
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 flex-wrap mb-1">
-                  <a href="{% url 'users:profile' item.data.author.id %}" 
-                    class="font-bold text-gray-900 text-base sm:text-lg">
-                    {{ item.data.author|display_name }}
-                  </a>
-                  <span class="text-gray-500">·</span>
+          </article>
+            {% elif item.type == 'activity' %}
+              <!-- Activity Card with small padding around -->
+              <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5 mx-2 lg:mx-0">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Activity</h3>
+                <div class="flex flex-col gap-2">
+                  <p class="text-gray-700">User <strong>{{ item.data.user|display_name }}</strong> performed an activity.</p>
                   <time class="text-gray-500 text-xs sm:text-sm">{{ item.data.created_at|timesince }} ago</time>
                 </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                  {% if item.data.group %}
-                  <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">
-                    <span class="material-icons text-xs mr-1">group</span>
-                    <a href="{% url 'users:group_profile' item.data.group.id %}" class="hover:underline">{{ item.data.group.name }}</a>
-                  </span>
-                  {% endif %}
-                  <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
-                    {{ item.data.get_privacy_display }}
-                  </span>
-                </div>
               </div>
-            </div>
-            
-            <!-- Post content -->
-            {% if item.data.content %}
-            <div class="text-gray-800 text-base sm:text-lg leading-relaxed mb-6 break-words">
-              {{ item.data.content }}
-            </div>
-            {% endif %}
-            
-            <!-- Media -->
-            {% if item.data.image %}
-            <div class="mb-6 -mx-2 sm:mx-0">
-              <img src="{{ item.data.image.url }}" 
-                  class="rounded-xl sm:rounded-2xl w-full max-h-80 sm:max-h-96 object-cover border border-gray-200">
-            </div>
-            {% endif %}
-            
-            {% if item.data.video %}
-            <div class="mb-6 -mx-2 sm:mx-0">
-              <video controls class="rounded-xl sm:rounded-2xl w-full max-h-80 sm:max-h-96 object-cover border border-gray-200">
-                <source src="{{ item.data.video.url }}" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            {% endif %}
-          </div>
-          
-          <!-- Action buttons -->
-          <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50">
-            <div class="grid grid-cols-5 gap-1">
-              <!-- Like Button -->
-              <button type="button" 
-                      class="like-btn group flex flex-col items-center justify-center text-gray-600 hover:text-red-500 py-1 rounded-xl hover:bg-red-50 transition-colors"
-                      data-post-id="{{ item.data.id }}"
-                      data-liked="{% if user in item.data.likes.all %}true{% else %}false{% endif %}">
-                <span class="material-icons text-lg like-icon mb-1">
-                  {% if user in item.data.likes.all %}favorite{% else %}favorite_border{% endif %}
-                </span>
-                <span class="font-medium text-xs sm:text-sm like-count">{{ item.data.likes.count }}</span>
-              </button>
-              
-              <!-- Save Button -->
-              <form action="{% if item.data.repost_of %}{% url 'activities:save_post' item.data.repost_of.id %}{% else %}{% url 'activities:save_post' item.data.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
-                {% csrf_token %}
-                <button type="submit" class="group flex flex-col items-center justify-center text-gray-600 hover:text-green-600 w-full py-1 rounded-xl hover:bg-green-50">
-                  <span class="material-icons text-lg mb-1">bookmark_border</span>
-                  <span class="font-medium text-xs sm:text-sm">{{ item.data.saves.count }}</span>
-                </button>
-              </form>
-              
-              <!-- Share Button -->
-              <a href="{% if item.data.repost_of %}{% url 'activities:share_page' item.data.repost_of.id %}{% else %}{% url 'activities:share_page' item.data.id %}{% endif %}" 
-                class="flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 py-1 rounded-xl hover:bg-blue-50">
-                <span class="material-icons text-lg mb-1">share</span>
-                <span class="font-medium text-xs sm:text-sm">Share</span>
-              </a>
-              
-              <!-- Repost Button -->
-              {% if not item.data.repost_of or item.data.repost_of.author != user %}
-              <form action="{% if item.data.repost_of %}{% url 'activities:repost_post' item.data.repost_of.id %}{% else %}{% url 'activities:repost_post' item.data.id %}{% endif %}" method="post" class="flex flex-col items-center justify-center">
-                {% csrf_token %}
-                <button type="submit" class="group flex flex-col items-center justify-center text-gray-600 hover:text-orange-500 w-full py-1 rounded-xl hover:bg-orange-50">
-                  <span class="material-icons text-lg mb-1">repeat</span>
-                  <span class="font-medium text-xs sm:text-sm">{{ item.data.repost_count }}</span>
-                </button>
-              </form>
-              {% endif %}
-              
-              <!-- Comment Button -->
-              <button type="button" 
-                      class="toggle-comments-btn flex flex-col items-center justify-center text-gray-600 hover:text-purple-600 py-1 rounded-xl hover:bg-purple-50" 
-                      data-post-id="{{ item.data.id }}">
-                <span class="material-icons text-lg mb-1">chat_bubble_outline</span>
-                <span class="font-medium text-xs sm:text-sm">{{ item.data.comments.count }}</span>
-              </button>
-            </div>
-          </div>
-          
-          <!-- Comments section -->
-          <div class="comments-section hidden border-t border-gray-200" id="comments-section-{{ item.data.id }}">
-            <div class="px-4 sm:px-6 py-4 bg-gray-50">
-              <div class="space-y-4 max-h-80 overflow-y-auto">
-                {% for comment in item.data.comments.all %}
-                <div class="flex gap-3 bg-white rounded-xl p-3 sm:p-4 border border-gray-200">
-                  {% if comment.author.profile and comment.author.profile.profile_image %}
-                  <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
-                    <img src="{{ comment.author.profile.profile_image.url }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">
-                  </a>
-                  {% else %}
-                  <a href="{% url 'users:profile' comment.author.id %}" class="flex-shrink-0">
-                    <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200">
-                  </a>
-                  {% endif %}
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1 sm:mb-2">
-                      <a href="{% url 'users:profile' comment.author.id %}" class="font-semibold text-gray-800 text-sm sm:text-base">{{ comment.author|display_name }}</a>
-                      <span class="text-gray-500 text-xs sm:text-sm">·</span>
-                      <time class="text-gray-500 text-xs sm:text-sm">{{ comment.created_at|timesince }} ago</time>
-                    </div>
-                    <div class="text-gray-700 break-words leading-relaxed text-sm sm:text-base">{{ comment.content }}</div>
-                  </div>
-                </div>
-                {% empty %}
-                <div class="text-center py-6">
-                  <span class="material-icons text-3xl sm:text-4xl text-gray-400 mb-2">chat_bubble_outline</span>
-                  <p class="text-gray-500 text-sm sm:text-base">No comments yet. Be the first to comment!</p>
-                </div>
-                {% endfor %}
-              </div>
-              
-              <!-- Comment form -->
-              {% if user.is_authenticated %}
-              <form action="{% url 'activities:add_comment' item.data.id %}" method="post" class="mt-4 flex gap-2 sm:gap-3 items-start">
-                {% csrf_token %}
-                {% if user.profile and user.profile.profile_image %}
-                <img src="{{ user.profile.profile_image.url }}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
-                {% else %}
-                <img src="{% static 'img/default.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
-                {% endif %}
-                <div class="flex-1 flex gap-2">
-                  <textarea name="content" rows="1" required placeholder="Add a comment..." class="flex-1 resize-none border border-gray-300 rounded-xl px-3 py-2 sm:px-4 sm:py-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm sm:text-base comment-textarea"></textarea>
-                  <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl shadow transition-all text-sm sm:text-base">Post</button>
-                </div>
-              </form>
-              {% else %}
-              <div class="text-center py-4">
-                <p class="text-gray-500 text-sm sm:text-base">
-                  <a href="{% url 'account_login' %}" class="text-blue-600 hover:text-blue-500 underline">Log in</a> 
-                  to join the conversation
-                </p>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-        </article>
-          {% elif item.type == 'activity' %}
-            <!-- Activity Card with small padding around -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5 mx-2 sm:mx-3">
-              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Activity</h3>
-              <div class="flex flex-col gap-2">
-                <p class="text-gray-700">User <strong>{{ item.data.user|display_name }}</strong> performed an activity.</p>
-                <time class="text-gray-500 text-xs sm:text-sm">{{ item.data.created_at|timesince }} ago</time>
-              </div>
-            </div>
-          {% elif item.type == 'suggested_users' %}
-            <!-- Suggested Users Card with small padding around -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5 mx-2 sm:mx-3">
-              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <span class="material-icons">person_add</span>
-                Suggested for you
-              </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-users-container">
-                {% for u in item.data %}
-                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
-                    {% if u.profile and u.profile.profile_image %}
-                    <a href="{% url 'users:profile' u.id %}" class="block">
-                      <img src="{{ u.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
-                    </a>
-                    {% else %}
-                    <a href="{% url 'users:profile' u.id %}" class="block">
-                      <img src="{% static 'img/default.png' %}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ u|display_name }}</a>
-                    <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ u.followers.count }} Followers</div>
-                    {% if user.is_authenticated and user != u %}
-                    <form action="{% url 'users:follow_user' u.id %}" method="post">
-                      {% csrf_token %}
-                      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
-                        Follow
-                      </button>
-                    </form>
-                    {% endif %}
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-
-          {% elif item.type == 'suggested_groups' %}
-            <!-- Suggested Groups Card with small padding around -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5 mx-2 sm:mx-3">
-              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <span class="material-icons">groups</span>
-                Suggested Groups
-              </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-groups-container">
-                {% for group in item.data %}
-                  <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
-                    {% if group.profile and group.profile.profile_image %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="block">
-                      <img src="{{ group.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover mx-auto mb-2 border-2 border-white shadow-sm">
-                    </a>
-                    {% else %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="block">
-                      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-xl mx-auto mb-2 flex items-center justify-center">
-                        <span class="material-icons text-green-600 text-3xl">group</span>
-                      </div>
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ group.name }}</a>
-                    {% if group.creator %}
-                    <div class="text-xs text-gray-500 mt-1">By {{ group.creator|display_name }}</div>
-                    {% endif %}
-                    <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ group.user_set.count }} Members</div>
-                    {% if user.is_authenticated and user not in group.user_set.all %}
-                    <form class="request-join-form" data-group-id="{{ group.id }}" method="post" action="{% url 'users:request_join_group' group.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
-                        Request to Join Group
-                      </button>
-                    </form>
-                    {% endif %}
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.request-join-form').forEach(function(form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      var groupId = form.getAttribute('data-group-id');
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', form.action, true);
-      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      // Add CSRF token header for Django AJAX POST
-      var csrftoken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-      xhr.setRequestHeader('X-CSRFToken', csrftoken);
-      var formData = new FormData(form);
-      xhr.onload = function() {
-        if (xhr.status === 200 || xhr.status === 302) {
-          // Remove the group card from suggestions
-          var card = form.closest('.suggestion-item');
-          if (card) card.remove();
-        } else {
-          alert('Failed to send join request.');
-        }
-      };
-      xhr.send(formData);
-    });
-  });
-});
-</script>
-{% endblock %}
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-
-          {% elif item.type == 'suggested_events' %}
-            <!-- Suggested Events Card with small padding around -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5 mx-2 sm:mx-3">
-              <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <span class="material-icons">event</span>
-                Upcoming Events
-              </h3>
-              <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-events-container">
-                {% for event in item.data %}
-                  <a href="{% url 'activities:event_detail' event.id %}" class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
-                    <div class="relative w-full h-24 sm:h-32 mb-2 sm:mb-3 rounded-xl overflow-hidden border border-gray-200">
-                      {% if event.cover_image %}
-                      <img src="{{ event.cover_image.url }}" class="w-full h-full object-cover">
+            {% elif item.type == 'suggested_users' %}
+              <!-- Suggested Users Card with small padding around -->
+              <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5 mx-2 lg:mx-0">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                  <span class="material-icons">person_add</span>
+                  Suggested for you
+                </h3>
+                <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-users-container">
+                  {% for u in item.data %}
+                    <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
+                      {% if u.profile and u.profile.profile_image %}
+                      <a href="{% url 'users:profile' u.id %}" class="block">
+                        <img src="{{ u.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
+                      </a>
                       {% else %}
-                      <div class="w-full h-full bg-blue-100 flex items-center justify-center">
-                        <span class="material-icons text-blue-600 text-4xl sm:text-6xl">event</span>
-                      </div>
+                      <a href="{% url 'users:profile' u.id %}" class="block">
+                        <img src="{% static 'img/default.png' %}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto mb-2 border-2 border-white shadow-sm">
+                      </a>
+                      {% endif %}
+                      <a href="{% url 'users:profile' u.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ u|display_name }}</a>
+                      <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ u.followers.count }} Followers</div>
+                      {% if user.is_authenticated and user != u %}
+                      <form action="{% url 'users:follow_user' u.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
+                          Follow
+                        </button>
+                      </form>
                       {% endif %}
                     </div>
-                    <h4 class="font-bold text-gray-800 hover:text-blue-600 truncate mb-1 text-sm sm:text-base">{{ event.title }}</h4>
-                    <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ event.start_time|date:"M d, Y H:i" }}</p>
-                    {% if event.location %}
-                    <p class="text-xs sm:text-sm text-gray-500 truncate">{{ event.location }}</p>
-                    {% endif %}
-                  </a>
-                {% endfor %}
+                  {% endfor %}
+                </div>
+              </div>
+
+            {% elif item.type == 'suggested_groups' %}
+              <!-- Suggested Groups Card with small padding around -->
+              <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5 mx-2 lg:mx-0">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                  <span class="material-icons">groups</span>
+                  Suggested Groups
+                </h3>
+                <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-groups-container">
+                  {% for group in item.data %}
+                    <div class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
+                      {% if group.profile and group.profile.profile_image %}
+                      <a href="{% url 'users:group_profile' group.id %}" class="block">
+                        <img src="{{ group.profile.profile_image.url }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover mx-auto mb-2 border-2 border-white shadow-sm">
+                      </a>
+                      {% else %}
+                      <a href="{% url 'users:group_profile' group.id %}" class="block">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-xl mx-auto mb-2 flex items-center justify-center">
+                          <span class="material-icons text-green-600 text-3xl">group</span>
+                        </div>
+                      </a>
+                      {% endif %}
+                      <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 truncate block text-sm sm:text-base">{{ group.name }}</a>
+                      {% if group.creator %}
+                      <div class="text-xs text-gray-500 mt-1">By {{ group.creator|display_name }}</div>
+                      {% endif %}
+                      <div class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">{{ group.user_set.count }} Members</div>
+                      {% if user.is_authenticated and user not in group.user_set.all %}
+                      <form class="request-join-form" data-group-id="{{ group.id }}" method="post" action="{% url 'users:request_join_group' group.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full transition-all text-xs sm:text-sm">
+                          Request to Join Group
+                        </button>
+                      </form>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+            {% elif item.type == 'suggested_events' %}
+              <!-- Suggested Events Card with small padding around -->
+              <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-4 sm:p-5 mx-2 lg:mx-0">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                  <span class="material-icons">event</span>
+                  Upcoming Events
+                </h3>
+                <div class="flex overflow-x-auto gap-3 sm:gap-4 py-2 custom-scrollbar suggested-events-container">
+                  {% for event in item.data %}
+                    <a href="{% url 'activities:event_detail' event.id %}" class="flex-none w-48 sm:w-60 bg-gray-50 rounded-xl p-3 sm:p-4 text-center border border-gray-200 suggestion-item">
+                      <div class="relative w-full h-24 sm:h-32 mb-2 sm:mb-3 rounded-xl overflow-hidden border border-gray-200">
+                        {% if event.cover_image %}
+                        <img src="{{ event.cover_image.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full bg-blue-100 flex items-center justify-center">
+                          <span class="material-icons text-blue-600 text-4xl sm:text-6xl">event</span>
+                        </div>
+                        {% endif %}
+                      </div>
+                      <h4 class="font-bold text-gray-800 hover:text-blue-600 truncate mb-1 text-sm sm:text-base">{{ event.title }}</h4>
+                      <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ event.start_time|date:"M d, Y H:i" }}</p>
+                      {% if event.location %}
+                      <p class="text-xs sm:text-sm text-gray-500 truncate">{{ event.location }}</p>
+                      {% endif %}
+                    </a>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Empty feed state -->
+        <div class="text-center py-12 sm:py-20 px-4">
+          <div class="mb-6">
+            <span class="material-icons text-4xl sm:text-6xl text-gray-400 mb-4 block">explore</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-600 mb-2">No posts to show</h2>
+            <p class="text-gray-500 max-w-md mx-auto text-sm sm:text-base">Start following people or join groups to see their posts in your feed!</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <a href="{% url 'users:search_users' %}" class="bg-blue-100 hover:bg-blue-200 text-blue-600 font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl border border-blue-200 transition-all text-sm sm:text-base">
+              Find People
+            </a>
+            <a href="#" class="bg-green-100 hover:bg-green-200 text-green-600 font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl border border-green-200 transition-all text-sm sm:text-base">
+              Browse Groups
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </main>
+    
+    <!-- Sidebar - hidden on mobile, shown on lg screens -->
+    <aside class="hidden lg:flex flex-col w-full lg:w-80 px-4 lg:px-6 py-6 bg-white min-h-screen lg:sticky lg:top-0 lg:border-l lg:border-gray-200">
+      <!-- Search box -->
+      <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4 mb-4 sm:mb-6 border border-gray-200">
+        <form method="get" action="{% url 'users:search_users' %}">
+          <div class="relative">
+            <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">search</span>
+            <input type="search" name="q" placeholder="Search users..." class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-xl bg-gray-50 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm sm:text-base" />
+          </div>
+        </form>
+      </div>
+      
+      <!-- Suggested users -->
+      <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 mb-4 sm:mb-6 border border-gray-200">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+          <span class="material-icons">people</span>
+          You might like
+        </h3>
+        <div class="space-y-3 sm:space-y-4 sidebar-suggested-users">
+          {% for u in suggested_users %}
+          <div class="flex items-center justify-between p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
+            <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              {% if u.profile and u.profile.profile_image %}
+              <img src="{{ u.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u|display_name }}">
+              {% else %}
+              <img src="{% static 'img/default.png' %}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u|display_name }}">
+              {% endif %}
+              <div class="min-w-0 flex-1">
+                <div class="font-bold text-gray-800 truncate text-sm sm:text-base">{{ u|display_name }}</div>
+                <div class="text-gray-500 text-xs sm:text-sm truncate">{{ u.email }}</div>
               </div>
             </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    {% else %}
-      <!-- Empty feed state -->
-      <div class="text-center py-12 sm:py-20">
-        <div class="mb-6">
-          <span class="material-icons text-4xl sm:text-6xl text-gray-400 mb-4 block">explore</span>
-          <h2 class="text-xl sm:text-2xl font-bold text-gray-600 mb-2">No posts to show</h2>
-          <p class="text-gray-500 max-w-md mx-auto text-sm sm:text-base">Start following people or join groups to see their posts in your feed!</p>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-          <a href="{% url 'users:search_users' %}" class="bg-blue-100 hover:bg-blue-200 text-blue-600 font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl border border-blue-200 transition-all text-sm sm:text-base">
-            Find People
-          </a>
-          <a href="#" class="bg-green-100 hover:bg-green-200 text-green-600 font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl border border-green-200 transition-all text-sm sm:text-base">
-            Browse Groups
-          </a>
-        </div>
-      </div>
-    {% endif %}
-  </main>
-  
-  <!-- Sidebar - hidden on mobile, shown on lg screens -->
-  <aside class="hidden lg:flex flex-col w-full lg:w-80 px-4 lg:px-6 py-6 bg-white min-h-screen lg:sticky lg:top-0 lg:border-l lg:border-gray-200">
-    <!-- Search box -->
-    <div class="bg-white rounded-xl shadow-sm p-3 sm:p-4 mb-4 sm:mb-6 border border-gray-200">
-      <form method="get" action="{% url 'users:search_users' %}">
-        <div class="relative">
-          <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">search</span>
-          <input type="search" name="q" placeholder="Search users..." class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-xl bg-gray-50 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm sm:text-base" />
-        </div>
-      </form>
-    </div>
-    
-    <!-- Suggested users -->
-    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 mb-4 sm:mb-6 border border-gray-200">
-      <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-        <span class="material-icons">people</span>
-        You might like
-      </h3>
-      <div class="space-y-3 sm:space-y-4 sidebar-suggested-users">
-        {% for u in suggested_users %}
-        <div class="flex items-center justify-between p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
-          <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            {% if u.profile and u.profile.profile_image %}
-            <img src="{{ u.profile.profile_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u|display_name }}">
-            {% else %}
-            <img src="{% static 'img/default.png' %}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200" alt="{{ u|display_name }}">
+            {% if user.is_authenticated and user not in u.followers.all %}
+            <form action="{% url 'users:follow_user' u.id %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full border border-gray-300 transition-all shadow-sm text-xs sm:text-sm">
+                Follow
+              </button>
+            </form>
             {% endif %}
-            <div class="min-w-0 flex-1">
-              <div class="font-bold text-gray-800 truncate text-sm sm:text-base">{{ u|display_name }}</div>
-              <div class="text-gray-500 text-xs sm:text-sm truncate">{{ u.email }}</div>
-            </div>
           </div>
-          {% if user.is_authenticated and user not in u.followers.all %}
-          <form action="{% url 'users:follow_user' u.id %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-3 py-1 sm:px-4 sm:py-2 rounded-full border border-gray-300 transition-all shadow-sm text-xs sm:text-sm">
-              Follow
-            </button>
-          </form>
-          {% endif %}
+          {% empty %}
+          <div class="text-center py-4 sm:py-6">
+            <span class="material-icons text-2xl sm:text-3xl text-gray-400 mb-2 block">people_outline</span>
+            <p class="text-gray-500 text-sm sm:text-base">No suggestions at this time</p>
+          </div>
+          {% endfor %}
         </div>
-        {% empty %}
-        <div class="text-center py-4 sm:py-6">
-          <span class="material-icons text-2xl sm:text-3xl text-gray-400 mb-2 block">people_outline</span>
-          <p class="text-gray-500 text-sm sm:text-base">No suggestions at this time</p>
-        </div>
-        {% endfor %}
       </div>
-    </div>
-    
-    <!-- Upcoming events -->
-    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 mb-4 sm:mb-6 border border-gray-200">
-      <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-        <span class="material-icons">event</span>
-        What's happening
-      </h3>
-      <div class="space-y-2 sm:space-y-3 sidebar-suggested-events">
-        {% for event in events %}
-        <a href="{% url 'activities:event_detail' event.id %}" class="group flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
-          {% if event.cover_image %}
-          <img src="{{ event.cover_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-gray-200" alt="{{ event.title }}">
-          {% else %}
-          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-            <span class="material-icons text-blue-600">event</span>
-          </div>
-          {% endif %}
-          <div class="min-w-0 flex-1">
-            <div class="font-bold text-gray-800 group-hover:text-blue-600 truncate transition-colors text-sm sm:text-base">{{ event.title }}</div>
-            <div class="text-gray-500 text-xs sm:text-sm truncate">
-              {{ event.start_time|date:'M d, Y H:i' }}
-              {% if event.location %}
-              <span class="mx-1">·</span>
-              {{ event.location }}
-              {% endif %}
-            </div>
-          </div>
-        </a>
-        {% empty %}
-        <div class="text-center py-4 sm:py-6">
-          <span class="material-icons text-2xl sm:text-3xl text-gray-400 mb-2 block">event_note</span>
-          <p class="text-gray-500 text-sm sm:text-base">No events at this time</p>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-    
-    <!-- Suggested groups -->
-    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-gray-200">
-      <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-        <span class="material-icons">groups</span>
-        Suggested Groups
-      </h3>
-      <div class="space-y-3 sm:space-y-4 sidebar-suggested-groups">
-        {% for group in suggested_groups %}
-        <div class="p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
-          <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-            {% if group.profile and group.profile.profile_image %}
-            <img src="{{ group.profile.profile_image.url }}" alt="{{ group.name }} Profile Image" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-xl border border-gray-200" />
+      
+      <!-- Upcoming events -->
+      <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 mb-4 sm:mb-6 border border-gray-200">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+          <span class="material-icons">event</span>
+          What's happening
+        </h3>
+        <div class="space-y-2 sm:space-y-3 sidebar-suggested-events">
+          {% for event in events %}
+          <a href="{% url 'activities:event_detail' event.id %}" class="group flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
+            {% if event.cover_image %}
+            <img src="{{ event.cover_image.url }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-gray-200" alt="{{ event.title }}">
             {% else %}
-            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-xl flex items-center justify-center">
-              <span class="material-icons text-green-600">group</span>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <span class="material-icons text-blue-600">event</span>
             </div>
             {% endif %}
             <div class="min-w-0 flex-1">
-              <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 transition-colors block truncate text-sm sm:text-base">
-                {{ group.name }}
-              </a>
-              {% if group.profile and group.profile.creator %}
-              <div class="text-xs sm:text-sm text-gray-500 truncate">
-                by <a href="{% url 'users:profile' group.profile.creator.id %}" class="text-gray-500 hover:text-gray-600 transition-colors">{{ group.profile.creator.username }}</a>
+              <div class="font-bold text-gray-800 group-hover:text-blue-600 truncate transition-colors text-sm sm:text-base">{{ event.title }}</div>
+              <div class="text-gray-500 text-xs sm:text-sm truncate">
+                {{ event.start_time|date:'M d, Y H:i' }}
+                {% if event.location %}
+                <span class="mx-1">·</span>
+                {{ event.location }}
+                {% endif %}
+              </div>
+            </div>
+          </a>
+          {% empty %}
+          <div class="text-center py-4 sm:py-6">
+            <span class="material-icons text-2xl sm:text-3xl text-gray-400 mb-2 block">event_note</span>
+            <p class="text-gray-500 text-sm sm:text-base">No events at this time</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <!-- Suggested groups -->
+      <div class="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-gray-200">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+          <span class="material-icons">groups</span>
+          Suggested Groups
+        </h3>
+        <div class="space-y-3 sm:space-y-4 sidebar-suggested-groups">
+          {% for group in suggested_groups %}
+          <div class="p-2 sm:p-3 rounded-xl hover:bg-gray-50 transition-all sidebar-suggestion-item">
+            <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              {% if group.profile and group.profile.profile_image %}
+              <img src="{{ group.profile.profile_image.url }}" alt="{{ group.name }} Profile Image" class="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-xl border border-gray-200" />
+              {% else %}
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <span class="material-icons text-green-600">group</span>
               </div>
               {% endif %}
+              <div class="min-w-0 flex-1">
+                <a href="{% url 'users:group_profile' group.id %}" class="font-bold text-gray-800 hover:text-blue-600 transition-colors block truncate text-sm sm:text-base">
+                  {{ group.name }}
+                </a>
+                {% if group.profile and group.profile.creator %}
+                <div class="text-xs sm:text-sm text-gray-500 truncate">
+                  by <a href="{% url 'users:profile' group.profile.creator.id %}" class="text-gray-500 hover:text-gray-600 transition-colors">{{ group.profile.creator.username }}</a>
+                </div>
+                {% endif %}
+              </div>
             </div>
+            {% if user.is_authenticated and user not in group.user_set.all %}
+            <form class="request-join-form" data-group-id="{{ group.id }}" method="post" action="{% url 'users:request_join_group' group.id %}">
+              {% csrf_token %}
+              <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-xl font-semibold transition-all shadow-sm text-xs sm:text-sm">
+                Request to Join Group
+              </button>
+            </form>
+            {% endif %}
           </div>
-          {% if user.is_authenticated and user not in group.user_set.all %}
-          <form class="request-join-form" data-group-id="{{ group.id }}" method="post" action="{% url 'users:request_join_group' group.id %}">
-            {% csrf_token %}
-            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-xl font-semibold transition-all shadow-sm text-xs sm:text-sm">
-              Request to Join Group
-            </button>
-          </form>
-          {% endif %}
+          {% empty %}
+          <div class="text-center py-4 sm:py-6">
+            <span class="material-icons text-2xl sm:text-3xl text-gray-400 mb-2 block">group</span>
+            <p class="text-gray-500 text-sm sm:text-base">No group suggestions at this time</p>
+          </div>
+          {% endfor %}
         </div>
-        {% empty %}
-        <div class="text-center py-4 sm:py-6">
-          <span class="material-icons text-2xl sm:text-3xl text-gray-400 mb-2 block">group</span>
-          <p class="text-gray-500 text-sm sm:text-base">No group suggestions at this time</p>
-        </div>
-        {% endfor %}
       </div>
-    </div>
-  </aside>
+    </aside>
+  </div>
 </div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // AJAX for request to join group (main feed and sidebar)
