@@ -446,7 +446,7 @@ def create_verse(request, fellowship_id):
 def create_livestream(request, fellowship_id):
     fellowship = get_object_or_404(fellowship_edit, id=fellowship_id)
     users = User.objects.exclude(id=request.user.id)
-    youtube_live_url = None  # default
+    youtube_live_url = None
 
     if request.method == "POST":
         title = request.POST.get("title")
@@ -454,30 +454,22 @@ def create_livestream(request, fellowship_id):
         start_time = request.POST.get("start_time")
         invited_user_ids = request.POST.getlist("invited_users")
 
-        if settings.YOUTUBE_CLIENT_SECRET_FILE_PATH is None:
-            messages.error(request, "YouTube client secret not configured!")
-            return redirect("fellowship_detail", fellowship_id=fellowship.id)
+        # Check credentials file
+        credentials_file = settings.YOUTUBE_CLIENT_SECRET_FILE_PATH
+        if not credentials_file:
+            messages.error(request, "YouTube credentials not configured.")
+            return redirect("create_livestream", fellowship_id=fellowship.id)
 
-        # YouTube API setup
-        flow = InstalledAppFlow.from_client_secrets_file(
-            settings.YOUTUBE_CLIENT_SECRET_FILE_PATH, settings.YOUTUBE_SCOPES
-        )
+        # YouTube API flow
+        flow = InstalledAppFlow.from_client_secrets_file(credentials_file, settings.YOUTUBE_SCOPES)
         credentials = flow.run_local_server(port=0)
-        youtube = build(
-            settings.YOUTUBE_API_SERVICE_NAME,
-            settings.YOUTUBE_API_VERSION,
-            credentials=credentials
-        )
+        youtube = build(settings.YOUTUBE_API_SERVICE_NAME, settings.YOUTUBE_API_VERSION, credentials=credentials)
 
         # Create broadcast
         broadcast = youtube.liveBroadcasts().insert(
             part="snippet,status",
             body={
-                "snippet": {
-                    "title": title,
-                    "description": description,
-                    "scheduledStartTime": start_time,
-                },
+                "snippet": {"title": title, "description": description, "scheduledStartTime": start_time},
                 "status": {"privacyStatus": "public"},
             },
         ).execute()
@@ -502,6 +494,7 @@ def create_livestream(request, fellowship_id):
         "fellowship/create_livestream.html",
         {"fellowship": fellowship, "users": users, "youtube_live_url": youtube_live_url},
     )
+
 
 
 def livestream_detail(request, livestream_id):

@@ -260,15 +260,14 @@ CHANNEL_LAYERS = {
         },
     },
 }
-# YouTube API configuration and live streaming
+
+# YouTube API
 YOUTUBE_API_SERVICE_NAME = os.getenv("YOUTUBE_API_SERVICE_NAME", "youtube")
 YOUTUBE_API_VERSION = os.getenv("YOUTUBE_API_VERSION", "v3")
-YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+YOUTUBE_SCOPES = json.loads(os.getenv("YOUTUBE_SCOPES", '["https://www.googleapis.com/auth/youtube.force-ssl"]'))
 
-# YouTube Client Secret: store the JSON string in env
+# Store JSON in env, create a temporary file at runtime
 YOUTUBE_CLIENT_SECRET_JSON = os.getenv("YOUTUBE_CLIENT_SECRET_JSON")
-
-# Write the env JSON to a temp file for InstalledAppFlow
 if YOUTUBE_CLIENT_SECRET_JSON:
     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as f:
         f.write(YOUTUBE_CLIENT_SECRET_JSON)
