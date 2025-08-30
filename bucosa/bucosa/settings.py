@@ -267,10 +267,17 @@ YOUTUBE_API_VERSION = os.getenv("YOUTUBE_API_VERSION", "v3")
 YOUTUBE_SCOPES = json.loads(os.getenv("YOUTUBE_SCOPES", '["https://www.googleapis.com/auth/youtube.force-ssl"]'))
 
 # Store JSON in env, create a temporary file at runtime
+
 YOUTUBE_CLIENT_SECRET_JSON = os.getenv("YOUTUBE_CLIENT_SECRET_JSON")
 if YOUTUBE_CLIENT_SECRET_JSON:
+    try:
+        json.loads(YOUTUBE_CLIENT_SECRET_JSON)  # just check
+    except json.JSONDecodeError:
+        raise ValueError("Invalid YOUTUBE_CLIENT_SECRET_JSON in environment variables")
     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as f:
         f.write(YOUTUBE_CLIENT_SECRET_JSON)
         YOUTUBE_CLIENT_SECRET_FILE_PATH = f.name
 else:
     YOUTUBE_CLIENT_SECRET_FILE_PATH = None
+
+
