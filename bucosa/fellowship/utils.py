@@ -1,14 +1,15 @@
+import base64
 import json
 from django.conf import settings
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 def get_youtube_service():
-    creds_data = getattr(settings, "YOUTUBE_CLIENT_SECRET_JSON", None)
+    creds_data = getattr(settings, "YOUTUBE_CLIENT_SECRET_B64", None)
     if not creds_data:
         raise ValueError("YouTube credentials not configured in environment.")
 
-    creds_dict = json.loads(creds_data)
+    creds_dict = json.loads(base64.b64decode(creds_data).decode())
     credentials = Credentials(
         token=creds_dict.get("token"),
         refresh_token=creds_dict.get("refresh_token"),
