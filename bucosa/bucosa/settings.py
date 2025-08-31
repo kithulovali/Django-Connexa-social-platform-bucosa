@@ -2,6 +2,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os, json, tempfile
 import dj_database_url
+import base64
 # Load environment variables
 load_dotenv()
 
@@ -259,8 +260,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-
-
 # ✅ YouTube API Config
 YOUTUBE_API_SERVICE_NAME = os.getenv("YOUTUBE_API_SERVICE_NAME", "youtube")
 YOUTUBE_API_VERSION = os.getenv("YOUTUBE_API_VERSION", "v3")
@@ -275,18 +274,14 @@ try:
 except json.JSONDecodeError:
     YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
-# Credentials JSON
-YOUTUBE_CLIENT_SECRET_JSON = os.getenv("YOUTUBE_CLIENT_SECRET_JSON")
+# Credentials JSON via Base64 (Railway-safe)
+YOUTUBE_CLIENT_SECRET_B64 = os.getenv("YOUTUBE_CLIENT_SECRET_B64")
 
-if YOUTUBE_CLIENT_SECRET_JSON:
-    # Strip extra quotes added by Railway
-    if YOUTUBE_CLIENT_SECRET_JSON.startswith('"') and YOUTUBE_CLIENT_SECRET_JSON.endswith('"'):
-        YOUTUBE_CLIENT_SECRET_JSON = YOUTUBE_CLIENT_SECRET_JSON[1:-1]
-
+if YOUTUBE_CLIENT_SECRET_B64:
     try:
-        client_secret_data = json.loads(YOUTUBE_CLIENT_SECRET_JSON)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"YOUTUBE_CLIENT_SECRET_JSON is not valid JSON: {e}")
+        client_secret_data = json.loads(base64.b64decode(YOUTUBE_CLIENT_SECRET_B64))
+    except Exception as e:
+        raise ValueError(f"Failed to decode YOUTUBE_CLIENT_SECRET_B64: {e}")
 
     # Write to a temporary file for API usage
     with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".json") as f:
@@ -294,6 +289,7 @@ if YOUTUBE_CLIENT_SECRET_JSON:
         YOUTUBE_CLIENT_SECRET_FILE_PATH = f.name
 else:
     YOUTUBE_CLIENT_SECRET_FILE_PATH = None
+
 
 
 
