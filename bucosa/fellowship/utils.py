@@ -1,13 +1,12 @@
-# fellowship/utils.py
+import json
+from django.conf import settings
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-from django.conf import settings
-import json
 
 def get_youtube_service():
     creds_data = getattr(settings, "YOUTUBE_CLIENT_SECRET_JSON", None)
     if not creds_data:
-        raise ValueError("YouTube credentials not configured.")
+        raise ValueError("YouTube credentials not configured in environment.")
 
     creds_dict = json.loads(creds_data)
     credentials = Credentials(

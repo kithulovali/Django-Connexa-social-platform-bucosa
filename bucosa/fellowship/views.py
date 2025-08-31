@@ -456,20 +456,10 @@ def create_livestream(request, fellowship_id):
         start_time = request.POST.get("start_time")
         invited_user_ids = request.POST.getlist("invited_users")
 
-        # Load credentials from env variable
-        creds_data = json.loads(settings.YOUTUBE_CLIENT_SECRET_JSON)
-        credentials = Credentials(
-            token=creds_data["token"],
-            refresh_token=creds_data["refresh_token"],
-            client_id=creds_data["client_id"],
-            client_secret=creds_data["client_secret"],
-            token_uri=creds_data["token_uri"],
-        )
-
         # Build YouTube service
-        youtube = build(settings.YOUTUBE_API_SERVICE_NAME, settings.YOUTUBE_API_VERSION, credentials=credentials)
+        youtube = get_youtube_service()
 
-        # 1️⃣ Create live stream (video feed)
+        # 1️⃣ Create live stream
         live_stream = youtube.liveStreams().insert(
             part="snippet,cdn",
             body={
@@ -478,14 +468,14 @@ def create_livestream(request, fellowship_id):
             }
         ).execute()
 
-        # 2️⃣ Create live broadcast
+        # 2️⃣ Create broadcast
         broadcast = youtube.liveBroadcasts().insert(
             part="snippet,status",
             body={
                 "snippet": {
                     "title": title,
                     "description": description,
-                    "scheduledStartTime": start_time  # Can be now for immediate
+                    "scheduledStartTime": start_time
                 },
                 "status": {"privacyStatus": "public"}
             }
@@ -498,7 +488,7 @@ def create_livestream(request, fellowship_id):
             streamId=live_stream["id"]
         ).execute()
 
-        # 4️⃣ Transition broadcast to live
+        # 4️⃣ Go live
         youtube.liveBroadcasts().transition(
             broadcastStatus="live",
             id=broadcast["id"],
@@ -518,7 +508,7 @@ def create_livestream(request, fellowship_id):
         )
         livestream.invited_users.set(User.objects.filter(id__in=invited_user_ids))
 
-        messages.success(request, "✅ Live stream created and started! Joining link generated.")
+        messages.success(request, "✅ Live stream created and started! Join link ready.")
         return redirect("livestream_detail", livestream.id)
 
     return render(
@@ -532,7 +522,7 @@ def livestream_detail(request, livestream_id):
     livestream = get_object_or_404(LiveStream, id=livestream_id)
 
     if request.user != livestream.created_by and request.user not in livestream.invited_users.all():
-        messages.error(request, "You are not invited to this live stream.")
+        messages.error(request, "⚠️ You are not invited to this live stream.")
         return redirect("fellowship_detail", fellowship_id=livestream.created_by.id)
 
     return render(
@@ -540,5 +530,3 @@ def livestream_detail(request, livestream_id):
         "fellowship/livestream_detail.html",
         {"livestream": livestream, "join_link": livestream.youtube_live_url},
     )
-
-

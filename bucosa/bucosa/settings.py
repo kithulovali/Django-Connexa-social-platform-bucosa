@@ -259,18 +259,19 @@ CHANNEL_LAYERS = {
     },
 }
 
-# YouTube API Config
+
+# ✅ YouTube API Config
 YOUTUBE_API_SERVICE_NAME = os.getenv("YOUTUBE_API_SERVICE_NAME", "youtube")
 YOUTUBE_API_VERSION = os.getenv("YOUTUBE_API_VERSION", "v3")
 
-# Scopes: parse JSON string into Python list
+# Parse scopes safely
 raw_scopes = os.getenv("YOUTUBE_SCOPES", '["https://www.googleapis.com/auth/youtube.force-ssl"]')
 try:
     YOUTUBE_SCOPES = json.loads(raw_scopes)
 except json.JSONDecodeError:
     YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
-# Client Secret JSON from env
+# Credentials JSON
 YOUTUBE_CLIENT_SECRET_JSON = os.getenv("YOUTUBE_CLIENT_SECRET_JSON")
 
 if YOUTUBE_CLIENT_SECRET_JSON:
@@ -279,12 +280,12 @@ if YOUTUBE_CLIENT_SECRET_JSON:
     except json.JSONDecodeError as e:
         raise ValueError(f"YOUTUBE_CLIENT_SECRET_JSON is not valid JSON: {e}")
 
-    # Write to a temp file for InstalledAppFlow if needed
     with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".json") as f:
         json.dump(client_secret_data, f)
         YOUTUBE_CLIENT_SECRET_FILE_PATH = f.name
 else:
     YOUTUBE_CLIENT_SECRET_FILE_PATH = None
+
 
 
 
