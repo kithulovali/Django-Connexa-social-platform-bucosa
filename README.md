@@ -144,5 +144,8 @@ Irunva Mapendo Joel
 [![GitHub](https://img.shields.io/badge/GitHub-JoelMapendo-black?logo=github&logoColor=white&style=for-the-badge)](https://github.com/JoelMapendo)
 
 ---
+Karim Abdoul Lwano
+[![Email](https://img.shields.io/badge/Email-joelmapendo243@gmail.com-blue?logo=gmail&logoColor=white&style=for-the-badge)](mailto:karimabdoullw2@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-JoelMapendo-black?logo=github&logoColor=white&style=for-the-badge)](https://github.com/Karimlw1)
 
 *Feel free to open issues or pull requests for improvements!*
