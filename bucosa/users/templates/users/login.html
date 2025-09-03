@@ -1,42 +1,50 @@
-{% extends 'base.html' %}
 {% load static %}
 {% load socialaccount %}
-
-{% block content %}
-
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-200 via-white to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-100 to-indigo-200 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
-      <div class="mb-6 flex flex-col items-center">
-        <div class="rounded-full flex items-center justify-center shadow-lg mb-3">
-          <img src="{% static 'img/more.png' %}" alt="Logo" class="h-14 w-14">
-        </div>
-        <h2 class="text-3xl font-extrabold text-gray-900 mb-1">Sign in</h2>
-        <p class="text-gray-500 text-sm">Access your account with one click</p>
+    
+    <!-- Welcome Card -->
+    <div class="flex flex-col items-center bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-8 border border-indigo-100 transition-transform hover:scale-[1.02]">
+      <div class="rounded-full flex items-center justify-center shadow-lg mb-6 bg-indigo-100 p-4">
+        <img src="{% static 'img/more.png' %}" alt="Logo" class="h-16 w-16 object-contain">
       </div>
-      <a href="{% provider_login_url 'google' %}" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white border-2 border-indigo-600 rounded-xl shadow-md hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-          <path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.22l6.85-6.85C35.62 2.7 30.13 0 24 0 14.73 0 6.62 5.48 2.44 13.44l8.44 6.56C12.98 13.36 17.08 9.5 24 9.5z"/>
-          <path fill="#34A853" d="M46.1 24.5c0-1.64-.15-3.22-.43-4.75H24v9.02h12.44c-.54 2.9-2.16 5.36-4.6 7.02l7.19 5.59C43.98 37.36 46.1 31.36 46.1 24.5z"/>
-          <path fill="#FBBC05" d="M10.88 28.5c-.54-1.62-.85-3.34-.85-5.02s.31-3.4.85-5.02l-8.44-6.56C1.16 15.62 0 19.92 0 24.5c0 4.58 1.16 8.88 2.44 12.1l8.44-6.56z"/>
-          <path fill="#EA4335" d="M24 46c6.13 0 11.62-2.02 15.79-5.5l-7.19-5.59c-2.01 1.36-4.59 2.16-8.6 2.16-6.92 0-11.02-3.86-13.12-7.5l-8.44 6.56C6.62 42.52 14.73 48 24 48z"/>
-        </svg>
-        <span class="text-indigo-700 font-semibold text-lg">Continue with Google</span>
-      </a>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-indigo-700 mb-3 text-center">
+        Welcome to <span class="text-indigo-800">Bucosa</span>!
+      </h2>
+      <p class="text-gray-600 text-base sm:text-lg text-center">
+        A gateway to <span class="font-semibold text-indigo-500">connection</span>, <span class="font-semibold text-indigo-500">discovery</span>, and <span class="font-semibold text-indigo-500">fellowship</span>.
+      </p>
+    </div>
+    
+    <!-- Features Card -->
+    <div class="bg-gradient-to-tr from-indigo-50 via-white to-indigo-100 rounded-2xl shadow-md p-6 border border-indigo-100">
+      <h3 class="text-xl sm:text-2xl font-bold text-indigo-700 mb-6 text-center">Explore Bucosa</h3>
+      <div class="space-y-4">
+        <div class="flex items-center gap-4">
+          <span class="text-indigo-500 text-2xl">🔎</span>
+          <span class="font-medium text-gray-700 text-lg">Discover Bucosa</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-indigo-500 text-2xl">🤝</span>
+          <span class="font-medium text-gray-700 text-lg">Bucosa Fellowship</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-indigo-500 text-2xl">🌟</span>
+          <span class="font-medium text-gray-700 text-lg">Connect, share, and grow</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Login Button -->
+    <a href="{% provider_login_url 'google' %}" 
+       class="w-full flex items-center justify-center gap-3 py-3 px-5 bg-indigo-600 border border-indigo-700 rounded-2xl shadow-lg hover:bg-indigo-700 hover:scale-[1.01] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+        <path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.22l6.85-6.85C35.62 2.7 30.13 0 24 0 14.73 0 6.62 5.48 2.44 13.44l8.44 6.56C12.98 13.36 17.08 9.5 24 9.5z"/>
+        <path fill="#34A853" d="M46.1 24.5c0-1.64-.15-3.22-.43-4.75H24v9.02h12.44c-.54 2.9-2.16 5.36-4.6 7.02l7.19 5.59C43.98 37.36 46.1 31.36 46.1 24.5z"/>
+        <path fill="#FBBC05" d="M10.88 28.5c-.54-1.62-.85-3.34-.85-5.02s.31-3.4.85-5.02l-8.44-6.56C1.16 15.62 0 19.92 0 24.5c0 4.58 1.16 8.88 2.44 12.1l8.44-6.56z"/>
+        <path fill="#EA4335" d="M24 46c6.13 0 11.62-2.02 15.79-5.5l-7.19-5.59c-2.01 1.36-4.59 2.16-8.6 2.16-6.92 0-11.02-3.86-13.12-7.5l-8.44 6.56C6.62 42.52 14.73 48 24 48z"/>
+      </svg>
+      <span class="text-white font-semibold text-lg">Continue with Google</span>
+    </a>
   </div>
 </div>
-
-<script>
-  function togglePasswordVisibility() {
-    const passwordInput = document.getElementById('id_password');
-    const eyeIcon = document.getElementById('eye-icon');
-    
-    if (passwordInput.type === 'password') {
-      passwordInput.type = 'text';
-      eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />';
-    } else {
-      passwordInput.type = 'password';
-      eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
-    }
-  }
-</script>
-{% endblock %}
