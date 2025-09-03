@@ -1,50 +1,78 @@
 {% load static %}
 {% load socialaccount %}
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-100 to-indigo-200 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    
-    <!-- Welcome Card -->
-    <div class="flex flex-col items-center bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-8 border border-indigo-100 transition-transform hover:scale-[1.02]">
-      <div class="rounded-full flex items-center justify-center shadow-lg mb-6 bg-indigo-100 p-4">
-        <img src="{% static 'img/more.png' %}" alt="Logo" class="h-16 w-16 object-contain">
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-indigo-700 mb-3 text-center">
-        Welcome to <span class="text-indigo-800">Bucosa</span>!
-      </h2>
-      <p class="text-gray-600 text-base sm:text-lg text-center">
-        A gateway to <span class="font-semibold text-indigo-500">connection</span>, <span class="font-semibold text-indigo-500">discovery</span>, and <span class="font-semibold text-indigo-500">fellowship</span>.
-      </p>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bucosa - Welcome</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-indigo-600 via-purple-50 to-indigo-200 text-gray-800">
+
+  <!-- Header -->
+  <header class="w-full flex justify-center py-6">
+    <img src="{% static 'img/more.png' %}" 
+         alt="Bucosa Logo" 
+         class="h-24 w-24 sm:h-32 sm:w-32 lg:h-36 lg:w-36 object-contain drop-shadow-xl">
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div class="max-w-xl w-full space-y-10 text-center">
+
+      <!-- Welcome Card -->
+      <section class="bg-white/90 backdrop-blur-md rounded-3xl shadow-lg p-8 border border-indigo-100">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-700 mb-3">
+          Welcome to <span class="text-indigo-900">Bucosa</span>!
+        </h1>
+        <p class="text-gray-600 text-base sm:text-lg">
+          A gateway to <strong class="text-indigo-600">connection</strong>, 
+          <strong class="text-indigo-600">discovery</strong>, 
+          and <strong class="text-indigo-600">fellowship</strong>.
+        </p>
+      </section>
+
+      <!-- Features -->
+      <section class="bg-gradient-to-tr from-indigo-50 via-white to-indigo-100 rounded-2xl shadow-md p-6 border border-indigo-100">
+        <h2 class="text-xl sm:text-2xl font-bold text-indigo-700 mb-6">Explore Bucosa</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="flex sm:flex-col items-center gap-3">
+            <span class="text-indigo-500 text-2xl">🔎</span>
+            <span class="font-medium text-gray-700 text-base sm:text-lg">Discover</span>
+          </div>
+          <div class="flex sm:flex-col items-center gap-3">
+            <span class="text-indigo-500 text-2xl">🤝</span>
+            <span class="font-medium text-gray-700 text-base sm:text-lg">Fellowship</span>
+          </div>
+          <div class="flex sm:flex-col items-center gap-3">
+            <span class="text-indigo-500 text-2xl">🌟</span>
+            <span class="font-medium text-gray-700 text-base sm:text-lg">Connect & Grow</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Login Button -->
+      <section>
+        <a href="{% provider_login_url 'google' %}" 
+           class="w-full flex items-center justify-center gap-3 py-3 px-6 bg-indigo-600 border border-indigo-700 rounded-2xl shadow-lg hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+            <path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.22l6.85-6.85C35.62 2.7 30.13 0 24 0 14.73 0 6.62 5.48 2.44 13.44l8.44 6.56C12.98 13.36 17.08 9.5 24 9.5z"/>
+            <path fill="#34A853" d="M46.1 24.5c0-1.64-.15-3.22-.43-4.75H24v9.02h12.44c-.54 2.9-2.16 5.36-4.6 7.02l7.19 5.59C43.98 37.36 46.1 31.36 46.1 24.5z"/>
+            <path fill="#FBBC05" d="M10.88 28.5c-.54-1.62-.85-3.34-.85-5.02s.31-3.4.85-5.02l-8.44-6.56C1.16 15.62 0 19.92 0 24.5c0 4.58 1.16 8.88 2.44 12.1l8.44-6.56z"/>
+            <path fill="#EA4335" d="M24 46c6.13 0 11.62-2.02 15.79-5.5l-7.19-5.59c-2.01 1.36-4.59 2.16-8.6 2.16-6.92 0-11.02-3.86-13.12-7.5l-8.44 6.56C6.62 42.52 14.73 48 24 48z"/>
+          </svg>
+          <span class="text-white font-semibold text-lg">Continue with Google</span>
+        </a>
+      </section>
     </div>
-    
-    <!-- Features Card -->
-    <div class="bg-gradient-to-tr from-indigo-50 via-white to-indigo-100 rounded-2xl shadow-md p-6 border border-indigo-100">
-      <h3 class="text-xl sm:text-2xl font-bold text-indigo-700 mb-6 text-center">Explore Bucosa</h3>
-      <div class="space-y-4">
-        <div class="flex items-center gap-4">
-          <span class="text-indigo-500 text-2xl">🔎</span>
-          <span class="font-medium text-gray-700 text-lg">Discover Bucosa</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="text-indigo-500 text-2xl">🤝</span>
-          <span class="font-medium text-gray-700 text-lg">Bucosa Fellowship</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="text-indigo-500 text-2xl">🌟</span>
-          <span class="font-medium text-gray-700 text-lg">Connect, share, and grow</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Login Button -->
-    <a href="{% provider_login_url 'google' %}" 
-       class="w-full flex items-center justify-center gap-3 py-3 px-5 bg-indigo-600 border border-indigo-700 rounded-2xl shadow-lg hover:bg-indigo-700 hover:scale-[1.01] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-        <path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.22l6.85-6.85C35.62 2.7 30.13 0 24 0 14.73 0 6.62 5.48 2.44 13.44l8.44 6.56C12.98 13.36 17.08 9.5 24 9.5z"/>
-        <path fill="#34A853" d="M46.1 24.5c0-1.64-.15-3.22-.43-4.75H24v9.02h12.44c-.54 2.9-2.16 5.36-4.6 7.02l7.19 5.59C43.98 37.36 46.1 31.36 46.1 24.5z"/>
-        <path fill="#FBBC05" d="M10.88 28.5c-.54-1.62-.85-3.34-.85-5.02s.31-3.4.85-5.02l-8.44-6.56C1.16 15.62 0 19.92 0 24.5c0 4.58 1.16 8.88 2.44 12.1l8.44-6.56z"/>
-        <path fill="#EA4335" d="M24 46c6.13 0 11.62-2.02 15.79-5.5l-7.19-5.59c-2.01 1.36-4.59 2.16-8.6 2.16-6.92 0-11.02-3.86-13.12-7.5l-8.44 6.56C6.62 42.52 14.73 48 24 48z"/>
-      </svg>
-      <span class="text-white font-semibold text-lg">Continue with Google</span>
-    </a>
-  </div>
-</div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full py-4 text-center text-sm text-gray-600 bg-white/40 backdrop-blur-md border-t border-indigo-100">
+    © {{ year }} Bucosa | Bugema University Congolese Students Association
+  </footer>
+
+</body>
+</html>
