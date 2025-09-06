@@ -1,51 +1,59 @@
+/* Enhanced CSS for better mobile experience */
+@media (max-width: 768px) {
+    .message-app-container {
+        height: 100vh;
+        border-radius: 0;
+    }
+    
+    .contacts-sidebar, .chat-area {
+        width: 100%;
+    }
+    
+    .message-bubble {
+        max-width: 85%;
+    }
+}
+
+/* Improved message bubbles */
 .message-bubble {
-  max-width: 70%;
-  padding: 0.75rem 1rem;
-  border-radius: 1.125rem;
-  margin-bottom: 0.5rem;
+    border-radius: 1.125rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.25rem;
+    position: relative;
+    word-wrap: break-word;
 }
 
 .message-bubble.sent {
-  background: linear-gradient(to right, #3b82f6, #2563eb);
-  color: white;
-  border-bottom-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.375rem;
 }
 
 .message-bubble.received {
-  background: #f3f4f6;
-  color: #374151;
-  border-bottom-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.375rem;
 }
 
-.message-timestamp {
-  font-size: 0.7rem;
-  margin-top: 0.25rem;
+/* Smooth transitions for mobile navigation */
+.contacts-sidebar, .chat-area {
+    transition: transform 0.3s ease-in-out;
 }
 
-/* Responsive adjustments */
-@media (max-width: 767px) {
-  .mobile-hidden {
-    display: none;
-  }
-  
-  .message-bubble {
-    max-width: 85%;
-  }
+/* Custom scrollbar for webkit browsers */
+.contacts-container::-webkit-scrollbar,
+.message-container::-webkit-scrollbar {
+    width: 6px;
 }
 
-@media (min-width: 768px) {
-  .message-app-container {
-    height: calc(100vh - 2rem);
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    margin: 1rem;
-  }
-  
-  .contacts-sidebar {
-    border-radius: 0.5rem 0 0 0.5rem;
-  }
-  
-  .chat-area {
-    border-radius: 0 0.5rem 0.5rem 0;
-  }
+.contacts-container::-webkit-scrollbar-track,
+.message-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.contacts-container::-webkit-scrollbar-thumb,
+.message-container::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
+    border-radius: 3px;
+}
+
+.contacts-container::-webkit-scrollbar-thumb:hover,
+.message-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
