@@ -1,14 +1,19 @@
+
 {% load static %}
 {% load display_name %}
 {% load user_extras %}
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <title>Private Messages</title>
   <link rel="stylesheet" href="{% static "css/private_messages.css" %}">
-  <!-- Add a meta tag for better mobile rendering -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
+<body>
 <div class="flex items-center justify-center min-h-screen bg-gray-100 px-2">
+  <div class="flex items-center justify-center min-h-screen bg-gray-100 px-2">
   <div class="message-app-container flex flex-col md:flex-row w-full max-w-5xl h-[80vh] md:h-[80vh] bg-white rounded-2xl shadow-lg overflow-hidden">
     <!-- Left Sidebar - Contacts List -->
     <div id="contacts-sidebar" class="contacts-sidebar w-full md:w-80 lg:w-96 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out md:translate-x-0 {% if other_user and not active_group %}mobile-hidden -translate-x-full absolute inset-0 z-10{% else %}translate-x-0 relative{% endif %}">
@@ -332,36 +337,35 @@
     </div>
   </div>
 </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile navigation between contacts and chat
     const contactsSidebar = document.getElementById('contacts-sidebar');
     const chatArea = document.getElementById('chat-area');
     const backToContacts = document.getElementById('back-to-contacts');
-    
-    // Toggle between contacts and chat on mobile
+
     function showChatArea() {
         contactsSidebar.classList.add('-translate-x-full', 'absolute');
         contactsSidebar.classList.remove('translate-x-0', 'relative');
         chatArea.classList.remove('translate-x-full', 'absolute');
         chatArea.classList.add('translate-x-0', 'relative');
     }
-    
+
     function showContactsSidebar() {
         contactsSidebar.classList.remove('-translate-x-full', 'absolute');
         contactsSidebar.classList.add('translate-x-0', 'relative');
         chatArea.classList.add('translate-x-full', 'absolute');
         chatArea.classList.remove('translate-x-0', 'relative');
     }
-    
+
     if (backToContacts) {
         backToContacts.addEventListener('click', function(e) {
             e.preventDefault();
             showContactsSidebar();
         });
     }
-    
+
     // Auto-resize textarea
     const messageInput = document.getElementById('message-input');
     if (messageInput) {
@@ -370,15 +374,13 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // Send message on Enter (but allow Shift+Enter for new line)
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 this.closest('form').submit();
             }
         });
-        
-        // Focus the input on mobile for better UX
+
         if (window.innerWidth < 768) {
             setTimeout(() => {
                 messageInput.focus();
@@ -386,10 +388,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Auto-scroll to bottom of messages with smooth behavior
-    const messagesContainer = document.querySelector('.message-container');
+    // Auto-scroll to bottom of messages
+    const messagesContainer = document.getElementById('messages-container');
     if (messagesContainer) {
-        // Scroll to bottom after a short delay to ensure content is loaded
         setTimeout(() => {
             messagesContainer.scrollTo({
                 top: messagesContainer.scrollHeight,
@@ -402,59 +403,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const attachBtn = document.querySelector('.attachment-button');
     if (attachBtn) {
         attachBtn.addEventListener('click', function() {
-            // Create a hidden file input
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = 'image/*,video/*';
             fileInput.style.display = 'none';
-            
+
             fileInput.addEventListener('change', function() {
                 if (this.files && this.files[0]) {
-                    // Handle the file upload here
                     console.log('File selected:', this.files[0].name);
-                    // You would typically submit the form or use AJAX to upload
                 }
             });
-            
+
             document.body.appendChild(fileInput);
             fileInput.click();
             document.body.removeChild(fileInput);
         });
     }
-    
-    // Simulate typing indicator (for demo purposes)
+
+    // Typing indicator
     if (messageInput) {
         messageInput.addEventListener('focus', function() {
-            // In a real app, you would send a "user is typing" signal to the server
             document.querySelector('.typing-indicator')?.classList.remove('hidden');
         });
-        
+
         messageInput.addEventListener('blur', function() {
-            // In a real app, you would send a "user stopped typing" signal
             document.querySelector('.typing-indicator')?.classList.add('hidden');
         });
     }
-    
-    // Handle window resize
+
     function handleResize() {
         if (window.innerWidth >= 768) {
-            // Desktop view - show both sidebar and chat if available
             contactsSidebar.classList.remove('-translate-x-full', 'absolute');
             contactsSidebar.classList.add('translate-x-0', 'relative');
-            
             if (document.querySelector('#chat-area:not(.translate-x-full)')) {
                 chatArea.classList.remove('translate-x-full', 'absolute');
                 chatArea.classList.add('translate-x-0', 'relative');
             }
         }
     }
-    
+
     window.addEventListener('resize', handleResize);
-    handleResize(); // Initial check
+    handleResize();
 });
 
-// Toggle new conversation modal (placeholder function)
 function toggleNewConversation() {
     alert('New conversation feature would open here');
 }
 </script>
+</body>
+</html>
