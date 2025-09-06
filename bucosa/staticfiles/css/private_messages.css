@@ -1,0 +1,51 @@
+.message-bubble {
+  max-width: 70%;
+  padding: 0.75rem 1rem;
+  border-radius: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.message-bubble.sent {
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: white;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.message-bubble.received {
+  background: #f3f4f6;
+  color: #374151;
+  border-bottom-left-radius: 0.5rem;
+}
+
+.message-timestamp {
+  font-size: 0.7rem;
+  margin-top: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .mobile-hidden {
+    display: none;
+  }
+  
+  .message-bubble {
+    max-width: 85%;
+  }
+}
+
+@media (min-width: 768px) {
+  .message-app-container {
+    height: calc(100vh - 2rem);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    margin: 1rem;
+  }
+  
+  .contacts-sidebar {
+    border-radius: 0.5rem 0 0 0.5rem;
+  }
+  
+  .chat-area {
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+}
