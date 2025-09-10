@@ -1,3 +1,4 @@
+<!-- filepath: c:\Users\danbash\Desktop\Next\Django-Connexa-social-platform-bucosa\bucosa\templates\base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -18,7 +19,6 @@
   <link rel="stylesheet" href="{% static 'css/messages-optimized.css' %}" />
   <link rel="manifest" href="{% static 'manifest.json' %}" />
   <meta name="theme-color" content="#22223b" />
-
 
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
@@ -54,131 +54,113 @@
     }
   </script>
 </head>
-<body class=" bg-white min-h-screen transition-colors duration-300" id="body-root">
-  
+<body class="bg-white min-h-screen transition-colors duration-300" id="body-root">
+
   <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
     Install Bucosa App
   </button>
- <div class="flex min-h-screen">
-    <nav id="desktopSidebar" class="desktop-sidebar bg-white h-screen w-64 border-r border-black flex-col hidden lg:flex">
-        <div class="sidebar-nav flex-1 flex flex-col justify-between">
-        
+
+  <div class="layout">
+    <nav id="desktopSidebar">
+      <div class="sidebar-nav flex-1 flex flex-col justify-between">
         <!-- Main Navigation -->
         <div class="nav-section px-3 py-4 space-y-2">
           <a href="{% url 'activities:home' %}" 
-            class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'home' %}font-bold text-black{% else %}text-black{% endif %}">
+            class="sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <img src="{% static 'img/more.png' %}" alt="Home" class="w-6 h-6">
-            <span class="ml-3">Home</span>
+            <span class="ml-3 nav-label">Home</span>
           </a>
-
           <a href="{% url 'users:search_users' %}" 
-            class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'search_users' %}font-bold text-black{% else %}text-black{% endif %}">
-            <span class="material-icons w-6 h-6">search</span>
-            <span class="ml-3">Search</span>
+            class="sidebar-item {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}">
+            <span class="material-icons nav-icon">search</span>
+            <span class="ml-3 nav-label">Search</span>
           </a>
-
           <a href="{% url 'users:private_messages' %}" 
-            class="flex items-center p-3 rounded-xl relative {% if request.resolver_match.url_name == 'private_messages' %}font-bold text-black{% else %}text-black{% endif %}">
-            <span class="material-icons w-6 h-6">chat_bubble_outline</span>
-            <span class="ml-3">Messages</span>
+            class="sidebar-item relative {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}">
+            <span class="material-icons nav-icon">chat_bubble_outline</span>
+            <span class="ml-3 nav-label">Messages</span>
             <span id="desktop-message-badge"
-                  class="absolute top-2 right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">
+                  class="notification-badge message-badge-desktop" style="display:none;">
               0
             </span>
           </a>
-
           <a href="{% url 'notifications:notifications_list' %}" 
-            class="flex items-center p-3 rounded-xl relative {% if request.resolver_match.url_name == 'notifications_list' %}font-bold text-black{% else %}text-black{% endif %}">
-            <span class="material-icons w-6 h-6">notifications_none</span>
-            <span class="ml-3">Notifications</span>
+            class="sidebar-item relative {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}">
+            <span class="material-icons nav-icon">notifications_none</span>
+            <span class="ml-3 nav-label">Notifications</span>
             <span id="desktop-notif-badge"
-                  class="absolute top-2 right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">
+                  class="notification-badge notif-badge-desktop" style="display:none;">
               0
             </span>
           </a>
-
           <a href="{% url 'users:profile' user.id %}" 
-            class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'profile' %}font-bold text-black{% else %}text-black{% endif %}">
-            <span class="material-icons w-6 h-6">person_outline</span>
-            <span class="ml-3">Profile</span>
+            class="sidebar-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <span class="material-icons nav-icon">person_outline</span>
+            <span class="ml-3 nav-label">Profile</span>
           </a>
-        
         </div>
-
         <!-- Community Section -->
         <div class="sidebar-section px-3 py-4">
           <div class="flex items-center text-black uppercase text-sm font-bold mb-3">
             <span class="material-icons mr-2">groups</span>
             Community
           </div>
-
           <a href="{% url 'fellowship_detail' 1 %}" 
-            class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'fellowship_detail' %}font-bold text-black{% else %}text-black{% endif %}">
-            <span class="material-symbols-outlined w-6 h-6">church</span>
-            <span class="ml-3">Fellowship</span>
+            class="sidebar-item {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}">
+            <span class="material-symbols-outlined nav-icon">church</span>
+            <span class="ml-3 nav-label">Fellowship</span>
           </a>
-
           <a href="{% url 'bucosa_main' %}" 
-            class="flex items-center p-3 rounded-xl text-black">
-            <span class="material-icons w-6 h-6">groups</span>
-            <span class="ml-3">Bucosa</span>
+            class="sidebar-item">
+            <span class="material-icons nav-icon">groups</span>
+            <span class="ml-3 nav-label">Bucosa</span>
           </a>
         </div>
-
         <!-- Footer -->
         <div class="sidebar-footer px-3 py-4 border-t border-black">
           <a href="{% url 'users:user_settings' %}" 
-            class="flex items-center p-3 rounded-xl {% if request.resolver_match.url_name == 'user_settings' %}font-bold text-black{% else %}text-black{% endif %}">
-            <span class="material-icons w-6 h-6">settings</span>
-            <span class="ml-3">Settings</span>
+            class="sidebar-item {% if request.resolver_match.url_name == 'user_settings' %}active{% endif %}">
+            <span class="material-icons nav-icon">settings</span>
+            <span class="ml-3 nav-label">Settings</span>
           </a>
-
           <a href="{% url 'users:logout' %}" 
-            class="flex items-center p-3 rounded-xl text-black font-semibold">
-            <span class="material-icons w-6 h-6">logout</span>
-            <span class="ml-3">Logout</span>
+            class="sidebar-item font-semibold">
+            <span class="material-icons nav-icon">logout</span>
+            <span class="ml-3 nav-label">Logout</span>
           </a>
         </div>
-
       </div>
     </nav>
-    <div class="flex-1 flex flex-col min-h-screen w-full">
-      <div class="flex-1 px-2 py-2 lg:px-8 lg:py-6">
-        {% block content %}
-        {% endblock %}
-      </div>
-    </div>
- </div>
+    <main class="main-content">
+      {% block content %}
+      {% endblock %}
+    </main>
+  </div>
 
   <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
         <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded w-6 h-6" id="closeExpanded">
       </div>
-      <!-- Flex container with items in a single row -->
       <div class="flex flex-row items-center justify-between space-x-2 overflow-x-auto whitespace-nowrap px-1 py-1">
         <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %} flex flex-col items-center shrink-0 px-2" data-page="search">
           <span class="material-icons nav-icon text-xl">search</span>
           <span class="nav-label-mobile text-xs mt-1">Search</span>
         </a>
-
         <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %} flex flex-col items-center shrink-0 px-2" data-page="fellowship">
           <span class="material-symbols-outlined nav-icon text-xl">church</span>
           <span class="nav-label-mobile text-xs mt-1">Fellowship</span>
         </a>
-
         <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0 px-2" data-page="bucosa-main">
           <span class="material-icons nav-icon text-xl">groups</span>
           <span class="nav-label-mobile text-xs mt-1">Bucosa Main</span>
         </a>
-
         <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0 px-2" data-page="settings">
           <span class="material-icons nav-icon text-xl">settings</span>
           <span class="nav-label-mobile text-xs mt-1">Settings</span>
         </a>
       </div>
     </div>
-
     <div class="nav-main-container py-1">
       <a href="{% url 'activities:home' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" data-page="home">
         <div class="nav-item-content">
@@ -186,20 +168,17 @@
           <span class="nav-label-mobile text-xs mt-0.5">Home</span>
         </div>
       </a>
-      
       <a href="{% url 'users:profile' user.id %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-page="profile">
         <div class="nav-item-content">
           <span class="material-icons nav-icon text-lg">person_outline</span>
           <span class="nav-label-mobile text-xs mt-0.5">User</span>
         </div>
       </a>
-
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <div class="nav-item-content">
           <img src="{% static 'img/more.png' %}" class="mobile-menu-icon w-8 h-8">
         </div>
       </a>
-
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
         <div class="nav-item-content" style="position:relative;">
           <span class="material-icons nav-icon text-lg">chat_bubble_outline</span>
@@ -207,7 +186,6 @@
           <span class="notification-badge message-badge-mobile" id="mobile-message-badge" style="display:none;position:absolute;top:-6px;right:-8px;background:#e53e3e;color:#fff;font-size:0.65rem;padding:1px 5px;border-radius:999px;min-width:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.10);font-weight:600;">0</span>
         </div>
       </a>
-
       <a href="{% url 'notifications:notifications_list' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}" id="mobile-notifications">
         <div class="nav-item-content" style="position:relative;">
           <span class="material-icons nav-icon text-lg">notifications_none</span>
@@ -229,7 +207,6 @@
       moreButton.addEventListener('click', function(e) {
         e.preventDefault();
         isExpanded = !isExpanded;
-        
         if (isExpanded) {
           expandedMenu.classList.add('show');
           moreButton.classList.add('active');
@@ -271,7 +248,6 @@
         const count = window.NOTIFICATION_COUNT || 0;
         updateNotificationBadges(count);
       }
-      
       // Update all notification badges
       function updateNotificationBadges(count) {
         const badges = document.querySelectorAll('.notification-badge');
@@ -284,12 +260,10 @@
           }
         });
       }
-      
       initializeNotificationBadges();
 
       // Handle notification clicks
       document.getElementById('mobile-notifications')?.addEventListener('click', function() {
-        // Mark notifications as read when clicked
         if (window.USER_IS_AUTHENTICATED) {
           fetch("{% url 'notifications:mark_notifications_read' %}", {
             method: 'POST',
@@ -302,7 +276,6 @@
       });
 
       document.getElementById('desktop-notifications')?.addEventListener('click', function() {
-        // Mark notifications as read when clicked
         if (window.USER_IS_AUTHENTICATED) {
           fetch("{% url 'notifications:mark_notifications_read' %}", {
             method: 'POST',
@@ -323,9 +296,6 @@
         }
       });
     });
-
-    // === Real-time Notifications via WebSocket ===
-    // WebSocket connection is handled in notifications.js to avoid duplicates
   </script>
   {% block extra_js %}{% endblock %}
 </body>
