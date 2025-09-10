@@ -47,7 +47,7 @@ body {
   background: #f7f8fa;
 }
 
-/* --- Mobile Sidebar Hidden --- */
+/* --- Hide Sidebar on Mobile --- */
 @media (max-width: 900px) {
   #desktopSidebar {
     display: none;
@@ -68,14 +68,137 @@ body {
   background: #fff;
   border-top: 1px solid #eee;
   display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 60px;
+  flex-direction: column;
+  width: 100vw;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
 }
 
+.nav-main-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  width: 100%;
+}
+
+.nav-item {
+  flex: 1 1 0;
+  text-align: center;
+  position: relative;
+  padding: 0.5rem 0 0.25rem 0;
+  border-radius: 1rem;
+  transition: background 0.2s, box-shadow 0.2s;
+  background: none;
+}
+
+.nav-item-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.nav-label-mobile {
+  font-size: 0.85rem;
+  color: #444;
+  font-weight: 500;
+  margin-top: 2px;
+  letter-spacing: 0.01em;
+}
+
+.nav-item.active,
+.nav-item:active {
+  background: #6366f1;
+  color: #fff;
+}
+
+.nav-item.active .nav-label-mobile,
+.nav-item:active .nav-label-mobile {
+  color: #fff;
+}
+
+.nav-item .nav-icon {
+  font-size: 1.5rem;
+  color: #6366f1;
+}
+
+.nav-item.active .nav-icon,
+.nav-item:active .nav-icon {
+  color: #fff;
+}
+
+/* More button icon */
+.mobile-menu-icon {
+  width: 28px;
+  height: 28px;
+}
+
+/* Expanded menu styles */
+.nav-expanded {
+  display: none;
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -2px 16px rgba(0,0,0,0.10);
+  padding: 20px 0 10px 0;
+  z-index: 1100;
+  animation: slideUp 0.2s;
+}
+.nav-expanded.show {
+  display: block;
+}
+@keyframes slideUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.expanded-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 16px 8px 0;
+}
+.close-expanded {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+.nav-expanded-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #64748b;
+  padding: 12px 8px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  min-width: 64px;
+}
+.nav-expanded-item:hover,
+.nav-expanded-item.active {
+  background: #f3f4f6;
+  color: #6366f1;
+}
+.nav-expanded-item .nav-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.nav-expanded-item .nav-label-mobile {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Hide mobile nav on desktop */
 @media (min-width: 901px) {
   #mobileNav {
     display: none;
+  }
+  .nav-expanded {
+    display: none !important;
   }
 }
 

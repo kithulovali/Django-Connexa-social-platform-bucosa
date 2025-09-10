@@ -3,14 +3,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  {% if FIREBASE_VAPID_KEY %}
-  <script>
-    window.FIREBASE_VAPID_KEY = "{{ FIREBASE_VAPID_KEY }}";
-  </script>
-  {% endif %}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -19,46 +13,9 @@
   <link rel="stylesheet" href="{% static 'css/messages-optimized.css' %}" />
   <link rel="manifest" href="{% static 'manifest.json' %}" />
   <meta name="theme-color" content="#22223b" />
-
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js"></script>
-
-  <script src="{% static 'js/theme-toggle.js' %}"></script>
-  <script src="{% static 'js/pwa-install.js' %}"></script>
-  <script src="{% static 'js/notifications.js' %}" defer></script>
-
-  {% if FIREBASE_CONFIG %}
-  <script>
-    window.FIREBASE_CONFIG = {{ FIREBASE_CONFIG|safe }};
-  </script>
-  {% endif %}
-
-  <script>
-    window.USER_IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
-    window.NOTIFICATION_COUNT = (
-      typeof unread_notification_count !== 'undefined' ? unread_notification_count : {{ request.user.notifications.unread.count|default:0 }}
-    );
-    window.CSRF_TOKEN = '{{ csrf_token }}';
-  </script>
-  <script src="{% static 'js/firebase-push.js' %}" defer></script>
-
   {% block extra_head %}{% endblock %}
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register("{% static 'service-worker.js' %}")
-          .then(reg => console.log("SW registered:", reg.scope))
-          .catch(err => console.error("SW registration failed:", err));
-      });
-    }
-  </script>
 </head>
 <body class="bg-white min-h-screen transition-colors duration-300" id="body-root">
-
-  <button id="pwa-install-btn" style="display:none;position:fixed;bottom:100px;right:24px;z-index:1000;background:#1976d2;color:#fff;padding:12px 24px;border:none;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:16px;cursor:pointer;">
-    Install Bucosa App
-  </button>
 
   <div class="layout">
     <nav id="desktopSidebar">
@@ -140,24 +97,28 @@
   <nav id="mobileNav" class="mobile-nav">
     <div class="nav-expanded" id="expandedMenu">
       <div class="expanded-header">
-        <img src="{% static 'img/more.png' %}" alt="Close menu" class="close-expanded w-6 h-6" id="closeExpanded">
+        <span class="material-icons close-expanded" id="closeExpanded">close</span>
       </div>
       <div class="flex flex-row items-center justify-between space-x-2 overflow-x-auto whitespace-nowrap px-1 py-1">
-        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %} flex flex-col items-center shrink-0 px-2" data-page="search">
-          <span class="material-icons nav-icon text-xl">search</span>
-          <span class="nav-label-mobile text-xs mt-1">Search</span>
+        <a href="{% url 'users:search_users' %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'search_users' %}active{% endif %}" data-page="search">
+          <span class="material-icons nav-icon">search</span>
+          <span class="nav-label-mobile">Search</span>
         </a>
-        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %} flex flex-col items-center shrink-0 px-2" data-page="fellowship">
-          <span class="material-symbols-outlined nav-icon text-xl">church</span>
-          <span class="nav-label-mobile text-xs mt-1">Fellowship</span>
+        <a href="{% url 'fellowship_detail' 1 %}" class="nav-expanded-item nav-link {% if request.resolver_match.url_name == 'fellowship_detail' %}active{% endif %}" data-page="fellowship">
+          <span class="material-symbols-outlined nav-icon">church</span>
+          <span class="nav-label-mobile">Fellowship</span>
         </a>
-        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0 px-2" data-page="bucosa-main">
-          <span class="material-icons nav-icon text-xl">groups</span>
-          <span class="nav-label-mobile text-xs mt-1">Bucosa Main</span>
+        <a href="{% url 'bucosa_main' %}" class="nav-expanded-item nav-link" data-page="bucosa-main">
+          <span class="material-icons nav-icon">groups</span>
+          <span class="nav-label-mobile">Bucosa</span>
         </a>
-        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link flex flex-col items-center shrink-0 px-2" data-page="settings">
-          <span class="material-icons nav-icon text-xl">settings</span>
-          <span class="nav-label-mobile text-xs mt-1">Settings</span>
+        <a href="{% url 'users:user_settings' %}" class="nav-expanded-item nav-link" data-page="settings">
+          <span class="material-icons nav-icon">settings</span>
+          <span class="nav-label-mobile">Settings</span>
+        </a>
+        <a href="{% url 'users:logout' %}" class="nav-expanded-item nav-link" data-page="logout">
+          <span class="material-icons nav-icon">logout</span>
+          <span class="nav-label-mobile">Logout</span>
         </a>
       </div>
     </div>
@@ -176,7 +137,7 @@
       </a>
       <a href="#" class="nav-item nav-more-btn" id="moreButton">
         <div class="nav-item-content">
-          <img src="{% static 'img/more.png' %}" class="mobile-menu-icon w-8 h-8">
+          <span class="material-icons mobile-menu-icon">more_horiz</span>
         </div>
       </a>
       <a href="{% url 'users:private_messages' %}" class="nav-item nav-link {% if request.resolver_match.url_name == 'private_messages' %}active{% endif %}" data-page="messages">
@@ -230,60 +191,6 @@
           expandedMenu.classList.remove('show');
           moreButton.classList.remove('active');
           isExpanded = false;
-        }
-      });
-
-      // Handle active states for main nav items
-      document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(item => {
-        item.addEventListener('click', function() {
-          document.querySelectorAll('.nav-item:not(.nav-more-btn)').forEach(navItem => {
-            navItem.classList.remove('active');
-          });
-          this.classList.add('active');
-        });
-      });
-
-      // Initialize notification badges
-      function initializeNotificationBadges() {
-        const count = window.NOTIFICATION_COUNT || 0;
-        updateNotificationBadges(count);
-      }
-      // Update all notification badges
-      function updateNotificationBadges(count) {
-        const badges = document.querySelectorAll('.notification-badge');
-        badges.forEach(badge => {
-          if (count > 0) {
-            badge.textContent = count;
-            badge.style.display = 'inline-flex';
-          } else {
-            badge.style.display = 'none';
-          }
-        });
-      }
-      initializeNotificationBadges();
-
-      // Handle notification clicks
-      document.getElementById('mobile-notifications')?.addEventListener('click', function() {
-        if (window.USER_IS_AUTHENTICATED) {
-          fetch("{% url 'notifications:mark_notifications_read' %}", {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': window.CSRF_TOKEN,
-              'Content-Type': 'application/json'
-            }
-          }).then(() => updateNotificationBadges(0));
-        }
-      });
-
-      document.getElementById('desktop-notifications')?.addEventListener('click', function() {
-        if (window.USER_IS_AUTHENTICATED) {
-          fetch("{% url 'notifications:mark_notifications_read' %}", {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': window.CSRF_TOKEN,
-              'Content-Type': 'application/json'
-            }
-          }).then(() => updateNotificationBadges(0));
         }
       });
 
