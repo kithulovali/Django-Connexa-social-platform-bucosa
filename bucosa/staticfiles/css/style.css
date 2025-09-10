@@ -115,7 +115,6 @@ html, body {
 
 .nav-item.active,
 .nav-item:active {
-  background: #6366f1;
   color: #fff;
 }
 
@@ -126,7 +125,6 @@ html, body {
 
 .nav-item .nav-icon {
   font-size: 1.5rem;
-  color: #6366f1;
 }
 
 .nav-item.active .nav-icon,
@@ -186,7 +184,6 @@ html, body {
 .nav-expanded-item:hover,
 .nav-expanded-item.active {
   background: #f3f4f6;
-  color: #6366f1;
 }
 .nav-expanded-item .nav-icon {
   font-size: 24px;
@@ -222,7 +219,6 @@ html, body {
 
 .sidebar-item:hover,
 .sidebar-item.active {
-  background: #6366f1;
   color: #fff;
 }
 
