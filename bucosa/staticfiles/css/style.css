@@ -113,24 +113,11 @@ html, body {
   letter-spacing: 0.01em;
 }
 
-.nav-item.active,
-.nav-item:active {
-  color: #fff;
-}
-
-.nav-item.active .nav-label-mobile,
-.nav-item:active .nav-label-mobile {
-  color: #fff;
-}
 
 .nav-item .nav-icon {
   font-size: 1.5rem;
 }
 
-.nav-item.active .nav-icon,
-.nav-item:active .nav-icon {
-  color: #fff;
-}
 
 /* More button icon */
 .mobile-menu-icon {
